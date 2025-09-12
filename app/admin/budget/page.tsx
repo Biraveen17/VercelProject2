@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import type React from "react"
 
 import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,9 +13,29 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { isAuthenticated, logout } from "@/lib/auth"
 import { getBudgetItems, addBudgetItem, updateBudgetItem, deleteBudgetItem, type BudgetItem } from "@/lib/database"
-import { Plus, Edit, Trash2, Download, Filter, ArrowUpDown, LogOut, ArrowLeft, BarChart3, Table } from "lucide-react"
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Download,
+  Filter,
+  ArrowUpDown,
+  LogOut,
+  ArrowLeft,
+  BarChart3,
+  Table,
+  GripVertical,
+} from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+
+type GroupingField = "category1" | "category2" | "itemName" | "vendor"
+
+interface GroupingConfig {
+  id: string
+  field: GroupingField
+  label: string
+}
 
 export default function BudgetTrackerPage() {
   const router = useRouter()
@@ -28,6 +48,15 @@ export default function BudgetTrackerPage() {
   const [sortField, setSortField] = useState<keyof BudgetItem>("lastUpdated")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
+
+  const [groupingOrder, setGroupingOrder] = useState<GroupingConfig[]>([
+    { id: "1", field: "category1", label: "Category 1" },
+    { id: "2", field: "category2", label: "Category 2" },
+    { id: "3", field: "itemName", label: "Item Name" },
+    { id: "4", field: "vendor", label: "Vendor" },
+  ])
+  const [draggedItem, setDraggedItem] = useState<string | null>(null)
+
   const [filters, setFilters] = useState({
     category1: "",
     category2: "",
@@ -69,6 +98,176 @@ export default function BudgetTrackerPage() {
     }
   }
 
+  const handleDragStart = (e: React.DragEvent, itemId: string) => {
+    setDraggedItem(itemId)
+    e.dataTransfer.effectAllowed = "move"
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+  }
+
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault()
+    if (!draggedItem || draggedItem === targetId) return
+
+    const draggedIndex = groupingOrder.findIndex((item) => item.id === draggedItem)
+    const targetIndex = groupingOrder.findIndex((item) => item.id === targetId)
+
+    if (draggedIndex === -1 || targetIndex === -1) return
+
+    const newOrder = [...groupingOrder]
+    const [draggedConfig] = newOrder.splice(draggedIndex, 1)
+    newOrder.splice(targetIndex, 0, draggedConfig)
+
+    setGroupingOrder(newOrder)
+    setDraggedItem(null)
+    // Reset expanded groups when order changes
+    setExpandedGroups(new Set())
+  }
+
+  const handleDragEnd = () => {
+    setDraggedItem(null)
+  }
+
+  const pivotData = useMemo(() => {
+    const createNestedGroups = (items: BudgetItem[], groupFields: GroupingField[], level = 0): any => {
+      if (level >= groupFields.length) {
+        // Base case: return aggregated values
+        return items.reduce(
+          (acc, item) => {
+            acc.planned += item.status === "planned" ? item.cost : 0
+            acc.booked += item.status === "booked" ? item.cost : 0
+            acc.paid += item.status === "paid" ? item.cost : 0
+            acc.items = items
+            return acc
+          },
+          { planned: 0, booked: 0, paid: 0, items: [] },
+        )
+      }
+
+      const currentField = groupFields[level]
+      const grouped: Record<string, any> = {}
+
+      items.forEach((item) => {
+        const key = item[currentField]
+        if (!grouped[key]) {
+          grouped[key] = []
+        }
+        grouped[key].push(item)
+      })
+
+      // Recursively group by next level
+      Object.keys(grouped).forEach((key) => {
+        grouped[key] = createNestedGroups(grouped[key], groupFields, level + 1)
+      })
+
+      return grouped
+    }
+
+    return createNestedGroups(
+      budgetItems,
+      groupingOrder.map((g) => g.field),
+    )
+  }, [budgetItems, groupingOrder])
+
+  const renderPivotRows = (data: any, groupFields: GroupingField[], level = 0, parentKey = ""): React.ReactNode[] => {
+    const rows: React.ReactNode[] = []
+
+    if (level >= groupFields.length) {
+      // This shouldn't happen in normal flow
+      return rows
+    }
+
+    Object.entries(data).forEach(([key, value]) => {
+      const fullKey = parentKey ? `${parentKey}-${key}` : key
+      const isExpanded = expandedGroups.has(fullKey)
+      const indent = level * 24 // 24px per level
+
+      if (level === groupFields.length - 1 || (typeof value === "object" && "planned" in value)) {
+        // Leaf node - show aggregated data
+        const totals = typeof value === "object" && "planned" in value ? value : { planned: 0, booked: 0, paid: 0 }
+        const totalAmount = totals.planned + totals.booked + totals.paid
+
+        rows.push(
+          <tr key={fullKey} className="border-b hover:bg-muted/25">
+            <td className="p-4" style={{ paddingLeft: `${16 + indent}px` }}>
+              <div className="flex items-center gap-2">
+                {level > 0 && <span className="text-muted-foreground">{"└─".repeat(level)}</span>}
+                {key}
+              </div>
+            </td>
+            <td className="p-4 text-red-600">£{totals.planned.toLocaleString()}</td>
+            <td className="p-4 text-yellow-600">£{totals.booked.toLocaleString()}</td>
+            <td className="p-4 text-green-600">£{totals.paid.toLocaleString()}</td>
+            <td className="p-4 font-medium">£{totalAmount.toLocaleString()}</td>
+          </tr>,
+        )
+      } else {
+        // Group node - calculate totals and show expand/collapse
+        const calculateGroupTotals = (groupData: any): { planned: number; booked: number; paid: number } => {
+          const totals = { planned: 0, booked: 0, paid: 0 }
+
+          const traverse = (obj: any) => {
+            if (typeof obj === "object" && "planned" in obj) {
+              totals.planned += obj.planned
+              totals.booked += obj.booked
+              totals.paid += obj.paid
+            } else if (typeof obj === "object") {
+              Object.values(obj).forEach(traverse)
+            }
+          }
+
+          traverse(groupData)
+          return totals
+        }
+
+        const groupTotals = calculateGroupTotals(value)
+        const totalAmount = groupTotals.planned + groupTotals.booked + groupTotals.paid
+        const childCount = Object.keys(value).length
+
+        rows.push(
+          <tr
+            key={fullKey}
+            className="border-b hover:bg-muted/50 cursor-pointer bg-muted/30"
+            onClick={() => {
+              const newExpanded = new Set(expandedGroups)
+              if (newExpanded.has(fullKey)) {
+                newExpanded.delete(fullKey)
+              } else {
+                newExpanded.add(fullKey)
+              }
+              setExpandedGroups(newExpanded)
+            }}
+          >
+            <td className="p-4" style={{ paddingLeft: `${16 + indent}px` }}>
+              <div className="flex items-center gap-2">
+                {level > 0 && <span className="text-muted-foreground">{"└─".repeat(level)}</span>}
+                <span className="text-lg">{isExpanded ? "▼" : "▶"}</span>
+                <span className="font-bold">{key}</span>
+                <span className="text-sm text-muted-foreground">
+                  ({childCount} {groupFields[level + 1] ? groupingOrder[level + 1].label.toLowerCase() + "s" : "items"})
+                </span>
+              </div>
+            </td>
+            <td className="p-4 text-red-600 font-semibold">£{groupTotals.planned.toLocaleString()}</td>
+            <td className="p-4 text-yellow-600 font-semibold">£{groupTotals.booked.toLocaleString()}</td>
+            <td className="p-4 text-green-600 font-semibold">£{groupTotals.paid.toLocaleString()}</td>
+            <td className="p-4 font-bold">£{totalAmount.toLocaleString()}</td>
+          </tr>,
+        )
+
+        // Render children if expanded
+        if (isExpanded) {
+          rows.push(...renderPivotRows(value, groupFields, level + 1, fullKey))
+        }
+      }
+    })
+
+    return rows
+  }
+
   const filteredAndSortedItems = useMemo(() => {
     const filtered = budgetItems.filter((item) => {
       if (filters.category1 && !item.category1.toLowerCase().includes(filters.category1.toLowerCase())) return false
@@ -98,22 +297,6 @@ export default function BudgetTrackerPage() {
     const booked = budgetItems.filter((item) => item.status === "booked").reduce((sum, item) => sum + item.cost, 0)
     const paid = budgetItems.filter((item) => item.status === "paid").reduce((sum, item) => sum + item.cost, 0)
     return { planned, booked, paid, total: planned + booked + paid }
-  }, [budgetItems])
-
-  const pivotData = useMemo(() => {
-    const grouped: Record<string, Record<string, { planned: number; booked: number; paid: number }>> = {}
-
-    budgetItems.forEach((item) => {
-      if (!grouped[item.category1]) {
-        grouped[item.category1] = {}
-      }
-      if (!grouped[item.category1][item.category2]) {
-        grouped[item.category1][item.category2] = { planned: 0, booked: 0, paid: 0 }
-      }
-      grouped[item.category1][item.category2][item.status] += item.cost
-    })
-
-    return grouped
   }, [budgetItems])
 
   const handleAddItem = (e: React.FormEvent) => {
@@ -189,29 +372,6 @@ export default function BudgetTrackerPage() {
     a.download = "wedding-budget.csv"
     a.click()
     window.URL.revokeObjectURL(url)
-  }
-
-  const getCategoryTotals = (category1: string) => {
-    const category2Data = pivotData[category1] || {}
-    const totals = { planned: 0, booked: 0, paid: 0 }
-
-    Object.values(category2Data).forEach((amounts) => {
-      totals.planned += amounts.planned
-      totals.booked += amounts.booked
-      totals.paid += amounts.paid
-    })
-
-    return totals
-  }
-
-  const toggleGroup = (category1: string) => {
-    const newExpanded = new Set(expandedGroups)
-    if (newExpanded.has(category1)) {
-      newExpanded.delete(category1)
-    } else {
-      newExpanded.add(category1)
-    }
-    setExpandedGroups(newExpanded)
   }
 
   if (loading) {
@@ -421,6 +581,44 @@ export default function BudgetTrackerPage() {
           </div>
         </div>
 
+        {viewMode === "pivot" && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Pivot Grouping Configuration
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Drag and drop to reorder grouping levels. Data will be grouped in the order shown below.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {groupingOrder.map((config, index) => (
+                  <div
+                    key={config.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, config.id)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, config.id)}
+                    onDragEnd={handleDragEnd}
+                    className={`flex items-center gap-3 p-3 bg-muted/50 rounded-lg border-2 border-dashed cursor-move hover:bg-muted transition-colors ${
+                      draggedItem === config.id ? "opacity-50" : ""
+                    }`}
+                  >
+                    <GripVertical className="w-4 h-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{index + 1}</Badge>
+                      <span className="font-medium">{config.label}</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground ml-auto">Group Level {index + 1}</div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Filters */}
         <Card className="mb-6">
           <CardHeader>
@@ -613,19 +811,21 @@ export default function BudgetTrackerPage() {
           </Card>
         )}
 
-        {/* Pivot View */}
         {viewMode === "pivot" && (
           <Card>
             <CardHeader>
-              <CardTitle>Budget Pivot Table</CardTitle>
-              <p className="text-sm text-muted-foreground">Click on Category 1 rows to expand/collapse subcategories</p>
+              <CardTitle>Dynamic Budget Pivot Table</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Data grouped by: {groupingOrder.map((g) => g.label).join(" → ")}. Click on group rows to
+                expand/collapse.
+              </p>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted">
                     <tr>
-                      <th className="p-4 text-left">Category</th>
+                      <th className="p-4 text-left">Group</th>
                       <th className="p-4 text-left text-red-600">Planned</th>
                       <th className="p-4 text-left text-yellow-600">Booked</th>
                       <th className="p-4 text-left text-green-600">Paid</th>
@@ -633,59 +833,10 @@ export default function BudgetTrackerPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {Object.entries(pivotData).map(([category1, category2Data]) => {
-                      const categoryTotals = getCategoryTotals(category1)
-                      const isExpanded = expandedGroups.has(category1)
-                      const totalAmount = categoryTotals.planned + categoryTotals.booked + categoryTotals.paid
-
-                      return (
-                        <React.Fragment key={category1}>
-                          <tr
-                            className="border-b hover:bg-muted/50 cursor-pointer bg-muted/30"
-                            onClick={() => toggleGroup(category1)}
-                          >
-                            <td className="p-4 font-bold">
-                              <div className="flex items-center gap-2">
-                                <span className="text-lg">{isExpanded ? "▼" : "▶"}</span>
-                                {category1}
-                                <span className="text-sm text-muted-foreground">
-                                  ({Object.keys(category2Data).length} subcategories)
-                                </span>
-                              </div>
-                            </td>
-                            <td className="p-4 text-red-600 font-semibold">
-                              £{categoryTotals.planned.toLocaleString()}
-                            </td>
-                            <td className="p-4 text-yellow-600 font-semibold">
-                              £{categoryTotals.booked.toLocaleString()}
-                            </td>
-                            <td className="p-4 text-green-600 font-semibold">
-                              £{categoryTotals.paid.toLocaleString()}
-                            </td>
-                            <td className="p-4 font-bold">£{totalAmount.toLocaleString()}</td>
-                          </tr>
-
-                          {isExpanded &&
-                            Object.entries(category2Data).map(([category2, amounts]) => {
-                              const subTotal = amounts.planned + amounts.booked + amounts.paid
-                              return (
-                                <tr key={`${category1}-${category2}`} className="border-b hover:bg-muted/25">
-                                  <td className="p-4 pl-12">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-muted-foreground">└─</span>
-                                      {category2}
-                                    </div>
-                                  </td>
-                                  <td className="p-4 text-red-600">£{amounts.planned.toLocaleString()}</td>
-                                  <td className="p-4 text-yellow-600">£{amounts.booked.toLocaleString()}</td>
-                                  <td className="p-4 text-green-600">£{amounts.paid.toLocaleString()}</td>
-                                  <td className="p-4 font-medium">£{subTotal.toLocaleString()}</td>
-                                </tr>
-                              )
-                            })}
-                        </React.Fragment>
-                      )
-                    })}
+                    {renderPivotRows(
+                      pivotData,
+                      groupingOrder.map((g) => g.field),
+                    )}
 
                     <tr className="border-t-2 border-primary bg-primary/10">
                       <td className="p-4 font-bold text-lg">Grand Total</td>
