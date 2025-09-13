@@ -68,22 +68,6 @@ export function addGuest(guest: Omit<Guest, "id" | "lastUpdated">): void {
 
   if (guest.type === "group" && guest.maxGroupSize) {
     guests.push(newGuest)
-
-    // Create individual guest entries for each slot in the group
-    for (let i = 0; i < guest.maxGroupSize; i++) {
-      const memberName = guest.groupMembers?.[i]?.trim() || `Guest ${i + 1}`
-      const memberGuest: Guest = {
-        id: `${Date.now()}_member_${i}`,
-        type: "individual",
-        guestName: memberName,
-        groupName: guest.groupName,
-        rsvpStatus: "pending",
-        events: [],
-        side: guest.side,
-        lastUpdated: new Date().toISOString(),
-      }
-      guests.push(memberGuest)
-    }
   } else {
     guests.push(newGuest)
   }
@@ -238,15 +222,19 @@ export function findGuestForRSVP(name: string): Guest | null {
   const guests = getGuests()
   const normalizedName = name.toLowerCase().trim()
 
-  // First check individual guests
   const individual = guests.find((g) => g.type === "individual" && g.guestName?.toLowerCase().trim() === normalizedName)
 
   if (individual) return individual
 
-  // Then check group names
   const group = guests.find((g) => g.type === "group" && g.groupName?.toLowerCase().trim() === normalizedName)
 
-  return group || null
+  if (group) return group
+
+  const groupWithMember = guests.find(
+    (g) => g.type === "group" && g.groupMembers?.some((member) => member.toLowerCase().trim() === normalizedName),
+  )
+
+  return groupWithMember || null
 }
 
 export function submitGroupRSVP(
@@ -261,10 +249,8 @@ export function submitGroupRSVP(
 ): void {
   const guests = getGuests()
 
-  // Remove the original group entry
   const filteredGuests = guests.filter((g) => g.id !== groupGuest.id)
 
-  // Create individual guest entries for each group member
   const filledMembers = rsvpData.groupMembers.filter((member) => member.trim() !== "")
 
   filledMembers.forEach((memberName, index) => {
@@ -277,6 +263,7 @@ export function submitGroupRSVP(
       events: rsvpData.isAttending ? rsvpData.events : [],
       dietaryRequirements: rsvpData.isAttending ? rsvpData.dietaryRequirements : "",
       questions: rsvpData.questions,
+      side: groupGuest.side, // Preserve the side from the original group
       notes: `Group member ${index + 1} of ${groupGuest.groupName}`,
       lastUpdated: new Date().toISOString(),
     }
@@ -284,6 +271,23 @@ export function submitGroupRSVP(
   })
 
   saveGuests(filteredGuests)
+}
+
+export function submitIndividualRSVP(
+  guest: Guest,
+  rsvpData: {
+    isAttending: boolean
+    events: ("ceremony" | "reception")[]
+    dietaryRequirements: string
+    questions: string
+  },
+): void {
+  updateGuest(guest.id, {
+    rsvpStatus: rsvpData.isAttending ? "attending" : "not-attending",
+    events: rsvpData.isAttending ? rsvpData.events : [],
+    dietaryRequirements: rsvpData.isAttending ? rsvpData.dietaryRequirements : "",
+    questions: rsvpData.questions,
+  })
 }
 
 // Admin login history management
@@ -325,4 +329,14 @@ export function updateAdminLoginHistory(): void {
       changes: changes,
     }),
   )
+}
+
+// Additional functions for group management
+export function isGroupHeader(guest: Guest): boolean {
+  return guest.type === "group" && !guest.guestName && !!guest.groupName && !!guest.maxGroupSize
+}
+
+export function getGroupHeader(groupName: string): Guest | null {
+  const guests = getGuests()
+  return guests.find((g) => g.type === "group" && g.groupName === groupName && !g.guestName) || null
 }

@@ -3,8 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { findGuestForRSVP, updateGuest, submitGroupRSVP, getGuests, type Guest } from "@/lib/database"
-import { Heart } from "lucide-react"
+import { submitIndividualRSVP, submitGroupRSVP, getGuests, type Guest } from "@/lib/database"
 import { useLanguage } from "@/lib/language-context"
 
 export default function RSVPPage() {
@@ -24,43 +23,66 @@ export default function RSVPPage() {
     e.preventDefault()
     setError("")
 
-    const guest = findGuestForRSVP(guestName)
-    if (guest) {
-      if (guest.rsvpStatus && guest.rsvpStatus !== "pending") {
+    const allGuests = getGuests()
+    const normalizedName = guestName.toLowerCase().trim()
+
+    // Check if this exact name already exists as an individual guest
+    const individualGuest = allGuests.find(
+      (g: Guest) => g.type === "individual" && g.guestName?.toLowerCase().trim() === normalizedName,
+    )
+
+    if (individualGuest) {
+      // Found individual guest - show individual RSVP form
+      if (individualGuest.rsvpStatus && individualGuest.rsvpStatus !== "pending") {
         setError("You have already submitted your RSVP. If you need to make changes, please contact us directly.")
         return
       }
-
-      setFoundGuest(guest)
-      if (guest.type === "group" && guest.maxGroupSize && guest.maxGroupSize > 1) {
-        const preFilledMembers = guest.groupMembers || new Array(guest.maxGroupSize).fill("")
-        setGroupMembers(preFilledMembers)
-      }
+      setFoundGuest(individualGuest)
       setStep(2)
-    } else {
-      const allGuests = getGuests()
-      const groupWithMember = allGuests.find(
-        (g: Guest) =>
-          g.type === "group" &&
-          g.groupMembers &&
-          g.groupMembers.some((member: string) => member.toLowerCase().trim() === guestName.toLowerCase().trim()),
-      )
-
-      if (groupWithMember) {
-        if (groupWithMember.rsvpStatus && groupWithMember.rsvpStatus !== "pending") {
-          setError("Your group has already submitted an RSVP. If you need to make changes, please contact us directly.")
-          return
-        }
-
-        setFoundGuest(groupWithMember)
-        // Pre-fill the group members with existing names
-        const preFilledMembers = groupWithMember.groupMembers || new Array(groupWithMember.maxGroupSize).fill("")
-        setGroupMembers(preFilledMembers)
-        setStep(2)
-      } else {
-        setError("Guest name not found. Please check the spelling or contact us for assistance.")
-      }
+      return
     }
+
+    // Check if this name matches a group name
+    const groupByName = allGuests.find(
+      (g: Guest) => g.type === "group" && g.groupName?.toLowerCase().trim() === normalizedName,
+    )
+
+    if (groupByName) {
+      // Found group by name - show group RSVP form
+      if (groupByName.rsvpStatus && groupByName.rsvpStatus !== "pending") {
+        setError("Your group has already submitted an RSVP. If you need to make changes, please contact us directly.")
+        return
+      }
+      setFoundGuest(groupByName)
+      const preFilledMembers = groupByName.groupMembers || new Array(groupByName.maxGroupSize).fill("")
+      setGroupMembers(preFilledMembers)
+      setStep(2)
+      return
+    }
+
+    // Check if this name matches any group member
+    const groupWithMember = allGuests.find(
+      (g: Guest) =>
+        g.type === "group" &&
+        g.groupMembers &&
+        g.groupMembers.some((member: string) => member.toLowerCase().trim() === normalizedName),
+    )
+
+    if (groupWithMember) {
+      // Found as group member - show group RSVP form
+      if (groupWithMember.rsvpStatus && groupWithMember.rsvpStatus !== "pending") {
+        setError("Your group has already submitted an RSVP. If you need to make changes, please contact us directly.")
+        return
+      }
+      setFoundGuest(groupWithMember)
+      const preFilledMembers = groupWithMember.groupMembers || new Array(groupWithMember.maxGroupSize).fill("")
+      setGroupMembers(preFilledMembers)
+      setStep(2)
+      return
+    }
+
+    // No match found
+    setError("Guest name not found. Please check the spelling or contact us for assistance.")
   }
 
   const handleRSVPSubmit = (e: React.FormEvent) => {
@@ -94,14 +116,12 @@ export default function RSVPPage() {
         groupMembers: groupMembers,
       })
     } else {
-      // Handle individual guest RSVP
-      const updates: Partial<Guest> = {
-        rsvpStatus: isAttending === "yes" ? "attending" : "not-attending",
+      submitIndividualRSVP(foundGuest, {
+        isAttending: isAttending === "yes",
         events: isAttending === "yes" ? (events as ("ceremony" | "reception")[]) : [],
         dietaryRequirements: isAttending === "yes" ? dietaryRequirements : "",
         questions: questions,
-      }
-      updateGuest(foundGuest.id, updates)
+      })
     }
 
     setSuccess(true)
@@ -113,7 +133,11 @@ export default function RSVPPage() {
       <div className="min-h-screen py-12 px-4 flex items-center justify-center">
         <Card className="max-w-md mx-auto text-center">
           <CardContent className="p-8">
-            <Heart className="w-16 h-16 text-accent mx-auto mb-4" />
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <svg className="w-16 h-16 text-accent" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </div>
             <h2 className="text-2xl font-bold text-primary mb-4">{t("thankYouTitle")}</h2>
             <p className="text-muted-foreground mb-6">
               {isAttending === "yes" ? t("thankYouAttending") : t("thankYouNotAttending")}
