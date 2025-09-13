@@ -577,48 +577,69 @@ export default function GuestManagementPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Individual Guests */}
-                  {guests
-                    .filter((guest) => guest.type === "individual")
-                    .map((guest) => (
-                      <tr key={guest.id} className="border-b hover:bg-muted/50">
-                        <td className="p-4">{guest.guestName}</td>
-                        <td className="p-4">Individual</td>
-                        <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
-                        <td className="p-4">{guest.rsvpStatus}</td>
-                        <td className="p-4">{guest.events?.join(", ") || "None"}</td>
-                        <td className="p-4 max-w-xs">
-                          <div className="truncate" title={guest.dietaryRequirements}>
-                            {guest.dietaryRequirements || "-"}
-                          </div>
-                        </td>
-                        <td className="p-4 max-w-xs">
-                          <div className="truncate" title={guest.questions}>
-                            {guest.questions || "-"}
-                          </div>
-                        </td>
-                        <td className="p-4 max-w-xs">
-                          <div className="truncate" title={guest.notes}>
-                            {guest.notes || "-"}
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => handleEditGuest(guest)}>
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDeleteGuest(guest.id)}
-                              className="text-destructive hover:text-destructive"
+                  {/* Individual Guests Header */}
+                  {groupedGuests.ungrouped.length > 0 && (
+                    <tr className="bg-blue-100 dark:bg-blue-900/20">
+                      <td colSpan={9} className="p-3 font-semibold text-blue-800 dark:text-blue-200">
+                        Individual ({groupedGuests.ungrouped.length} guests)
+                      </td>
+                    </tr>
+                  )}
+
+                  {groupedGuests.ungrouped.map((guest) => (
+                    <tr key={guest.id} className="border-b hover:bg-muted/50">
+                      <td className="p-4">{guest.guestName}</td>
+                      <td className="p-4">Individual</td>
+                      <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
+                      <td className="p-4">{guest.rsvpStatus}</td>
+                      <td className="p-4">
+                        <div className="flex gap-1 flex-wrap">
+                          {guest.events?.map((event) => (
+                            <span
+                              key={event}
+                              className={`px-2 py-1 text-xs rounded-full ${
+                                event === "ceremony"
+                                  ? "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200"
+                                  : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200"
+                              }`}
                             >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                              {event === "ceremony" ? "Wedding" : "Reception"}
+                            </span>
+                          )) || <span className="text-muted-foreground">None</span>}
+                        </div>
+                      </td>
+                      <td className="p-4 max-w-xs">
+                        <div className="truncate" title={guest.dietaryRequirements}>
+                          {guest.dietaryRequirements || "-"}
+                        </div>
+                      </td>
+                      <td className="p-4 max-w-xs">
+                        <div className="truncate" title={guest.questions}>
+                          {guest.questions || "-"}
+                        </div>
+                      </td>
+                      <td className="p-4 max-w-xs">
+                        <div className="truncate" title={guest.notes}>
+                          {guest.notes || "-"}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => handleEditGuest(guest)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteGuest(guest.id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
 
                   {/* Group Guests */}
                   {Object.entries(groupedGuests.groups).map(([groupName, groupMembers]) => {
@@ -638,7 +659,22 @@ export default function GuestManagementPage() {
                             <td className="p-4">{groupName}</td>
                             <td className="p-4">{member.side === "bride" ? "Bride" : "Groom"}</td>
                             <td className="p-4">{member.rsvpStatus}</td>
-                            <td className="p-4">{member.events?.join(", ") || "None"}</td>
+                            <td className="p-4">
+                              <div className="flex gap-1 flex-wrap">
+                                {member.events?.map((event) => (
+                                  <span
+                                    key={event}
+                                    className={`px-2 py-1 text-xs rounded-full ${
+                                      event === "ceremony"
+                                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200"
+                                        : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200"
+                                    }`}
+                                  >
+                                    {event === "ceremony" ? "Wedding" : "Reception"}
+                                  </span>
+                                )) || <span className="text-muted-foreground">None</span>}
+                              </div>
+                            </td>
                             <td className="p-4 max-w-xs">
                               <div className="truncate" title={member.dietaryRequirements}>
                                 {member.dietaryRequirements || "-"}
@@ -674,47 +710,6 @@ export default function GuestManagementPage() {
                       </React.Fragment>
                     )
                   })}
-
-                  {/* Ungrouped Guests */}
-                  {groupedGuests.ungrouped.map((guest) => (
-                    <tr key={guest.id} className="border-b hover:bg-muted/50">
-                      <td className="p-4">{guest.guestName}</td>
-                      <td className="p-4">Individual</td>
-                      <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
-                      <td className="p-4">{guest.rsvpStatus}</td>
-                      <td className="p-4">{guest.events?.join(", ") || "None"}</td>
-                      <td className="p-4 max-w-xs">
-                        <div className="truncate" title={guest.dietaryRequirements}>
-                          {guest.dietaryRequirements || "-"}
-                        </div>
-                      </td>
-                      <td className="p-4 max-w-xs">
-                        <div className="truncate" title={guest.questions}>
-                          {guest.questions || "-"}
-                        </div>
-                      </td>
-                      <td className="p-4 max-w-xs">
-                        <div className="truncate" title={guest.notes}>
-                          {guest.notes || "-"}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => handleEditGuest(guest)}>
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteGuest(guest.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
                 </tbody>
               </table>
             </div>
