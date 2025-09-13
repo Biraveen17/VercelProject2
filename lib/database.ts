@@ -34,6 +34,8 @@ export interface WeddingSettings {
   receptionDate: string
   venue: string
   location: string
+  allowVideoDownload: boolean
+  allowVideoFullscreen: boolean
 }
 
 // Default settings
@@ -45,6 +47,8 @@ const DEFAULT_SETTINGS: WeddingSettings = {
   receptionDate: "2026-03-28",
   venue: "Paphos, Cyprus",
   location: "Cyprus",
+  allowVideoDownload: true,
+  allowVideoFullscreen: true,
 }
 
 // Guest management

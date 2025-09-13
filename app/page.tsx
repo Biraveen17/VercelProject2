@@ -9,13 +9,21 @@ import { Heart, MapPin, Calendar, Users } from "lucide-react"
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
 import { useEffect, useState } from "react"
+import { getSettings } from "@/lib/database"
 
 export default function HomePage() {
   const { t } = useLanguage()
   const [proposalVideoUrl, setProposalVideoUrl] = useState<string | null>(null)
   const [videoDimensions, setVideoDimensions] = useState<{ width: number; height: number } | null>(null)
+  const [videoSettings, setVideoSettings] = useState({ allowVideoDownload: true, allowVideoFullscreen: true })
 
   useEffect(() => {
+    const settings = getSettings()
+    setVideoSettings({
+      allowVideoDownload: settings.allowVideoDownload,
+      allowVideoFullscreen: settings.allowVideoFullscreen,
+    })
+
     const fetchProposalVideo = async () => {
       try {
         const response = await fetch("/api/list-blobs")
@@ -59,6 +67,15 @@ export default function HomePage() {
                   className="w-full h-auto rounded-lg shadow-lg"
                   poster="/wedding-logo.png"
                   onLoadedMetadata={handleVideoLoadedMetadata}
+                  controlsList={
+                    !videoSettings.allowVideoDownload && !videoSettings.allowVideoFullscreen
+                      ? "nodownload nofullscreen"
+                      : !videoSettings.allowVideoDownload
+                        ? "nodownload"
+                        : !videoSettings.allowVideoFullscreen
+                          ? "nofullscreen"
+                          : undefined
+                  }
                   style={
                     videoDimensions
                       ? {

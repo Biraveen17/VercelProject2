@@ -25,6 +25,8 @@ export default function SettingsPage() {
     receptionDate: "",
     venue: "",
     location: "",
+    allowVideoDownload: true,
+    allowVideoFullscreen: true,
   })
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export default function SettingsPage() {
     alert("Settings saved successfully!")
   }
 
-  const updateSetting = (field: keyof WeddingSettings, value: string) => {
+  const updateSetting = (field: keyof WeddingSettings, value: string | boolean) => {
     setSettings((prev) => ({
       ...prev,
       [field]: value,
@@ -191,6 +193,42 @@ export default function SettingsPage() {
                   required
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Video Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Video Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="allowVideoDownload"
+                  checked={settings.allowVideoDownload}
+                  onChange={(e) => updateSetting("allowVideoDownload", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="allowVideoDownload">Allow video download</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                When enabled, visitors can download the proposal video from the homepage
+              </p>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="allowVideoFullscreen"
+                  checked={settings.allowVideoFullscreen}
+                  onChange={(e) => updateSetting("allowVideoFullscreen", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="allowVideoFullscreen">Allow video fullscreen</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                When enabled, visitors can play the video in fullscreen mode
+              </p>
             </CardContent>
           </Card>
 
