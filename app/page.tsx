@@ -95,6 +95,13 @@ export default function HomePage() {
     setIsVideoPlaying(false)
   }
 
+  const handleOverlayClick = () => {
+    const video = document.querySelector("video")
+    if (video && !isVideoPlaying) {
+      video.play()
+    }
+  }
+
   const getCurrentPhoto = () => {
     if (currentPhotoIndex === 0 && proposalPhotos.photo1) {
       return proposalPhotos.photo1
@@ -143,7 +150,10 @@ export default function HomePage() {
                     Your browser does not support the video tag.
                   </video>
                   {!isVideoPlaying && (proposalPhotos.photo1 || proposalPhotos.photo2) && (
-                    <div className="absolute inset-0 rounded-lg overflow-hidden">
+                    <div
+                      className="absolute inset-0 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center"
+                      onClick={handleOverlayClick}
+                    >
                       <img
                         src={getCurrentPhoto() || "/placeholder.svg"}
                         alt="Proposal thumbnail"
@@ -156,6 +166,13 @@ export default function HomePage() {
                             : undefined
                         }
                       />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors">
+                        <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors">
+                          <svg className="w-8 h-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
