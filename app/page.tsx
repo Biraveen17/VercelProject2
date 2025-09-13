@@ -14,7 +14,12 @@ import { getSettings } from "@/lib/database"
 export default function HomePage() {
   const { t } = useLanguage()
   const [proposalVideoUrl, setProposalVideoUrl] = useState<string | null>(null)
-  const [proposalPhotoUrl, setProposalPhotoUrl] = useState<string | null>(null)
+  const [proposalPhotos, setProposalPhotos] = useState<{ photo1: string | null; photo2: string | null }>({
+    photo1: null,
+    photo2: null,
+  })
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
   const [videoDimensions, setVideoDimensions] = useState<{ width: number; height: number } | null>(null)
   const [videoSettings, setVideoSettings] = useState({ allowVideoDownload: true, allowVideoFullscreen: true })
 
@@ -36,19 +41,26 @@ export default function HomePage() {
             file.pathname?.toLowerCase().includes("proposalvideo"),
         )
 
-        const proposalPhoto = data.files?.find(
+        const proposalPhoto1 = data.files?.find(
           (file: any) =>
             file.filename?.toLowerCase().includes("proposalphoto1") ||
             file.pathname?.toLowerCase().includes("proposalphoto1"),
+        )
+
+        const proposalPhoto2 = data.files?.find(
+          (file: any) =>
+            file.filename?.toLowerCase().includes("proposalphoto2") ||
+            file.pathname?.toLowerCase().includes("proposalphoto2"),
         )
 
         if (proposalVideo) {
           setProposalVideoUrl(proposalVideo.url)
         }
 
-        if (proposalPhoto) {
-          setProposalPhotoUrl(proposalPhoto.url)
-        }
+        setProposalPhotos({
+          photo1: proposalPhoto1?.url || null,
+          photo2: proposalPhoto2?.url || null,
+        })
       } catch (error) {
         console.error("Error fetching proposal video:", error)
       }
@@ -56,6 +68,16 @@ export default function HomePage() {
 
     fetchProposalVideo()
   }, [])
+
+  useEffect(() => {
+    if (!isVideoPlaying && (proposalPhotos.photo1 || proposalPhotos.photo2)) {
+      const interval = setInterval(() => {
+        setCurrentPhotoIndex((prev) => (prev === 0 ? 1 : 0))
+      }, 5000)
+
+      return () => clearInterval(interval)
+    }
+  }, [isVideoPlaying, proposalPhotos])
 
   const handleVideoLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget
@@ -65,6 +87,23 @@ export default function HomePage() {
     })
   }
 
+  const handleVideoPlay = () => {
+    setIsVideoPlaying(true)
+  }
+
+  const handleVideoPause = () => {
+    setIsVideoPlaying(false)
+  }
+
+  const getCurrentPhoto = () => {
+    if (currentPhotoIndex === 0 && proposalPhotos.photo1) {
+      return proposalPhotos.photo1
+    } else if (currentPhotoIndex === 1 && proposalPhotos.photo2) {
+      return proposalPhotos.photo2
+    }
+    return proposalPhotos.photo1 || proposalPhotos.photo2 || "/wedding-logo.png"
+  }
+
   return (
     <div className="min-h-screen">
       <section className="relative decorative-border py-20 px-4">
@@ -72,34 +111,54 @@ export default function HomePage() {
           <div className="mb-8">
             <div className="relative mx-auto mb-6 max-w-4xl">
               {proposalVideoUrl ? (
-                <video
-                  src={proposalVideoUrl}
-                  controls
-                  className="w-full h-auto rounded-lg shadow-lg"
-                  poster={proposalPhotoUrl || "/wedding-logo.png"}
-                  onLoadedMetadata={handleVideoLoadedMetadata}
-                  controlsList={
-                    !videoSettings.allowVideoDownload && !videoSettings.allowVideoFullscreen
-                      ? "nodownload nofullscreen"
-                      : !videoSettings.allowVideoDownload
-                        ? "nodownload"
-                        : !videoSettings.allowVideoFullscreen
-                          ? "nofullscreen"
-                          : undefined
-                  }
-                  disablePictureInPicture={!videoSettings.allowVideoFullscreen}
-                  playsInline={!videoSettings.allowVideoFullscreen}
-                  webkitplaysinline={!videoSettings.allowVideoFullscreen ? "true" : undefined}
-                  style={
-                    videoDimensions
-                      ? {
-                          aspectRatio: `${videoDimensions.width} / ${videoDimensions.height}`,
+                <div className="relative">
+                  <video
+                    src={proposalVideoUrl}
+                    controls
+                    className="w-full h-auto rounded-lg shadow-lg"
+                    poster={getCurrentPhoto()}
+                    onLoadedMetadata={handleVideoLoadedMetadata}
+                    onPlay={handleVideoPlay}
+                    onPause={handleVideoPause}
+                    controlsList={
+                      !videoSettings.allowVideoDownload && !videoSettings.allowVideoFullscreen
+                        ? "nodownload nofullscreen"
+                        : !videoSettings.allowVideoDownload
+                          ? "nodownload"
+                          : !videoSettings.allowVideoFullscreen
+                            ? "nofullscreen"
+                            : undefined
+                    }
+                    disablePictureInPicture={!videoSettings.allowVideoFullscreen}
+                    playsInline={!videoSettings.allowVideoFullscreen}
+                    webkitplaysinline={!videoSettings.allowVideoFullscreen ? "true" : undefined}
+                    style={
+                      videoDimensions
+                        ? {
+                            aspectRatio: `${videoDimensions.width} / ${videoDimensions.height}`,
+                          }
+                        : undefined
+                    }
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                  {!isVideoPlaying && (proposalPhotos.photo1 || proposalPhotos.photo2) && (
+                    <div className="absolute inset-0 rounded-lg overflow-hidden">
+                      <img
+                        src={getCurrentPhoto() || "/placeholder.svg"}
+                        alt="Proposal thumbnail"
+                        className="w-full h-full object-cover transition-opacity duration-1000"
+                        style={
+                          videoDimensions
+                            ? {
+                                aspectRatio: `${videoDimensions.width} / ${videoDimensions.height}`,
+                              }
+                            : undefined
                         }
-                      : undefined
-                  }
-                >
-                  Your browser does not support the video tag.
-                </video>
+                      />
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="w-full aspect-video bg-muted/50 rounded-lg flex items-center justify-center border-2 border-primary/20">
                   <p className="text-muted-foreground font-serif">Loading proposal video...</p>
