@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Globe, Menu, X } from "lucide-react"
 import { useState } from "react"
 import { useLanguage } from "@/lib/language-context"
+import Image from "next/image"
 
 const languages = [
   { code: "en", name: "English", flag: "🇬🇧" },
@@ -36,10 +37,13 @@ export function Navigation() {
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-3">
               <div className="relative">
-                <div className="w-12 h-12 bg-pink-100 border-2 border-pink-300 rounded-full flex items-center justify-center shadow-lg">
-                  <span className="text-pink-800 font-serif font-bold text-xl tracking-wider">V&B</span>
-                </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-pink-400 rounded-full opacity-80"></div>
+                <Image
+                  src="/wedding-logo.png"
+                  alt="Varnie & Biraveen Wedding Logo"
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
               </div>
               <div className="hidden sm:block">
                 <span className="font-serif text-xl font-semibold text-card-foreground tracking-wide">

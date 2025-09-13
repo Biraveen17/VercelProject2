@@ -17,7 +17,7 @@ export default function HomePage() {
       <section className="relative bg-gradient-to-b from-card to-background py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
-            <div className="relative w-48 h-48 mx-auto mb-6">
+            <div className="relative w-80 h-80 mx-auto mb-6">
               <Image
                 src="/wedding-logo.png"
                 alt="Varnie & Biraveen Wedding Logo"
@@ -25,11 +25,6 @@ export default function HomePage() {
                 className="object-contain"
                 priority
               />
-            </div>
-
-            {/* Sacred Om symbol */}
-            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-lg">
-              <span className="text-2xl text-primary-foreground">🕉️</span>
             </div>
           </div>
 
