@@ -14,6 +14,7 @@ import { getSettings } from "@/lib/database"
 export default function HomePage() {
   const { t } = useLanguage()
   const [proposalVideoUrl, setProposalVideoUrl] = useState<string | null>(null)
+  const [proposalPhotoUrl, setProposalPhotoUrl] = useState<string | null>(null)
   const [videoDimensions, setVideoDimensions] = useState<{ width: number; height: number } | null>(null)
   const [videoSettings, setVideoSettings] = useState({ allowVideoDownload: true, allowVideoFullscreen: true })
 
@@ -35,8 +36,18 @@ export default function HomePage() {
             file.pathname?.toLowerCase().includes("proposalvideo"),
         )
 
+        const proposalPhoto = data.files?.find(
+          (file: any) =>
+            file.filename?.toLowerCase().includes("proposalphoto1") ||
+            file.pathname?.toLowerCase().includes("proposalphoto1"),
+        )
+
         if (proposalVideo) {
           setProposalVideoUrl(proposalVideo.url)
+        }
+
+        if (proposalPhoto) {
+          setProposalPhotoUrl(proposalPhoto.url)
         }
       } catch (error) {
         console.error("Error fetching proposal video:", error)
@@ -65,7 +76,7 @@ export default function HomePage() {
                   src={proposalVideoUrl}
                   controls
                   className="w-full h-auto rounded-lg shadow-lg"
-                  poster="/wedding-logo.png"
+                  poster={proposalPhotoUrl || "/wedding-logo.png"}
                   onLoadedMetadata={handleVideoLoadedMetadata}
                   controlsList={
                     !videoSettings.allowVideoDownload && !videoSettings.allowVideoFullscreen
