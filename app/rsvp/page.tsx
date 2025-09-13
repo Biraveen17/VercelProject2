@@ -54,8 +54,12 @@ export default function RSVPPage() {
         return
       }
       setFoundGuest(groupByName)
-      const preFilledMembers = groupByName.groupMembers || new Array(groupByName.maxGroupSize).fill("")
-      setGroupMembers(preFilledMembers)
+      const maxSize = groupByName.maxGroupSize || 1
+      const existingMembers = groupByName.groupMembers || []
+      const initialMembers = Array(maxSize)
+        .fill("")
+        .map((_, index) => existingMembers[index] || "")
+      setGroupMembers(initialMembers)
       setStep(2)
       return
     }
@@ -75,8 +79,12 @@ export default function RSVPPage() {
         return
       }
       setFoundGuest(groupWithMember)
-      const preFilledMembers = groupWithMember.groupMembers || new Array(groupWithMember.maxGroupSize).fill("")
-      setGroupMembers(preFilledMembers)
+      const maxSize = groupWithMember.maxGroupSize || 1
+      const existingMembers = groupWithMember.groupMembers || []
+      const initialMembers = Array(maxSize)
+        .fill("")
+        .map((_, index) => existingMembers[index] || "")
+      setGroupMembers(initialMembers)
       setStep(2)
       return
     }
@@ -92,19 +100,6 @@ export default function RSVPPage() {
     if (isAttending === "yes" && events.length === 0) {
       setError("Please select at least one event (wedding ceremony or reception) to attend.")
       return
-    }
-
-    if (foundGuest.type === "group" && groupMembers.length > 0 && isAttending === "yes") {
-      const filledMembers = groupMembers.filter((member) => member.trim() !== "")
-      const maxSize = foundGuest.maxGroupSize || groupMembers.length
-
-      if (filledMembers.length < maxSize) {
-        const missingCount = maxSize - filledMembers.length
-        setError(
-          `You have ${maxSize} group size but you are only submitting ${filledMembers.length} guests. The couple will take it as your group size has reduced by ${missingCount}.`,
-        )
-        return
-      }
     }
 
     if (foundGuest.type === "group" && groupMembers.length > 0) {
@@ -281,9 +276,20 @@ export default function RSVPPage() {
                     {foundGuest.type === "group" && groupMembers.length > 0 && (
                       <div>
                         <label className="block text-sm font-medium mb-3">{t("groupMemberNames")}</label>
-                        {error && error.includes("group size") && (
-                          <p className="text-destructive text-sm mb-2">{error}</p>
-                        )}
+                        {(() => {
+                          const filledMembers = groupMembers.filter((member) => member.trim() !== "")
+                          const maxSize = foundGuest.maxGroupSize || groupMembers.length
+                          if (filledMembers.length < maxSize && filledMembers.length > 0) {
+                            const missingCount = maxSize - filledMembers.length
+                            return (
+                              <p className="text-amber-600 text-sm mb-2 bg-amber-50 dark:bg-amber-900/20 p-2 rounded">
+                                Note: You have {maxSize} group size but are submitting {filledMembers.length} guests.
+                                The couple will understand your group size has reduced by {missingCount}.
+                              </p>
+                            )
+                          }
+                          return null
+                        })()}
                         <div className="space-y-2">
                           {groupMembers.map((member, index) => (
                             <input

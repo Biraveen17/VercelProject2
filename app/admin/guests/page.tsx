@@ -16,6 +16,7 @@ import {
   deleteGuest,
   checkDuplicateGuest,
   addGuestToGroup,
+  saveGuests,
   type Guest,
 } from "@/lib/database"
 import { Plus, Edit, Trash2, Filter, LogOut, ArrowLeft } from "lucide-react"
@@ -49,6 +50,11 @@ export default function GuestManagementPage() {
     guestId: "",
     guestName: "",
   })
+  const [deleteGroupConfirmation, setDeleteGroupConfirmation] = useState<{
+    show: boolean
+    groupId: string
+    groupName: string
+  }>({ show: false, groupId: "", groupName: "" })
   const [sortField, setSortField] = useState<keyof Guest>("lastUpdated")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   const [filters, setFilters] = useState({
@@ -218,21 +224,49 @@ export default function GuestManagementPage() {
       return
     }
 
-    const guestData = {
-      type: formData.type,
-      guestName: formData.type === "individual" ? formData.guestName : undefined,
-      groupName: formData.type === "group" ? formData.groupName : undefined,
-      maxGroupSize: formData.type === "group" ? formData.maxGroupSize : undefined,
-      groupMembers: formData.type === "group" ? formData.groupMembers.filter((m) => m.trim()) : undefined,
-      notes: formData.notes || undefined,
-      rsvpStatus: "pending" as const,
-      events: [] as ("ceremony" | "reception")[],
-      dietaryRequirements: formData.dietaryRequirements || undefined,
-      questions: formData.questions || undefined,
-      side: formData.side,
+    if (formData.type === "group") {
+      // First create the group header
+      const groupHeaderData = {
+        type: "group" as const,
+        guestName: undefined,
+        groupName: formData.groupName,
+        maxGroupSize: formData.maxGroupSize,
+        groupMembers: formData.groupMembers.filter((m) => m.trim()),
+        notes: formData.notes || undefined,
+        rsvpStatus: "pending" as const,
+        events: [] as ("ceremony" | "reception")[],
+        side: formData.side,
+      }
+
+      addGuest(groupHeaderData)
+
+      // Then create individual guest entries for each filled member name
+      const filledMembers = formData.groupMembers.filter((member) => member.trim() !== "")
+      filledMembers.forEach((memberName) => {
+        const memberData = {
+          type: "individual" as const,
+          guestName: memberName.trim(),
+          groupName: formData.groupName,
+          notes: `Member of ${formData.groupName}`,
+          rsvpStatus: "pending" as const,
+          events: [] as ("ceremony" | "reception")[],
+          side: formData.side,
+        }
+        addGuest(memberData)
+      })
+    } else {
+      // Individual guest creation
+      const guestData = {
+        type: formData.type,
+        guestName: formData.guestName,
+        notes: formData.notes || undefined,
+        rsvpStatus: "pending" as const,
+        events: [] as ("ceremony" | "reception")[],
+        side: formData.side,
+      }
+      addGuest(guestData)
     }
 
-    addGuest(guestData)
     loadGuests(setGuests, setLoading)
     setShowAddDialog(false)
     resetForm()
@@ -349,6 +383,28 @@ export default function GuestManagementPage() {
   const getActualGroupSize = (groupName: string): number => {
     const allGuests = guests
     return allGuests.filter((g) => g.groupName === groupName).length
+  }
+
+  const handleDeleteGroup = (groupHeader: Guest) => {
+    if (groupHeader) {
+      setDeleteGroupConfirmation({
+        show: true,
+        groupId: groupHeader.id,
+        groupName: groupHeader.groupName || "Unknown Group",
+      })
+    }
+  }
+
+  const confirmDeleteGroup = () => {
+    const guests = getGuests()
+    const groupName = deleteGroupConfirmation.groupName
+
+    // Delete the group header and all members
+    const filteredGuests = guests.filter((g) => g.id !== deleteGroupConfirmation.groupId && g.groupName !== groupName)
+
+    saveGuests(filteredGuests)
+    loadGuests(setGuests, setLoading)
+    setDeleteGroupConfirmation({ show: false, groupId: "", groupName: "" })
   }
 
   if (loading) {
@@ -691,6 +747,16 @@ export default function GuestManagementPage() {
                               {header && (
                                 <Button size="sm" variant="outline" onClick={() => handleEditGroupHeader(header)}>
                                   <Edit className="w-4 h-4" />
+                                </Button>
+                              )}
+                              {header && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDeleteGroup(header)}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4" />
                                 </Button>
                               )}
                             </div>
@@ -1152,6 +1218,36 @@ export default function GuestManagementPage() {
               </Button>
               <Button variant="destructive" onClick={confirmDeleteGuest}>
                 Yes, Delete
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={deleteGroupConfirmation.show}
+          onOpenChange={(open) => !open && setDeleteGroupConfirmation({ show: false, groupId: "", groupName: "" })}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Delete Group</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p>
+                Are you sure you want to delete the group <strong>{deleteGroupConfirmation.groupName}</strong>?
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                This will delete the group and all its members. This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteGroupConfirmation({ show: false, groupId: "", groupName: "" })}
+              >
+                No, Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmDeleteGroup}>
+                Yes, Delete Group
               </Button>
             </div>
           </DialogContent>
