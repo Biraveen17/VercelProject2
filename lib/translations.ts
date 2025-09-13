@@ -336,6 +336,94 @@ export const translations: Record<string, Translation> = {
     thankYouNotAttending: "உங்கள் பதில் பெறப்பட்டது. நீங்கள் வர முடியாது என்று கேட்டு வருந்துகிறோம்!",
     backToHome: "முகப்புக்கு திறக்கு",
   },
+
+  fr: {
+    // Navigation
+    home: "Accueil",
+    events: "Événements",
+    venue: "Lieu",
+    gallery: "Galerie",
+    travel: "Voyage",
+    rsvp: "RSVP",
+
+    // Common
+    loading: "Chargement...",
+    save: "Enregistrer",
+    cancel: "Annuler",
+    edit: "Modifier",
+    delete: "Supprimer",
+    back: "Retour",
+    next: "Suivant",
+    submit: "Soumettre",
+    login: "Connexion",
+    logout: "Déconnexion",
+
+    // Home page
+    homeTitle: "Varnie & Biraveen",
+    homeSubtitle: "Avec nos familles, nous vous invitons à célébrer notre mariage hindou tamoul",
+    homeDescription: "27-28 mars 2026 • Paphos, Chypre",
+    homeLocation: "Paphos, Chypre",
+    rsvpNow: "RSVP Maintenant",
+    viewEvents: "Voir les Événements",
+    countdownTitle: "Compte à rebours jusqu'à notre jour spécial",
+    welcomeTitle: "Bienvenue à notre célébration de mariage",
+    welcomeDescription1:
+      "Nous sommes ravis de vous inviter à nous rejoindre alors que nous commençons notre voyage ensemble en tant que mari et femme. Notre célébration honorera les belles traditions de la culture hindoue tamoule tout en créant de nouveaux souvenirs dans le cadre magnifique de Chypre.",
+    welcomeDescription2:
+      "Pour nos invités non-indiens, nous avons inclus des explications de nos coutumes et traditions pour vous aider à vous sentir partie prenante de notre célébration spéciale. Nous avons hâte de partager cette occasion joyeuse avec vous !",
+    ceremonyTitle: "Cérémonie Hindoue",
+    ceremonyDate: "27 mars 2026",
+    ceremonyTime: "10h00",
+    receptionTitle: "Réception",
+    receptionDate: "28 mars 2026",
+    receptionTime: "18h00",
+    locationTitle: "Lieu",
+    locationDescription: "Paradis Méditerranéen",
+    dressCodeTitle: "Code Vestimentaire",
+    dressCodeDescription: "Tenue Traditionnelle Indienne ou Formelle",
+    traditionsTitle: "Comprendre nos traditions de mariage hindou",
+    sacredFireTitle: "Cérémonie du Feu Sacré (Agni)",
+    sacredFireDescription:
+      "Le feu sacré représente le témoin divin de nos vœux. Nous marcherons autour du feu sept fois, chaque cercle représentant un vœu pour notre vie conjugale ensemble.",
+    mangalsutraTitle: "Mangalsutra",
+    mangalsutraDescription:
+      "Le marié attachera un collier sacré autour du cou de la mariée, symbolisant leur lien éternel et le nouveau statut de la mariée en tant que femme mariée.",
+    saptapadiTitle: "Saptapadi (Sept Pas)",
+    saptapadiDescription:
+      "Nous ferons sept pas ensemble, chaque pas représentant une promesse pour notre avenir - de la nourriture et de la force à l'amitié et à la dévotion.",
+    ganeshTitle: "Bénédictions de Ganesh",
+    ganeshDescription:
+      "Seigneur Ganesh, celui qui supprime les obstacles, sera invoqué pour bénir notre union et assurer un début harmonieux à notre vie conjugale.",
+    loveStoryTitle: "Notre Histoire d'Amour",
+
+    // RSVP
+    rsvpTitle: "RSVP",
+    rsvpSubtitle: "Veuillez nous faire savoir si vous nous rejoindrez pour notre célébration spéciale",
+    enterName: "Entrez Votre Nom",
+    namePlaceholder: "Entrez votre nom complet tel qu'il apparaît sur l'invitation",
+    findGuest: "Trouver l'Invité",
+    welcomeGuest: "Bienvenue, {name} !",
+    groupBooking: "Réservation de groupe pour jusqu'à {size} personnes",
+    willYouAttend: "Assisterez-vous à notre mariage ?",
+    yesAttending: "Oui, je serai là ! 🎉",
+    noAttending: "Désolé, je ne peux pas venir",
+    whichEvents: "À quels événements assisterez-vous ?",
+    ceremonyEvent: "Cérémonie de Mariage Hindou",
+    receptionEvent: "Réception de Mariage",
+    groupMemberNames: "Noms des Membres du Groupe",
+    memberNamePlaceholder: "Nom complet du membre {number}",
+    dietaryRequirements: "Exigences Alimentaires",
+    dietaryPlaceholder:
+      "Veuillez nous informer de toute allergie, restriction alimentaire ou préférence de repas spéciale...",
+    questionsComments: "Questions ou Commentaires",
+    questionsPlaceholder:
+      "Avez-vous des questions sur le mariage, le voyage ou l'hébergement ? Nous sommes là pour vous aider !",
+    submitRSVP: "Soumettre RSVP",
+    thankYouTitle: "Merci !",
+    thankYouAttending: "Votre RSVP a été reçu. Nous sommes excités de célébrer avec vous !",
+    thankYouNotAttending: "Votre RSVP a été reçu. Nous sommes désolés d'apprendre que vous ne pouvez pas venir !",
+    backToHome: "Retour à l'Accueil",
+  },
 }
 
 export function useTranslation(language = "en"): Translation {

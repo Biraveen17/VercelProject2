@@ -83,6 +83,61 @@ export function deleteGuest(id: string): void {
   saveGuests(filtered)
 }
 
+export function checkDuplicateGuest(name: string, groupName?: string, excludeId?: string): boolean {
+  const guests = getGuests()
+  const normalizedName = name.toLowerCase().trim()
+  const normalizedGroupName = groupName?.toLowerCase().trim()
+
+  return guests.some((guest) => {
+    // Skip the guest being edited
+    if (excludeId && guest.id === excludeId) return false
+
+    // Check individual guest names
+    if (guest.guestName && guest.guestName.toLowerCase().trim() === normalizedName) return true
+
+    // Check group names
+    if (guest.groupName && guest.groupName.toLowerCase().trim() === normalizedName) return true
+
+    // Check if the new name matches any existing group name when adding individual
+    if (!groupName && guest.groupName && guest.groupName.toLowerCase().trim() === normalizedName) return true
+
+    // Check if the new group name matches any existing individual guest name
+    if (normalizedGroupName && guest.guestName && guest.guestName.toLowerCase().trim() === normalizedGroupName)
+      return true
+
+    // Check group members
+    if (guest.groupMembers) {
+      return guest.groupMembers.some((member) => member.toLowerCase().trim() === normalizedName)
+    }
+
+    return false
+  })
+}
+
+export function addGuestToGroup(groupName: string, guestName: string): boolean {
+  const guests = getGuests()
+  const group = guests.find(
+    (g) => g.type === "group" && g.groupName?.toLowerCase().trim() === groupName.toLowerCase().trim(),
+  )
+
+  if (!group || !group.maxGroupSize) return false
+
+  const currentMembers = group.groupMembers?.filter((m) => m.trim()) || []
+  if (currentMembers.length >= group.maxGroupSize) return false
+
+  const updatedMembers = [...(group.groupMembers || [])]
+  const emptyIndex = updatedMembers.findIndex((m) => !m.trim())
+
+  if (emptyIndex !== -1) {
+    updatedMembers[emptyIndex] = guestName.trim()
+  } else {
+    updatedMembers.push(guestName.trim())
+  }
+
+  updateGuest(group.id, { groupMembers: updatedMembers })
+  return true
+}
+
 // Budget management
 export function getBudgetItems(): BudgetItem[] {
   if (typeof window === "undefined") return []

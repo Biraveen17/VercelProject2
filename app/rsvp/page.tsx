@@ -72,6 +72,19 @@ export default function RSVPPage() {
       return
     }
 
+    if (foundGuest.type === "group" && groupMembers.length > 0 && isAttending === "yes") {
+      const filledMembers = groupMembers.filter((member) => member.trim() !== "")
+      const maxSize = foundGuest.maxGroupSize || groupMembers.length
+
+      if (filledMembers.length < maxSize) {
+        const missingCount = maxSize - filledMembers.length
+        setError(
+          `You have ${maxSize} group size but you are only submitting ${filledMembers.length} guests. The couple will take it as your group size has reduced by ${missingCount}.`,
+        )
+        return
+      }
+    }
+
     if (foundGuest.type === "group" && groupMembers.length > 0) {
       submitGroupRSVP(foundGuest, {
         isAttending: isAttending === "yes",
@@ -244,6 +257,9 @@ export default function RSVPPage() {
                     {foundGuest.type === "group" && groupMembers.length > 0 && (
                       <div>
                         <label className="block text-sm font-medium mb-3">{t("groupMemberNames")}</label>
+                        {error && error.includes("group size") && (
+                          <p className="text-destructive text-sm mb-2">{error}</p>
+                        )}
                         <div className="space-y-2">
                           {groupMembers.map((member, index) => (
                             <input
@@ -251,6 +267,7 @@ export default function RSVPPage() {
                               type="text"
                               value={member}
                               onChange={(e) => {
+                                setError("") // Clear error when user makes changes
                                 const newMembers = [...groupMembers]
                                 newMembers[index] = e.target.value
                                 setGroupMembers(newMembers)
