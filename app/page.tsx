@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CountdownTimer } from "@/components/countdown-timer"
@@ -11,6 +13,7 @@ import { useEffect, useState } from "react"
 export default function HomePage() {
   const { t } = useLanguage()
   const [proposalVideoUrl, setProposalVideoUrl] = useState<string | null>(null)
+  const [videoDimensions, setVideoDimensions] = useState<{ width: number; height: number } | null>(null)
 
   useEffect(() => {
     const fetchProposalVideo = async () => {
@@ -18,7 +21,6 @@ export default function HomePage() {
         const response = await fetch("/api/list-blobs")
         const data = await response.json()
 
-        // Find the proposal video
         const proposalVideo = data.files?.find(
           (file: any) =>
             file.filename?.toLowerCase().includes("proposalvideo") ||
@@ -36,23 +38,39 @@ export default function HomePage() {
     fetchProposalVideo()
   }, [])
 
+  const handleVideoLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget
+    setVideoDimensions({
+      width: video.videoWidth,
+      height: video.videoHeight,
+    })
+  }
+
   return (
     <div className="min-h-screen">
       <section className="relative decorative-border py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
-            <div className="relative w-80 h-80 mx-auto mb-6">
+            <div className="relative mx-auto mb-6 max-w-2xl">
               {proposalVideoUrl ? (
                 <video
                   src={proposalVideoUrl}
                   controls
-                  className="w-full h-full object-cover rounded-lg shadow-lg"
+                  className="w-full h-auto rounded-lg shadow-lg"
                   poster="/wedding-logo.png"
+                  onLoadedMetadata={handleVideoLoadedMetadata}
+                  style={
+                    videoDimensions
+                      ? {
+                          aspectRatio: `${videoDimensions.width} / ${videoDimensions.height}`,
+                        }
+                      : undefined
+                  }
                 >
                   Your browser does not support the video tag.
                 </video>
               ) : (
-                <div className="w-full h-full bg-muted/50 rounded-lg flex items-center justify-center border-2 border-primary/20">
+                <div className="w-full aspect-video bg-muted/50 rounded-lg flex items-center justify-center border-2 border-primary/20">
                   <p className="text-muted-foreground font-serif">Loading proposal video...</p>
                 </div>
               )}
@@ -105,7 +123,6 @@ export default function HomePage() {
             </Button>
           </div>
 
-          {/* Countdown Timer */}
           <div className="mb-8">
             <h3 className="text-xl font-serif text-secondary mb-4 spaced-letters">{t("countdownTitle")}</h3>
             <CountdownTimer />

@@ -3,7 +3,9 @@ import { NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    const { blobs } = await list()
+    const { blobs } = await list({
+      token: process.env.BLOB_READ_WRITE_TOKEN!,
+    })
 
     const files = blobs.map((blob) => ({
       ...blob,
