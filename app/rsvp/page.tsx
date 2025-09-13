@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { findGuestForRSVP, updateGuest, submitGroupRSVP, type Guest } from "@/lib/database"
+import { findGuestForRSVP, updateGuest, submitGroupRSVP, getGuests, type Guest } from "@/lib/database"
 import { Heart } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 
@@ -38,7 +38,7 @@ export default function RSVPPage() {
       }
       setStep(2)
     } else {
-      const allGuests = require("@/lib/database").getGuests()
+      const allGuests = getGuests()
       const groupWithMember = allGuests.find(
         (g: Guest) =>
           g.type === "group" &&
