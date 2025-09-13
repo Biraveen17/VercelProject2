@@ -45,8 +45,8 @@ export function Navigation() {
                   className="object-contain"
                 />
               </div>
-              <div className="hidden sm:block">
-                <span className="font-serif text-xl font-semibold text-card-foreground tracking-wide">
+              <div className="block">
+                <span className="font-serif text-lg sm:text-xl font-semibold text-card-foreground tracking-wide">
                   Varnie & Biraveen
                 </span>
                 <div className="text-xs text-muted-foreground font-sans italic">March 2026 • Cyprus</div>
@@ -129,6 +129,11 @@ export function Navigation() {
             <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(false)}>
               <X className="w-4 h-4" />
             </Button>
+          </div>
+
+          <div className="text-center mb-6 pb-4 border-b border-border">
+            <div className="font-serif text-lg font-semibold text-card-foreground tracking-wide">Varnie & Biraveen</div>
+            <div className="text-sm text-muted-foreground font-sans italic mt-1">March 2026 • Cyprus</div>
           </div>
 
           <div className="space-y-2">
