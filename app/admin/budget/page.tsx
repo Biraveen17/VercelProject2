@@ -75,6 +75,12 @@ export default function BudgetTrackerPage() {
     notes: "",
   })
 
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{ show: boolean; itemId: string; itemName: string }>({
+    show: false,
+    itemId: "",
+    itemName: "",
+  })
+
   useEffect(() => {
     if (!isAuthenticated()) {
       router.push("/admin")
@@ -320,6 +326,17 @@ export default function BudgetTrackerPage() {
     })
   }
 
+  const handleDeleteItem = (id: string) => {
+    const item = budgetItems.find((i) => i.id === id)
+    if (item) {
+      setDeleteConfirmation({
+        show: true,
+        itemId: id,
+        itemName: item.itemName,
+      })
+    }
+  }
+
   const handleUpdateItem = (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingItem) return
@@ -330,11 +347,10 @@ export default function BudgetTrackerPage() {
     resetForm()
   }
 
-  const handleDeleteItem = (id: string) => {
-    if (confirm("Are you sure you want to delete this budget item?")) {
-      deleteBudgetItem(id)
-      loadBudgetItems()
-    }
+  const confirmDeleteItem = () => {
+    deleteBudgetItem(deleteConfirmation.itemId)
+    loadBudgetItems()
+    setDeleteConfirmation({ show: false, itemId: "", itemName: "" })
   }
 
   const resetForm = () => {
@@ -950,6 +966,34 @@ export default function BudgetTrackerPage() {
                 </Button>
               </div>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={deleteConfirmation.show}
+          onOpenChange={(open) => !open && setDeleteConfirmation({ show: false, itemId: "", itemName: "" })}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Delete</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p>
+                Are you sure you want to delete <strong>{deleteConfirmation.itemName}</strong>?
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">This action cannot be undone.</p>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteConfirmation({ show: false, itemId: "", itemName: "" })}
+              >
+                No, Cancel
+              </Button>
+              <Button variant="destructive" onClick={confirmDeleteItem}>
+                Yes, Delete
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
