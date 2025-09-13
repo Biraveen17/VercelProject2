@@ -59,7 +59,7 @@ export default function HomePage() {
       <section className="relative decorative-border py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
-            <div className="relative mx-auto mb-6 max-w-2xl">
+            <div className="relative mx-auto mb-6 max-w-4xl">
               {proposalVideoUrl ? (
                 <video
                   src={proposalVideoUrl}
