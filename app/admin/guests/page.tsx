@@ -37,6 +37,7 @@ export default function GuestManagementPage() {
     rsvpStatus: "",
     events: "",
     groupName: "",
+    side: "",
   })
 
   const [formData, setFormData] = useState({
@@ -50,13 +51,15 @@ export default function GuestManagementPage() {
     events: [] as string[],
     dietaryRequirements: "",
     questions: "",
+    side: "bride" as "bride" | "groom",
   })
 
-  const [showAddToGroupDialog, setShowAddToGroupDialog] = useState(false)
   const [addToGroupData, setAddToGroupData] = useState({
     selectedGroup: "",
     newGuestName: "",
   })
+
+  const [showAddToGroupDialog, setShowAddToGroupDialog] = useState(false)
 
   const handleDeleteGuest = (id: string) => {
     deleteGuest(id)
@@ -91,6 +94,7 @@ export default function GuestManagementPage() {
       if (filters.rsvpStatus && guest.rsvpStatus !== filters.rsvpStatus) return false
       if (filters.events && !guest.events.includes(filters.events as "ceremony" | "reception")) return false
       if (filters.groupName && !guest.groupName?.toLowerCase().includes(filters.groupName.toLowerCase())) return false
+      if (filters.side && guest.side !== filters.side) return false
       return true
     })
 
@@ -127,6 +131,9 @@ export default function GuestManagementPage() {
       notes: formData.notes || undefined,
       rsvpStatus: "pending" as const,
       events: [] as ("ceremony" | "reception")[],
+      dietaryRequirements: formData.dietaryRequirements || undefined,
+      questions: formData.questions || undefined,
+      side: formData.side,
     }
 
     addGuest(guestData)
@@ -148,6 +155,7 @@ export default function GuestManagementPage() {
       events: guest.events || [],
       dietaryRequirements: guest.dietaryRequirements || "",
       questions: guest.questions || "",
+      side: guest.side || "bride",
     })
   }
 
@@ -172,6 +180,7 @@ export default function GuestManagementPage() {
       events: formData.events as ("ceremony" | "reception")[],
       dietaryRequirements: formData.dietaryRequirements || undefined,
       questions: formData.questions || undefined,
+      side: formData.side,
     }
 
     updateGuest(editingGuest.id, updates)
@@ -210,6 +219,7 @@ export default function GuestManagementPage() {
       events: [],
       dietaryRequirements: "",
       questions: "",
+      side: "bride",
     })
   }
 
@@ -223,6 +233,7 @@ export default function GuestManagementPage() {
       "Dietary Requirements",
       "Questions",
       "Last Updated",
+      "Side",
     ]
 
     const csvData = filteredAndSortedGuests.map((guest) => [
@@ -234,6 +245,7 @@ export default function GuestManagementPage() {
       guest.dietaryRequirements || "",
       guest.questions || "",
       new Date(guest.lastUpdated).toLocaleString(),
+      guest.side || "",
     ])
 
     const csvContent = [headers, ...csvData].map((row) => row.map((field) => `"${field}"`).join(",")).join("\n")
@@ -265,19 +277,10 @@ export default function GuestManagementPage() {
     return { groups, ungrouped }
   }, [filteredAndSortedGuests])
 
-  const getOriginalGroupSize = (groupName: string): number => {
+  const getActualGroupSize = (groupName: string): number => {
     const allGuests = getGuests()
-    const originalGroup = allGuests.find((g) => g.type === "group" && g.groupName === groupName)
-    return originalGroup?.maxGroupSize || 0
+    return allGuests.filter((g) => g.groupName === groupName).length
   }
-
-  const availableGroups = useMemo(() => {
-    return Object.entries(groupedGuests.groups).filter(([groupName, guests]) => {
-      const originalSize = getOriginalGroupSize(groupName)
-      const currentSize = guests.length
-      return currentSize < originalSize
-    })
-  }, [groupedGuests.groups])
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
@@ -413,6 +416,22 @@ export default function GuestManagementPage() {
                   </Select>
                 </div>
 
+                <div>
+                  <Label>Side</Label>
+                  <Select
+                    value={formData.side}
+                    onValueChange={(value: "bride" | "groom") => setFormData({ ...formData, side: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="bride">Bride Side</SelectItem>
+                      <SelectItem value="groom">Groom Side</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {formData.type === "individual" ? (
                   <div>
                     <Label htmlFor="guestName">Guest Name</Label>
@@ -446,12 +465,34 @@ export default function GuestManagementPage() {
                         value={formData.maxGroupSize || ""}
                         onChange={(e) => {
                           const value = e.target.value
-                          const size = value === "" ? 0 : Number.parseInt(value)
-                          setFormData({
-                            ...formData,
-                            maxGroupSize: size,
-                            groupMembers: Array(size).fill(""),
-                          })
+                          if (value === "") {
+                            setFormData({
+                              ...formData,
+                              maxGroupSize: 0,
+                              groupMembers: [],
+                            })
+                          } else {
+                            const size = Number.parseInt(value)
+                            setFormData({
+                              ...formData,
+                              maxGroupSize: size,
+                              groupMembers: Array(size).fill(""),
+                            })
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "Backspace" &&
+                            e.currentTarget.selectionStart === 1 &&
+                            e.currentTarget.selectionEnd === 1
+                          ) {
+                            e.preventDefault()
+                            setFormData({
+                              ...formData,
+                              maxGroupSize: 0,
+                              groupMembers: [],
+                            })
+                          }
                         }}
                         placeholder="Enter maximum number of people"
                         required
@@ -490,56 +531,6 @@ export default function GuestManagementPage() {
                 <div className="flex gap-2">
                   <Button type="submit">Add Guest</Button>
                   <Button type="button" variant="outline" onClick={() => setShowAddDialog(false)}>
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={showAddToGroupDialog} onOpenChange={setShowAddToGroupDialog}>
-            <DialogTrigger asChild>
-              <Button variant="outline" disabled={availableGroups.length === 0}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add to Group
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Guest to Existing Group</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleAddToGroup} className="space-y-4">
-                <div>
-                  <Label>Select Group</Label>
-                  <Select
-                    value={addToGroupData.selectedGroup}
-                    onValueChange={(value) => setAddToGroupData({ ...addToGroupData, selectedGroup: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose a group" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableGroups.map(([groupName, guests]) => (
-                        <SelectItem key={groupName} value={groupName}>
-                          {groupName} ({guests.length}/{getOriginalGroupSize(groupName)})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="newGuestName">Guest Name</Label>
-                  <Input
-                    id="newGuestName"
-                    value={addToGroupData.newGuestName}
-                    onChange={(e) => setAddToGroupData({ ...addToGroupData, newGuestName: e.target.value })}
-                    placeholder="Enter guest's full name"
-                    required
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button type="submit">Add to Group</Button>
-                  <Button type="button" variant="outline" onClick={() => setShowAddToGroupDialog(false)}>
                     Cancel
                   </Button>
                 </div>
@@ -601,6 +592,19 @@ export default function GuestManagementPage() {
                   placeholder="Search group names..."
                 />
               </div>
+              <div>
+                <Label>Side</Label>
+                <Select value={filters.side} onValueChange={(value) => setFilters({ ...filters, side: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All sides" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All sides</SelectItem>
+                    <SelectItem value="bride">Bride Side</SelectItem>
+                    <SelectItem value="groom">Groom Side</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -660,6 +664,7 @@ export default function GuestManagementPage() {
                         <ArrowUpDown className="w-4 h-4 ml-1" />
                       </Button>
                     </th>
+                    <th className="p-4 text-left">Side</th>
                     <th className="p-4 text-left">Actions</th>
                   </tr>
                 </thead>
@@ -668,11 +673,11 @@ export default function GuestManagementPage() {
                     <React.Fragment key={groupName}>
                       {/* Group header row */}
                       <tr className="bg-primary/5 border-b-2 border-primary/20">
-                        <td colSpan={9} className="p-3">
+                        <td colSpan={10} className="p-3">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 bg-primary rounded-full"></div>
                             <span className="font-semibold text-primary">
-                              Group: {groupName} ({guests.length}/{getOriginalGroupSize(groupName)} members)
+                              Group: {groupName} ({getActualGroupSize(groupName)} guests)
                             </span>
                           </div>
                         </td>
@@ -715,6 +720,7 @@ export default function GuestManagementPage() {
                           <td className="p-4 text-sm text-muted-foreground">
                             {new Date(guest.lastUpdated).toLocaleDateString()}
                           </td>
+                          <td className="p-4 text-sm text-muted-foreground">{guest.side || "-"}</td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button size="sm" variant="outline" onClick={() => handleEditGuest(guest)}>
@@ -738,7 +744,7 @@ export default function GuestManagementPage() {
                   {groupedGuests.ungrouped.length > 0 && (
                     <>
                       <tr className="bg-secondary/5 border-b-2 border-secondary/20">
-                        <td colSpan={9} className="p-3">
+                        <td colSpan={10} className="p-3">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 bg-secondary rounded-full"></div>
                             <span className="font-semibold text-secondary">
@@ -779,6 +785,7 @@ export default function GuestManagementPage() {
                           <td className="p-4 text-sm text-muted-foreground">
                             {new Date(guest.lastUpdated).toLocaleDateString()}
                           </td>
+                          <td className="p-4 text-sm text-muted-foreground">{guest.side || "-"}</td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button size="sm" variant="outline" onClick={() => handleEditGuest(guest)}>
@@ -824,7 +831,27 @@ export default function GuestManagementPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="individual">Individual</SelectItem>
-                    <SelectItem value="group">Group</SelectItem>
+                    {Object.keys(groupedGuests.groups).map((groupName) => (
+                      <SelectItem key={groupName} value={groupName}>
+                        {groupName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Side</Label>
+                <Select
+                  value={formData.side}
+                  onValueChange={(value: "bride" | "groom") => setFormData({ ...formData, side: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bride">Bride Side</SelectItem>
+                    <SelectItem value="groom">Groom Side</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -862,14 +889,36 @@ export default function GuestManagementPage() {
                       value={formData.maxGroupSize || ""}
                       onChange={(e) => {
                         const value = e.target.value
-                        const size = value === "" ? 0 : Number.parseInt(value)
-                        setFormData({
-                          ...formData,
-                          maxGroupSize: size,
-                          groupMembers: Array(size)
-                            .fill("")
-                            .map((_, i) => formData.groupMembers[i] || ""),
-                        })
+                        if (value === "") {
+                          setFormData({
+                            ...formData,
+                            maxGroupSize: 0,
+                            groupMembers: [],
+                          })
+                        } else {
+                          const size = Number.parseInt(value)
+                          setFormData({
+                            ...formData,
+                            maxGroupSize: size,
+                            groupMembers: Array(size)
+                              .fill("")
+                              .map((_, i) => formData.groupMembers[i] || ""),
+                          })
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === "Backspace" &&
+                          e.currentTarget.selectionStart === 1 &&
+                          e.currentTarget.selectionEnd === 1
+                        ) {
+                          e.preventDefault()
+                          setFormData({
+                            ...formData,
+                            maxGroupSize: 0,
+                            groupMembers: [],
+                          })
+                        }
                       }}
                       placeholder="Enter maximum number of people"
                       required
@@ -983,6 +1032,59 @@ export default function GuestManagementPage() {
               <div className="flex gap-2">
                 <Button type="submit">Update Guest</Button>
                 <Button type="button" variant="outline" onClick={() => setEditingGuest(null)}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add to Group Dialog */}
+        <Dialog open={showAddToGroupDialog} onOpenChange={setShowAddToGroupDialog}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Add to Group
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Add Guest to Group</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleAddToGroup} className="space-y-4">
+              <div>
+                <Label htmlFor="selectedGroup">Select Group</Label>
+                <Select
+                  value={addToGroupData.selectedGroup}
+                  onValueChange={(value) => setAddToGroupData({ ...addToGroupData, selectedGroup: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a group" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(groupedGuests.groups).map((groupName) => (
+                      <SelectItem key={groupName} value={groupName}>
+                        {groupName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="newGuestName">New Guest Name</Label>
+                <Input
+                  id="newGuestName"
+                  value={addToGroupData.newGuestName}
+                  onChange={(e) => setAddToGroupData({ ...addToGroupData, newGuestName: e.target.value })}
+                  placeholder="Enter new guest's full name"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button type="submit">Add to Group</Button>
+                <Button type="button" variant="outline" onClick={() => setShowAddToGroupDialog(false)}>
                   Cancel
                 </Button>
               </div>

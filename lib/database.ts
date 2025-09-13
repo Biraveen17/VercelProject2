@@ -10,6 +10,7 @@ export interface Guest {
   events: ("ceremony" | "reception")[]
   dietaryRequirements?: string
   questions?: string
+  side?: "bride" | "groom" // Added side field
   lastUpdated: string
 }
 
@@ -64,7 +65,29 @@ export function addGuest(guest: Omit<Guest, "id" | "lastUpdated">): void {
     id: Date.now().toString(),
     lastUpdated: new Date().toISOString(),
   }
-  guests.push(newGuest)
+
+  if (guest.type === "group" && guest.maxGroupSize) {
+    guests.push(newGuest)
+
+    // Create individual guest entries for each slot in the group
+    for (let i = 0; i < guest.maxGroupSize; i++) {
+      const memberName = guest.groupMembers?.[i]?.trim() || `Guest ${i + 1}`
+      const memberGuest: Guest = {
+        id: `${Date.now()}_member_${i}`,
+        type: "individual",
+        guestName: memberName,
+        groupName: guest.groupName,
+        rsvpStatus: "pending",
+        events: [],
+        side: guest.side,
+        lastUpdated: new Date().toISOString(),
+      }
+      guests.push(memberGuest)
+    }
+  } else {
+    guests.push(newGuest)
+  }
+
   saveGuests(guests)
 }
 
@@ -72,7 +95,31 @@ export function updateGuest(id: string, updates: Partial<Guest>): void {
   const guests = getGuests()
   const index = guests.findIndex((g) => g.id === id)
   if (index !== -1) {
-    guests[index] = { ...guests[index], ...updates, lastUpdated: new Date().toISOString() }
+    const currentGuest = guests[index]
+
+    if (updates.groupName && updates.groupName !== currentGuest.groupName) {
+      // Remove from current group if any
+      if (currentGuest.groupName) {
+        // Update the guest to be individual or move to new group
+        guests[index] = {
+          ...currentGuest,
+          ...updates,
+          groupName: updates.groupName === "Individual" ? undefined : updates.groupName,
+          lastUpdated: new Date().toISOString(),
+        }
+      } else {
+        // Moving individual to a group
+        guests[index] = {
+          ...currentGuest,
+          ...updates,
+          groupName: updates.groupName === "Individual" ? undefined : updates.groupName,
+          lastUpdated: new Date().toISOString(),
+        }
+      }
+    } else {
+      guests[index] = { ...currentGuest, ...updates, lastUpdated: new Date().toISOString() }
+    }
+
     saveGuests(guests)
   }
 }
@@ -237,4 +284,45 @@ export function submitGroupRSVP(
   })
 
   saveGuests(filteredGuests)
+}
+
+// Admin login history management
+export function getAdminLoginHistory(): { lastLogin: string; changes: string[] } {
+  if (typeof window === "undefined") return { lastLogin: "", changes: [] }
+  const history = localStorage.getItem("admin_login_history")
+  return history ? JSON.parse(history) : { lastLogin: "", changes: [] }
+}
+
+export function updateAdminLoginHistory(): void {
+  const currentTime = new Date().toISOString()
+  const history = getAdminLoginHistory()
+
+  // Get changes since last login
+  const changes: string[] = []
+  const guests = getGuests()
+  const budgetItems = getBudgetItems()
+
+  if (history.lastLogin) {
+    const lastLoginTime = new Date(history.lastLogin)
+
+    // Check for guest changes
+    const recentGuestChanges = guests.filter((g) => new Date(g.lastUpdated) > lastLoginTime)
+    if (recentGuestChanges.length > 0) {
+      changes.push(`${recentGuestChanges.length} guest(s) updated`)
+    }
+
+    // Check for budget changes
+    const recentBudgetChanges = budgetItems.filter((b) => new Date(b.lastUpdated) > lastLoginTime)
+    if (recentBudgetChanges.length > 0) {
+      changes.push(`${recentBudgetChanges.length} budget item(s) updated`)
+    }
+  }
+
+  localStorage.setItem(
+    "admin_login_history",
+    JSON.stringify({
+      lastLogin: currentTime,
+      changes: changes,
+    }),
+  )
 }

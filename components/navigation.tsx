@@ -10,8 +10,8 @@ import { useLanguage } from "@/lib/language-context"
 const languages = [
   { code: "en", name: "English", flag: "🇬🇧" },
   { code: "da", name: "Danish", flag: "🇩🇰" },
-  { code: "ta", name: "Tamil", flag: "🇱🇰" },
   { code: "fr", name: "French", flag: "🇫🇷" },
+  { code: "ta", name: "Tamil", flag: "🇱🇰" },
 ]
 
 export function Navigation() {
