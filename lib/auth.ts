@@ -47,3 +47,7 @@ export function getCurrentUser(): AdminUser | null {
   const userStr = localStorage.getItem("wedding_admin_user")
   return userStr ? JSON.parse(userStr) : null
 }
+
+export async function checkAuthentication(): Promise<boolean> {
+  return isAuthenticated()
+}

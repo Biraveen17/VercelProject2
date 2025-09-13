@@ -1,7 +1,6 @@
 "use client"
 
-import React from "react"
-import { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,15 +21,20 @@ import {
 import { Plus, Edit, Trash2, Filter, LogOut, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { checkAuthentication } from "@/lib/auth"
 
-const loadGuests = () => {
-  // Placeholder for loadGuests function
-}
-
-const filteredAndSortedGuests = [] as Guest[]
-
-const getRSVPBadge = (status: string) => {
-  // Placeholder for getRSVPBadge function
+const loadGuests = (
+  setGuests: React.Dispatch<React.SetStateAction<Guest[]>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+) => {
+  try {
+    const guestsData = getGuests()
+    setGuests(guestsData)
+  } catch (error) {
+    console.error("Error loading guests:", error)
+  } finally {
+    setLoading(false)
+  }
 }
 
 export default function GuestManagementPage() {
@@ -75,6 +79,19 @@ export default function GuestManagementPage() {
 
   const [showAddToGroupDialog, setShowAddToGroupDialog] = useState(false)
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      const isAuth = await checkAuthentication()
+      setAuthenticated(isAuth)
+      if (isAuth) {
+        loadGuests(setGuests, setLoading)
+      } else {
+        setLoading(false)
+      }
+    }
+    checkAuth()
+  }, [])
+
   const handleEditGuest = (guest: Guest) => {
     setEditingGuest(guest)
     const currentType = guest.type === "individual" ? "individual" : guest.groupName || "individual"
@@ -115,8 +132,8 @@ export default function GuestManagementPage() {
 
     const updates = {
       type: formData.type === "individual" ? "individual" : "group",
-      guestName: formData.guestName,
-      groupName: formData.type === "individual" ? undefined : formData.type,
+      guestName: formData.type === "individual" ? formData.guestName : undefined,
+      groupName: formData.type === "group" ? formData.groupName : undefined,
       maxGroupSize: undefined,
       groupMembers: undefined,
       notes: formData.notes || undefined,
@@ -128,7 +145,7 @@ export default function GuestManagementPage() {
     }
 
     updateGuest(editingGuest.id, updates)
-    loadGuests()
+    loadGuests(setGuests, setLoading)
     setEditingGuest(null)
     resetForm()
   }
@@ -146,7 +163,7 @@ export default function GuestManagementPage() {
 
   const confirmDeleteGuest = () => {
     deleteGuest(deleteConfirmation.guestId)
-    loadGuests()
+    loadGuests(setGuests, setLoading)
     setDeleteConfirmation({ show: false, guestId: "", guestName: "" })
   }
 
@@ -174,7 +191,7 @@ export default function GuestManagementPage() {
     }
 
     addGuest(guestData)
-    loadGuests()
+    loadGuests(setGuests, setLoading)
     setShowAddDialog(false)
     resetForm()
   }
@@ -212,7 +229,7 @@ export default function GuestManagementPage() {
       addGuest(guestData)
     })
 
-    loadGuests()
+    loadGuests(setGuests, setLoading)
     setShowAddDialog(false)
     resetForm()
   }
@@ -227,7 +244,7 @@ export default function GuestManagementPage() {
 
     const success = addGuestToGroup(addToGroupData.selectedGroup, addToGroupData.newGuestName)
     if (success) {
-      loadGuests()
+      loadGuests(setGuests, setLoading)
       setShowAddToGroupDialog(false)
       setAddToGroupData({ selectedGroup: "", newGuestName: "" })
     } else {
@@ -264,7 +281,7 @@ export default function GuestManagementPage() {
       "Side",
     ]
 
-    const csvData = filteredAndSortedGuests.map((guest) => [
+    const csvData = guests.map((guest) => [
       guest.groupName || "",
       guest.guestName || "",
       guest.maxGroupSize || "",
@@ -291,7 +308,7 @@ export default function GuestManagementPage() {
     const groups: { [key: string]: Guest[] } = {}
     const ungrouped: Guest[] = []
 
-    filteredAndSortedGuests.forEach((guest) => {
+    guests.forEach((guest) => {
       if (guest.groupName) {
         if (!groups[guest.groupName]) {
           groups[guest.groupName] = []
@@ -303,10 +320,10 @@ export default function GuestManagementPage() {
     })
 
     return { groups, ungrouped }
-  }, [filteredAndSortedGuests])
+  }, [guests])
 
   const getActualGroupSize = (groupName: string): number => {
-    const allGuests = getGuests()
+    const allGuests = guests
     return allGuests.filter((g) => g.groupName === groupName).length
   }
 
@@ -358,8 +375,8 @@ export default function GuestManagementPage() {
                 Bride:{" "}
                 {guests.reduce((total, guest) => {
                   if (guest.side === "bride") {
-                    if (guest.type === "group" && guest.rsvpStatus === "pending" && guest.maxGroupSize) {
-                      return total + guest.maxGroupSize
+                    if (guest.type === "group" && guest.groupMembers) {
+                      return total + guest.groupMembers.filter((member) => member.trim()).length
                     }
                     return total + 1
                   }
@@ -368,8 +385,8 @@ export default function GuestManagementPage() {
                 | Groom:{" "}
                 {guests.reduce((total, guest) => {
                   if (guest.side === "groom") {
-                    if (guest.type === "group" && guest.rsvpStatus === "pending" && guest.maxGroupSize) {
-                      return total + guest.maxGroupSize
+                    if (guest.type === "group" && guest.groupMembers) {
+                      return total + guest.groupMembers.filter((member) => member.trim()).length
                     }
                     return total + 1
                   }
@@ -568,7 +585,7 @@ export default function GuestManagementPage() {
                         <td className="p-4">{guest.guestName}</td>
                         <td className="p-4">Individual</td>
                         <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
-                        <td className="p-4">{getRSVPBadge(guest.rsvpStatus)}</td>
+                        <td className="p-4">{guest.rsvpStatus}</td>
                         <td className="p-4">{guest.events?.join(", ") || "None"}</td>
                         <td className="p-4 max-w-xs">
                           <div className="truncate" title={guest.dietaryRequirements}>
@@ -604,61 +621,100 @@ export default function GuestManagementPage() {
                     ))}
 
                   {/* Group Guests */}
-                  {guests
-                    .filter((guest) => guest.type === "group")
-                    .map((guest) => {
-                      const actualCount = guest.groupMembers.filter((member) => member.trim()).length
-                      const maxSize = guest.maxGroupSize || actualCount
+                  {Object.entries(groupedGuests.groups).map(([groupName, groupMembers]) => {
+                    const actualCount = groupMembers.length
+                    const maxSize = groupMembers[0].maxGroupSize || actualCount
 
-                      return (
-                        <React.Fragment key={guest.id}>
-                          <tr className="bg-red-100 dark:bg-red-900/20">
-                            <td colSpan={9} className="p-3 font-semibold text-red-800 dark:text-red-200">
-                              {guest.groupName} ({actualCount} guests, max: {maxSize})
+                    return (
+                      <React.Fragment key={groupName}>
+                        <tr className="bg-red-100 dark:bg-red-900/20">
+                          <td colSpan={9} className="p-3 font-semibold text-red-800 dark:text-red-200">
+                            {groupName} ({actualCount} guests, max: {maxSize})
+                          </td>
+                        </tr>
+                        {groupMembers.map((member, index) => (
+                          <tr key={`${member.id}-${index}`} className="border-b hover:bg-muted/50">
+                            <td className="p-4">{member.guestName}</td>
+                            <td className="p-4">{groupName}</td>
+                            <td className="p-4">{member.side === "bride" ? "Bride" : "Groom"}</td>
+                            <td className="p-4">{member.rsvpStatus}</td>
+                            <td className="p-4">{member.events?.join(", ") || "None"}</td>
+                            <td className="p-4 max-w-xs">
+                              <div className="truncate" title={member.dietaryRequirements}>
+                                {member.dietaryRequirements || "-"}
+                              </div>
+                            </td>
+                            <td className="p-4 max-w-xs">
+                              <div className="truncate" title={member.questions}>
+                                {member.questions || "-"}
+                              </div>
+                            </td>
+                            <td className="p-4 max-w-xs">
+                              <div className="truncate" title={member.notes}>
+                                {member.notes || "-"}
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline" onClick={() => handleEditGuest(member)}>
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDeleteGuest(member.id)}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
                             </td>
                           </tr>
-                          {guest.groupMembers.map((member, index) => (
-                            <tr key={`${guest.id}-${index}`} className="border-b hover:bg-muted/50">
-                              <td className="p-4">{member}</td>
-                              <td className="p-4">{guest.groupName}</td>
-                              <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
-                              <td className="p-4">{getRSVPBadge(guest.rsvpStatus)}</td>
-                              <td className="p-4">{guest.events?.join(", ") || "None"}</td>
-                              <td className="p-4 max-w-xs">
-                                <div className="truncate" title={guest.dietaryRequirements}>
-                                  {guest.dietaryRequirements || "-"}
-                                </div>
-                              </td>
-                              <td className="p-4 max-w-xs">
-                                <div className="truncate" title={guest.questions}>
-                                  {guest.questions || "-"}
-                                </div>
-                              </td>
-                              <td className="p-4 max-w-xs">
-                                <div className="truncate" title={guest.notes}>
-                                  {guest.notes || "-"}
-                                </div>
-                              </td>
-                              <td className="p-4">
-                                <div className="flex gap-2">
-                                  <Button size="sm" variant="outline" onClick={() => handleEditGuest(guest)}>
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleDeleteGuest(guest.id)}
-                                    className="text-destructive hover:text-destructive"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </React.Fragment>
-                      )
-                    })}
+                        ))}
+                      </React.Fragment>
+                    )
+                  })}
+
+                  {/* Ungrouped Guests */}
+                  {groupedGuests.ungrouped.map((guest) => (
+                    <tr key={guest.id} className="border-b hover:bg-muted/50">
+                      <td className="p-4">{guest.guestName}</td>
+                      <td className="p-4">Individual</td>
+                      <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
+                      <td className="p-4">{guest.rsvpStatus}</td>
+                      <td className="p-4">{guest.events?.join(", ") || "None"}</td>
+                      <td className="p-4 max-w-xs">
+                        <div className="truncate" title={guest.dietaryRequirements}>
+                          {guest.dietaryRequirements || "-"}
+                        </div>
+                      </td>
+                      <td className="p-4 max-w-xs">
+                        <div className="truncate" title={guest.questions}>
+                          {guest.questions || "-"}
+                        </div>
+                      </td>
+                      <td className="p-4 max-w-xs">
+                        <div className="truncate" title={guest.notes}>
+                          {guest.notes || "-"}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => handleEditGuest(guest)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteGuest(guest.id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
