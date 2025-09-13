@@ -76,6 +76,9 @@ export default function HomePage() {
                           ? "nofullscreen"
                           : undefined
                   }
+                  disablePictureInPicture={!videoSettings.allowVideoFullscreen}
+                  playsInline={!videoSettings.allowVideoFullscreen}
+                  webkitplaysinline={!videoSettings.allowVideoFullscreen ? "true" : undefined}
                   style={
                     videoDimensions
                       ? {
