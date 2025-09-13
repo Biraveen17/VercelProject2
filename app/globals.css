@@ -22,7 +22,8 @@
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
   --border: #e2e8f0;
-  --input: #ffffff;
+  /* Made input background slightly darker for better visibility */
+  --input: #f8f9fa;
   --ring: rgba(219, 39, 119, 0.3);
   --chart-1: oklch(0.7 0.15 330);
   --chart-2: oklch(0.75 0.12 320);
@@ -59,13 +60,15 @@
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   --border: #4a4a4a;
-  --input: #3a3a3a;
+  /* Made dark mode input background slightly darker for better visibility */
+  --input: #2a2a2a;
   --ring: rgba(219, 39, 119, 0.3);
   --chart-1: oklch(0.6 0.15 330);
   --chart-2: oklch(0.65 0.12 320);
   --chart-3: oklch(0.7 0.1 310);
   --chart-4: oklch(0.55 0.18 340);
   --chart-5: oklch(0.75 0.08 300);
+  --radius: 0.75rem;
   --sidebar: #2a2a2a;
   --sidebar-foreground: #f8f8f8;
   --sidebar-primary: #db2777;
@@ -149,7 +152,8 @@
   input,
   textarea,
   select {
-    @apply bg-white border-2 border-border shadow-sm;
+    /* Updated to use the new input background color variable */
+    @apply bg-input border-2 border-border shadow-sm;
   }
 
   input:focus,

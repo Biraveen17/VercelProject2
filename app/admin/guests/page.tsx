@@ -385,6 +385,17 @@ export default function GuestManagementPage() {
                             groupMembers: Array(size).fill(""),
                           })
                         }}
+                        onKeyDown={(e) => {
+                          // Allow backspace, delete, and arrow keys to work properly
+                          if (
+                            e.key === "Backspace" ||
+                            e.key === "Delete" ||
+                            e.key === "ArrowLeft" ||
+                            e.key === "ArrowRight"
+                          ) {
+                            return
+                          }
+                        }}
                         placeholder="Enter maximum number of people"
                         required
                       />
@@ -738,6 +749,17 @@ export default function GuestManagementPage() {
                             .fill("")
                             .map((_, i) => formData.groupMembers[i] || ""),
                         })
+                      }}
+                      onKeyDown={(e) => {
+                        // Allow backspace, delete, and arrow keys to work properly
+                        if (
+                          e.key === "Backspace" ||
+                          e.key === "Delete" ||
+                          e.key === "ArrowLeft" ||
+                          e.key === "ArrowRight"
+                        ) {
+                          return
+                        }
                       }}
                       placeholder="Enter maximum number of people"
                       required

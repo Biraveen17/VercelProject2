@@ -33,11 +33,33 @@ export default function RSVPPage() {
 
       setFoundGuest(guest)
       if (guest.type === "group" && guest.maxGroupSize && guest.maxGroupSize > 1) {
-        setGroupMembers(new Array(guest.maxGroupSize).fill(""))
+        const preFilledMembers = guest.groupMembers || new Array(guest.maxGroupSize).fill("")
+        setGroupMembers(preFilledMembers)
       }
       setStep(2)
     } else {
-      setError("Guest name not found. Please check the spelling or contact us for assistance.")
+      const allGuests = require("@/lib/database").getGuests()
+      const groupWithMember = allGuests.find(
+        (g: Guest) =>
+          g.type === "group" &&
+          g.groupMembers &&
+          g.groupMembers.some((member: string) => member.toLowerCase().trim() === guestName.toLowerCase().trim()),
+      )
+
+      if (groupWithMember) {
+        if (groupWithMember.rsvpStatus && groupWithMember.rsvpStatus !== "pending") {
+          setError("Your group has already submitted an RSVP. If you need to make changes, please contact us directly.")
+          return
+        }
+
+        setFoundGuest(groupWithMember)
+        // Pre-fill the group members with existing names
+        const preFilledMembers = groupWithMember.groupMembers || new Array(groupWithMember.maxGroupSize).fill("")
+        setGroupMembers(preFilledMembers)
+        setStep(2)
+      } else {
+        setError("Guest name not found. Please check the spelling or contact us for assistance.")
+      }
     }
   }
 
@@ -116,7 +138,7 @@ export default function RSVPPage() {
                     id="guestName"
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
-                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
                     placeholder={t("namePlaceholder")}
                     required
                   />
@@ -233,7 +255,7 @@ export default function RSVPPage() {
                                 newMembers[index] = e.target.value
                                 setGroupMembers(newMembers)
                               }}
-                              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
                               placeholder={t("memberNamePlaceholder", { number: index + 1 })}
                             />
                           ))}
@@ -249,7 +271,7 @@ export default function RSVPPage() {
                         id="dietary"
                         value={dietaryRequirements}
                         onChange={(e) => setDietaryRequirements(e.target.value)}
-                        className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
                         rows={3}
                         placeholder={t("dietaryPlaceholder")}
                       />
@@ -265,7 +287,7 @@ export default function RSVPPage() {
                     id="questions"
                     value={questions}
                     onChange={(e) => setQuestions(e.target.value)}
-                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
                     rows={3}
                     placeholder={t("questionsPlaceholder")}
                   />

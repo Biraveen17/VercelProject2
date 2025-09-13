@@ -53,31 +53,29 @@ export interface Translation {
 
   // RSVP
   rsvpTitle: string
-  rsvpDescription: string
-  findInvitationTitle: string
-  guestNameLabel: string
-  guestNamePlaceholder: string
-  guestNameHelp: string
-  findInvitationButton: string
-  attendingQuestion: string
-  attendingYes: string
-  attendingNo: string
-  eventsQuestion: string
+  rsvpSubtitle: string
+  enterName: string
+  namePlaceholder: string
+  findGuest: string
+  welcomeGuest: string
+  groupBooking: string
+  willYouAttend: string
+  yesAttending: string
+  noAttending: string
+  whichEvents: string
   ceremonyEvent: string
   receptionEvent: string
-  dietaryLabel: string
+  groupMemberNames: string
+  memberNamePlaceholder: string
+  dietaryRequirements: string
   dietaryPlaceholder: string
-  questionsLabel: string
+  questionsComments: string
   questionsPlaceholder: string
+  submitRSVP: string
   thankYouTitle: string
   thankYouAttending: string
   thankYouNotAttending: string
-
-  // Days of week
-  days: string
-  hours: string
-  minutes: string
-  seconds: string
+  backToHome: string
 }
 
 export const translations: Record<string, Translation> = {
@@ -142,31 +140,29 @@ export const translations: Record<string, Translation> = {
 
     // RSVP
     rsvpTitle: "RSVP",
-    rsvpDescription: "Please let us know if you'll be joining us for our special celebration",
-    findInvitationTitle: "Find Your Invitation",
-    guestNameLabel: "Your Name or Group Name",
-    guestNamePlaceholder: "Enter your full name as it appears on the invitation",
-    guestNameHelp: "If you're part of a group booking, enter the group name instead.",
-    findInvitationButton: "Find My Invitation",
-    attendingQuestion: "Will you be attending our wedding?",
-    attendingYes: "Yes, I'll be there! 🎉",
-    attendingNo: "Sorry, I can't make it",
-    eventsQuestion: "Which events will you attend?",
+    rsvpSubtitle: "Please let us know if you'll be joining us for our special celebration",
+    enterName: "Enter Your Name",
+    namePlaceholder: "Enter your full name as it appears on the invitation",
+    findGuest: "Find Guest",
+    welcomeGuest: "Welcome, {name}!",
+    groupBooking: "Group booking for up to {size} people",
+    willYouAttend: "Will you be attending our wedding?",
+    yesAttending: "Yes, I'll be there! 🎉",
+    noAttending: "Sorry, I can't make it",
+    whichEvents: "Which events will you attend?",
     ceremonyEvent: "Hindu Wedding Ceremony",
     receptionEvent: "Wedding Reception",
-    dietaryLabel: "Dietary Requirements",
+    groupMemberNames: "Group Member Names",
+    memberNamePlaceholder: "Member {number} full name",
+    dietaryRequirements: "Dietary Requirements",
     dietaryPlaceholder: "Please let us know about any allergies, dietary restrictions, or special meal preferences...",
-    questionsLabel: "Questions or Special Requests",
+    questionsComments: "Questions or Comments",
     questionsPlaceholder: "Do you have any questions about the wedding, travel, or accommodation? We're here to help!",
+    submitRSVP: "Submit RSVP",
     thankYouTitle: "Thank You!",
     thankYouAttending: "Your RSVP has been received. We're excited to celebrate with you!",
     thankYouNotAttending: "Your RSVP has been received. We're sorry to hear you can't make it!",
-
-    // Time units
-    days: "Days",
-    hours: "Hours",
-    minutes: "Minutes",
-    seconds: "Seconds",
+    backToHome: "Back to Home",
   },
 
   da: {
@@ -230,31 +226,29 @@ export const translations: Record<string, Translation> = {
 
     // RSVP
     rsvpTitle: "RSVP",
-    rsvpDescription: "Lad os venligst vide, om du vil være med til vores særlige fejring",
-    findInvitationTitle: "Find Din Invitation",
-    guestNameLabel: "Dit Navn eller Gruppenavn",
-    guestNamePlaceholder: "Indtast dit fulde navn, som det står på invitationen",
-    guestNameHelp: "Hvis du er en del af en gruppebooking, skal du indtaste gruppenavnet i stedet.",
-    findInvitationButton: "Find Min Invitation",
-    attendingQuestion: "Vil du deltage i vores bryllup?",
-    attendingYes: "Ja, jeg kommer! 🎉",
-    attendingNo: "Beklager, jeg kan ikke komme",
-    eventsQuestion: "Hvilke begivenheder vil du deltage i?",
+    rsvpSubtitle: "Lad os venligst vide, om du vil være med til vores særlige fejring",
+    enterName: "Indtast Dit Navn",
+    namePlaceholder: "Indtast dit fulde navn, som det står på invitationen",
+    findGuest: "Find Gæst",
+    welcomeGuest: "Velkommen, {name}!",
+    groupBooking: "Gruppebooking til op til {size} personer",
+    willYouAttend: "Vil du deltage i vores bryllup?",
+    yesAttending: "Ja, jeg kommer! 🎉",
+    noAttending: "Beklager, jeg kan ikke komme",
+    whichEvents: "Hvilke begivenheder vil du deltage i?",
     ceremonyEvent: "Hindu Bryllupsceremonien",
     receptionEvent: "Bryllupsreception",
-    dietaryLabel: "Diætkrav",
+    groupMemberNames: "Gruppemedlemmerens Navne",
+    memberNamePlaceholder: "Medlem {number} fulde navn",
+    dietaryRequirements: "Diætkrav",
     dietaryPlaceholder: "Lad os venligst vide om allergier, diætbegrænsninger eller særlige måltidspræferencer...",
-    questionsLabel: "Spørgsmål eller Særlige Ønsker",
+    questionsComments: "Spørgsmål eller Kommentarer",
     questionsPlaceholder: "Har du spørgsmål om brylluppet, rejse eller indkvartering? Vi er her for at hjælpe!",
+    submitRSVP: "Send RSVP",
     thankYouTitle: "Tak!",
     thankYouAttending: "Dit RSVP er modtaget. Vi glæder os til at fejre med dig!",
     thankYouNotAttending: "Dit RSVP er modtaget. Vi er kede af at høre, at du ikke kan komme!",
-
-    // Time units
-    days: "Dage",
-    hours: "Timer",
-    minutes: "Minutter",
-    seconds: "Sekunder",
+    backToHome: "Tilbage til Hjem",
   },
 
   ta: {
@@ -318,31 +312,29 @@ export const translations: Record<string, Translation> = {
 
     // RSVP
     rsvpTitle: "பதில்",
-    rsvpDescription: "எங்கள் சிறப்பு கொண்டாட்டத்தில் நீங்கள் சேருவீர்களா என்பதை எங்களுக்குத் தெரியப்படுத்துங்கள்",
-    findInvitationTitle: "உங்கள் அழைப்பிதழைக் கண்டறியுங்கள்",
-    guestNameLabel: "உங்கள் பெயர் அல்லது குழு பெயர்",
-    guestNamePlaceholder: "அழைப்பிதழில் உள்ளது போல் உங்கள் முழு பெயரை உள்ளிடுங்கள்",
-    guestNameHelp: "நீங்கள் குழு முன்பதிவின் ஒரு பகுதியாக இருந்தால், அதற்கு பதிலாக குழு பெயரை உள்ளிடுங்கள்.",
-    findInvitationButton: "என் அழைப்பிதழைக் கண்டறி",
-    attendingQuestion: "நீங்கள் எங்கள் திருமணத்தில் கலந்துகொள்வீர்களா?",
-    attendingYes: "ஆம், நான் வருவேன்! 🎉",
-    attendingNo: "மன்னிக்கவும், என்னால் வர முடியாது",
-    eventsQuestion: "எந்த நிகழ்வுகளில் நீங்கள் கலந்துகொள்வீர்கள்?",
+    rsvpSubtitle: "எங்கள் சிறப்பு கொண்டாட்டத்தில் நீங்கள் சேருவீர்களா என்பதை எங்களுக்குத் தெரியப்படுத்துங்கள்",
+    enterName: "உங்கள் பெயரை உள்ளிடுங்கள்",
+    namePlaceholder: "அழைப்பிதழில் உள்ளது போல் உங்கள் முழு பெயரை உள்ளிடுங்கள்",
+    findGuest: "உங்கள் விருந்தினர்களைக் கண்டறியுங்கள்",
+    welcomeGuest: "வரவேற்கிறது, {name}!",
+    groupBooking: "{size} பேர்க்கு வரையற்ற குழு முன்பதிவு",
+    willYouAttend: "நீங்கள் எங்கள் திருமணத்தில் கலந்துகொள்வீர்களா?",
+    yesAttending: "ஆம், நான் வருவேன்! 🎉",
+    noAttending: "மன்னிக்கவும், என்னால் வர முடியாது",
+    whichEvents: "எந்த நிகழ்வுகளில் நீங்கள் கலந்துகொள்வீர்கள்?",
     ceremonyEvent: "இந்து திருமண சடங்கு",
     receptionEvent: "திருமண வரவேற்பு",
-    dietaryLabel: "உணவு தேவைகள்",
+    groupMemberNames: "குழு பொருளாளர்களின் பெயர்கள்",
+    memberNamePlaceholder: "பொருளாளர் {number} முழு பெயர்",
+    dietaryRequirements: "உணவு தேவைகள்",
     dietaryPlaceholder: "ஏதேனும் ஒவ்வாமை, உணவு கட்டுப்பாடுகள் அல்லது சிறப்பு உணவு விருப்பங்கள் பற்றி எங்களுக்குத் தெரியப்படுத்துங்கள்...",
-    questionsLabel: "கேள்விகள் அல்லது சிறப்பு கோரிக்கைகள்",
+    questionsComments: "கேள்விகள் அல்லது கருத்துக்கள்",
     questionsPlaceholder: "திருமணம், பயணம் அல்லது தங்குமிடம் பற்றி உங்களுக்கு ஏதேனும் கேள்விகள் உள்ளதா? நாங்கள் உதவ இங்கே இருக்கிறோம்!",
+    submitRSVP: "பதில் சமர்ப்பி",
     thankYouTitle: "நன்றி!",
     thankYouAttending: "உங்கள் பதில் பெறப்பட்டது. உங்களுடன் கொண்டாட நாங்கள் மகிழ்ச்சியடைகிறோம்!",
     thankYouNotAttending: "உங்கள் பதில் பெறப்பட்டது. நீங்கள் வர முடியாது என்று கேட்டு வருந்துகிறோம்!",
-
-    // Time units
-    days: "நாட்கள்",
-    hours: "மணிநேரங்கள்",
-    minutes: "நிமிடங்கள்",
-    seconds: "விநாடிகள்",
+    backToHome: "முகப்புக்கு திறக்கு",
   },
 }
 
