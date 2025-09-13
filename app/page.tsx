@@ -6,6 +6,7 @@ import { CountdownTimer } from "@/components/countdown-timer"
 import { Heart, MapPin, Calendar, Users } from "lucide-react"
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
+import Image from "next/image"
 
 export default function HomePage() {
   const { t } = useLanguage()
@@ -16,30 +17,14 @@ export default function HomePage() {
       <section className="relative bg-gradient-to-b from-card to-background py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
-            <div className="relative w-32 h-32 mx-auto mb-6">
-              {/* Outer decorative ring with Hindu patterns */}
-              <div className="absolute inset-0 rounded-full border-4 border-primary/20 bg-gradient-to-br from-pink-50 to-pink-100">
-                {/* Inner decorative elements */}
-                <div className="absolute inset-2 rounded-full border-2 border-primary/30 bg-gradient-to-br from-white to-pink-50 flex items-center justify-center">
-                  {/* V&B monogram */}
-                  <div className="text-center">
-                    <div className="text-3xl font-serif font-bold text-primary mb-1">V & B</div>
-                    <div className="text-xs text-primary/70 font-medium tracking-wider">VARNIE & BIRAVEEN</div>
-                  </div>
-                </div>
-
-                {/* Decorative dots around the circle */}
-                <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary rounded-full"></div>
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-primary rounded-full"></div>
-                <div className="absolute left-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-primary rounded-full"></div>
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-primary rounded-full"></div>
-
-                {/* Corner decorative elements */}
-                <div className="absolute top-4 left-4 text-primary/40 text-sm">❋</div>
-                <div className="absolute top-4 right-4 text-primary/40 text-sm">❋</div>
-                <div className="absolute bottom-4 left-4 text-primary/40 text-sm">❋</div>
-                <div className="absolute bottom-4 right-4 text-primary/40 text-sm">❋</div>
-              </div>
+            <div className="relative w-48 h-48 mx-auto mb-6">
+              <Image
+                src="/wedding-logo.png"
+                alt="Varnie & Biraveen Wedding Logo"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
 
             {/* Sacred Om symbol */}
