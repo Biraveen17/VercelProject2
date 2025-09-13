@@ -6,10 +6,35 @@ import { CountdownTimer } from "@/components/countdown-timer"
 import { Heart, MapPin, Calendar, Users } from "lucide-react"
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
-import Image from "next/image"
+import { useEffect, useState } from "react"
 
 export default function HomePage() {
   const { t } = useLanguage()
+  const [proposalVideoUrl, setProposalVideoUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchProposalVideo = async () => {
+      try {
+        const response = await fetch("/api/list-blobs")
+        const data = await response.json()
+
+        // Find the proposal video
+        const proposalVideo = data.files?.find(
+          (file: any) =>
+            file.filename?.toLowerCase().includes("proposalvideo") ||
+            file.pathname?.toLowerCase().includes("proposalvideo"),
+        )
+
+        if (proposalVideo) {
+          setProposalVideoUrl(proposalVideo.url)
+        }
+      } catch (error) {
+        console.error("Error fetching proposal video:", error)
+      }
+    }
+
+    fetchProposalVideo()
+  }, [])
 
   return (
     <div className="min-h-screen">
@@ -17,13 +42,20 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
             <div className="relative w-80 h-80 mx-auto mb-6">
-              <Image
-                src="/wedding-logo.png"
-                alt="Varnie & Biraveen Wedding Logo"
-                fill
-                className="object-contain"
-                priority
-              />
+              {proposalVideoUrl ? (
+                <video
+                  src={proposalVideoUrl}
+                  controls
+                  className="w-full h-full object-cover rounded-lg shadow-lg"
+                  poster="/wedding-logo.png"
+                >
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <div className="w-full h-full bg-muted/50 rounded-lg flex items-center justify-center border-2 border-primary/20">
+                  <p className="text-muted-foreground font-serif">Loading proposal video...</p>
+                </div>
+              )}
             </div>
           </div>
 
