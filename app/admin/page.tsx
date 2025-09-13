@@ -87,15 +87,94 @@ export default function AdminPage() {
   const budgetItems = getBudgetItems()
   const currentUser = getCurrentUser()
 
-  // Calculate statistics
-  const totalRSVPs = guests.length
-  const attendingGuests = guests.filter((g) => g.rsvpStatus === "attending").length
-  const notAttendingGuests = guests.filter((g) => g.rsvpStatus === "not-attending").length
-  const pendingGuests = guests.filter((g) => g.rsvpStatus === "pending").length
+  // For groups, count by maxGroupSize; for individuals, count as 1 each
+  const totalRSVPs = guests.reduce((total, guest) => {
+    if (guest.type === "group" && guest.maxGroupSize && !guest.guestName) {
+      // This is a group header - count by max group size
+      return total + guest.maxGroupSize
+    } else if (guest.type === "individual" && !guest.groupName) {
+      // This is an individual not belonging to any group
+      return total + 1
+    }
+    // Skip individual group members as they're already counted in the group header
+    return total
+  }, 0)
 
-  const ceremonyAttendees = guests.filter((g) => g.rsvpStatus === "attending" && g.events.includes("ceremony")).length
+  const attendingGuests = guests.reduce((total, guest) => {
+    if (guest.type === "group" && guest.maxGroupSize && !guest.guestName && guest.rsvpStatus === "attending") {
+      // Group header attending - count actual group members who responded
+      const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
+      return total + groupMembers.filter((g) => g.rsvpStatus === "attending").length
+    } else if (guest.type === "individual" && !guest.groupName && guest.rsvpStatus === "attending") {
+      return total + 1
+    }
+    return total
+  }, 0)
 
-  const receptionAttendees = guests.filter((g) => g.rsvpStatus === "attending" && g.events.includes("reception")).length
+  const notAttendingGuests = guests.reduce((total, guest) => {
+    if (guest.type === "group" && guest.maxGroupSize && !guest.guestName && guest.rsvpStatus === "not-attending") {
+      // Group header not attending - count actual group members who responded
+      const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
+      return total + groupMembers.filter((g) => g.rsvpStatus === "not-attending").length
+    } else if (guest.type === "individual" && !guest.groupName && guest.rsvpStatus === "not-attending") {
+      return total + 1
+    }
+    return total
+  }, 0)
+
+  const pendingGuests = guests.reduce((total, guest) => {
+    if (guest.type === "group" && guest.maxGroupSize && !guest.guestName && guest.rsvpStatus === "pending") {
+      // Group header pending - count by max group size
+      return total + guest.maxGroupSize
+    } else if (guest.type === "individual" && !guest.groupName && guest.rsvpStatus === "pending") {
+      return total + 1
+    }
+    return total
+  }, 0)
+
+  const ceremonyAttendees = guests.reduce((total, guest) => {
+    if (
+      guest.type === "group" &&
+      guest.maxGroupSize &&
+      !guest.guestName &&
+      guest.rsvpStatus === "attending" &&
+      guest.events.includes("ceremony")
+    ) {
+      // Group attending ceremony - count actual group members
+      const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
+      return total + groupMembers.filter((g) => g.rsvpStatus === "attending" && g.events.includes("ceremony")).length
+    } else if (
+      guest.type === "individual" &&
+      !guest.groupName &&
+      guest.rsvpStatus === "attending" &&
+      guest.events.includes("ceremony")
+    ) {
+      return total + 1
+    }
+    return total
+  }, 0)
+
+  const receptionAttendees = guests.reduce((total, guest) => {
+    if (
+      guest.type === "group" &&
+      guest.maxGroupSize &&
+      !guest.guestName &&
+      guest.rsvpStatus === "attending" &&
+      guest.events.includes("reception")
+    ) {
+      // Group attending reception - count actual group members
+      const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
+      return total + groupMembers.filter((g) => g.rsvpStatus === "attending" && g.events.includes("reception")).length
+    } else if (
+      guest.type === "individual" &&
+      !guest.groupName &&
+      guest.rsvpStatus === "attending" &&
+      guest.events.includes("reception")
+    ) {
+      return total + 1
+    }
+    return total
+  }, 0)
 
   const plannedTotal = budgetItems.filter((i) => i.status === "planned").reduce((sum, i) => sum + i.cost, 0)
   const bookedTotal = budgetItems.filter((i) => i.status === "booked").reduce((sum, i) => sum + i.cost, 0)

@@ -26,23 +26,6 @@ export default function RSVPPage() {
     const allGuests = getGuests()
     const normalizedName = guestName.toLowerCase().trim()
 
-    // Check if this exact name already exists as an individual guest
-    const individualGuest = allGuests.find(
-      (g: Guest) => g.type === "individual" && g.guestName?.toLowerCase().trim() === normalizedName,
-    )
-
-    if (individualGuest) {
-      // Found individual guest - show individual RSVP form
-      if (individualGuest.rsvpStatus && individualGuest.rsvpStatus !== "pending") {
-        setError("You have already submitted your RSVP. If you need to make changes, please contact us directly.")
-        return
-      }
-      setFoundGuest(individualGuest)
-      setStep(2)
-      return
-    }
-
-    // Check if this name matches a group name
     const groupByName = allGuests.find(
       (g: Guest) => g.type === "group" && g.groupName?.toLowerCase().trim() === normalizedName,
     )
@@ -64,7 +47,6 @@ export default function RSVPPage() {
       return
     }
 
-    // Check if this name matches any group member
     const groupWithMember = allGuests.find(
       (g: Guest) =>
         g.type === "group" &&
@@ -85,6 +67,21 @@ export default function RSVPPage() {
         .fill("")
         .map((_, index) => existingMembers[index] || "")
       setGroupMembers(initialMembers)
+      setStep(2)
+      return
+    }
+
+    const individualGuest = allGuests.find(
+      (g: Guest) => g.type === "individual" && !g.groupName && g.guestName?.toLowerCase().trim() === normalizedName,
+    )
+
+    if (individualGuest) {
+      // Found individual guest - show individual RSVP form
+      if (individualGuest.rsvpStatus && individualGuest.rsvpStatus !== "pending") {
+        setError("You have already submitted your RSVP. If you need to make changes, please contact us directly.")
+        return
+      }
+      setFoundGuest(individualGuest)
       setStep(2)
       return
     }

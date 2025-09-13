@@ -222,19 +222,19 @@ export function findGuestForRSVP(name: string): Guest | null {
   const guests = getGuests()
   const normalizedName = name.toLowerCase().trim()
 
-  const individual = guests.find((g) => g.type === "individual" && g.guestName?.toLowerCase().trim() === normalizedName)
-
-  if (individual) return individual
-
   const group = guests.find((g) => g.type === "group" && g.groupName?.toLowerCase().trim() === normalizedName)
-
   if (group) return group
 
   const groupWithMember = guests.find(
     (g) => g.type === "group" && g.groupMembers?.some((member) => member.toLowerCase().trim() === normalizedName),
   )
+  if (groupWithMember) return groupWithMember
 
-  return groupWithMember || null
+  const individual = guests.find(
+    (g) => g.type === "individual" && !g.groupName && g.guestName?.toLowerCase().trim() === normalizedName,
+  )
+
+  return individual || null
 }
 
 export function submitGroupRSVP(
@@ -249,7 +249,19 @@ export function submitGroupRSVP(
 ): void {
   const guests = getGuests()
 
-  const filteredGuests = guests.filter((g) => g.id !== groupGuest.id)
+  const updatedGroupHeader: Guest = {
+    ...groupGuest,
+    rsvpStatus: rsvpData.isAttending ? "attending" : "not-attending",
+    events: rsvpData.isAttending ? rsvpData.events : [],
+    questions: rsvpData.questions,
+    lastUpdated: new Date().toISOString(),
+  }
+
+  // Remove the old group header and any existing group members
+  const filteredGuests = guests.filter((g) => g.id !== groupGuest.id && g.groupName !== groupGuest.groupName)
+
+  // Add the updated group header
+  filteredGuests.push(updatedGroupHeader)
 
   const filledMembers = rsvpData.groupMembers.filter((member) => member.trim() !== "")
 
