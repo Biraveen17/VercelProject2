@@ -337,19 +337,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-serif font-bold text-primary mb-8 spaced-letters">{t("loveStoryTitle")}</h2>
-          <Card className="decorative-border">
-            <CardContent className="p-8">
-              <div className="aspect-video bg-muted/50 rounded-lg flex items-center justify-center border-2 border-primary/20">
-                <p className="text-muted-foreground font-serif">Wedding Video Coming Soon</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
     </div>
   )
 }

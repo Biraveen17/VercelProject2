@@ -211,7 +211,7 @@
   .floral-background::before {
     content: "";
     position: fixed;
-    top: 80px; /* Start after navigation bar */
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
@@ -220,18 +220,18 @@
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    opacity: 0.4; /* Increased opacity to make flowers clearly visible */
+    opacity: 0.3;
     pointer-events: none;
     z-index: -1;
-    /* Removed complex mask - keeping flowers fully visible */
   }
 
-  /* Mobile-specific background to prevent resizing issues */
+  /* Simplified mobile background - just use the image directly without complex positioning */
   @media (max-width: 768px) {
     .floral-background::before {
       background-attachment: scroll;
-      position: absolute;
-      top: 0;
+      position: fixed;
+      background-size: cover;
+      background-position: center;
     }
   }
 
