@@ -112,8 +112,8 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen floral-background">
-      <section className="relative py-20 px-4">
+    <div className="min-h-screen floral-background scroll-smooth" style={{ scrollSnapType: "y mandatory" }}>
+      <section className="relative py-20 px-4" style={{ scrollSnapAlign: "start" }}>
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
             <div className="relative mx-auto mb-6 max-w-4xl">
@@ -238,7 +238,7 @@ export default function HomePage() {
             </Button>
           </div>
 
-          <div className="w-full h-px bg-primary/30 mb-8"></div>
+          <div className="w-full h-px bg-primary/30 mb-8" style={{ scrollSnapAlign: "start" }}></div>
 
           <div className="mb-8 p-6 decorative-border rounded-lg">
             <div className="text-base font-serif text-center mb-6">{t("welcomeTitle").toUpperCase()}</div>
@@ -251,7 +251,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 px-4">
+      <section className="py-16 px-4" style={{ scrollSnapAlign: "start" }}>
         <div className="max-w-4xl mx-auto">
           <Card className="mb-12 decorative-border">
             <CardHeader>
@@ -306,7 +306,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-muted/30">
+      <section className="py-16 px-4 bg-muted/30" style={{ scrollSnapAlign: "start" }}>
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-serif font-bold text-center text-primary mb-12 spaced-letters">
             {t("traditionsTitle")}
