@@ -186,7 +186,7 @@ export default function HomePage() {
 
           <div className="mb-8 space-y-4">
             <h1 className="island-moments text-5xl md:text-7xl font-bold text-primary mb-18">Varnie & Biraveen</h1>
-            <div className="script text-3xl md:text-4xl text-secondary mb-18">wedding invitation</div>
+            <div className="script text-3xl md:text-4xl text-secondary mb-18">Wedding Invitation</div>
             <p className="text-xl md:text-2xl text-foreground mb-12 spaced-letters font-serif">{t("homeSubtitle")}</p>
           </div>
 
@@ -235,32 +235,30 @@ export default function HomePage() {
           <div className="w-full h-px bg-primary/30 mb-8" style={{ scrollSnapAlign: "start" }}></div>
 
           <div className="mb-8 p-6 decorative-border rounded-lg">
-            <div className="text-base font-serif text-center mb-6">{t("welcomeTitle").toUpperCase()}</div>
+            <div className="text-base font-serif text-center mb-6 flex items-center justify-center gap-2">
+              <Heart className="w-5 h-5 text-primary" />
+              <span>{t("welcomeTitle").toUpperCase()}</span>
+              <Heart className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-center space-y-4">
+              <p className="text-lg leading-relaxed font-serif">{t("welcomeDescription1")}</p>
+              <p className="text-lg leading-relaxed font-serif">{t("welcomeDescription2")}</p>
+            </div>
           </div>
 
           <div className="mb-8">
             <h3 className="text-xl font-serif text-secondary mb-4 spaced-letters">{t("countdownTitle")}</h3>
-            <CountdownTimer />
+            <div className="flex justify-center">
+              <div className="gap-6">
+                <CountdownTimer />
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       <section className="py-16 px-4" style={{ scrollSnapAlign: "start" }}>
         <div className="max-w-4xl mx-auto">
-          <Card className="mb-12 decorative-border">
-            <CardHeader>
-              <CardTitle className="text-2xl text-center flex items-center justify-center gap-2 font-serif">
-                <Heart className="w-6 h-6 text-primary" />
-                <span className="spaced-letters">{t("welcomeTitle")}</span>
-                <Heart className="w-6 h-6 text-primary" />
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <p className="text-lg leading-relaxed font-serif">{t("welcomeDescription1")}</p>
-              <p className="text-lg leading-relaxed font-serif">{t("welcomeDescription2")}</p>
-            </CardContent>
-          </Card>
-
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="text-center decorative-border">
               <CardContent className="p-6">

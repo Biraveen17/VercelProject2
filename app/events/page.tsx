@@ -15,39 +15,51 @@ export default function EventsPage() {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 mb-12">
-          {/* Hindu Ceremony */}
-          <Card className="overflow-hidden">
-            <div className="bg-gradient-to-r from-primary to-accent p-6 text-primary-foreground">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="text-2xl">🕉️</span>
+          <Card className="decorative-border">
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="text-3xl">🕉️</div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-primary font-serif">Hindu Wedding Ceremony</h2>
+                    <p className="text-secondary font-serif">Traditional Tamil Hindu Rituals</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Hindu Wedding Ceremony</h2>
-                  <p className="text-primary-foreground/80">Traditional Tamil Hindu Rituals</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 relative">
+                <div className="text-center space-y-3">
+                  <div className="flex items-center justify-center gap-3">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    <span className="font-serif">Friday, March 27, 2026</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-3">
+                    <Clock className="w-5 h-5 text-primary" />
+                    <span className="font-serif">10:00 AM - 1:00 PM</span>
+                  </div>
+                </div>
+
+                {/* Vertical Divider Line for desktop */}
+                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/30 transform -translate-x-1/2 hidden md:block"></div>
+
+                {/* Horizontal Divider Line for mobile */}
+                <div className="w-full h-px bg-primary/30 md:hidden"></div>
+
+                <div className="text-center space-y-3">
+                  <div className="flex items-center justify-center gap-3">
+                    <MapPin className="w-5 h-5 text-primary" />
+                    <span className="font-serif">Beachfront Venue, Paphos</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-3">
+                    <Shirt className="w-5 h-5 text-primary" />
+                    <span className="font-serif">Traditional Indian Attire</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-primary" />
-                <span>Friday, March 27, 2026</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-primary" />
-                <span>10:00 AM - 1:00 PM</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-primary" />
-                <span>Beachfront Venue, Paphos</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Shirt className="w-5 h-5 text-primary" />
-                <span>Traditional Indian Attire</span>
-              </div>
-              <div className="pt-4 border-t">
-                <h4 className="font-semibold mb-2">What to Expect:</h4>
-                <ul className="text-sm space-y-1 text-muted-foreground">
+
+              <div className="pt-6 mt-6 border-t border-primary/30">
+                <h4 className="font-semibold mb-3 text-center font-serif">What to Expect:</h4>
+                <ul className="text-sm space-y-2 text-muted-foreground font-serif text-center">
                   <li>• Ganesh Puja (Blessing ceremony)</li>
                   <li>• Mangalsutra (Sacred necklace ceremony)</li>
                   <li>• Saptapadi (Seven sacred steps)</li>
@@ -57,39 +69,51 @@ export default function EventsPage() {
             </CardContent>
           </Card>
 
-          {/* Reception */}
-          <Card className="overflow-hidden">
-            <div className="bg-gradient-to-r from-accent to-primary p-6 text-accent-foreground">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                  <Users className="w-6 h-6" />
+          <Card className="decorative-border">
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Users className="w-8 h-8 text-secondary" />
+                  <div>
+                    <h2 className="text-2xl font-bold text-secondary font-serif">Wedding Reception</h2>
+                    <p className="text-primary font-serif">Dinner, Dancing & Celebration</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Wedding Reception</h2>
-                  <p className="text-accent-foreground/80">Dinner, Dancing & Celebration</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6 relative">
+                <div className="text-center space-y-3">
+                  <div className="flex items-center justify-center gap-3">
+                    <Calendar className="w-5 h-5 text-secondary" />
+                    <span className="font-serif">Saturday, March 28, 2026</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-3">
+                    <Clock className="w-5 h-5 text-secondary" />
+                    <span className="font-serif">6:00 PM - 12:00 AM</span>
+                  </div>
+                </div>
+
+                {/* Vertical Divider Line for desktop */}
+                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-secondary/30 transform -translate-x-1/2 hidden md:block"></div>
+
+                {/* Horizontal Divider Line for mobile */}
+                <div className="w-full h-px bg-secondary/30 md:hidden"></div>
+
+                <div className="text-center space-y-3">
+                  <div className="flex items-center justify-center gap-3">
+                    <MapPin className="w-5 h-5 text-secondary" />
+                    <span className="font-serif">Luxury Resort Ballroom, Paphos</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-3">
+                    <Shirt className="w-5 h-5 text-secondary" />
+                    <span className="font-serif">Formal or Traditional Attire</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-accent" />
-                <span>Saturday, March 28, 2026</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-accent" />
-                <span>6:00 PM - 12:00 AM</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-accent" />
-                <span>Luxury Resort Ballroom, Paphos</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Shirt className="w-5 h-5 text-accent" />
-                <span>Formal or Traditional Attire</span>
-              </div>
-              <div className="pt-4 border-t">
-                <h4 className="font-semibold mb-2">Evening Program:</h4>
-                <ul className="text-sm space-y-1 text-muted-foreground">
+
+              <div className="pt-6 mt-6 border-t border-secondary/30">
+                <h4 className="font-semibold mb-3 text-center font-serif">Evening Program:</h4>
+                <ul className="text-sm space-y-2 text-muted-foreground font-serif text-center">
                   <li>• Welcome drinks & canapés</li>
                   <li>• Three-course dinner</li>
                   <li>• Traditional & modern music</li>
@@ -100,8 +124,7 @@ export default function EventsPage() {
           </Card>
         </div>
 
-        {/* Schedule Timeline */}
-        <Card className="mb-8">
+        <Card className="mb-8 decorative-border">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Detailed Schedule</CardTitle>
           </CardHeader>
@@ -161,9 +184,8 @@ export default function EventsPage() {
           </CardContent>
         </Card>
 
-        {/* Dress Code & Cultural Notes */}
         <div className="grid md:grid-cols-2 gap-8">
-          <Card>
+          <Card className="decorative-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shirt className="w-5 h-5" />
@@ -188,7 +210,7 @@ export default function EventsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="decorative-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Camera className="w-5 h-5" />
