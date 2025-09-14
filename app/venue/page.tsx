@@ -4,74 +4,45 @@ import { MapPin, Car, Plane, Hotel, Utensils, Camera } from "lucide-react"
 
 export default function VenuePage() {
   return (
-    <div className="min-h-screen py-12 px-4">
+    <div className="min-h-screen py-12 px-4 floral-background">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-primary mb-4">Venue & Location</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover the beautiful venues in Paphos, Cyprus where we'll celebrate our special day
+            Discover the beautiful venue in Paphos, Cyprus where we'll celebrate our special day
           </p>
         </div>
 
-        {/* Main Venues */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-12">
-          <Card>
+        {/* Main Venue */}
+        <div className="flex justify-center mb-12">
+          <Card className="w-full">
             <div className="aspect-video bg-muted rounded-t-lg flex items-center justify-center">
               <Camera className="w-12 h-12 text-muted-foreground" />
             </div>
             <CardHeader>
-              <CardTitle className="text-xl">Hindu Ceremony Venue</CardTitle>
+              <CardTitle className="text-xl text-center">Wedding & Reception Venue</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary mt-1" />
                 <div>
-                  <p className="font-medium">Beachfront Pavilion</p>
-                  <p className="text-sm text-muted-foreground">Coral Bay Beach, Paphos, Cyprus</p>
+                  <p className="font-medium">Base Event Venue</p>
+                  <p className="text-sm text-muted-foreground">Paphos, Cyprus</p>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">
-                A stunning beachfront location with panoramic views of the Mediterranean Sea. The ceremony will take
-                place in a beautifully decorated pavilion with the sound of waves as our backdrop.
+                A stunning venue that will host both our Hindu ceremony and reception celebration. The perfect setting
+                for our special day with beautiful facilities and scenic surroundings.
               </p>
               <div className="pt-4">
                 <h4 className="font-semibold mb-2">Facilities:</h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Covered pavilion for ceremony</li>
+                  <li>• Ceremony and reception areas</li>
                   <li>• Parking available on-site</li>
                   <li>• Accessible facilities</li>
                   <li>• Professional sound system</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <div className="aspect-video bg-muted rounded-t-lg flex items-center justify-center">
-              <Camera className="w-12 h-12 text-muted-foreground" />
-            </div>
-            <CardHeader>
-              <CardTitle className="text-xl">Reception Venue</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-accent mt-1" />
-                <div>
-                  <p className="font-medium">Luxury Resort Ballroom</p>
-                  <p className="text-sm text-muted-foreground">Paphos Luxury Resort, Paphos, Cyprus</p>
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                An elegant ballroom with crystal chandeliers and floor-to-ceiling windows overlooking the resort
-                gardens. The perfect setting for an unforgettable evening celebration.
-              </p>
-              <div className="pt-4">
-                <h4 className="font-semibold mb-2">Facilities:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Air-conditioned ballroom</li>
-                  <li>• Full bar and catering kitchen</li>
-                  <li>• Dance floor and stage</li>
-                  <li>• Valet parking service</li>
+                  <li>• Full catering facilities</li>
+                  <li>• Dance floor and entertainment area</li>
                 </ul>
               </div>
             </CardContent>
@@ -79,39 +50,35 @@ export default function VenuePage() {
         </div>
 
         {/* Maps Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">Location Maps</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Ceremony Location</h3>
-                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center mb-4">
-                  <div className="text-center">
-                    <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-muted-foreground">Interactive Map Coming Soon</p>
-                  </div>
+        <div className="flex justify-center mb-8">
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle className="text-xl text-center">Venue Location</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="aspect-video rounded-lg overflow-hidden">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3276.8!2d32.4!3d34.75!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14e7330661110227%3A0x0!2sAirport%20Road%2C%20Paphos%208507%2C%20Cyprus!5e1!3m2!1sen!2s!4v1234567890123!5m2!1sen!2s"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Base Event Venue Location"
+                  ></iframe>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  <strong>Address:</strong> Coral Bay Beach, Coral Bay Avenue, Paphos 8099, Cyprus
+                <p className="text-sm text-muted-foreground text-center">
+                  <strong>Address:</strong> Base Event Venue, Airport Road, Paphos 8507, Cyprus
+                </p>
+                <p className="text-xs text-muted-foreground text-center">
+                  Click and drag to explore the map. Use the fullscreen button to enlarge the view.
                 </p>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Reception Location</h3>
-                <div className="aspect-video bg-muted rounded-lg flex items-center justify-center mb-4">
-                  <div className="text-center">
-                    <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-muted-foreground">Interactive Map Coming Soon</p>
-                  </div>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  <strong>Address:</strong> Paphos Luxury Resort, Poseidonos Avenue, Paphos 8042, Cyprus
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Getting There */}
         <Card className="mb-8">
@@ -158,17 +125,14 @@ export default function VenuePage() {
               <div>
                 <h4 className="font-semibold text-primary">From Paphos Airport:</h4>
                 <ol className="text-sm text-muted-foreground mt-2 space-y-1">
-                  <li>1. Exit airport and follow signs to Paphos/Coral Bay</li>
-                  <li>2. Take B6 road towards Coral Bay (15 minutes)</li>
-                  <li>3. Follow signs to Coral Bay Beach for ceremony venue</li>
-                  <li>4. Reception venue is 5 minutes from ceremony location</li>
+                  <li>1. Exit airport and follow signs to Paphos city center</li>
+                  <li>2. Follow directions to Base Event Venue</li>
+                  <li>3. Venue hosts both ceremony and reception</li>
                 </ol>
               </div>
               <div className="pt-4 border-t">
                 <h4 className="font-semibold">Parking Information:</h4>
-                <p className="text-sm text-muted-foreground">
-                  Free parking available at both venues. Valet service provided at reception venue.
-                </p>
+                <p className="text-sm text-muted-foreground">Free parking available at the venue for all guests.</p>
               </div>
             </CardContent>
           </Card>
