@@ -225,25 +225,18 @@
     z-index: -1;
   }
 
-  /* Fixed mobile background to prevent zooming when URL bar disappears */
+  /* Fixed mobile and tablet background to show full floral image */
   @media (max-width: 1024px) {
     .floral-background::before {
-      position: fixed;
-      height: 100vh;
-      width: 100vw;
-      background-attachment: fixed;
+      background-attachment: scroll;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      /* Use fixed positioning and viewport units that don't change with URL bar */
     }
   }
 
-  /* Additional fix for iOS Safari URL bar behavior */
-  @media (max-width: 768px) {
-    .floral-background::before {
-      height: 100vh;
-      /* Force consistent height regardless of URL bar state */
-    }
+  .floral-background > * {
+    position: relative;
+    z-index: 1;
   }
 }
