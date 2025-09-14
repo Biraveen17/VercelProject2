@@ -65,14 +65,30 @@ export default function AdminPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    const success = await login(username, password)
-    if (success) {
-      setAuthenticated(true)
-      setError("")
-      const user = await getCurrentUser()
-      setCurrentUser(user)
-    } else {
-      setError("Invalid credentials")
+    console.log("[v0] Starting login process...")
+    setError("")
+
+    try {
+      const success = await login(username, password)
+      console.log("[v0] Login result:", success)
+
+      if (success) {
+        console.log("[v0] Login successful, checking token in localStorage...")
+        const token = localStorage.getItem("wedding_admin_token")
+        console.log("[v0] Token in localStorage:", token ? "found" : "not found")
+
+        setAuthenticated(true)
+        setError("")
+        const user = await getCurrentUser()
+        console.log("[v0] Current user:", user)
+        setCurrentUser(user)
+      } else {
+        console.log("[v0] Login failed")
+        setError("Invalid credentials")
+      }
+    } catch (error) {
+      console.error("[v0] Login error:", error)
+      setError("Login failed. Please try again.")
     }
   }
 

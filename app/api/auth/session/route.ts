@@ -31,7 +31,12 @@ export async function GET(request: NextRequest) {
     }
 
     const session = sessions[0]
-    const userData = JSON.parse(session.user_data as string)
+    let userData
+    if (typeof session.user_data === "string") {
+      userData = JSON.parse(session.user_data)
+    } else {
+      userData = session.user_data
+    }
     console.log("[v0] Session valid for user:", userData.username)
 
     return NextResponse.json({
