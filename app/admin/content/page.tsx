@@ -15,6 +15,8 @@ interface PageContent {
   title: string
   description: string
   content: string
+  enabled: boolean
+  order: number
 }
 
 interface ContentData {
@@ -35,26 +37,36 @@ export default function ContentEditorPage() {
       title: "Varnie & Biraveen",
       description: "Together with our families, we invite you to celebrate our Tamil Hindu wedding",
       content: "We are thrilled to invite you to join us as we begin our journey together as husband and wife...",
+      enabled: true,
+      order: 1,
     },
     events: {
       title: "Wedding Events",
       description: "Join us for two beautiful days of celebration in the stunning setting of Paphos, Cyprus",
       content: "Our celebration will include traditional Tamil Hindu ceremonies and modern reception festivities...",
+      enabled: true,
+      order: 2,
     },
     venue: {
       title: "Venue & Location",
       description: "Discover the beautiful venues in Paphos, Cyprus where we'll celebrate our special day",
       content: "Both our ceremony and reception will take place in stunning beachfront locations...",
+      enabled: true,
+      order: 3,
     },
     gallery: {
       title: "Our Gallery",
       description: "Capturing the beautiful moments of our journey together",
       content: "Browse through our engagement photos and pre-wedding celebrations...",
+      enabled: true,
+      order: 5,
     },
     travel: {
       title: "Travel to Cyprus",
       description: "Everything you need to know for your journey to our wedding in beautiful Paphos, Cyprus",
       content: "Cyprus is easily accessible from major European cities with direct flights to Paphos...",
+      enabled: true,
+      order: 4,
     },
   })
 
@@ -81,7 +93,7 @@ export default function ContentEditorPage() {
     alert("Content saved successfully!")
   }
 
-  const updatePageContent = (page: keyof ContentData, field: keyof PageContent, value: string) => {
+  const updatePageContent = (page: keyof ContentData, field: keyof PageContent, value: string | boolean | number) => {
     setContentData((prev) => ({
       ...prev,
       [page]: {
@@ -170,6 +182,34 @@ export default function ContentEditorPage() {
               <CardTitle>Edit {pages.find((p) => p.key === activeTab)?.label}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Page Management Controls */}
+              <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="enabled"
+                    checked={currentPage.enabled}
+                    onChange={(e) => updatePageContent(activeTab as keyof ContentData, "enabled", e.target.checked)}
+                    className="rounded"
+                  />
+                  <Label htmlFor="enabled">Page Enabled</Label>
+                </div>
+                <div>
+                  <Label htmlFor="order">Navigation Order</Label>
+                  <Input
+                    id="order"
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={currentPage.order}
+                    onChange={(e) =>
+                      updatePageContent(activeTab as keyof ContentData, "order", Number.parseInt(e.target.value))
+                    }
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="title">Page Title</Label>
                 <Input

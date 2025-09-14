@@ -1,7 +1,6 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { MapPin } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 
@@ -20,35 +19,35 @@ export default function VenuePage() {
 
         {/* Main Venue */}
         <div className="flex justify-center mb-12">
-          <Card className="max-w-2xl mx-auto w-full">
-            <div className="aspect-video bg-muted rounded-t-lg overflow-hidden">
+          <div className="max-w-2xl mx-auto w-full bg-card rounded-lg shadow-sm border overflow-hidden">
+            <div className="aspect-video bg-muted overflow-hidden">
               <img src="/api/blob/baseeventvenue1" alt="Base Event Venue" className="w-full h-full object-cover" />
             </div>
-            <CardHeader>
-              <CardTitle className="text-xl text-center">{t("weddingReceptionVenue")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-primary mt-1" />
-                <div>
-                  <p className="font-medium">Base Event Venue</p>
-                  <p className="text-sm text-muted-foreground">Paphos, Cyprus</p>
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-center mb-4">{t("weddingReceptionVenue")}</h3>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-primary mt-1" />
+                  <div>
+                    <p className="font-medium">Base Event Venue</p>
+                    <p className="text-sm text-muted-foreground">Paphos, Cyprus</p>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">{t("venueDescription2")}</p>
+                <div className="pt-4">
+                  <h4 className="font-semibold mb-2">{t("facilities")}:</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• {t("ceremonyReceptionAreas")}</li>
+                    <li>• {t("parkingAvailable")}</li>
+                    <li>• {t("accessibleFacilities")}</li>
+                    <li>• {t("professionalSound")}</li>
+                    <li>• {t("fullCatering")}</li>
+                    <li>• {t("danceFloor")}</li>
+                  </ul>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground">{t("venueDescription2")}</p>
-              <div className="pt-4">
-                <h4 className="font-semibold mb-2">{t("facilities")}:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• {t("ceremonyReceptionAreas")}</li>
-                  <li>• {t("parkingAvailable")}</li>
-                  <li>• {t("accessibleFacilities")}</li>
-                  <li>• {t("professionalSound")}</li>
-                  <li>• {t("fullCatering")}</li>
-                  <li>• {t("danceFloor")}</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Maps Section */}
@@ -79,12 +78,6 @@ export default function VenuePage() {
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        <div className="text-center">
-          <Button asChild size="lg">
-            <a href="/travel">{t("viewTravelInfo")}</a>
-          </Button>
         </div>
       </div>
     </div>

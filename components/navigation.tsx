@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Globe, Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { useState } from "react"
 import { useLanguage } from "@/lib/language-context"
 import Image from "next/image"
@@ -29,6 +29,8 @@ export function Navigation() {
     { href: "/gallery", label: t("gallery") },
     { href: "/rsvp", label: t("rsvp") },
   ]
+
+  const currentLanguage = languages.find((l) => l.code === language)
 
   return (
     <>
@@ -79,8 +81,8 @@ export function Navigation() {
                   onClick={() => setShowLangMenu(!showLangMenu)}
                   className="flex items-center space-x-2"
                 >
-                  <Globe className="w-4 h-4" />
-                  <span className="hidden sm:inline">{languages.find((l) => l.code === language)?.name}</span>
+                  <span className="text-base">{currentLanguage?.flag}</span>
+                  <span className="hidden sm:inline">{currentLanguage?.name}</span>
                 </Button>
 
                 {showLangMenu && (
