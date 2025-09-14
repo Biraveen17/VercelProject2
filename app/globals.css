@@ -215,7 +215,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Wedding_Invitation_Page%202.jpg-nnCLmuRA6KPkRltNY55OpWNVOskeUd.jpeg");
+    background-image: url("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Wedding_Invitation_Page%203.jpg-61GrNFyYM1TLmcYD7mLO3U8liWj89Z.jpeg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -229,7 +229,7 @@
   @media (max-width: 1024px) {
     .floral-background::before {
       background-attachment: scroll;
-      background-size: contain;
+      background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
     }
