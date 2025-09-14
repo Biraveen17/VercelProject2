@@ -185,10 +185,8 @@ export default function HomePage() {
           </div>
 
           <div className="mb-8 space-y-4">
-            <h1 className="island-moments text-5xl md:text-7xl font-bold text-primary mb-18 spaced-letters">
-              Varnie & Biraveen
-            </h1>
-            <div className="script text-3xl md:text-4xl text-secondary mb-18">Wedding Invitation</div>
+            <h1 className="island-moments text-5xl md:text-7xl font-bold text-primary mb-18">Varnie & Biraveen</h1>
+            <div className="script text-3xl md:text-4xl text-secondary mb-18">wedding invitation</div>
             <p className="text-xl md:text-2xl text-foreground mb-12 spaced-letters font-serif">{t("homeSubtitle")}</p>
           </div>
 
@@ -196,9 +194,9 @@ export default function HomePage() {
             <div className="grid md:grid-cols-2 gap-8 relative">
               {/* Wedding Information - Left Side */}
               <div className="text-center">
-                <div className="spaced-letters text-lg font-serif text-secondary mb-2">WEDDING CEREMONY</div>
-                <div className="spaced-letters text-lg font-serif text-secondary mb-2">MARCH 27TH 2026</div>
-                <div className="text-sm text-muted-foreground mb-2">AT 9 AM</div>
+                <div className="spaced-letters text-lg font-serif text-secondary mb-2">wedding ceremony</div>
+                <div className="spaced-letters text-lg font-serif text-secondary mb-2">march 27th 2026</div>
+                <div className="text-sm text-muted-foreground mb-2">at 9 am</div>
               </div>
 
               {/* Vertical Divider Line for desktop */}
@@ -209,9 +207,9 @@ export default function HomePage() {
 
               {/* Reception Information - Right Side */}
               <div className="text-center">
-                <div className="spaced-letters text-lg font-serif text-secondary mb-2">RECEPTION</div>
-                <div className="spaced-letters text-lg font-serif text-secondary mb-2">MARCH 28TH 2026</div>
-                <div className="text-sm text-muted-foreground mb-2">AT 5 PM</div>
+                <div className="spaced-letters text-lg font-serif text-secondary mb-2">reception</div>
+                <div className="spaced-letters text-lg font-serif text-secondary mb-2">march 28th 2026</div>
+                <div className="text-sm text-muted-foreground mb-2">at 5 pm</div>
               </div>
             </div>
           </div>

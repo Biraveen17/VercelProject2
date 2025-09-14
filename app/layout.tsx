@@ -27,6 +27,7 @@ const dancingScript = Dancing_Script({
 const islandMoments = Island_Moments({
   variable: "--font-island-moments",
   subsets: ["latin"],
+  weight: "400",
   display: "swap",
 })
 
