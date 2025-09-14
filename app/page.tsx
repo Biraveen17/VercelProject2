@@ -185,8 +185,10 @@ export default function HomePage() {
           </div>
 
           <div className="mb-8 space-y-4">
-            <h1 className="script text-5xl md:text-7xl font-bold text-primary mb-6 spaced-letters">{t("homeTitle")}</h1>
-            <div className="script text-3xl md:text-4xl text-secondary mb-12">Wedding Invitation</div>
+            <h1 className="island-moments text-5xl md:text-7xl font-bold text-primary mb-18 spaced-letters">
+              Varnie & Biraveen
+            </h1>
+            <div className="script text-3xl md:text-4xl text-secondary mb-18">Wedding Invitation</div>
             <p className="text-xl md:text-2xl text-foreground mb-12 spaced-letters font-serif">{t("homeSubtitle")}</p>
           </div>
 
