@@ -225,13 +225,13 @@
     z-index: -1;
   }
 
-  /* Simplified mobile background - just use the image directly without complex positioning */
-  @media (max-width: 768px) {
+  /* Fixed mobile and tablet background to show full floral image */
+  @media (max-width: 1024px) {
     .floral-background::before {
       background-attachment: scroll;
-      position: fixed;
-      background-size: cover;
+      background-size: contain;
       background-position: center;
+      background-repeat: no-repeat;
     }
   }
 
