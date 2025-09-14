@@ -210,7 +210,7 @@
 
   .floral-background::before {
     content: "";
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     right: 0;
@@ -220,6 +220,7 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    background-attachment: scroll;
     /* Reduced opacity and simplified mask for cleaner appearance */
     opacity: 0.15;
     pointer-events: none;
