@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MapPin, Camera } from "lucide-react"
+import { MapPin } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 
 export default function VenuePage() {
@@ -21,8 +21,8 @@ export default function VenuePage() {
         {/* Main Venue */}
         <div className="flex justify-center mb-12">
           <Card className="max-w-2xl mx-auto w-full">
-            <div className="aspect-video bg-muted rounded-t-lg flex items-center justify-center">
-              <Camera className="w-12 h-12 text-muted-foreground" />
+            <div className="aspect-video bg-muted rounded-t-lg overflow-hidden">
+              <img src="/api/blob/baseeventvenue1" alt="Base Event Venue" className="w-full h-full object-cover" />
             </div>
             <CardHeader>
               <CardTitle className="text-xl text-center">{t("weddingReceptionVenue")}</CardTitle>
