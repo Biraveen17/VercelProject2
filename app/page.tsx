@@ -185,18 +185,12 @@ export default function HomePage() {
           </div>
 
           <div className="mb-8 space-y-4">
-            <h1 className="font-serif text-5xl md:text-7xl font-bold text-primary mb-6 spaced-letters">
-              {t("homeTitle")}
-            </h1>
-            <div className="script text-3xl md:text-4xl text-secondary mb-4">Wedding Invitation</div>
-            <p className="text-xl md:text-2xl text-foreground mb-6 spaced-letters font-serif">{t("homeSubtitle")}</p>
+            <h1 className="script text-5xl md:text-7xl font-bold text-primary mb-6 spaced-letters">{t("homeTitle")}</h1>
+            <div className="script text-3xl md:text-4xl text-secondary mb-12">Wedding Invitation</div>
+            <p className="text-xl md:text-2xl text-foreground mb-12 spaced-letters font-serif">{t("homeSubtitle")}</p>
           </div>
 
           <div className="mb-8 p-6 decorative-border rounded-lg">
-            <div className="text-base font-serif text-center mb-6">
-              TOGETHER WITH OUR FAMILIES, WE INVITE YOU TO CELEBRATE OUR TAMIL HINDU WEDDING
-            </div>
-
             <div className="grid md:grid-cols-2 gap-8 relative">
               {/* Wedding Information - Left Side */}
               <div className="text-center">
