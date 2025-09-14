@@ -193,22 +193,35 @@ export default function HomePage() {
           </div>
 
           <div className="mb-8 p-6 decorative-border rounded-lg">
-            <div className="spaced-letters text-lg font-serif text-secondary mb-2">MARCH 27TH 2026</div>
-            <div className="text-sm text-muted-foreground mb-2">AT 9 AM</div>
-            <div className="text-base font-serif">KINDLY JOIN US FOR THE HINDU WEDDING OF</div>
-            <div className="spaced-letters text-2xl font-serif text-primary mt-2">VARNIE & BIRAVEEN</div>
-            <div className="text-sm text-muted-foreground mt-4">
-              BASE EVENTS VENUE, AIRPORT ROAD, PAPHOS 8507, CYPRUS
+            <div className="text-base font-serif text-center mb-6">
+              TOGETHER WITH OUR FAMILIES, WE INVITE YOU TO CELEBRATE OUR TAMIL HINDU WEDDING
             </div>
-          </div>
 
-          <div className="mb-8 p-6 decorative-border rounded-lg">
-            <div className="spaced-letters text-lg font-serif text-secondary mb-2">MARCH 28TH 2026</div>
-            <div className="text-sm text-muted-foreground mb-2">AT 5 PM</div>
-            <div className="text-base font-serif">KINDLY JOIN US FOR THE RECEPTION OF</div>
-            <div className="spaced-letters text-2xl font-serif text-primary mt-2">VARNIE & BIRAVEEN</div>
-            <div className="text-sm text-muted-foreground mt-4">
-              BASE EVENTS VENUE, AIRPORT ROAD, PAPHOS 8507, CYPRUS
+            <div className="grid md:grid-cols-2 gap-8 relative">
+              {/* Wedding Information - Left Side */}
+              <div className="text-center">
+                <div className="spaced-letters text-lg font-serif text-secondary mb-2">WEDDING CEREMONY</div>
+                <div className="spaced-letters text-lg font-serif text-secondary mb-2">MARCH 27TH 2026</div>
+                <div className="text-sm text-muted-foreground mb-2">AT 9 AM</div>
+                <div className="spaced-letters text-2xl font-serif text-primary mt-2 mb-2">VARNIE & BIRAVEEN</div>
+                <div className="text-sm text-muted-foreground">
+                  BASE EVENTS VENUE, AIRPORT ROAD, PAPHOS 8507, CYPRUS
+                </div>
+              </div>
+
+              {/* Vertical Divider Line */}
+              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/30 transform -translate-x-1/2 hidden md:block"></div>
+
+              {/* Reception Information - Right Side */}
+              <div className="text-center">
+                <div className="spaced-letters text-lg font-serif text-secondary mb-2">RECEPTION</div>
+                <div className="spaced-letters text-lg font-serif text-secondary mb-2">MARCH 28TH 2026</div>
+                <div className="text-sm text-muted-foreground mb-2">AT 5 PM</div>
+                <div className="spaced-letters text-2xl font-serif text-primary mt-2 mb-2">VARNIE & BIRAVEEN</div>
+                <div className="text-sm text-muted-foreground">
+                  BASE EVENTS VENUE, AIRPORT ROAD, PAPHOS 8507, CYPRUS
+                </div>
+              </div>
             </div>
           </div>
 

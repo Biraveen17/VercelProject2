@@ -364,7 +364,7 @@ export default function SpreadsheetPage() {
   const currentSheet = getCurrentSheet()
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen floral-background p-6">
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">

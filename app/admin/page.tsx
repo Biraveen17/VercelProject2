@@ -45,7 +45,7 @@ export default function AdminPage() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted">
+      <div className="min-h-screen floral-background flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-center">Admin Login</CardTitle>
@@ -182,7 +182,7 @@ export default function AdminPage() {
   const totalExpense = plannedTotal + bookedTotal + paidTotal
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen floral-background p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">

@@ -110,7 +110,7 @@ export default function ContentEditorPage() {
   const currentPage = contentData[activeTab as keyof ContentData]
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen floral-background p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
