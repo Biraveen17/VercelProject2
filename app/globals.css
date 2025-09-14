@@ -174,10 +174,67 @@
   /* Added decorative border class for invitation-style elements */
   .decorative-border {
     @apply border-2 border-primary/30 bg-gradient-to-br from-background to-muted/50;
+    position: relative;
+  }
+
+  .decorative-border::after {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(
+      45deg,
+      rgba(212, 175, 55, 0.3) 0%,
+      rgba(192, 178, 131, 0.2) 25%,
+      transparent 50%,
+      rgba(192, 178, 131, 0.2) 75%,
+      rgba(212, 175, 55, 0.3) 100%
+    );
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.6;
   }
 
   /* Added spaced lettering class for formal text */
   .spaced-letters {
     @apply tracking-widest uppercase;
+  }
+
+  /* Simplified floral background using cleaner wedding invitation image */
+  .floral-background {
+    position: relative;
+    min-height: 100vh;
+  }
+
+  .floral-background::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Updated to use the cleaner floral background image */
+    background-image: url("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Wedding_Invitation_Page%202.jpg-nnCLmuRA6KPkRltNY55OpWNVOskeUd.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* Reduced opacity and simplified mask for cleaner appearance */
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: -1;
+    /* Minimal gradient mask to slightly reduce center visibility while keeping florals prominent */
+    mask: radial-gradient(
+      ellipse 50% 60% at center,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.8) 40%,
+      rgba(0, 0, 0, 1) 70%
+    );
+  }
+
+  .floral-background > * {
+    position: relative;
+    z-index: 1;
   }
 }

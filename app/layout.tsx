@@ -37,7 +37,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${playfairDisplay.variable} ${crimsonText.variable} ${dancingScript.variable}`}>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased floral-background">
         <LanguageProvider>
           <Navigation />
           <main>{children}</main>
