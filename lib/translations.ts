@@ -27,6 +27,10 @@ export interface Translation {
   rsvpNow: string
   viewEvents: string
   countdownTitle: string
+  days: string
+  hours: string
+  minutes: string
+  seconds: string
   welcomeTitle: string
   welcomeDescription1: string
   welcomeDescription2: string
@@ -50,6 +54,22 @@ export interface Translation {
   ganeshTitle: string
   ganeshDescription: string
   loveStoryTitle: string
+
+  // Venue page
+  venueDescription: string
+  venueDescription2: string
+  weddingReceptionVenue: string
+  facilities: string
+  ceremonyReceptionAreas: string
+  parkingAvailable: string
+  accessibleFacilities: string
+  professionalSound: string
+  fullCatering: string
+  danceFloor: string
+  venueLocation: string
+  address: string
+  mapInstructions: string
+  viewTravelInfo: string
 
   // RSVP
   rsvpTitle: string
@@ -108,6 +128,10 @@ export const translations: Record<string, Translation> = {
     rsvpNow: "RSVP Now",
     viewEvents: "View Events",
     countdownTitle: "Countdown to Our Special Day",
+    days: "Days",
+    hours: "Hours",
+    minutes: "Minutes",
+    seconds: "Seconds",
     welcomeTitle: "Welcome to Our Wedding Celebration",
     welcomeDescription1:
       "We are thrilled to invite you to join us as we begin our journey together as husband and wife. Our celebration will honor the beautiful traditions of Tamil Hindu culture while creating new memories in the stunning setting of Cyprus.",
@@ -137,6 +161,23 @@ export const translations: Record<string, Translation> = {
     ganeshDescription:
       "Lord Ganesh, the remover of obstacles, will be invoked to bless our union and ensure a smooth beginning to our married life.",
     loveStoryTitle: "Our Love Story",
+
+    // Venue page
+    venueDescription: "Discover the beautiful venue in Paphos, Cyprus where we'll celebrate our special day",
+    venueDescription2:
+      "A stunning venue that will host both our Hindu ceremony and reception celebration. The perfect setting for our special day with beautiful facilities and scenic surroundings.",
+    weddingReceptionVenue: "Wedding & Reception Venue",
+    facilities: "Facilities",
+    ceremonyReceptionAreas: "Ceremony and reception areas",
+    parkingAvailable: "Parking available on-site",
+    accessibleFacilities: "Accessible facilities",
+    professionalSound: "Professional sound system",
+    fullCatering: "Full catering facilities",
+    danceFloor: "Dance floor and entertainment area",
+    venueLocation: "Venue Location",
+    address: "Address",
+    mapInstructions: "Click and drag to explore the map. Use the fullscreen button to enlarge the view.",
+    viewTravelInfo: "View Travel Information",
 
     // RSVP
     rsvpTitle: "RSVP",
@@ -194,6 +235,10 @@ export const translations: Record<string, Translation> = {
     rsvpNow: "RSVP Nu",
     viewEvents: "Se Begivenheder",
     countdownTitle: "Nedtælling til Vores Særlige Dag",
+    days: "Dage",
+    hours: "Timer",
+    minutes: "Minutter",
+    seconds: "Sekunder",
     welcomeTitle: "Velkommen til Vores Bryllupsfejring",
     welcomeDescription1:
       "Vi er begejstrede for at invitere dig til at være med os, når vi begynder vores rejse sammen som mand og kone. Vores fejring vil ære de smukke traditioner fra Tamil Hindu-kulturen, mens vi skaber nye minder i Cyperns fantastiske omgivelser.",
@@ -223,6 +268,23 @@ export const translations: Record<string, Translation> = {
     ganeshDescription:
       "Herre Ganesh, fjerneren af forhindringer, vil blive påkaldt for at velsigne vores forening og sikre en jævn begyndelse på vores gifte liv.",
     loveStoryTitle: "Vores Kærlighedshistorie",
+
+    // Venue page
+    venueDescription: "Oplev den smukke lokation i Paphos, Cypern, hvor vi vil fejre vores særlige dag",
+    venueDescription2:
+      "En fantastisk lokation der vil vælge både vores hindu ceremoni og reception ceremoni. Det perfekte sted til vores særlige dag med smukke faciliteter og skønne omgivelser.",
+    weddingReceptionVenue: "Bryllups- og Reception Lokation",
+    facilities: "Faciliteter",
+    ceremonyReceptionAreas: "Ceremoni- og reception områder",
+    parkingAvailable: "Parkering tilgængelig på stedet",
+    accessibleFacilities: "Tilgængelige faciliteter",
+    professionalSound: "Professionel lydsystem",
+    fullCatering: "Fulde udstilling af mad",
+    danceFloor: "Dansbord og underholdningsområde",
+    venueLocation: "Lokation",
+    address: "Adresse",
+    mapInstructions: "Klik og træk for at udforske kortet. Brug fuldskærm-knappen til at forstør visningen.",
+    viewTravelInfo: "Se Rejseinformationer",
 
     // RSVP
     rsvpTitle: "RSVP",
@@ -280,6 +342,10 @@ export const translations: Record<string, Translation> = {
     rsvpNow: "இப்போது பதிலளி",
     viewEvents: "நிகழ்வுகளைப் பார்",
     countdownTitle: "எங்கள் சிறப்பு நாளுக்கான எண்ணிக்கை",
+    days: "நாட்கள்",
+    hours: "மணிகள்",
+    minutes: "நிமிடங்கள்",
+    seconds: "விநாடிகள்",
     welcomeTitle: "எங்கள் திருமண கொண்டாட்டத்திற்கு வரவேற்கிறோம்",
     welcomeDescription1:
       "கணவன் மனைவியாக எங்கள் பயணத்தைத் தொடங்கும்போது எங்களுடன் சேர உங்களை அழைப்பதில் நாங்கள் மகிழ்ச்சியடைகிறோம். எங்கள் கொண்டாட்டம் தமிழ் இந்து கலாச்சாரத்தின் அழகான பாரம்பரியங்களை மதிக்கும் அதே வேளையில் சைப்ரஸின் அற்புதமான சூழலில் புதிய நினைவுகளை உருவாக்கும்.",
@@ -310,22 +376,39 @@ export const translations: Record<string, Translation> = {
       "தடைகளை நீக்குபவரான கணேஷ் பெருமான், எங்கள் இணைப்பை ஆசீர்வதிக்கவும், எங்கள் திருமண வாழ்க்கையின் மென்மையான தொடக்கத்தை உறுதி செய்யவும் அழைக்கப்படுவார்.",
     loveStoryTitle: "எங்கள் காதல் கதை",
 
+    // Venue page
+    venueDescription: "பாஃபோஸ், சைப்ரஸில் உள்ள அழகான இடத்தைக் கண்டறியுங்கள், அங்கு நாங்கள் எங்கள் சிறப்பு நாளைக் கொண்டாடுவோம்",
+    venueDescription2:
+      "எங்கள் இந்து சடங்கு மற்றும் வரவேற்பு கொண்டாட்டம் இரண்டையும் நடத்தும் ஒரு அற்புதமான இடம். அழகான வசதிகள் மற்றும் அழகிய சுற்றுப்புறங்களுடன் எங்கள் சிறப்பு நாளுக்கான சரியான அமைப்பு.",
+    weddingReceptionVenue: "திருமணம் & வரவேற்பு இடம்",
+    facilities: "வசதிகள்",
+    ceremonyReceptionAreas: "சடங்கு மற்றும் வரவேற்பு பகுதிகள்",
+    parkingAvailable: "இடத்திலேயே பார்க்கிங் கிடைக்கும்",
+    accessibleFacilities: "அணுகக்கூடிய வசதிகள்",
+    professionalSound: "தொழில்முறை ஒலி அமைப்பு",
+    fullCatering: "முழு உணவு வசதிகள்",
+    danceFloor: "நடன தளம் மற்றும் பொழுதுபோக்கு பகுதி",
+    venueLocation: "இடத்தின் இருப்பிடம்",
+    address: "முகவரி",
+    mapInstructions: "வரைபடத்தை ஆராய கிளிக் செய்து இழுக்கவும். காட்சியை பெரிதாக்க முழுத்திரை பொத்தானைப் பயன்படுத்தவும்.",
+    viewTravelInfo: "பயண தகவலைப் பார்க்கவும்",
+
     // RSVP
     rsvpTitle: "பதில்",
     rsvpSubtitle: "எங்கள் சிறப்பு கொண்டாட்டத்தில் நீங்கள் சேருவீர்களா என்பதை எங்களுக்குத் தெரியப்படுத்துங்கள்",
     enterName: "உங்கள் பெயரை உள்ளிடுங்கள்",
     namePlaceholder: "அழைப்பிதழில் உள்ளது போல் உங்கள் முழு பெயரை உள்ளிடுங்கள்",
-    findGuest: "உங்கள் விருந்தினர்களைக் கண்டறியுங்கள்",
-    welcomeGuest: "வரவேற்கிறது, {name}!",
-    groupBooking: "{size} பேர்க்கு வரையற்ற குழு முன்பதிவு",
+    findGuest: "விருந்தினரைக் கண்டறியுங்கள்",
+    welcomeGuest: "வரவேற்கிறோம், {name}!",
+    groupBooking: "{size} பேர் வரையிலான குழு முன்பதிவு",
     willYouAttend: "நீங்கள் எங்கள் திருமணத்தில் கலந்துகொள்வீர்களா?",
     yesAttending: "ஆம், நான் வருவேன்! 🎉",
     noAttending: "மன்னிக்கவும், என்னால் வர முடியாது",
     whichEvents: "எந்த நிகழ்வுகளில் நீங்கள் கலந்துகொள்வீர்கள்?",
     ceremonyEvent: "இந்து திருமண சடங்கு",
     receptionEvent: "திருமண வரவேற்பு",
-    groupMemberNames: "குழு பொருளாளர்களின் பெயர்கள்",
-    memberNamePlaceholder: "பொருளாளர் {number} முழு பெயர்",
+    groupMemberNames: "குழு உறுப்பினர்களின் பெயர்கள்",
+    memberNamePlaceholder: "உறுப்பினர் {number} முழு பெயர்",
     dietaryRequirements: "உணவு தேவைகள்",
     dietaryPlaceholder: "ஏதேனும் ஒவ்வாமை, உணவு கட்டுப்பாடுகள் அல்லது சிறப்பு உணவு விருப்பங்கள் பற்றி எங்களுக்குத் தெரியப்படுத்துங்கள்...",
     questionsComments: "கேள்விகள் அல்லது கருத்துக்கள்",
@@ -334,7 +417,7 @@ export const translations: Record<string, Translation> = {
     thankYouTitle: "நன்றி!",
     thankYouAttending: "உங்கள் பதில் பெறப்பட்டது. உங்களுடன் கொண்டாட நாங்கள் மகிழ்ச்சியடைகிறோம்!",
     thankYouNotAttending: "உங்கள் பதில் பெறப்பட்டது. நீங்கள் வர முடியாது என்று கேட்டு வருந்துகிறோம்!",
-    backToHome: "முகப்புக்கு திறக்கு",
+    backToHome: "முகப்புக்கு திரும்பு",
   },
 
   fr: {
@@ -366,6 +449,10 @@ export const translations: Record<string, Translation> = {
     rsvpNow: "RSVP Maintenant",
     viewEvents: "Voir les Événements",
     countdownTitle: "Compte à rebours jusqu'à notre jour spécial",
+    days: "Jours",
+    hours: "Heures",
+    minutes: "Minutes",
+    seconds: "Secondes",
     welcomeTitle: "Bienvenue à notre célébration de mariage",
     welcomeDescription1:
       "Nous sommes ravis de vous inviter à nous rejoindre alors que nous commençons notre voyage ensemble en tant que mari et femme. Notre célébration honorera les belles traditions de la culture hindoue tamoule tout en créant de nouveaux souvenirs dans le cadre magnifique de Chypre.",
@@ -395,6 +482,24 @@ export const translations: Record<string, Translation> = {
     ganeshDescription:
       "Seigneur Ganesh, celui qui supprime les obstacles, sera invoqué pour bénir notre union et assurer un début harmonieux à notre vie conjugale.",
     loveStoryTitle: "Notre Histoire d'Amour",
+
+    // Venue page
+    venueDescription: "Découvrez le magnifique lieu à Paphos, Chypre où nous célébrerons notre jour spécial",
+    venueDescription2:
+      "Un lieu magnifique qui accueillera à la fois notre cérémonie hindoue et notre célébration de réception. Le cadre parfait pour notre jour spécial avec de belles installations et un environnement pittoresque.",
+    weddingReceptionVenue: "Lieu de Mariage et Réception",
+    facilities: "Installations",
+    ceremonyReceptionAreas: "Zones de cérémonie et de réception",
+    parkingAvailable: "Parking disponible sur place",
+    accessibleFacilities: "Installations accessibles",
+    professionalSound: "Système audio professionnel",
+    fullCatering: "Installations de restauration complètes",
+    danceFloor: "Piste de danse et zone de divertissement",
+    venueLocation: "Emplacement du Lieu",
+    address: "Adresse",
+    mapInstructions:
+      "Cliquez et faites glisser pour explorer la carte. Utilisez le bouton plein écran pour agrandir la vue.",
+    viewTravelInfo: "Voir les Informations de Voyage",
 
     // RSVP
     rsvpTitle: "RSVP",

@@ -25,8 +25,8 @@ export function Navigation() {
     { href: "/", label: t("home") },
     { href: "/events", label: t("events") },
     { href: "/venue", label: t("venue") },
-    { href: "/gallery", label: t("gallery") },
     { href: "/travel", label: t("travel") },
+    { href: "/gallery", label: t("gallery") },
     { href: "/rsvp", label: t("rsvp") },
   ]
 
