@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/language-context"
 import Image from "next/image"
 
@@ -15,21 +15,65 @@ const languages = [
   { code: "ta", name: "Tamil", flag: "🇱🇰" },
 ]
 
+interface PageContent {
+  title: string
+  description: string
+  content: string
+  enabled: boolean
+  order: number
+}
+
+interface ContentData {
+  home: PageContent
+  events: PageContent
+  venue: PageContent
+  gallery: PageContent
+  travel: PageContent
+}
+
 export function Navigation() {
   const pathname = usePathname()
   const { language, setLanguage, t } = useLanguage()
   const [showLangMenu, setShowLangMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [pageConfig, setPageConfig] = useState<ContentData | null>(null)
 
-  const navItems = [
-    { href: "/", label: t("home") },
-    { href: "/events", label: t("events") },
-    { href: "/venue", label: t("venue") },
-    { href: "/travel", label: t("travel") },
-    { href: "/gallery", label: t("gallery") },
-    { href: "/rsvp", label: t("rsvp") },
-  ]
+  useEffect(() => {
+    const savedContent = localStorage.getItem("wedding_content")
+    if (savedContent) {
+      setPageConfig(JSON.parse(savedContent))
+    }
+  }, [])
 
+  const getNavItems = () => {
+    const baseNavItems = [
+      { href: "/", label: t("home"), key: "home" },
+      { href: "/events", label: t("events"), key: "events" },
+      { href: "/venue", label: t("venue"), key: "venue" },
+      { href: "/travel", label: t("travel"), key: "travel" },
+      { href: "/gallery", label: t("gallery"), key: "gallery" },
+      { href: "/rsvp", label: t("rsvp"), key: "rsvp" },
+    ]
+
+    if (!pageConfig) return baseNavItems
+
+    // Filter enabled pages and sort by order
+    return baseNavItems
+      .filter((item) => {
+        if (item.key === "rsvp") return true // Always show RSVP
+        const pageData = pageConfig[item.key as keyof ContentData]
+        return pageData?.enabled !== false
+      })
+      .sort((a, b) => {
+        if (a.key === "rsvp") return 1 // RSVP always last
+        if (b.key === "rsvp") return -1
+        const aOrder = pageConfig[a.key as keyof ContentData]?.order || 999
+        const bOrder = pageConfig[b.key as keyof ContentData]?.order || 999
+        return aOrder - bOrder
+      })
+  }
+
+  const navItems = getNavItems()
   const currentLanguage = languages.find((l) => l.code === language)
 
   return (

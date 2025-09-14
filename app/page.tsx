@@ -238,6 +238,12 @@ export default function HomePage() {
             </Button>
           </div>
 
+          <div className="w-full h-px bg-primary/30 mb-8"></div>
+
+          <div className="mb-8 p-6 decorative-border rounded-lg">
+            <div className="text-base font-serif text-center mb-6">{t("welcomeTitle").toUpperCase()}</div>
+          </div>
+
           <div className="mb-8">
             <h3 className="text-xl font-serif text-secondary mb-4 spaced-letters">{t("countdownTitle")}</h3>
             <CountdownTimer />

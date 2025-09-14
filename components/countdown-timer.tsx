@@ -38,25 +38,25 @@ export function CountdownTimer() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-md mx-auto">
       <Card className="text-center">
-        <CardContent className="p-4">
+        <CardContent className="p-4 aspect-square flex flex-col justify-center">
           <div className="text-2xl font-bold text-primary">{timeLeft.days}</div>
           <div className="text-sm text-muted-foreground">{t("days")}</div>
         </CardContent>
       </Card>
       <Card className="text-center">
-        <CardContent className="p-4">
+        <CardContent className="p-4 aspect-square flex flex-col justify-center">
           <div className="text-2xl font-bold text-primary">{timeLeft.hours}</div>
           <div className="text-sm text-muted-foreground">{t("hours")}</div>
         </CardContent>
       </Card>
       <Card className="text-center">
-        <CardContent className="p-4">
+        <CardContent className="p-4 aspect-square flex flex-col justify-center">
           <div className="text-2xl font-bold text-primary">{timeLeft.minutes}</div>
           <div className="text-sm text-muted-foreground">{t("minutes")}</div>
         </CardContent>
       </Card>
       <Card className="text-center">
-        <CardContent className="p-4">
+        <CardContent className="p-4 aspect-square flex flex-col justify-center">
           <div className="text-2xl font-bold text-primary">{timeLeft.seconds}</div>
           <div className="text-sm text-muted-foreground">{t("seconds")}</div>
         </CardContent>
