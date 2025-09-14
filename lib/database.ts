@@ -52,196 +52,313 @@ const DEFAULT_SETTINGS: WeddingSettings = {
 }
 
 // Guest management
-export function getGuests(): Guest[] {
-  if (typeof window === "undefined") return []
-  const guests = localStorage.getItem("wedding_guests")
-  return guests ? JSON.parse(guests) : []
+export async function getGuests(): Promise<Guest[]> {
+  try {
+    const response = await fetch("/api/guests")
+    if (!response.ok) {
+      throw new Error("Failed to fetch guests")
+    }
+    const result = await response.json()
+    return result.data || []
+  } catch (error) {
+    console.error("Error fetching guests:", error)
+    return []
+  }
 }
 
 export function saveGuests(guests: Guest[]): void {
-  localStorage.setItem("wedding_guests", JSON.stringify(guests))
+  // This function is now deprecated - individual operations should use API calls
+  console.warn("saveGuests is deprecated - use individual API operations instead")
 }
 
-export function addGuest(guest: Omit<Guest, "id" | "lastUpdated">): void {
-  const guests = getGuests()
-  const newGuest: Guest = {
-    ...guest,
-    id: Date.now().toString(),
-    lastUpdated: new Date().toISOString(),
-  }
-
-  if (guest.type === "group" && guest.maxGroupSize) {
-    guests.push(newGuest)
-  } else {
-    guests.push(newGuest)
-  }
-
-  saveGuests(guests)
-}
-
-export function updateGuest(id: string, updates: Partial<Guest>): void {
-  const guests = getGuests()
-  const index = guests.findIndex((g) => g.id === id)
-  if (index !== -1) {
-    const currentGuest = guests[index]
-
-    if (updates.groupName && updates.groupName !== currentGuest.groupName) {
-      // Remove from current group if any
-      if (currentGuest.groupName) {
-        // Update the guest to be individual or move to new group
-        guests[index] = {
-          ...currentGuest,
-          ...updates,
-          groupName: updates.groupName === "Individual" ? undefined : updates.groupName,
-          lastUpdated: new Date().toISOString(),
-        }
-      } else {
-        // Moving individual to a group
-        guests[index] = {
-          ...currentGuest,
-          ...updates,
-          groupName: updates.groupName === "Individual" ? undefined : updates.groupName,
-          lastUpdated: new Date().toISOString(),
-        }
-      }
-    } else {
-      guests[index] = { ...currentGuest, ...updates, lastUpdated: new Date().toISOString() }
+export async function addGuest(guest: Omit<Guest, "id" | "lastUpdated">): Promise<Guest | null> {
+  try {
+    const newGuest: Guest = {
+      ...guest,
+      id: Date.now().toString(),
+      lastUpdated: new Date().toISOString(),
     }
 
-    saveGuests(guests)
+    const response = await fetch("/api/guests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newGuest),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to add guest")
+    }
+
+    const result = await response.json()
+    return result.data
+  } catch (error) {
+    console.error("Error adding guest:", error)
+    return null
   }
 }
 
-export function deleteGuest(id: string): void {
-  const guests = getGuests()
-  const filtered = guests.filter((g) => g.id !== id)
-  saveGuests(filtered)
-}
-
-export function checkDuplicateGuest(name: string, groupName?: string, excludeId?: string): boolean {
-  const guests = getGuests()
-  const normalizedName = name.toLowerCase().trim()
-  const normalizedGroupName = groupName?.toLowerCase().trim()
-
-  return guests.some((guest) => {
-    // Skip the guest being edited
-    if (excludeId && guest.id === excludeId) return false
-
-    // Check individual guest names
-    if (guest.guestName && guest.guestName.toLowerCase().trim() === normalizedName) return true
-
-    // Check group names
-    if (guest.groupName && guest.groupName.toLowerCase().trim() === normalizedName) return true
-
-    // Check if the new name matches any existing group name when adding individual
-    if (!groupName && guest.groupName && guest.groupName.toLowerCase().trim() === normalizedName) return true
-
-    // Check if the new group name matches any existing individual guest name
-    if (normalizedGroupName && guest.guestName && guest.guestName.toLowerCase().trim() === normalizedGroupName)
-      return true
-
-    // Check group members
-    if (guest.groupMembers) {
-      return guest.groupMembers.some((member) => member.toLowerCase().trim() === normalizedName)
+export async function updateGuest(id: string, updates: Partial<Guest>): Promise<boolean> {
+  try {
+    const updatedData = {
+      ...updates,
+      lastUpdated: new Date().toISOString(),
     }
 
+    const response = await fetch(`/api/guests/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedData),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to update guest")
+    }
+
+    return true
+  } catch (error) {
+    console.error("Error updating guest:", error)
     return false
-  })
+  }
 }
 
-export function addGuestToGroup(groupName: string, guestName: string): boolean {
-  const guests = getGuests()
-  const group = guests.find(
-    (g) => g.type === "group" && g.groupName?.toLowerCase().trim() === groupName.toLowerCase().trim(),
-  )
+export async function deleteGuest(id: string): Promise<boolean> {
+  try {
+    const response = await fetch(`/api/guests/${id}`, {
+      method: "DELETE",
+    })
 
-  if (!group || !group.maxGroupSize) return false
+    if (!response.ok) {
+      throw new Error("Failed to delete guest")
+    }
 
-  const currentMembers = group.groupMembers?.filter((m) => m.trim()) || []
-  if (currentMembers.length >= group.maxGroupSize) return false
-
-  const updatedMembers = [...(group.groupMembers || [])]
-  const emptyIndex = updatedMembers.findIndex((m) => !m.trim())
-
-  if (emptyIndex !== -1) {
-    updatedMembers[emptyIndex] = guestName.trim()
-  } else {
-    updatedMembers.push(guestName.trim())
+    return true
+  } catch (error) {
+    console.error("Error deleting guest:", error)
+    return false
   }
+}
 
-  updateGuest(group.id, { groupMembers: updatedMembers })
-  return true
+export async function checkDuplicateGuest(name: string, groupName?: string, excludeId?: string): Promise<boolean> {
+  try {
+    const guests = await getGuests()
+    const normalizedName = name.toLowerCase().trim()
+    const normalizedGroupName = groupName?.toLowerCase().trim()
+
+    return guests.some((guest) => {
+      // Skip the guest being edited
+      if (excludeId && guest.id === excludeId) return false
+
+      // Check individual guest names
+      if (guest.guestName && guest.guestName.toLowerCase().trim() === normalizedName) return true
+
+      // Check group names
+      if (guest.groupName && guest.groupName.toLowerCase().trim() === normalizedName) return true
+
+      // Check if the new name matches any existing group name when adding individual
+      if (!groupName && guest.groupName && guest.groupName.toLowerCase().trim() === normalizedName) return true
+
+      // Check if the new group name matches any existing individual guest name
+      if (normalizedGroupName && guest.guestName && guest.guestName.toLowerCase().trim() === normalizedGroupName)
+        return true
+
+      // Check group members
+      if (guest.groupMembers) {
+        return guest.groupMembers.some((member) => member.toLowerCase().trim() === normalizedName)
+      }
+
+      return false
+    })
+  } catch (error) {
+    console.error("Error checking duplicate guest:", error)
+    return false
+  }
+}
+
+export async function addGuestToGroup(groupName: string, guestName: string): Promise<boolean> {
+  try {
+    const guests = await getGuests()
+    const group = guests.find(
+      (g) => g.type === "group" && g.groupName?.toLowerCase().trim() === groupName.toLowerCase().trim(),
+    )
+
+    if (!group || !group.maxGroupSize) return false
+
+    const currentMembers = group.groupMembers?.filter((m) => m.trim()) || []
+    if (currentMembers.length >= group.maxGroupSize) return false
+
+    const updatedMembers = [...(group.groupMembers || [])]
+    const emptyIndex = updatedMembers.findIndex((m) => !m.trim())
+
+    if (emptyIndex !== -1) {
+      updatedMembers[emptyIndex] = guestName.trim()
+    } else {
+      updatedMembers.push(guestName.trim())
+    }
+
+    return await updateGuest(group.id, { groupMembers: updatedMembers })
+  } catch (error) {
+    console.error("Error adding guest to group:", error)
+    return false
+  }
 }
 
 // Budget management
-export function getBudgetItems(): BudgetItem[] {
-  if (typeof window === "undefined") return []
-  const items = localStorage.getItem("wedding_budget")
-  return items ? JSON.parse(items) : []
+export async function getBudgetItems(): Promise<BudgetItem[]> {
+  try {
+    const response = await fetch("/api/budget")
+    if (!response.ok) {
+      throw new Error("Failed to fetch budget items")
+    }
+    const result = await response.json()
+    return result.data || []
+  } catch (error) {
+    console.error("Error fetching budget items:", error)
+    return []
+  }
 }
 
 export function saveBudgetItems(items: BudgetItem[]): void {
-  localStorage.setItem("wedding_budget", JSON.stringify(items))
+  // This function is now deprecated - individual operations should use API calls
+  console.warn("saveBudgetItems is deprecated - use individual API operations instead")
 }
 
-export function addBudgetItem(item: Omit<BudgetItem, "id" | "lastUpdated">): void {
-  const items = getBudgetItems()
-  const newItem: BudgetItem = {
-    ...item,
-    id: Date.now().toString(),
-    lastUpdated: new Date().toISOString(),
+export async function addBudgetItem(item: Omit<BudgetItem, "id" | "lastUpdated">): Promise<BudgetItem | null> {
+  try {
+    const newItem: BudgetItem = {
+      ...item,
+      id: Date.now().toString(),
+      lastUpdated: new Date().toISOString(),
+    }
+
+    const response = await fetch("/api/budget", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newItem),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to add budget item")
+    }
+
+    const result = await response.json()
+    return result.data
+  } catch (error) {
+    console.error("Error adding budget item:", error)
+    return null
   }
-  items.push(newItem)
-  saveBudgetItems(items)
 }
 
-export function updateBudgetItem(id: string, updates: Partial<BudgetItem>): void {
-  const items = getBudgetItems()
-  const index = items.findIndex((i) => i.id === id)
-  if (index !== -1) {
-    items[index] = { ...items[index], ...updates, lastUpdated: new Date().toISOString() }
-    saveBudgetItems(items)
+export async function updateBudgetItem(id: string, updates: Partial<BudgetItem>): Promise<boolean> {
+  try {
+    const updatedData = {
+      ...updates,
+      lastUpdated: new Date().toISOString(),
+    }
+
+    const response = await fetch(`/api/budget/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedData),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to update budget item")
+    }
+
+    return true
+  } catch (error) {
+    console.error("Error updating budget item:", error)
+    return false
   }
 }
 
-export function deleteBudgetItem(id: string): void {
-  const items = getBudgetItems()
-  const filtered = items.filter((i) => i.id !== id)
-  saveBudgetItems(filtered)
+export async function deleteBudgetItem(id: string): Promise<boolean> {
+  try {
+    const response = await fetch(`/api/budget/${id}`, {
+      method: "DELETE",
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to delete budget item")
+    }
+
+    return true
+  } catch (error) {
+    console.error("Error deleting budget item:", error)
+    return false
+  }
 }
 
 // Settings management
-export function getSettings(): WeddingSettings {
-  if (typeof window === "undefined") return DEFAULT_SETTINGS
-  const settings = localStorage.getItem("wedding_settings")
-  return settings ? JSON.parse(settings) : DEFAULT_SETTINGS
+export async function getSettings(): Promise<WeddingSettings> {
+  try {
+    const response = await fetch("/api/settings")
+    if (!response.ok) {
+      throw new Error("Failed to fetch settings")
+    }
+    const result = await response.json()
+    return result.data || DEFAULT_SETTINGS
+  } catch (error) {
+    console.error("Error fetching settings:", error)
+    return DEFAULT_SETTINGS
+  }
 }
 
-export function saveSettings(settings: WeddingSettings): void {
-  localStorage.setItem("wedding_settings", JSON.stringify(settings))
+export async function saveSettings(settings: WeddingSettings): Promise<boolean> {
+  try {
+    const response = await fetch("/api/settings", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(settings),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to save settings")
+    }
+
+    return true
+  } catch (error) {
+    console.error("Error saving settings:", error)
+    return false
+  }
 }
 
 // RSVP management
-export function findGuestForRSVP(name: string): Guest | null {
-  const guests = getGuests()
-  const normalizedName = name.toLowerCase().trim()
+export async function findGuestForRSVP(name: string): Promise<Guest | null> {
+  try {
+    const guests = await getGuests()
+    const normalizedName = name.toLowerCase().trim()
 
-  const group = guests.find((g) => g.type === "group" && g.groupName?.toLowerCase().trim() === normalizedName)
-  if (group) return group
+    const group = guests.find((g) => g.type === "group" && g.groupName?.toLowerCase().trim() === normalizedName)
+    if (group) return group
 
-  const groupWithMember = guests.find(
-    (g) => g.type === "group" && g.groupMembers?.some((member) => member.toLowerCase().trim() === normalizedName),
-  )
-  if (groupWithMember) return groupWithMember
+    const groupWithMember = guests.find(
+      (g) => g.type === "group" && g.groupMembers?.some((member) => member.toLowerCase().trim() === normalizedName),
+    )
+    if (groupWithMember) return groupWithMember
 
-  const individual = guests.find(
-    (g) => g.type === "individual" && !g.groupName && g.guestName?.toLowerCase().trim() === normalizedName,
-  )
+    const individual = guests.find(
+      (g) => g.type === "individual" && !g.groupName && g.guestName?.toLowerCase().trim() === normalizedName,
+    )
 
-  return individual || null
+    return individual || null
+  } catch (error) {
+    console.error("Error finding guest for RSVP:", error)
+    return null
+  }
 }
 
-export function submitGroupRSVP(
+export async function submitGroupRSVP(
   groupGuest: Guest,
   rsvpData: {
     isAttending: boolean
@@ -250,46 +367,54 @@ export function submitGroupRSVP(
     questions: string
     groupMembers: string[]
   },
-): void {
-  const guests = getGuests()
+): Promise<boolean> {
+  try {
+    const guests = await getGuests()
 
-  const updatedGroupHeader: Guest = {
-    ...groupGuest,
-    rsvpStatus: rsvpData.isAttending ? "attending" : "not-attending",
-    events: rsvpData.isAttending ? rsvpData.events : [],
-    questions: rsvpData.questions,
-    lastUpdated: new Date().toISOString(),
-  }
-
-  // Remove the old group header and any existing group members
-  const filteredGuests = guests.filter((g) => g.id !== groupGuest.id && g.groupName !== groupGuest.groupName)
-
-  // Add the updated group header
-  filteredGuests.push(updatedGroupHeader)
-
-  const filledMembers = rsvpData.groupMembers.filter((member) => member.trim() !== "")
-
-  filledMembers.forEach((memberName, index) => {
-    const memberGuest: Guest = {
-      id: `${Date.now()}_${index}`,
-      type: "individual",
-      guestName: memberName.trim(),
-      groupName: groupGuest.groupName, // Link to original group
+    const updatedGroupHeader: Guest = {
+      ...groupGuest,
       rsvpStatus: rsvpData.isAttending ? "attending" : "not-attending",
       events: rsvpData.isAttending ? rsvpData.events : [],
-      dietaryRequirements: rsvpData.isAttending ? rsvpData.dietaryRequirements : "",
       questions: rsvpData.questions,
-      side: groupGuest.side, // Preserve the side from the original group
-      notes: `Group member ${index + 1} of ${groupGuest.groupName}`,
       lastUpdated: new Date().toISOString(),
     }
-    filteredGuests.push(memberGuest)
-  })
 
-  saveGuests(filteredGuests)
+    // Update the group header
+    await updateGuest(groupGuest.id, updatedGroupHeader)
+
+    // Remove existing group members
+    const existingMembers = guests.filter((g) => g.groupName === groupGuest.groupName && g.id !== groupGuest.id)
+    for (const member of existingMembers) {
+      await deleteGuest(member.id)
+    }
+
+    // Add new group members
+    const filledMembers = rsvpData.groupMembers.filter((member) => member.trim() !== "")
+
+    for (let index = 0; index < filledMembers.length; index++) {
+      const memberName = filledMembers[index]
+      const memberGuest: Omit<Guest, "id" | "lastUpdated"> = {
+        type: "individual",
+        guestName: memberName.trim(),
+        groupName: groupGuest.groupName,
+        rsvpStatus: rsvpData.isAttending ? "attending" : "not-attending",
+        events: rsvpData.isAttending ? rsvpData.events : [],
+        dietaryRequirements: rsvpData.isAttending ? rsvpData.dietaryRequirements : "",
+        questions: rsvpData.questions,
+        side: groupGuest.side,
+        notes: `Group member ${index + 1} of ${groupGuest.groupName}`,
+      }
+      await addGuest(memberGuest)
+    }
+
+    return true
+  } catch (error) {
+    console.error("Error submitting group RSVP:", error)
+    return false
+  }
 }
 
-export function submitIndividualRSVP(
+export async function submitIndividualRSVP(
   guest: Guest,
   rsvpData: {
     isAttending: boolean
@@ -297,13 +422,18 @@ export function submitIndividualRSVP(
     dietaryRequirements: string
     questions: string
   },
-): void {
-  updateGuest(guest.id, {
-    rsvpStatus: rsvpData.isAttending ? "attending" : "not-attending",
-    events: rsvpData.isAttending ? rsvpData.events : [],
-    dietaryRequirements: rsvpData.isAttending ? rsvpData.dietaryRequirements : "",
-    questions: rsvpData.questions,
-  })
+): Promise<boolean> {
+  try {
+    return await updateGuest(guest.id, {
+      rsvpStatus: rsvpData.isAttending ? "attending" : "not-attending",
+      events: rsvpData.isAttending ? rsvpData.events : [],
+      dietaryRequirements: rsvpData.isAttending ? rsvpData.dietaryRequirements : "",
+      questions: rsvpData.questions,
+    })
+  } catch (error) {
+    console.error("Error submitting individual RSVP:", error)
+    return false
+  }
 }
 
 // Admin login history management
@@ -313,46 +443,55 @@ export function getAdminLoginHistory(): { lastLogin: string; changes: string[] }
   return history ? JSON.parse(history) : { lastLogin: "", changes: [] }
 }
 
-export function updateAdminLoginHistory(): void {
-  const currentTime = new Date().toISOString()
-  const history = getAdminLoginHistory()
+export async function updateAdminLoginHistory(): Promise<void> {
+  try {
+    const currentTime = new Date().toISOString()
+    const history = getAdminLoginHistory()
 
-  // Get changes since last login
-  const changes: string[] = []
-  const guests = getGuests()
-  const budgetItems = getBudgetItems()
+    // Get changes since last login
+    const changes: string[] = []
+    const guests = await getGuests()
+    const budgetItems = await getBudgetItems()
 
-  if (history.lastLogin) {
-    const lastLoginTime = new Date(history.lastLogin)
+    if (history.lastLogin) {
+      const lastLoginTime = new Date(history.lastLogin)
 
-    // Check for guest changes
-    const recentGuestChanges = guests.filter((g) => new Date(g.lastUpdated) > lastLoginTime)
-    if (recentGuestChanges.length > 0) {
-      changes.push(`${recentGuestChanges.length} guest(s) updated`)
+      // Check for guest changes
+      const recentGuestChanges = guests.filter((g) => new Date(g.lastUpdated) > lastLoginTime)
+      if (recentGuestChanges.length > 0) {
+        changes.push(`${recentGuestChanges.length} guest(s) updated`)
+      }
+
+      // Check for budget changes
+      const recentBudgetChanges = budgetItems.filter((b) => new Date(b.lastUpdated) > lastLoginTime)
+      if (recentBudgetChanges.length > 0) {
+        changes.push(`${recentBudgetChanges.length} budget item(s) updated`)
+      }
     }
 
-    // Check for budget changes
-    const recentBudgetChanges = budgetItems.filter((b) => new Date(b.lastUpdated) > lastLoginTime)
-    if (recentBudgetChanges.length > 0) {
-      changes.push(`${recentBudgetChanges.length} budget item(s) updated`)
-    }
+    localStorage.setItem(
+      "admin_login_history",
+      JSON.stringify({
+        lastLogin: currentTime,
+        changes: changes,
+      }),
+    )
+  } catch (error) {
+    console.error("Error updating admin login history:", error)
   }
-
-  localStorage.setItem(
-    "admin_login_history",
-    JSON.stringify({
-      lastLogin: currentTime,
-      changes: changes,
-    }),
-  )
 }
 
 // Additional functions for group management
-export function isGroupHeader(guest: Guest): boolean {
+export async function isGroupHeader(guest: Guest): Promise<boolean> {
   return guest.type === "group" && !guest.guestName && !!guest.groupName && !!guest.maxGroupSize
 }
 
-export function getGroupHeader(groupName: string): Guest | null {
-  const guests = getGuests()
-  return guests.find((g) => g.type === "group" && g.groupName === groupName && !g.guestName) || null
+export async function getGroupHeader(groupName: string): Promise<Guest | null> {
+  try {
+    const guests = await getGuests()
+    return guests.find((g) => g.type === "group" && g.groupName === groupName && !g.guestName) || null
+  } catch (error) {
+    console.error("Error getting group header:", error)
+    return null
+  }
 }
