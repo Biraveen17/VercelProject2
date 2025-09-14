@@ -26,10 +26,22 @@ export async function isAuthenticated(): Promise<boolean> {
   if (typeof window === "undefined") return false
 
   try {
+    console.log("[v0] Checking authentication...")
+    const token = localStorage.getItem("wedding_admin_token")
+    if (!token) {
+      console.log("[v0] No token found in localStorage")
+      return false
+    }
+
     const response = await fetch("/api/auth/session", {
-      credentials: "include",
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     })
     const result = await response.json()
+    console.log("[v0] Authentication result:", result.authenticated)
     return result.authenticated === true
   } catch (error) {
     console.error("Error checking authentication:", error)
@@ -45,11 +57,15 @@ export async function login(username: string, password: string): Promise<boolean
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username, password }),
-      credentials: "include",
     })
 
     const result = await response.json()
-    return result.success === true
+    if (result.success && result.token) {
+      localStorage.setItem("wedding_admin_token", result.token)
+      localStorage.setItem("wedding_admin_user", JSON.stringify(result.user))
+      return true
+    }
+    return false
   } catch (error) {
     console.error("Error during login:", error)
     return false
@@ -58,13 +74,22 @@ export async function login(username: string, password: string): Promise<boolean
 
 export async function logout(): Promise<void> {
   try {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    })
+    const token = localStorage.getItem("wedding_admin_token")
+    if (token) {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+    }
   } catch (error) {
     console.error("Error during logout:", error)
   }
+
+  localStorage.removeItem("wedding_admin_token")
+  localStorage.removeItem("wedding_admin_user")
 
   // Redirect to admin login page
   if (typeof window !== "undefined") {
@@ -76,8 +101,19 @@ export async function getCurrentUser(): Promise<AdminUser | null> {
   if (typeof window === "undefined") return null
 
   try {
+    const userStr = localStorage.getItem("wedding_admin_user")
+    if (userStr) {
+      return JSON.parse(userStr)
+    }
+
+    const token = localStorage.getItem("wedding_admin_token")
+    if (!token) return null
+
     const response = await fetch("/api/auth/session", {
-      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     })
     const result = await response.json()
     return result.authenticated ? result.user : null

@@ -1,13 +1,10 @@
 import { neon } from "@neondatabase/serverless"
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set")
-}
+const sql = neon(process.env.DATABASE_URL)
 
-export const sql = neon(process.env.DATABASE_URL)
+async function setupDatabase() {
+  console.log("[v0] Starting database setup...")
 
-// Database initialization function
-export async function initializeDatabase() {
   try {
     // Create guests table
     await sql`
@@ -28,6 +25,7 @@ export async function initializeDatabase() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `
+    console.log("[v0] Created guests table")
 
     // Create budget_items table
     await sql`
@@ -44,6 +42,7 @@ export async function initializeDatabase() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `
+    console.log("[v0] Created budget_items table")
 
     // Create wedding_settings table
     await sql`
@@ -61,6 +60,7 @@ export async function initializeDatabase() {
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `
+    console.log("[v0] Created wedding_settings table")
 
     // Create content_pages table
     await sql`
@@ -75,6 +75,7 @@ export async function initializeDatabase() {
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `
+    console.log("[v0] Created content_pages table")
 
     // Create spreadsheets table
     await sql`
@@ -86,8 +87,9 @@ export async function initializeDatabase() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `
+    console.log("[v0] Created spreadsheets table")
 
-    // Create admin_sessions table for authentication
+    // Create admin_sessions table
     await sql`
       CREATE TABLE IF NOT EXISTS admin_sessions (
         session_id TEXT PRIMARY KEY,
@@ -97,8 +99,9 @@ export async function initializeDatabase() {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `
+    console.log("[v0] Created admin_sessions table")
 
-    // Create indexes for better performance
+    // Create indexes
     await sql`CREATE INDEX IF NOT EXISTS idx_guests_type ON guests(type)`
     await sql`CREATE INDEX IF NOT EXISTS idx_guests_group_name ON guests(group_name)`
     await sql`CREATE INDEX IF NOT EXISTS idx_guests_rsvp_status ON guests(rsvp_status)`
@@ -106,83 +109,91 @@ export async function initializeDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_budget_items_status ON budget_items(status)`
     await sql`CREATE INDEX IF NOT EXISTS idx_content_pages_page_key ON content_pages(page_key)`
     await sql`CREATE INDEX IF NOT EXISTS idx_content_pages_enabled ON content_pages(enabled)`
+    console.log("[v0] Created indexes")
 
-    console.log("Database initialized successfully")
-    return true
-  } catch (error) {
-    console.error("Database initialization failed:", error)
-    return false
-  }
-}
+    // Insert default wedding settings
+    await sql`
+      INSERT INTO wedding_settings (
+        id, bride_name, groom_name, wedding_date, ceremony_date, reception_date, venue, location
+      ) VALUES (
+        'default', 'Varnie', 'Biraveen', '2026-03-27', '2026-03-27', '2026-03-28', 'Paphos, Cyprus', 'Cyprus'
+      ) ON CONFLICT (id) DO NOTHING
+    `
+    console.log("[v0] Inserted default wedding settings")
 
-// Helper function to insert default settings if they don't exist
-export async function insertDefaultSettings() {
-  try {
-    const existingSettings = await sql`SELECT id FROM wedding_settings WHERE id = 'default'`
-
-    if (existingSettings.length === 0) {
-      await sql`
-        INSERT INTO wedding_settings (
-          id, bride_name, groom_name, wedding_date, ceremony_date, reception_date, venue, location
-        ) VALUES (
-          'default', 'Varnie', 'Biraveen', '2026-03-27', '2026-03-27', '2026-03-28', 'Paphos, Cyprus', 'Cyprus'
-        )
-      `
-    }
-
-    // Insert default content pages if they don't exist
-    const defaultPages = [
+    // Insert default content pages
+    const contentPages = [
       {
+        id: "home",
         page_key: "home",
         title: "Varnie & Biraveen",
         description: "Together with our families, we invite you to celebrate our Tamil Hindu wedding",
-        content: "We are thrilled to invite you to join us as we begin our journey together as husband and wife...",
+        content:
+          "We are thrilled to invite you to join us as we begin our journey together as husband and wife. Our celebration will take place over two beautiful days in the stunning setting of Paphos, Cyprus, combining traditional Tamil Hindu ceremonies with modern festivities.",
         page_order: 1,
       },
       {
+        id: "events",
         page_key: "events",
         title: "Wedding Events",
         description: "Join us for two beautiful days of celebration in the stunning setting of Paphos, Cyprus",
-        content: "Our celebration will include traditional Tamil Hindu ceremonies and modern reception festivities...",
+        content:
+          "Our celebration will include traditional Tamil Hindu ceremonies and modern reception festivities. The ceremony will take place on March 27th, followed by the reception on March 28th.",
         page_order: 2,
       },
       {
+        id: "venue",
         page_key: "venue",
         title: "Venue & Location",
         description: "Discover the beautiful venues in Paphos, Cyprus where we'll celebrate our special day",
-        content: "Both our ceremony and reception will take place in stunning beachfront locations...",
+        content:
+          "Both our ceremony and reception will take place in stunning beachfront locations in Paphos, Cyprus, offering breathtaking views of the Mediterranean Sea.",
         page_order: 3,
       },
       {
+        id: "travel",
         page_key: "travel",
         title: "Travel to Cyprus",
         description: "Everything you need to know for your journey to our wedding in beautiful Paphos, Cyprus",
-        content: "Cyprus is easily accessible from major European cities with direct flights to Paphos...",
+        content:
+          "Cyprus is easily accessible from major European cities with direct flights to Paphos International Airport. We recommend booking accommodations in advance as March is a popular time to visit.",
         page_order: 4,
       },
       {
+        id: "gallery",
         page_key: "gallery",
         title: "Our Gallery",
         description: "Capturing the beautiful moments of our journey together",
-        content: "Browse through our engagement photos and pre-wedding celebrations...",
+        content: "Browse through our engagement photos and pre-wedding celebrations as we prepare for our special day.",
         page_order: 5,
       },
     ]
 
-    for (const page of defaultPages) {
-      const existing = await sql`SELECT id FROM content_pages WHERE page_key = ${page.page_key}`
-      if (existing.length === 0) {
-        await sql`
-          INSERT INTO content_pages (id, page_key, title, description, content, page_order)
-          VALUES (${page.page_key}, ${page.page_key}, ${page.title}, ${page.description}, ${page.content}, ${page.page_order})
-        `
-      }
+    for (const page of contentPages) {
+      await sql`
+        INSERT INTO content_pages (id, page_key, title, description, content, page_order)
+        VALUES (${page.id}, ${page.page_key}, ${page.title}, ${page.description}, ${page.content}, ${page.page_order})
+        ON CONFLICT (page_key) DO NOTHING
+      `
     }
+    console.log("[v0] Inserted default content pages")
 
-    console.log("Default data inserted successfully")
-    return true
+    console.log("[v0] Database setup completed successfully!")
+
+    // Verify tables exist
+    const tables = await sql`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public'
+    `
+    console.log(
+      "[v0] Created tables:",
+      tables.map((t) => t.table_name),
+    )
   } catch (error) {
-    console.error("Failed to insert default data:", error)
-    return false
+    console.error("[v0] Database setup failed:", error)
+    throw error
   }
 }
+
+setupDatabase()

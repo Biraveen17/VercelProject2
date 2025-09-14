@@ -71,11 +71,11 @@ CREATE TABLE IF NOT EXISTS spreadsheets (
 
 -- Create admin_sessions table for authentication
 CREATE TABLE IF NOT EXISTS admin_sessions (
-  id TEXT PRIMARY KEY,
+  session_id TEXT PRIMARY KEY,
   username TEXT NOT NULL,
-  login_time TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  last_activity TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  changes JSONB DEFAULT '[]'
+  user_data JSONB NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Create indexes for better performance

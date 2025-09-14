@@ -5,9 +5,13 @@ const sql = neon(process.env.DATABASE_URL!)
 
 export async function GET(request: NextRequest) {
   try {
-    const sessionId = request.cookies.get("wedding_admin_session")?.value
+    const authHeader = request.headers.get("authorization")
+    const token = authHeader?.replace("Bearer ", "")
 
-    if (!sessionId) {
+    console.log("[v0] Session check - token:", token ? "present" : "missing")
+
+    if (!token) {
+      console.log("[v0] No authorization token found")
       return NextResponse.json({ authenticated: false }, { status: 401 })
     }
 
@@ -15,26 +19,27 @@ export async function GET(request: NextRequest) {
     const sessions = await sql`
       SELECT session_id, username, user_data, expires_at
       FROM admin_sessions 
-      WHERE session_id = ${sessionId}
+      WHERE session_id = ${token}
       AND expires_at > ${new Date().toISOString()}
     `
 
+    console.log("[v0] Database sessions found:", sessions.length)
+
     if (sessions.length === 0) {
-      // Session expired or doesn't exist
-      const response = NextResponse.json({ authenticated: false }, { status: 401 })
-      response.cookies.delete("wedding_admin_session")
-      return response
+      console.log("[v0] Session expired or doesn't exist")
+      return NextResponse.json({ authenticated: false }, { status: 401 })
     }
 
     const session = sessions[0]
     const userData = JSON.parse(session.user_data as string)
+    console.log("[v0] Session valid for user:", userData.username)
 
     return NextResponse.json({
       authenticated: true,
       user: { username: userData.username, name: userData.name },
     })
   } catch (error) {
-    console.error("Session check error:", error)
+    console.error("[v0] Session check error:", error)
     return NextResponse.json({ authenticated: false }, { status: 500 })
   }
 }
