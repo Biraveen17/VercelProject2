@@ -2,144 +2,254 @@
 
 import type React from "react"
 import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { submitIndividualRSVP, submitGroupRSVP, getGuests, type Guest } from "@/lib/database"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 import { useLanguage } from "@/lib/language-context"
+import { Users, User, AlertCircle, CheckCircle } from "lucide-react"
+
+type Guest = {
+  id: string
+  guest_name?: string
+  group_id?: string
+  is_group_header: boolean
+  group_name?: string
+  is_tbc: boolean
+  side?: "bride" | "groom"
+  is_child: boolean
+  child_age_category?: "3_or_below" | "4_to_12" | "above_12"
+  rsvp_status: "pending" | "attending" | "not_attending"
+  events: string[]
+  dietary_requirements?: string
+  questions_for_couple?: string
+  notes?: string
+  rsvp_submitted: boolean
+}
+
+type Group = {
+  id: string
+  group_name: string
+  total_guests: number
+  defined_guests: number
+  tbc_guests: number
+  rsvp_submitted: boolean
+}
+
+type RSVPFormData = {
+  guest_name?: string
+  side?: "bride" | "groom"
+  is_child: boolean
+  child_age_category?: "3_or_below" | "4_to_12" | "above_12"
+  rsvp_status: "attending" | "not_attending"
+  events: string[]
+  dietary_requirements: string
+  questions_for_couple: string
+}
 
 export default function RSVPPage() {
   const { t } = useLanguage()
   const [step, setStep] = useState(1)
-  const [guestName, setGuestName] = useState("")
-  const [foundGuest, setFoundGuest] = useState<Guest | null>(null)
-  const [isAttending, setIsAttending] = useState<string>("")
-  const [events, setEvents] = useState<string[]>([])
-  const [dietaryRequirements, setDietaryRequirements] = useState("")
-  const [questions, setQuestions] = useState("")
-  const [groupMembers, setGroupMembers] = useState<string[]>([])
+  const [searchName, setSearchName] = useState("")
+  const [matchedGuest, setMatchedGuest] = useState<Guest | null>(null)
+  const [matchedGroup, setMatchedGroup] = useState<Group | null>(null)
+  const [groupGuests, setGroupGuests] = useState<Guest[]>([])
+  const [isGroupRSVP, setIsGroupRSVP] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const handleGuestSearch = (e: React.FormEvent) => {
+  // Individual RSVP form data
+  const [individualForm, setIndividualForm] = useState<RSVPFormData>({
+    is_child: false,
+    rsvp_status: "attending",
+    events: [],
+    dietary_requirements: "",
+    questions_for_couple: "",
+  })
+
+  // Group RSVP form data
+  const [groupForms, setGroupForms] = useState<RSVPFormData[]>([])
+
+  const handleGuestSearch = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    setLoading(true)
+
+    try {
+      const response = await fetch("/api/rsvp/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: searchName.trim() }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        setError(result.error || "Failed to search for guest")
+        return
+      }
+
+      if (result.type === "individual") {
+        // Individual guest found
+        setMatchedGuest(result.guest)
+        setIsGroupRSVP(false)
+        setIndividualForm({
+          guest_name: result.guest.guest_name,
+          side: result.guest.side,
+          is_child: result.guest.is_child,
+          child_age_category: result.guest.child_age_category,
+          rsvp_status: "attending",
+          events: [],
+          dietary_requirements: result.guest.dietary_requirements || "",
+          questions_for_couple: result.guest.questions_for_couple || "",
+        })
+        setStep(2)
+      } else if (result.type === "group") {
+        // Group found
+        setMatchedGroup(result.group)
+        setGroupGuests(result.guests)
+        setIsGroupRSVP(true)
+
+        // Initialize group forms
+        const forms = result.guests.map((guest: Guest) => ({
+          guest_name: guest.is_tbc ? "" : guest.guest_name,
+          side: guest.side,
+          is_child: guest.is_child,
+          child_age_category: guest.child_age_category,
+          rsvp_status: "attending" as "attending" | "not_attending",
+          events: [],
+          dietary_requirements: guest.dietary_requirements || "",
+          questions_for_couple: guest.questions_for_couple || "",
+        }))
+        setGroupForms(forms)
+        setStep(2)
+      }
+    } catch (error) {
+      console.error("Search error:", error)
+      setError("An error occurred while searching. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleIndividualSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
-    const allGuests = getGuests()
-    const normalizedName = guestName.toLowerCase().trim()
-
-    const groupByName = allGuests.find(
-      (g: Guest) => g.type === "group" && g.groupName?.toLowerCase().trim() === normalizedName,
-    )
-
-    if (groupByName) {
-      // Found group by name - show group RSVP form
-      if (groupByName.rsvpStatus && groupByName.rsvpStatus !== "pending") {
-        setError("Your group has already submitted an RSVP. If you need to make changes, please contact us directly.")
-        return
-      }
-      setFoundGuest(groupByName)
-      const maxSize = groupByName.maxGroupSize || 1
-      const existingMembers = groupByName.groupMembers || []
-      const initialMembers = Array(maxSize)
-        .fill("")
-        .map((_, index) => existingMembers[index] || "")
-      setGroupMembers(initialMembers)
-      setStep(2)
+    if (individualForm.rsvp_status === "attending" && individualForm.events.length === 0) {
+      setError("Please select at least one event to attend.")
       return
     }
 
-    const groupWithMember = allGuests.find(
-      (g: Guest) =>
-        g.type === "group" &&
-        g.groupMembers &&
-        g.groupMembers.some((member: string) => member.toLowerCase().trim() === normalizedName),
-    )
+    setLoading(true)
 
-    if (groupWithMember) {
-      // Found as group member - show group RSVP form
-      if (groupWithMember.rsvpStatus && groupWithMember.rsvpStatus !== "pending") {
-        setError("Your group has already submitted an RSVP. If you need to make changes, please contact us directly.")
+    try {
+      const response = await fetch("/api/rsvp/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "individual",
+          guest_id: matchedGuest?.id,
+          rsvp_data: individualForm,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        setError(result.error || "Failed to submit RSVP")
         return
       }
-      setFoundGuest(groupWithMember)
-      const maxSize = groupWithMember.maxGroupSize || 1
-      const existingMembers = groupWithMember.groupMembers || []
-      const initialMembers = Array(maxSize)
-        .fill("")
-        .map((_, index) => existingMembers[index] || "")
-      setGroupMembers(initialMembers)
-      setStep(2)
-      return
+
+      setSuccess(true)
+      setStep(3)
+    } catch (error) {
+      console.error("Submit error:", error)
+      setError("An error occurred while submitting. Please try again.")
+    } finally {
+      setLoading(false)
     }
-
-    const individualGuest = allGuests.find(
-      (g: Guest) => g.type === "individual" && !g.groupName && g.guestName?.toLowerCase().trim() === normalizedName,
-    )
-
-    if (individualGuest) {
-      // Found individual guest - show individual RSVP form
-      if (individualGuest.rsvpStatus && individualGuest.rsvpStatus !== "pending") {
-        setError("You have already submitted your RSVP. If you need to make changes, please contact us directly.")
-        return
-      }
-      setFoundGuest(individualGuest)
-      setStep(2)
-      return
-    }
-
-    // No match found
-    setError("Guest name not found. Please check the spelling or contact us for assistance.")
   }
 
-  const handleRSVPSubmit = (e: React.FormEvent) => {
+  const handleGroupSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!foundGuest) return
+    setError("")
 
-    if (isAttending === "yes" && events.length === 0) {
-      setError("Please select at least one event (wedding ceremony or reception) to attend.")
+    // Validate that attending guests have selected events
+    const attendingForms = groupForms.filter((form) => form.rsvp_status === "attending")
+    const invalidForms = attendingForms.filter((form) => form.events.length === 0)
+
+    if (invalidForms.length > 0) {
+      setError("All attending guests must select at least one event.")
       return
     }
 
-    if (foundGuest.type === "group" && groupMembers.length > 0) {
-      submitGroupRSVP(foundGuest, {
-        isAttending: isAttending === "yes",
-        events: isAttending === "yes" ? (events as ("ceremony" | "reception")[]) : [],
-        dietaryRequirements: isAttending === "yes" ? dietaryRequirements : "",
-        questions: questions,
-        groupMembers: groupMembers,
-      })
-    } else {
-      submitIndividualRSVP(foundGuest, {
-        isAttending: isAttending === "yes",
-        events: isAttending === "yes" ? (events as ("ceremony" | "reception")[]) : [],
-        dietaryRequirements: isAttending === "yes" ? dietaryRequirements : "",
-        questions: questions,
-      })
+    // Check for duplicate names
+    const filledNames = groupForms
+      .map((form) => form.guest_name?.trim().toLowerCase())
+      .filter((name) => name && name.length > 0)
+
+    const uniqueNames = new Set(filledNames)
+    if (filledNames.length !== uniqueNames.size) {
+      setError("Multiple guests cannot have the same name. Please ensure all names are unique.")
+      return
     }
 
-    setSuccess(true)
-    setStep(3)
+    setLoading(true)
+
+    try {
+      const response = await fetch("/api/rsvp/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "group",
+          group_id: matchedGroup?.id,
+          guest_ids: groupGuests.map((g) => g.id),
+          rsvp_data: groupForms,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        setError(result.error || "Failed to submit RSVP")
+        return
+      }
+
+      setSuccess(true)
+      setStep(3)
+    } catch (error) {
+      console.error("Submit error:", error)
+      setError("An error occurred while submitting. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateGroupForm = (index: number, field: keyof RSVPFormData, value: any) => {
+    const newForms = [...groupForms]
+    newForms[index] = { ...newForms[index], [field]: value }
+    setGroupForms(newForms)
   }
 
   if (success) {
     return (
-      <div className="min-h-screen py-12 px-4 flex items-center justify-center">
+      <div className="min-h-screen floral-background py-12 px-4 flex items-center justify-center">
         <Card className="max-w-md mx-auto text-center">
           <CardContent className="p-8">
             <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <svg className="w-16 h-16 text-accent" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
+              <CheckCircle className="w-16 h-16 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-primary mb-4">{t("thankYouTitle")}</h2>
+            <h2 className="text-2xl font-bold text-primary mb-4">Thank You!</h2>
             <p className="text-muted-foreground mb-6">
-              {isAttending === "yes" ? t("thankYouAttending") : t("thankYouNotAttending")}
+              Your RSVP has been submitted successfully. We look forward to celebrating with you!
             </p>
-            <button
-              onClick={() => (window.location.href = "/")}
-              className="bg-primary text-primary-foreground px-6 py-2 rounded-md hover:bg-primary/90 transition-colors"
-            >
-              {t("backToHome")}
-            </button>
+            <Button onClick={() => (window.location.href = "/")}>Back to Home</Button>
           </CardContent>
         </Card>
       </div>
@@ -147,210 +257,413 @@ export default function RSVPPage() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen floral-background py-12 px-4">
+      <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-4">{t("rsvpTitle")}</h1>
-          <p className="text-lg text-muted-foreground">{t("rsvpSubtitle")}</p>
+          <h1 className="text-4xl font-bold text-primary mb-4">RSVP</h1>
+          <p className="text-lg text-muted-foreground">Please let us know if you can join us for our special day</p>
         </div>
 
         {step === 1 && (
-          <Card>
-            <CardContent className="p-6">
+          <Card className="max-w-md mx-auto">
+            <CardHeader>
+              <CardTitle className="text-center">Find Your Invitation</CardTitle>
+            </CardHeader>
+            <CardContent>
               <form onSubmit={handleGuestSearch} className="space-y-4">
                 <div>
-                  <label htmlFor="guestName" className="block text-sm font-medium mb-2">
-                    {t("enterName")}
-                  </label>
-                  <input
-                    type="text"
-                    id="guestName"
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
-                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
-                    placeholder={t("namePlaceholder")}
+                  <Label htmlFor="searchName">Enter your name or group name</Label>
+                  <Input
+                    id="searchName"
+                    value={searchName}
+                    onChange={(e) => setSearchName(e.target.value)}
+                    placeholder="e.g., John Smith or Smith Family"
                     required
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Enter your name exactly as it appears on your invitation
+                  </p>
                 </div>
-                {error && <p className="text-destructive text-sm">{error}</p>}
-                <button
-                  type="submit"
-                  className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors"
-                >
-                  {t("findGuest")}
-                </button>
+
+                {error && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-destructive text-sm">{error}</p>
+                  </div>
+                )}
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Searching..." : "Find My Invitation"}
+                </Button>
               </form>
             </CardContent>
           </Card>
         )}
 
-        {step === 2 && foundGuest && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">
-                  {t("welcomeGuest", { name: foundGuest.guestName || foundGuest.groupName })}
-                </h2>
-                {foundGuest.type === "group" && (
-                  <p className="text-muted-foreground">{t("groupBooking", { size: foundGuest.maxGroupSize })}</p>
+        {step === 2 && !isGroupRSVP && matchedGuest && (
+          <Card className="max-w-2xl mx-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5" />
+                Welcome, {matchedGuest.guest_name}!
+              </CardTitle>
+              <div className="flex gap-2">
+                {matchedGuest.side && (
+                  <Badge variant={matchedGuest.side === "bride" ? "default" : "secondary"}>
+                    {matchedGuest.side} side
+                  </Badge>
                 )}
+                {matchedGuest.is_child && <Badge variant="outline">Child</Badge>}
               </div>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleIndividualSubmit} className="space-y-6">
+                {matchedGuest.is_child && (
+                  <div>
+                    <Label>Age Category</Label>
+                    <Select
+                      value={individualForm.child_age_category || ""}
+                      onValueChange={(value: "3_or_below" | "4_to_12" | "above_12") =>
+                        setIndividualForm((prev) => ({ ...prev, child_age_category: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select age category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="3_or_below">3 or below</SelectItem>
+                        <SelectItem value="4_to_12">4 to 12</SelectItem>
+                        <SelectItem value="above_12">Above 12</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
-              <form onSubmit={handleRSVPSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium mb-3">{t("willYouAttend")}</label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
+                  <Label>Will you be attending?</Label>
+                  <div className="space-y-2 mt-2">
+                    <div className="flex items-center space-x-2">
                       <input
                         type="radio"
-                        name="attending"
-                        value="yes"
-                        checked={isAttending === "yes"}
-                        onChange={(e) => setIsAttending(e.target.value)}
-                        className="mr-2"
-                        required
+                        id="attending"
+                        name="rsvp_status"
+                        value="attending"
+                        checked={individualForm.rsvp_status === "attending"}
+                        onChange={(e) =>
+                          setIndividualForm((prev) => ({
+                            ...prev,
+                            rsvp_status: e.target.value as "attending" | "not_attending",
+                          }))
+                        }
                       />
-                      {t("yesAttending")}
-                    </label>
-                    <label className="flex items-center">
+                      <Label htmlFor="attending">Yes, I will be attending</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
                       <input
                         type="radio"
-                        name="attending"
-                        value="no"
-                        checked={isAttending === "no"}
-                        onChange={(e) => setIsAttending(e.target.value)}
-                        className="mr-2"
-                        required
+                        id="not_attending"
+                        name="rsvp_status"
+                        value="not_attending"
+                        checked={individualForm.rsvp_status === "not_attending"}
+                        onChange={(e) =>
+                          setIndividualForm((prev) => ({
+                            ...prev,
+                            rsvp_status: e.target.value as "attending" | "not_attending",
+                          }))
+                        }
                       />
-                      {t("noAttending")}
-                    </label>
+                      <Label htmlFor="not_attending">Sorry, I cannot attend</Label>
+                    </div>
                   </div>
                 </div>
 
-                {isAttending === "yes" && (
+                {individualForm.rsvp_status === "attending" && (
                   <>
                     <div>
-                      <label className="block text-sm font-medium mb-3">{t("whichEvents")}</label>
-                      {error && <p className="text-destructive text-sm mb-2">{error}</p>}
-                      <div className="space-y-2">
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            value="ceremony"
-                            checked={events.includes("ceremony")}
-                            onChange={(e) => {
-                              setError("") // Clear error when user makes selection
-                              if (e.target.checked) {
-                                setEvents([...events, "ceremony"])
+                      <Label>Which events will you attend?</Label>
+                      <div className="space-y-2 mt-2">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="wedding"
+                            checked={individualForm.events.includes("wedding")}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setIndividualForm((prev) => ({
+                                  ...prev,
+                                  events: [...prev.events, "wedding"],
+                                }))
                               } else {
-                                setEvents(events.filter((event) => event !== "ceremony"))
+                                setIndividualForm((prev) => ({
+                                  ...prev,
+                                  events: prev.events.filter((e) => e !== "wedding"),
+                                }))
                               }
                             }}
-                            className="mr-2"
                           />
-                          {t("ceremonyEvent")}
-                        </label>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            value="reception"
-                            checked={events.includes("reception")}
-                            onChange={(e) => {
-                              setError("") // Clear error when user makes selection
-                              if (e.target.checked) {
-                                setEvents([...events, "reception"])
+                          <Label htmlFor="wedding">Wedding Ceremony</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="reception"
+                            checked={individualForm.events.includes("reception")}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setIndividualForm((prev) => ({
+                                  ...prev,
+                                  events: [...prev.events, "reception"],
+                                }))
                               } else {
-                                setEvents(events.filter((event) => event !== "reception"))
+                                setIndividualForm((prev) => ({
+                                  ...prev,
+                                  events: prev.events.filter((e) => e !== "reception"),
+                                }))
                               }
                             }}
-                            className="mr-2"
                           />
-                          {t("receptionEvent")}
-                        </label>
+                          <Label htmlFor="reception">Reception</Label>
+                        </div>
                       </div>
                     </div>
 
-                    {foundGuest.type === "group" && groupMembers.length > 0 && (
-                      <div>
-                        <label className="block text-sm font-medium mb-3">{t("groupMemberNames")}</label>
-                        {(() => {
-                          const filledMembers = groupMembers.filter((member) => member.trim() !== "")
-                          const maxSize = foundGuest.maxGroupSize || groupMembers.length
-                          if (filledMembers.length < maxSize && filledMembers.length > 0) {
-                            const missingCount = maxSize - filledMembers.length
-                            return (
-                              <p className="text-amber-600 text-sm mb-2 bg-amber-50 dark:bg-amber-900/20 p-2 rounded">
-                                Note: You have {maxSize} group size but are submitting {filledMembers.length} guests.
-                                The couple will understand your group size has reduced by {missingCount}.
-                              </p>
-                            )
-                          }
-                          return null
-                        })()}
-                        <div className="space-y-2">
-                          {groupMembers.map((member, index) => (
-                            <input
-                              key={index}
-                              type="text"
-                              value={member}
-                              onChange={(e) => {
-                                setError("") // Clear error when user makes changes
-                                const newMembers = [...groupMembers]
-                                newMembers[index] = e.target.value
-                                setGroupMembers(newMembers)
-                              }}
-                              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
-                              placeholder={t("memberNamePlaceholder", { number: index + 1 })}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
                     <div>
-                      <label htmlFor="dietary" className="block text-sm font-medium mb-2">
-                        {t("dietaryRequirements")}
-                      </label>
-                      <textarea
+                      <Label htmlFor="dietary">Dietary Requirements</Label>
+                      <Textarea
                         id="dietary"
-                        value={dietaryRequirements}
-                        onChange={(e) => setDietaryRequirements(e.target.value)}
-                        className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
-                        rows={3}
-                        placeholder={t("dietaryPlaceholder")}
+                        value={individualForm.dietary_requirements}
+                        onChange={(e) =>
+                          setIndividualForm((prev) => ({
+                            ...prev,
+                            dietary_requirements: e.target.value,
+                          }))
+                        }
+                        placeholder="Please let us know about any dietary restrictions or allergies"
                       />
                     </div>
                   </>
                 )}
 
                 <div>
-                  <label htmlFor="questions" className="block text-sm font-medium mb-2">
-                    {t("questionsComments")}
-                  </label>
-                  <textarea
+                  <Label htmlFor="questions">Questions for the Couple</Label>
+                  <Textarea
                     id="questions"
-                    value={questions}
-                    onChange={(e) => setQuestions(e.target.value)}
-                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
-                    rows={3}
-                    placeholder={t("questionsPlaceholder")}
+                    value={individualForm.questions_for_couple}
+                    onChange={(e) =>
+                      setIndividualForm((prev) => ({
+                        ...prev,
+                        questions_for_couple: e.target.value,
+                      }))
+                    }
+                    placeholder="Any questions or special messages for us?"
                   />
                 </div>
 
+                {error && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-destructive text-sm">{error}</p>
+                  </div>
+                )}
+
                 <div className="flex gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-md hover:bg-secondary/80 transition-colors"
-                  >
-                    {t("back")}
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors"
-                  >
-                    {t("submitRSVP")}
-                  </button>
+                  <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                    Back
+                  </Button>
+                  <Button type="submit" className="flex-1" disabled={loading}>
+                    {loading ? "Submitting..." : "Submit RSVP"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
+        {step === 2 && isGroupRSVP && matchedGroup && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                {matchedGroup.group_name} - Group RSVP
+              </CardTitle>
+              <p className="text-muted-foreground">
+                Please fill out the details for each member of your group. You can leave guest names empty if they are
+                no longer attending.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleGroupSubmit} className="space-y-8">
+                {groupGuests.map((guest, index) => (
+                  <Card key={guest.id} className="p-4">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2 mb-4">
+                        <h3 className="font-semibold">Guest {index + 1}</h3>
+                        {guest.is_tbc && <Badge variant="secondary">TBC</Badge>}
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`name_${index}`}>Guest Name</Label>
+                        <Input
+                          id={`name_${index}`}
+                          value={groupForms[index]?.guest_name || ""}
+                          onChange={(e) => updateGroupForm(index, "guest_name", e.target.value)}
+                          placeholder={guest.is_tbc ? "Enter guest name (optional)" : "Guest name"}
+                        />
+                      </div>
+
+                      {groupForms[index]?.guest_name && (
+                        <>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label>Side</Label>
+                              <Select
+                                value={groupForms[index]?.side || ""}
+                                onValueChange={(value: "bride" | "groom") => updateGroupForm(index, "side", value)}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select side" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="bride">Bride</SelectItem>
+                                  <SelectItem value="groom">Groom</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div>
+                              <Label>RSVP Status</Label>
+                              <Select
+                                value={groupForms[index]?.rsvp_status || "attending"}
+                                onValueChange={(value: "attending" | "not_attending") =>
+                                  updateGroupForm(index, "rsvp_status", value)
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="attending">Attending</SelectItem>
+                                  <SelectItem value="not_attending">Not Attending</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`child_${index}`}
+                              checked={groupForms[index]?.is_child || false}
+                              onCheckedChange={(checked) => updateGroupForm(index, "is_child", !!checked)}
+                            />
+                            <Label htmlFor={`child_${index}`}>This guest is a child</Label>
+                          </div>
+
+                          {groupForms[index]?.is_child && (
+                            <div>
+                              <Label>Age Category</Label>
+                              <Select
+                                value={groupForms[index]?.child_age_category || ""}
+                                onValueChange={(value: "3_or_below" | "4_to_12" | "above_12") =>
+                                  updateGroupForm(index, "child_age_category", value)
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select age category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="3_or_below">3 or below</SelectItem>
+                                  <SelectItem value="4_to_12">4 to 12</SelectItem>
+                                  <SelectItem value="above_12">Above 12</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+
+                          {groupForms[index]?.rsvp_status === "attending" && (
+                            <>
+                              <div>
+                                <Label>Events Attending</Label>
+                                <div className="space-y-2 mt-2">
+                                  <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={`wedding_${index}`}
+                                      checked={groupForms[index]?.events.includes("wedding") || false}
+                                      onCheckedChange={(checked) => {
+                                        const currentEvents = groupForms[index]?.events || []
+                                        if (checked) {
+                                          updateGroupForm(index, "events", [...currentEvents, "wedding"])
+                                        } else {
+                                          updateGroupForm(
+                                            index,
+                                            "events",
+                                            currentEvents.filter((e) => e !== "wedding"),
+                                          )
+                                        }
+                                      }}
+                                    />
+                                    <Label htmlFor={`wedding_${index}`}>Wedding Ceremony</Label>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={`reception_${index}`}
+                                      checked={groupForms[index]?.events.includes("reception") || false}
+                                      onCheckedChange={(checked) => {
+                                        const currentEvents = groupForms[index]?.events || []
+                                        if (checked) {
+                                          updateGroupForm(index, "events", [...currentEvents, "reception"])
+                                        } else {
+                                          updateGroupForm(
+                                            index,
+                                            "events",
+                                            currentEvents.filter((e) => e !== "reception"),
+                                          )
+                                        }
+                                      }}
+                                    />
+                                    <Label htmlFor={`reception_${index}`}>Reception</Label>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div>
+                                <Label htmlFor={`dietary_${index}`}>Dietary Requirements</Label>
+                                <Textarea
+                                  id={`dietary_${index}`}
+                                  value={groupForms[index]?.dietary_requirements || ""}
+                                  onChange={(e) => updateGroupForm(index, "dietary_requirements", e.target.value)}
+                                  placeholder="Any dietary restrictions or allergies"
+                                />
+                              </div>
+                            </>
+                          )}
+
+                          <div>
+                            <Label htmlFor={`questions_${index}`}>Questions for the Couple</Label>
+                            <Textarea
+                              id={`questions_${index}`}
+                              value={groupForms[index]?.questions_for_couple || ""}
+                              onChange={(e) => updateGroupForm(index, "questions_for_couple", e.target.value)}
+                              placeholder="Any questions or special messages"
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </Card>
+                ))}
+
+                {error && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-destructive text-sm">{error}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-4">
+                  <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                    Back
+                  </Button>
+                  <Button type="submit" className="flex-1" disabled={loading}>
+                    {loading ? "Submitting..." : "Submit Group RSVP"}
+                  </Button>
                 </div>
               </form>
             </CardContent>

@@ -18,8 +18,6 @@ export default function AdminPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
-  const [initializingDb, setInitializingDb] = useState(false)
-  const [dbInitialized, setDbInitialized] = useState(false)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [guests, setGuests] = useState<any[]>([])
   const [budgetItems, setBudgetItems] = useState<any[]>([])
@@ -37,31 +35,6 @@ export default function AdminPage() {
 
     checkAuth()
   }, [])
-
-  const handleInitializeDatabase = async () => {
-    setInitializingDb(true)
-    try {
-      const response = await fetch("/api/init-database", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      const result = await response.json()
-      if (result.success) {
-        setDbInitialized(true)
-        setError("")
-        console.log("[v0] Database initialized successfully:", result.tables)
-      } else {
-        setError(`Database initialization failed: ${result.error}`)
-      }
-    } catch (error) {
-      console.error("[v0] Database initialization error:", error)
-      setError("Failed to initialize database")
-    } finally {
-      setInitializingDb(false)
-    }
-  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -122,26 +95,6 @@ export default function AdminPage() {
             <CardTitle className="text-center">Admin Login</CardTitle>
           </CardHeader>
           <CardContent>
-            {!dbInitialized && (
-              <div className="mb-6 p-4 border rounded-lg bg-muted/50">
-                <p className="text-sm text-muted-foreground mb-3">First time setup? Initialize the database first:</p>
-                <Button
-                  onClick={handleInitializeDatabase}
-                  disabled={initializingDb}
-                  variant="outline"
-                  className="w-full bg-transparent"
-                >
-                  {initializingDb ? "Initializing Database..." : "Initialize Database"}
-                </Button>
-              </div>
-            )}
-
-            {dbInitialized && (
-              <div className="mb-4 p-3 border rounded-lg bg-green-50 text-green-800">
-                <p className="text-sm">✅ Database initialized successfully! You can now log in.</p>
-              </div>
-            )}
-
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <Label htmlFor="username">Username</Label>

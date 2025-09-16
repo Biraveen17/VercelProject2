@@ -39,14 +39,14 @@ export async function PUT(request: NextRequest) {
           id, page_key, title, description, content, enabled, page_order, updated_at
         ) VALUES (
           ${pageKey}, ${pageKey}, ${page.title}, ${page.description}, ${page.content},
-          ${page.enabled}, ${page.order}, NOW()
+          ${Boolean(page.enabled)}, ${Number(page.order)}, NOW()
         )
         ON CONFLICT (page_key) DO UPDATE SET
-          title = ${page.title},
-          description = ${page.description},
-          content = ${page.content},
-          enabled = ${page.enabled},
-          page_order = ${page.order},
+          title = EXCLUDED.title,
+          description = EXCLUDED.description,
+          content = EXCLUDED.content,
+          enabled = EXCLUDED.enabled,
+          page_order = EXCLUDED.page_order,
           updated_at = NOW()
       `
     }

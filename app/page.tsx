@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CountdownTimer } from "@/components/countdown-timer"
@@ -13,33 +11,19 @@ import { getSettings } from "@/lib/database"
 
 export default function HomePage() {
   const { t } = useLanguage()
-  const [proposalVideoUrl, setProposalVideoUrl] = useState<string | null>(null)
   const [proposalPhotos, setProposalPhotos] = useState<{ photo1: string | null; photo2: string | null }>({
     photo1: null,
     photo2: null,
   })
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
-  const [videoDimensions, setVideoDimensions] = useState<{ width: number; height: number } | null>(null)
-  const [videoSettings, setVideoSettings] = useState({ allowVideoDownload: true, allowVideoFullscreen: true })
 
   useEffect(() => {
     const settings = getSettings()
-    setVideoSettings({
-      allowVideoDownload: settings.allowVideoDownload,
-      allowVideoFullscreen: settings.allowVideoFullscreen,
-    })
 
-    const fetchProposalVideo = async () => {
+    const fetchProposalPhotos = async () => {
       try {
         const response = await fetch("/api/list-blobs")
         const data = await response.json()
-
-        const proposalVideo = data.files?.find(
-          (file: any) =>
-            file.filename?.toLowerCase().includes("proposalvideo") ||
-            file.pathname?.toLowerCase().includes("proposalvideo"),
-        )
 
         const proposalPhoto1 = data.files?.find(
           (file: any) =>
@@ -53,54 +37,27 @@ export default function HomePage() {
             file.pathname?.toLowerCase().includes("proposalphoto2"),
         )
 
-        if (proposalVideo) {
-          setProposalVideoUrl(proposalVideo.url)
-        }
-
         setProposalPhotos({
           photo1: proposalPhoto1?.url || null,
           photo2: proposalPhoto2?.url || null,
         })
       } catch (error) {
-        console.error("Error fetching proposal video:", error)
+        console.error("Error fetching proposal photos:", error)
       }
     }
 
-    fetchProposalVideo()
+    fetchProposalPhotos()
   }, [])
 
   useEffect(() => {
-    if (!isVideoPlaying && (proposalPhotos.photo1 || proposalPhotos.photo2)) {
+    if (proposalPhotos.photo1 || proposalPhotos.photo2) {
       const interval = setInterval(() => {
         setCurrentPhotoIndex((prev) => (prev === 0 ? 1 : 0))
       }, 5000)
 
       return () => clearInterval(interval)
     }
-  }, [isVideoPlaying, proposalPhotos])
-
-  const handleVideoLoadedMetadata = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const video = e.currentTarget
-    setVideoDimensions({
-      width: video.videoWidth,
-      height: video.videoHeight,
-    })
-  }
-
-  const handleVideoPlay = () => {
-    setIsVideoPlaying(true)
-  }
-
-  const handleVideoPause = () => {
-    setIsVideoPlaying(false)
-  }
-
-  const handleOverlayClick = () => {
-    const video = document.querySelector("video")
-    if (video && !isVideoPlaying) {
-      video.play()
-    }
-  }
+  }, [proposalPhotos])
 
   const getCurrentPhoto = () => {
     if (currentPhotoIndex === 0 && proposalPhotos.photo1) {
@@ -117,68 +74,18 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8">
             <div className="relative mx-auto mb-6 max-w-4xl">
-              {proposalVideoUrl ? (
+              {proposalPhotos.photo1 || proposalPhotos.photo2 ? (
                 <div className="relative">
-                  <video
-                    src={proposalVideoUrl}
-                    controls
-                    className="w-full h-auto rounded-lg shadow-lg"
-                    poster={getCurrentPhoto()}
-                    onLoadedMetadata={handleVideoLoadedMetadata}
-                    onPlay={handleVideoPlay}
-                    onPause={handleVideoPause}
-                    controlsList={
-                      !videoSettings.allowVideoDownload && !videoSettings.allowVideoFullscreen
-                        ? "nodownload nofullscreen"
-                        : !videoSettings.allowVideoDownload
-                          ? "nodownload"
-                          : !videoSettings.allowVideoFullscreen
-                            ? "nofullscreen"
-                            : undefined
-                    }
-                    disablePictureInPicture={!videoSettings.allowVideoFullscreen}
-                    playsInline={!videoSettings.allowVideoFullscreen}
-                    webkitplaysinline={!videoSettings.allowVideoFullscreen ? "true" : undefined}
-                    style={
-                      videoDimensions
-                        ? {
-                            aspectRatio: `${videoDimensions.width} / ${videoDimensions.height}`,
-                          }
-                        : undefined
-                    }
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-                  {!isVideoPlaying && (proposalPhotos.photo1 || proposalPhotos.photo2) && (
-                    <div
-                      className="absolute inset-0 rounded-lg overflow-hidden cursor-pointer flex items-center justify-center"
-                      onClick={handleOverlayClick}
-                    >
-                      <img
-                        src={getCurrentPhoto() || "/placeholder.svg"}
-                        alt="Proposal thumbnail"
-                        className="w-full h-full object-cover transition-opacity duration-1000"
-                        style={
-                          videoDimensions
-                            ? {
-                                aspectRatio: `${videoDimensions.width} / ${videoDimensions.height}`,
-                              }
-                            : undefined
-                        }
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors">
-                        <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors">
-                          <svg className="w-8 h-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  <img
+                    src={getCurrentPhoto() || "/placeholder.svg"}
+                    alt="Proposal photos"
+                    className="w-full h-auto rounded-lg shadow-lg transition-opacity duration-1000"
+                    style={{ aspectRatio: "16 / 9" }}
+                  />
                 </div>
               ) : (
                 <div className="w-full aspect-video bg-muted/50 rounded-lg flex items-center justify-center border-2 border-primary/20">
-                  <p className="text-muted-foreground font-serif">Loading proposal video...</p>
+                  <p className="text-muted-foreground font-serif">Loading proposal photos...</p>
                 </div>
               )}
             </div>
@@ -236,9 +143,9 @@ export default function HomePage() {
 
           <div className="mb-8 p-6 decorative-border rounded-lg">
             <div className="text-base font-serif text-center mb-6 flex items-center justify-center gap-2">
-              <Heart className="w-5 h-5 text-primary" />
+              <Heart className="w-5 h-5 text-primary mx-auto mb-3" />
               <span>{t("welcomeTitle").toUpperCase()}</span>
-              <Heart className="w-5 h-5 text-primary" />
+              <Heart className="w-5 h-5 text-primary mx-auto mb-3" />
             </div>
             <div className="text-center space-y-4">
               <p className="text-lg leading-relaxed font-serif">{t("welcomeDescription1")}</p>
