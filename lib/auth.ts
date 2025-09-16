@@ -189,3 +189,8 @@ export async function verifyToken(token: string): Promise<boolean> {
     return false
   }
 }
+
+export async function getAuthToken(): Promise<string | null> {
+  if (typeof window === "undefined") return null
+  return localStorage.getItem("wedding_admin_token")
+}

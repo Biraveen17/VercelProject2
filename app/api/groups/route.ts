@@ -30,19 +30,66 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 })
     }
 
-    const group = await request.json()
-    console.log("[v0] Creating group with data:", group)
+    const { group_name, total_guests, notes, guests = [] } = await request.json()
+    console.log("[v0] Creating group with data:", { group_name, total_guests, notes, guests })
 
-    const result = await sql`
-      INSERT INTO groups (
-        group_name, total_guests, defined_guests, tbc_guests, rsvp_submitted
-      ) VALUES (
-        ${group.group_name}, ${group.total_guests}, 0, 0, false
-      ) RETURNING *
-    `
+    const result = await sql.begin(async (sql) => {
+      // Create the group first
+      const groupResult = await sql`
+        INSERT INTO groups (
+          group_name, total_guests, defined_guests, tbc_guests, rsvp_submitted, notes
+        ) VALUES (
+          ${group_name}, ${total_guests}, 0, 0, false, ${notes || null}
+        ) RETURNING *
+      `
 
-    console.log("[v0] Group created successfully:", result[0])
-    return NextResponse.json({ data: result[0] })
+      const newGroup = groupResult[0]
+      let definedCount = 0
+      let tbcCount = 0
+
+      // Create individual guests for this group
+      if (guests && guests.length > 0) {
+        for (const guest of guests) {
+          if (guest.guest_name || guest.is_tbc) {
+            await sql`
+              INSERT INTO guests (
+                guest_name, group_id, is_group_header, is_tbc, side, is_child, 
+                child_age_category, rsvp_status, events, rsvp_submitted
+              ) VALUES (
+                ${guest.is_tbc ? null : guest.guest_name}, 
+                ${newGroup.id}, 
+                false, 
+                ${guest.is_tbc}, 
+                ${guest.side}, 
+                ${guest.is_child}, 
+                ${guest.is_child ? guest.child_age_category : null}, 
+                'pending', 
+                '{}', 
+                false
+              )
+            `
+
+            if (guest.is_tbc) {
+              tbcCount++
+            } else {
+              definedCount++
+            }
+          }
+        }
+
+        // Update group counts
+        await sql`
+          UPDATE groups 
+          SET defined_guests = ${definedCount}, tbc_guests = ${tbcCount}
+          WHERE id = ${newGroup.id}
+        `
+      }
+
+      return { ...newGroup, defined_guests: definedCount, tbc_guests: tbcCount }
+    })
+
+    console.log("[v0] Group created successfully with guests:", result)
+    return NextResponse.json({ data: result })
   } catch (error) {
     console.error("Error creating group:", error)
     return NextResponse.json({ error: "Failed to create group" }, { status: 500 })

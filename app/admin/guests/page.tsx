@@ -48,6 +48,14 @@ type Group = {
   rsvp_submitted_at?: string
   created_at: string
   updated_at: string
+  guests?: Array<{
+    id: string
+    guest_name: string
+    side: "bride" | "groom"
+    is_child: boolean
+    child_age_category?: "3_or_below" | "4_to_12" | "above_12"
+    is_tbc: boolean
+  }>
 }
 
 const loadGuestsAndGroups = async (
@@ -616,7 +624,7 @@ function AddIndividualDialog({
     try {
       console.log("[v0] Submitting guest form with data:", formData)
 
-      const token = localStorage.getItem("adminToken")
+      const token = localStorage.getItem("wedding_admin_token")
       if (!token) {
         throw new Error("No authentication token found")
       }
@@ -831,6 +839,35 @@ function AddGroupDialog({ open, onOpenChange, onSuccess }: any) {
     total_guests: 1,
     notes: "",
   })
+  const [groupGuests, setGroupGuests] = useState<
+    Array<{
+      id: string
+      guest_name: string
+      side: "bride" | "groom"
+      is_child: boolean
+      child_age_category?: "3_or_below" | "4_to_12" | "above_12"
+      is_tbc: boolean
+    }>
+  >([])
+
+  const addGuestToGroup = () => {
+    const newGuest = {
+      id: Date.now().toString(),
+      guest_name: "",
+      side: "bride" as "bride" | "groom",
+      is_child: false,
+      is_tbc: false,
+    }
+    setGroupGuests([...groupGuests, newGuest])
+  }
+
+  const removeGuestFromGroup = (guestId: string) => {
+    setGroupGuests(groupGuests.filter((g) => g.id !== guestId))
+  }
+
+  const updateGroupGuest = (guestId: string, updates: Partial<(typeof groupGuests)[0]>) => {
+    setGroupGuests(groupGuests.map((g) => (g.id === guestId ? { ...g, ...updates } : g)))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -838,22 +875,26 @@ function AddGroupDialog({ open, onOpenChange, onSuccess }: any) {
     try {
       console.log("[v0] Submitting group form with data:", formData)
 
-      const token = localStorage.getItem("adminToken")
+      const token = localStorage.getItem("wedding_admin_token")
       if (!token) {
         throw new Error("No authentication token found")
       }
 
-      const response = await fetch("/api/groups", {
+      // Create the group first
+      const groupResponse = await fetch("/api/groups", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          guests: groupGuests, // Include the guests in the group creation
+        }),
       })
 
-      if (!response.ok) {
-        const error = await response.json()
+      if (!groupResponse.ok) {
+        const error = await groupResponse.json()
         console.error("[v0] Group creation failed:", error)
         throw new Error(error.error || "Failed to add group")
       }
@@ -866,6 +907,7 @@ function AddGroupDialog({ open, onOpenChange, onSuccess }: any) {
         total_guests: 1,
         notes: "",
       })
+      setGroupGuests([])
     } catch (error: any) {
       console.error("[v0] Error in group handleSubmit:", error)
       alert(error.message)
@@ -874,31 +916,35 @@ function AddGroupDialog({ open, onOpenChange, onSuccess }: any) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Group</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="group_name">Group Name *</Label>
-            <Input
-              id="group_name"
-              value={formData.group_name}
-              onChange={(e) => setFormData((prev) => ({ ...prev, group_name: e.target.value }))}
-              placeholder="e.g., Smith Family, College Friends"
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="group_name">Group Name *</Label>
+              <Input
+                id="group_name"
+                value={formData.group_name}
+                onChange={(e) => setFormData((prev) => ({ ...prev, group_name: e.target.value }))}
+                placeholder="e.g., Smith Family, College Friends"
+                required
+              />
+            </div>
 
-          <div>
-            <Label htmlFor="total_guests">Expected Number of Guests</Label>
-            <Input
-              id="total_guests"
-              type="number"
-              min="1"
-              value={formData.total_guests}
-              onChange={(e) => setFormData((prev) => ({ ...prev, total_guests: Number.parseInt(e.target.value) || 1 }))}
-            />
+            <div>
+              <Label htmlFor="total_guests">Expected Number of Guests</Label>
+              <Input
+                id="total_guests"
+                type="number"
+                min="1"
+                value={formData.total_guests}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, total_guests: Number.parseInt(e.target.value) || 1 }))
+                }
+              />
+            </div>
           </div>
 
           <div>
@@ -909,6 +955,108 @@ function AddGroupDialog({ open, onOpenChange, onSuccess }: any) {
               onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
               placeholder="Any additional information about this group"
             />
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-semibold">Group Members</Label>
+              <Button type="button" onClick={addGuestToGroup} variant="outline" size="sm">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Add Guest
+              </Button>
+            </div>
+
+            {groupGuests.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p>No guests added yet. Click "Add Guest" to start building your group.</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-60 overflow-y-auto">
+                {groupGuests.map((guest, index) => (
+                  <div key={guest.id} className="border rounded-lg p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">Guest {index + 1}</span>
+                      <Button type="button" onClick={() => removeGuestFromGroup(guest.id)} variant="outline" size="sm">
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label>Name</Label>
+                        <Input
+                          value={guest.guest_name}
+                          onChange={(e) => updateGroupGuest(guest.id, { guest_name: e.target.value })}
+                          placeholder="Guest name"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>Side</Label>
+                        <Select
+                          value={guest.side}
+                          onValueChange={(value: "bride" | "groom") => updateGroupGuest(guest.id, { side: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="bride">Bride</SelectItem>
+                            <SelectItem value="groom">Groom</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`is_child_${guest.id}`}
+                          checked={guest.is_child}
+                          onCheckedChange={(checked) =>
+                            updateGroupGuest(guest.id, {
+                              is_child: !!checked,
+                              child_age_category: checked ? "4_to_12" : undefined,
+                            })
+                          }
+                        />
+                        <Label htmlFor={`is_child_${guest.id}`}>Child</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`is_tbc_${guest.id}`}
+                          checked={guest.is_tbc}
+                          onCheckedChange={(checked) => updateGroupGuest(guest.id, { is_tbc: !!checked })}
+                        />
+                        <Label htmlFor={`is_tbc_${guest.id}`}>TBC</Label>
+                      </div>
+
+                      {guest.is_child && (
+                        <div className="flex-1">
+                          <Select
+                            value={guest.child_age_category || ""}
+                            onValueChange={(value: "3_or_below" | "4_to_12" | "above_12") =>
+                              updateGroupGuest(guest.id, { child_age_category: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Age category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="3_or_below">3 or below</SelectItem>
+                              <SelectItem value="4_to_12">4 to 12</SelectItem>
+                              <SelectItem value="above_12">Above 12</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-2">
