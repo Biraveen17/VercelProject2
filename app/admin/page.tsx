@@ -47,14 +47,22 @@ export default function AdminPage() {
 
       if (success) {
         console.log("[v0] Login successful, checking token in localStorage...")
+
+        await new Promise((resolve) => setTimeout(resolve, 300))
+
         const token = localStorage.getItem("wedding_admin_token")
         console.log("[v0] Token in localStorage:", token ? "found" : "not found")
 
-        setAuthenticated(true)
-        setError("")
-        const user = await getCurrentUser()
-        console.log("[v0] Current user:", user)
-        setCurrentUser(user)
+        if (token) {
+          setAuthenticated(true)
+          setError("")
+          const user = await getCurrentUser()
+          console.log("[v0] Current user:", user)
+          setCurrentUser(user)
+        } else {
+          console.log("[v0] Token not found after login")
+          setError("Authentication failed - please try again")
+        }
       } else {
         console.log("[v0] Login failed")
         setError("Invalid credentials")

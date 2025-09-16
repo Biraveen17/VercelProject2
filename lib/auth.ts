@@ -67,12 +67,15 @@ export async function login(username: string, password: string): Promise<boolean
       localStorage.setItem("wedding_admin_token", result.token)
       localStorage.setItem("wedding_admin_user", JSON.stringify(result.user))
 
-      // Verify token was stored
+      // Verify token was stored immediately
       const storedToken = localStorage.getItem("wedding_admin_token")
       console.log("[v0] Token stored successfully:", storedToken ? "yes" : "no")
 
-      // Small delay to ensure localStorage is updated
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 200))
+
+      // Double-check the token is still there
+      const finalCheck = localStorage.getItem("wedding_admin_token")
+      console.log("[v0] Final token check:", finalCheck ? "found" : "not found")
 
       return true
     }
@@ -113,12 +116,21 @@ export async function getCurrentUser(): Promise<AdminUser | null> {
 
   try {
     const userStr = localStorage.getItem("wedding_admin_user")
-    if (userStr) {
-      return JSON.parse(userStr)
+    const token = localStorage.getItem("wedding_admin_token")
+
+    console.log("[v0] Getting current user - token exists:", !!token)
+    console.log("[v0] Getting current user - user data exists:", !!userStr)
+
+    if (userStr && token) {
+      const user = JSON.parse(userStr)
+      console.log("[v0] Returning user from localStorage:", user)
+      return user
     }
 
-    const token = localStorage.getItem("wedding_admin_token")
-    if (!token) return null
+    if (!token) {
+      console.log("[v0] No token found, returning null")
+      return null
+    }
 
     const response = await fetch("/api/auth/session", {
       headers: {
@@ -127,7 +139,14 @@ export async function getCurrentUser(): Promise<AdminUser | null> {
       },
     })
     const result = await response.json()
-    return result.authenticated ? result.user : null
+
+    if (result.authenticated && result.user) {
+      // Store user data for next time
+      localStorage.setItem("wedding_admin_user", JSON.stringify(result.user))
+      return result.user
+    }
+
+    return null
   } catch (error) {
     console.error("Error getting current user:", error)
     return null
