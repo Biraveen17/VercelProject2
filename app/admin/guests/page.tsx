@@ -614,9 +614,19 @@ function AddIndividualDialog({
     e.preventDefault()
 
     try {
+      console.log("[v0] Submitting guest form with data:", formData)
+
+      const token = localStorage.getItem("adminToken")
+      if (!token) {
+        throw new Error("No authentication token found")
+      }
+
       const response = await fetch("/api/guests", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           ...formData,
           child_age_category: formData.is_child ? formData.child_age_category : null,
@@ -625,9 +635,11 @@ function AddIndividualDialog({
 
       if (!response.ok) {
         const error = await response.json()
+        console.error("[v0] Guest creation failed:", error)
         throw new Error(error.error || "Failed to add guest")
       }
 
+      console.log("[v0] Guest created successfully")
       onSuccess()
       onOpenChange(false)
       setFormData({
@@ -642,6 +654,7 @@ function AddIndividualDialog({
         notes: "",
       })
     } catch (error: any) {
+      console.error("[v0] Error in handleSubmit:", error)
       alert(error.message)
     }
   }
@@ -811,21 +824,106 @@ function AddIndividualDialog({
   )
 }
 
-// Placeholder components for other dialogs
+// Group Dialog Component
 function AddGroupDialog({ open, onOpenChange, onSuccess }: any) {
+  const [formData, setFormData] = useState({
+    group_name: "",
+    total_guests: 1,
+    notes: "",
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    try {
+      console.log("[v0] Submitting group form with data:", formData)
+
+      const token = localStorage.getItem("adminToken")
+      if (!token) {
+        throw new Error("No authentication token found")
+      }
+
+      const response = await fetch("/api/groups", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        console.error("[v0] Group creation failed:", error)
+        throw new Error(error.error || "Failed to add group")
+      }
+
+      console.log("[v0] Group created successfully")
+      onSuccess()
+      onOpenChange(false)
+      setFormData({
+        group_name: "",
+        total_guests: 1,
+        notes: "",
+      })
+    } catch (error: any) {
+      console.error("[v0] Error in group handleSubmit:", error)
+      alert(error.message)
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Add Group</DialogTitle>
         </DialogHeader>
-        <p>Group creation dialog - to be implemented</p>
-        <Button onClick={() => onOpenChange(false)}>Close</Button>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="group_name">Group Name *</Label>
+            <Input
+              id="group_name"
+              value={formData.group_name}
+              onChange={(e) => setFormData((prev) => ({ ...prev, group_name: e.target.value }))}
+              placeholder="e.g., Smith Family, College Friends"
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="total_guests">Expected Number of Guests</Label>
+            <Input
+              id="total_guests"
+              type="number"
+              min="1"
+              value={formData.total_guests}
+              onChange={(e) => setFormData((prev) => ({ ...prev, total_guests: Number.parseInt(e.target.value) || 1 }))}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+              placeholder="Any additional information about this group"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">Add Group</Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   )
 }
 
+// Placeholder components for other dialogs
 function EditGuestDialog({ guest, open, onOpenChange, onSuccess }: any) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

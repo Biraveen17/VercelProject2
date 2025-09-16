@@ -1,5 +1,6 @@
 import { sql } from "@/lib/neon"
 import { type NextRequest, NextResponse } from "next/server"
+import { verifyToken } from "@/lib/auth"
 
 export async function GET() {
   try {
@@ -8,24 +9,7 @@ export async function GET() {
       ORDER BY created_at DESC
     `
 
-    // Transform database format back to frontend format
-    const transformedGuests = guests.map((guest: any) => ({
-      id: guest.id,
-      type: guest.type,
-      groupName: guest.group_name,
-      guestName: guest.guest_name,
-      maxGroupSize: guest.max_group_size,
-      groupMembers: guest.group_members || [],
-      notes: guest.notes,
-      rsvpStatus: guest.rsvp_status,
-      events: guest.events || [],
-      dietaryRequirements: guest.dietary_requirements,
-      questions: guest.questions,
-      side: guest.side,
-      lastUpdated: guest.last_updated,
-    }))
-
-    return NextResponse.json({ data: transformedGuests })
+    return NextResponse.json({ data: guests })
   } catch (error) {
     console.error("Error fetching guests:", error)
     return NextResponse.json({ error: "Failed to fetch guests" }, { status: 500 })
@@ -34,20 +18,36 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const authHeader = request.headers.get("authorization")
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const token = authHeader.substring(7)
+    const isValid = await verifyToken(token)
+    if (!isValid) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+    }
+
     const guest = await request.json()
+    console.log("[v0] Creating guest with data:", guest)
 
     const result = await sql`
       INSERT INTO guests (
-        id, type, group_name, guest_name, max_group_size, group_members,
-        notes, rsvp_status, events, dietary_requirements, questions, side
+        guest_name, group_id, is_group_header, group_name, is_tbc, side, 
+        is_child, child_age_category, rsvp_status, events, dietary_requirements, 
+        questions_for_couple, notes, rsvp_submitted
       ) VALUES (
-        ${guest.id}, ${guest.type}, ${guest.groupName}, ${guest.guestName},
-        ${guest.maxGroupSize}, ${JSON.stringify(guest.groupMembers || [])},
-        ${guest.notes}, ${guest.rsvpStatus}, ${JSON.stringify(guest.events || [])},
-        ${guest.dietaryRequirements}, ${guest.questions}, ${guest.side}
+        ${guest.guest_name}, ${guest.group_id || null}, ${guest.is_group_header || false}, 
+        ${guest.group_name || null}, ${guest.is_tbc || false}, ${guest.side},
+        ${guest.is_child || false}, ${guest.child_age_category || null}, 
+        ${guest.rsvp_status}, ${JSON.stringify(guest.events || [])}, 
+        ${guest.dietary_requirements || null}, ${guest.questions_for_couple || null}, 
+        ${guest.notes || null}, ${guest.rsvp_submitted || false}
       ) RETURNING *
     `
 
+    console.log("[v0] Guest created successfully:", result[0])
     return NextResponse.json({ data: result[0] })
   } catch (error) {
     console.error("Error creating guest:", error)

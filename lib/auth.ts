@@ -171,3 +171,21 @@ export async function grantSiteAccess(password: string): Promise<boolean> {
     return false
   }
 }
+
+export async function verifyToken(token: string): Promise<boolean> {
+  try {
+    // For now, we'll do a simple validation by checking if the token exists
+    // In a production app, you'd verify JWT signature, expiration, etc.
+    if (!token || token.length < 10) {
+      return false
+    }
+
+    // You could also check against a database of valid tokens
+    // For this simple implementation, we'll assume any non-empty token is valid
+    // as long as it matches our expected format
+    return token.startsWith("admin_") && token.length > 20
+  } catch (error) {
+    console.error("Error verifying token:", error)
+    return false
+  }
+}
