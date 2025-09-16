@@ -79,7 +79,7 @@ export default function HomePage() {
                   <img
                     src={getCurrentPhoto() || "/placeholder.svg"}
                     alt="Proposal photos"
-                    className="w-full h-auto rounded-lg shadow-lg transition-opacity duration-1000"
+                    className="w-full h-auto rounded-lg shadow-lg transition-opacity duration-1000 object-cover"
                     style={{ aspectRatio: "16 / 9" }}
                   />
                 </div>

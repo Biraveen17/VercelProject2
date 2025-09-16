@@ -51,6 +51,7 @@ export async function isAuthenticated(): Promise<boolean> {
 
 export async function login(username: string, password: string): Promise<boolean> {
   try {
+    console.log("[v0] Starting login process...")
     const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
@@ -60,9 +61,19 @@ export async function login(username: string, password: string): Promise<boolean
     })
 
     const result = await response.json()
+    console.log("[v0] Login API response:", result)
+
     if (result.success && result.token) {
       localStorage.setItem("wedding_admin_token", result.token)
       localStorage.setItem("wedding_admin_user", JSON.stringify(result.user))
+
+      // Verify token was stored
+      const storedToken = localStorage.getItem("wedding_admin_token")
+      console.log("[v0] Token stored successfully:", storedToken ? "yes" : "no")
+
+      // Small delay to ensure localStorage is updated
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
       return true
     }
     return false

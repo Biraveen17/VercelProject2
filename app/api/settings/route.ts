@@ -3,11 +3,16 @@ import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET() {
   try {
+    console.log("[v0] Settings API: Starting GET request")
+
     const settings = await sql`
       SELECT * FROM wedding_settings WHERE id = 'default'
     `
 
+    console.log("[v0] Settings API: Query result:", settings)
+
     if (settings.length === 0) {
+      console.log("[v0] Settings API: No settings found, returning defaults")
       // Return default settings if none exist
       const defaultSettings = {
         brideName: "Varnie",
@@ -23,6 +28,7 @@ export async function GET() {
       return NextResponse.json({ data: defaultSettings })
     }
 
+    console.log("[v0] Settings API: Transforming settings data")
     // Transform database format back to frontend format
     const transformedSettings = {
       brideName: settings[0].bride_name,
@@ -36,9 +42,10 @@ export async function GET() {
       allowVideoFullscreen: settings[0].allow_video_fullscreen,
     }
 
+    console.log("[v0] Settings API: Returning transformed settings:", transformedSettings)
     return NextResponse.json({ data: transformedSettings })
   } catch (error) {
-    console.error("Error fetching settings:", error)
+    console.error("[v0] Settings API: Error fetching settings:", error)
     return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 })
   }
 }
@@ -72,7 +79,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ data: result[0] })
   } catch (error) {
-    console.error("Error updating settings:", error)
+    console.error("[v0] Settings API: Error updating settings:", error)
     return NextResponse.json({ error: "Failed to update settings" }, { status: 500 })
   }
 }

@@ -1,8 +1,41 @@
 import { sql } from "@/lib/neon"
 import { type NextRequest, NextResponse } from "next/server"
 
-export async function GET() {
+async function validateSession(request: NextRequest) {
   try {
+    const authHeader = request.headers.get("authorization")
+    const token = authHeader?.replace("Bearer ", "")
+
+    if (!token) {
+      return { authenticated: false, error: "No authorization token" }
+    }
+
+    // Check session in database
+    const sessions = await sql`
+      SELECT session_id, username, user_data, expires_at
+      FROM admin_sessions 
+      WHERE session_id = ${token}
+      AND expires_at > ${new Date().toISOString()}
+    `
+
+    if (sessions.length === 0) {
+      return { authenticated: false, error: "Invalid or expired session" }
+    }
+
+    return { authenticated: true, session: sessions[0] }
+  } catch (error) {
+    console.error("Session validation error:", error)
+    return { authenticated: false, error: "Session validation failed" }
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const authResult = await validateSession(request)
+    if (!authResult.authenticated) {
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
+    }
+
     const pages = await sql`
       SELECT * FROM content_pages 
       ORDER BY page_order ASC
@@ -29,6 +62,11 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
+    const authResult = await validateSession(request)
+    if (!authResult.authenticated) {
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
+    }
+
     const contentData = await request.json()
 
     // Update each page
