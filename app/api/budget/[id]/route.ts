@@ -1,45 +1,30 @@
-import { getCollection } from "@/lib/mongodb"
+import { sql } from "@/lib/neon"
 import { type NextRequest, NextResponse } from "next/server"
-import { ObjectId } from "mongodb"
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const updates = await request.json()
 
-    const budgetCollection = await getCollection("budget_items")
+    const result = await sql`
+      UPDATE budget_items 
+      SET 
+        category1 = ${updates.category1},
+        category2 = ${updates.category2},
+        item_name = ${updates.itemName},
+        vendor = ${updates.vendor},
+        cost = ${updates.cost},
+        status = ${updates.status},
+        notes = ${updates.notes},
+        last_updated = ${new Date().toISOString()}
+      WHERE id = ${params.id}
+      RETURNING *
+    `
 
-    // Transform frontend format to MongoDB document format
-    const updateDoc = {
-      category1: updates.category1,
-      category2: updates.category2,
-      item_name: updates.itemName,
-      vendor: updates.vendor,
-      cost: updates.cost,
-      status: updates.status,
-      notes: updates.notes,
-      last_updated: new Date().toISOString(),
-    }
-
-    // Try to update by custom id first, then by MongoDB _id
-    let result = await budgetCollection.findOneAndUpdate(
-      { id: params.id },
-      { $set: updateDoc },
-      { returnDocument: "after" },
-    )
-
-    if (!result && ObjectId.isValid(params.id)) {
-      result = await budgetCollection.findOneAndUpdate(
-        { _id: new ObjectId(params.id) },
-        { $set: updateDoc },
-        { returnDocument: "after" },
-      )
-    }
-
-    if (!result) {
+    if (result.length === 0) {
       return NextResponse.json({ error: "Budget item not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ data: result })
+    return NextResponse.json({ data: result[0] })
   } catch (error) {
     console.error("Error updating budget item:", error)
     return NextResponse.json({ error: "Failed to update budget item" }, { status: 500 })
@@ -48,20 +33,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const budgetCollection = await getCollection("budget_items")
+    const result = await sql`
+      DELETE FROM budget_items 
+      WHERE id = ${params.id}
+      RETURNING id
+    `
 
-    // Try to delete by custom id first, then by MongoDB _id
-    let result = await budgetCollection.findOneAndDelete({ id: params.id })
-
-    if (!result && ObjectId.isValid(params.id)) {
-      result = await budgetCollection.findOneAndDelete({ _id: new ObjectId(params.id) })
-    }
-
-    if (!result) {
+    if (result.length === 0) {
       return NextResponse.json({ error: "Budget item not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ data: { id: result.id || result._id.toString() } })
+    return NextResponse.json({ data: { id: result[0].id } })
   } catch (error) {
     console.error("Error deleting budget item:", error)
     return NextResponse.json({ error: "Failed to delete budget item" }, { status: 500 })

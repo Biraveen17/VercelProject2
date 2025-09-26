@@ -1,33 +1,11 @@
-import { sql } from "@/lib/neon"
+import { loadGuests, saveGuests, generateId, type GuestData } from "@/lib/blob-storage"
 import { type NextRequest, NextResponse } from "next/server"
 import { verifyToken } from "@/lib/auth"
 
 export async function GET() {
   try {
-    const guests = await sql`
-      SELECT * FROM guests 
-      ORDER BY created_at DESC
-    `
-
-    // Transform database format to frontend format
-    const transformedGuests = guests.map((guest: any) => ({
-      id: guest.id,
-      type: guest.type,
-      groupName: guest.group_name,
-      guestName: guest.guest_name,
-      maxGroupSize: guest.max_group_size,
-      groupMembers: guest.group_members || [],
-      notes: guest.notes,
-      rsvpStatus: guest.rsvp_status,
-      events: guest.events || [],
-      dietaryRequirements: guest.dietary_requirements,
-      questions: guest.questions,
-      side: guest.side,
-      lastUpdated: guest.last_updated,
-      createdAt: guest.created_at,
-    }))
-
-    return NextResponse.json({ data: transformedGuests })
+    const guests = await loadGuests()
+    return NextResponse.json({ data: guests })
   } catch (error) {
     console.error("Error fetching guests:", error)
     return NextResponse.json({ error: "Failed to fetch guests" }, { status: 500 })
@@ -47,23 +25,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 })
     }
 
-    const guest = await request.json()
+    const guestData = await request.json()
 
-    const result = await sql`
-      INSERT INTO guests (
-        id, type, group_name, guest_name, max_group_size, 
-        group_members, notes, rsvp_status, events, 
-        dietary_requirements, questions, side, last_updated, created_at
-      ) VALUES (
-        ${guest.id}, ${guest.type}, ${guest.groupName}, ${guest.guestName}, 
-        ${guest.maxGroupSize}, ${JSON.stringify(guest.groupMembers || [])}, 
-        ${guest.notes}, ${guest.rsvpStatus}, ${JSON.stringify(guest.events || [])}, 
-        ${guest.dietaryRequirements}, ${guest.questions}, ${guest.side}, 
-        ${guest.lastUpdated}, ${guest.createdAt || new Date().toISOString()}
-      ) RETURNING *
-    `
+    const newGuest: GuestData = {
+      id: guestData.id || generateId(),
+      name: guestData.guestName || guestData.name,
+      email: guestData.email,
+      phone: guestData.phone,
+      group: guestData.groupName || guestData.group,
+      rsvpStatus: guestData.rsvpStatus || "pending",
+      dietaryRestrictions: guestData.dietaryRequirements || guestData.dietaryRestrictions,
+      plusOne: guestData.plusOne || false,
+      createdAt: guestData.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
 
-    return NextResponse.json({ data: result[0] })
+    const guests = await loadGuests()
+    guests.push(newGuest)
+    await saveGuests(guests)
+
+    return NextResponse.json({ data: newGuest })
   } catch (error) {
     console.error("Error creating guest:", error)
     return NextResponse.json({ error: "Failed to create guest" }, { status: 500 })

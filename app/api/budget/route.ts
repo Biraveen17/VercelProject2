@@ -1,23 +1,25 @@
-import { getCollection } from "@/lib/mongodb"
+import { sql } from "@/lib/neon"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    const budgetCollection = await getCollection("budget_items")
-    const budgetItems = await budgetCollection.find({}).sort({ created_at: -1 }).toArray()
+    const budgetItems = await sql`
+      SELECT * FROM budget_items 
+      ORDER BY created_at DESC
+    `
 
     // Transform database format back to frontend format
     const transformedItems = budgetItems.map((item: any) => ({
-      id: item.id || item._id.toString(),
+      id: item.id,
       category1: item.category1,
       category2: item.category2,
-      itemName: item.item_name || item.itemName,
+      itemName: item.item_name,
       vendor: item.vendor,
       cost: typeof item.cost === "string" ? Number.parseFloat(item.cost) : item.cost,
       status: item.status,
       notes: item.notes,
-      lastUpdated: item.last_updated || item.lastUpdated,
-      createdAt: item.created_at || item.createdAt,
+      lastUpdated: item.last_updated,
+      createdAt: item.created_at,
     }))
 
     return NextResponse.json({ data: transformedItems })
@@ -31,28 +33,18 @@ export async function POST(request: NextRequest) {
   try {
     const item = await request.json()
 
-    const budgetCollection = await getCollection("budget_items")
+    const result = await sql`
+      INSERT INTO budget_items (
+        id, category1, category2, item_name, vendor, cost, status, notes, last_updated, created_at
+      ) VALUES (
+        ${item.id}, ${item.category1}, ${item.category2}, ${item.itemName}, 
+        ${item.vendor}, ${item.cost}, ${item.status}, ${item.notes}, 
+        ${item.lastUpdated}, ${item.createdAt || new Date().toISOString()}
+      )
+      RETURNING *
+    `
 
-    // Transform frontend format to MongoDB document
-    const budgetDoc = {
-      id: item.id,
-      category1: item.category1,
-      category2: item.category2,
-      item_name: item.itemName,
-      vendor: item.vendor,
-      cost: item.cost,
-      status: item.status,
-      notes: item.notes,
-      last_updated: item.lastUpdated,
-      created_at: item.createdAt || new Date().toISOString(),
-    }
-
-    const result = await budgetCollection.insertOne(budgetDoc)
-
-    // Return the inserted document
-    const insertedItem = await budgetCollection.findOne({ _id: result.insertedId })
-
-    return NextResponse.json({ data: insertedItem })
+    return NextResponse.json({ data: result[0] })
   } catch (error) {
     console.error("Error creating budget item:", error)
     return NextResponse.json({ error: "Failed to create budget item" }, { status: 500 })

@@ -1,48 +1,31 @@
-import { getCollection } from "@/lib/mongodb"
+import { loadSettings, saveSettings } from "@/lib/blob-storage"
 import { type NextRequest, NextResponse } from "next/server"
+import { verifyToken } from "@/lib/auth"
 
 export async function GET() {
   try {
     console.log("[v0] Settings API: Starting GET request")
 
-    const settingsCollection = await getCollection("wedding_settings")
-    const settings = await settingsCollection.findOne({ _id: "default" })
-
-    console.log("[v0] Settings API: Query result:", settings)
+    const settings = await loadSettings()
 
     if (!settings) {
       console.log("[v0] Settings API: No settings found, returning defaults")
-      // Return default settings if none exist
       const defaultSettings = {
-        brideName: "Varnie",
-        groomName: "Biraveen",
+        id: "default",
+        coupleNames: "Varnie & Biraveen",
         weddingDate: "2026-03-27",
-        ceremonyDate: "2026-03-27",
-        receptionDate: "2026-03-28",
         venue: "Paphos, Cyprus",
-        location: "Cyprus",
-        allowVideoDownload: true,
-        allowVideoFullscreen: true,
+        rsvpDeadline: "2026-02-27",
+        welcomeMessage: "Welcome to our wedding website!",
+        isPublic: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
       return NextResponse.json({ data: defaultSettings })
     }
 
-    console.log("[v0] Settings API: Transforming settings data")
-    // Transform database format back to frontend format
-    const transformedSettings = {
-      brideName: settings.bride_name || settings.brideName,
-      groomName: settings.groom_name || settings.groomName,
-      weddingDate: settings.wedding_date || settings.weddingDate,
-      ceremonyDate: settings.ceremony_date || settings.ceremonyDate,
-      receptionDate: settings.reception_date || settings.receptionDate,
-      venue: settings.venue,
-      location: settings.location,
-      allowVideoDownload: settings.allow_video_download ?? settings.allowVideoDownload,
-      allowVideoFullscreen: settings.allow_video_fullscreen ?? settings.allowVideoFullscreen,
-    }
-
-    console.log("[v0] Settings API: Returning transformed settings:", transformedSettings)
-    return NextResponse.json({ data: transformedSettings })
+    console.log("[v0] Settings API: Returning settings:", settings)
+    return NextResponse.json({ data: settings })
   } catch (error) {
     console.error("[v0] Settings API: Error fetching settings:", error)
     return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 })
@@ -51,33 +34,33 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    const settings = await request.json()
-
-    const settingsCollection = await getCollection("wedding_settings")
-
-    // Transform frontend format to MongoDB document
-    const settingsDoc = {
-      _id: "default",
-      bride_name: settings.brideName,
-      groom_name: settings.groomName,
-      wedding_date: settings.weddingDate,
-      ceremony_date: settings.ceremonyDate,
-      reception_date: settings.receptionDate,
-      venue: settings.venue,
-      location: settings.location,
-      allow_video_download: settings.allowVideoDownload,
-      allow_video_fullscreen: settings.allowVideoFullscreen,
-      updated_at: new Date().toISOString(),
+    const authHeader = request.headers.get("authorization")
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Use upsert to insert or update
-    const result = await settingsCollection.findOneAndUpdate(
-      { _id: "default" },
-      { $set: settingsDoc },
-      { upsert: true, returnDocument: "after" },
-    )
+    const token = authHeader.substring(7)
+    const isValid = await verifyToken(token)
+    if (!isValid) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+    }
 
-    return NextResponse.json({ data: result })
+    const settingsData = await request.json()
+
+    const settings = {
+      id: "default",
+      coupleNames: settingsData.coupleNames || settingsData.brideName + " & " + settingsData.groomName,
+      weddingDate: settingsData.weddingDate,
+      venue: settingsData.venue,
+      rsvpDeadline: settingsData.rsvpDeadline,
+      welcomeMessage: settingsData.welcomeMessage,
+      isPublic: settingsData.isPublic ?? true,
+      createdAt: settingsData.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    await saveSettings(settings)
+    return NextResponse.json({ data: settings })
   } catch (error) {
     console.error("[v0] Settings API: Error updating settings:", error)
     return NextResponse.json({ error: "Failed to update settings" }, { status: 500 })

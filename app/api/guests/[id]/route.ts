@@ -1,40 +1,17 @@
-import { getCollection } from "@/lib/mongodb"
+import { loadGuests, saveGuests } from "@/lib/blob-storage"
 import { type NextRequest, NextResponse } from "next/server"
-import { ObjectId } from "mongodb"
+import { verifyToken } from "@/lib/auth"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const guestsCollection = await getCollection("guests")
-
-    // Try to find by custom id first, then by MongoDB _id
-    let guest = await guestsCollection.findOne({ id: params.id })
-    if (!guest && ObjectId.isValid(params.id)) {
-      guest = await guestsCollection.findOne({ _id: new ObjectId(params.id) })
-    }
+    const guests = await loadGuests()
+    const guest = guests.find((g) => g.id === params.id)
 
     if (!guest) {
       return NextResponse.json({ error: "Guest not found" }, { status: 404 })
     }
 
-    // Transform database format back to frontend format
-    const transformedGuest = {
-      id: guest.id || guest._id.toString(),
-      type: guest.type,
-      groupName: guest.group_name || guest.groupName,
-      guestName: guest.guest_name || guest.guestName,
-      maxGroupSize: guest.max_group_size || guest.maxGroupSize,
-      groupMembers: guest.group_members || guest.groupMembers || [],
-      notes: guest.notes,
-      rsvpStatus: guest.rsvp_status || guest.rsvpStatus,
-      events: guest.events || [],
-      dietaryRequirements: guest.dietary_requirements || guest.dietaryRequirements,
-      questions: guest.questions,
-      side: guest.side,
-      lastUpdated: guest.last_updated || guest.lastUpdated,
-      createdAt: guest.created_at || guest.createdAt,
-    }
-
-    return NextResponse.json({ data: transformedGuest })
+    return NextResponse.json({ data: guest })
   } catch (error) {
     console.error("Error fetching guest:", error)
     return NextResponse.json({ error: "Failed to fetch guest" }, { status: 500 })
@@ -43,46 +20,40 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const authHeader = request.headers.get("authorization")
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const token = authHeader.substring(7)
+    const isValid = await verifyToken(token)
+    if (!isValid) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+    }
+
     const updates = await request.json()
+    const guests = await loadGuests()
+    const guestIndex = guests.findIndex((g) => g.id === params.id)
 
-    const guestsCollection = await getCollection("guests")
-
-    // Transform frontend format to MongoDB document format
-    const updateDoc = {
-      type: updates.type,
-      group_name: updates.groupName,
-      guest_name: updates.guestName,
-      max_group_size: updates.maxGroupSize,
-      group_members: updates.groupMembers || [],
-      notes: updates.notes,
-      rsvp_status: updates.rsvpStatus,
-      events: updates.events || [],
-      dietary_requirements: updates.dietaryRequirements,
-      questions: updates.questions,
-      side: updates.side,
-      last_updated: new Date().toISOString(),
-    }
-
-    // Try to update by custom id first, then by MongoDB _id
-    let result = await guestsCollection.findOneAndUpdate(
-      { id: params.id },
-      { $set: updateDoc },
-      { returnDocument: "after" },
-    )
-
-    if (!result && ObjectId.isValid(params.id)) {
-      result = await guestsCollection.findOneAndUpdate(
-        { _id: new ObjectId(params.id) },
-        { $set: updateDoc },
-        { returnDocument: "after" },
-      )
-    }
-
-    if (!result) {
+    if (guestIndex === -1) {
       return NextResponse.json({ error: "Guest not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ data: result })
+    guests[guestIndex] = {
+      ...guests[guestIndex],
+      name: updates.guestName || updates.name || guests[guestIndex].name,
+      email: updates.email || guests[guestIndex].email,
+      phone: updates.phone || guests[guestIndex].phone,
+      group: updates.groupName || updates.group || guests[guestIndex].group,
+      rsvpStatus: updates.rsvpStatus || guests[guestIndex].rsvpStatus,
+      dietaryRestrictions:
+        updates.dietaryRequirements || updates.dietaryRestrictions || guests[guestIndex].dietaryRestrictions,
+      plusOne: updates.plusOne ?? guests[guestIndex].plusOne,
+      updatedAt: new Date().toISOString(),
+    }
+
+    await saveGuests(guests)
+    return NextResponse.json({ data: guests[guestIndex] })
   } catch (error) {
     console.error("Error updating guest:", error)
     return NextResponse.json({ error: "Failed to update guest" }, { status: 500 })
@@ -91,20 +62,28 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const guestsCollection = await getCollection("guests")
-
-    // Try to delete by custom id first, then by MongoDB _id
-    let result = await guestsCollection.findOneAndDelete({ id: params.id })
-
-    if (!result && ObjectId.isValid(params.id)) {
-      result = await guestsCollection.findOneAndDelete({ _id: new ObjectId(params.id) })
+    const authHeader = request.headers.get("authorization")
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    if (!result) {
+    const token = authHeader.substring(7)
+    const isValid = await verifyToken(token)
+    if (!isValid) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
+    }
+
+    const guests = await loadGuests()
+    const guestIndex = guests.findIndex((g) => g.id === params.id)
+
+    if (guestIndex === -1) {
       return NextResponse.json({ error: "Guest not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ data: { id: result.id || result._id.toString() } })
+    const deletedGuest = guests.splice(guestIndex, 1)[0]
+    await saveGuests(guests)
+
+    return NextResponse.json({ data: { id: deletedGuest.id } })
   } catch (error) {
     console.error("Error deleting guest:", error)
     return NextResponse.json({ error: "Failed to delete guest" }, { status: 500 })
