@@ -1,19 +1,18 @@
-import { sql } from "@/lib/neon"
+import { getCollection } from "@/lib/mongodb"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    const spreadsheets = await sql`
-      SELECT * FROM spreadsheets 
-      ORDER BY created_at DESC
-    `
+    const spreadsheetsCollection = await getCollection("spreadsheets")
+    const spreadsheets = await spreadsheetsCollection.find({}).sort({ created_at: -1 }).toArray()
 
     // Transform database format back to frontend format
     const transformedSheets = spreadsheets.map((sheet: any) => ({
-      id: sheet.id,
+      id: sheet.id || sheet._id.toString(),
       name: sheet.name,
       cells: sheet.cells || {},
-      lastModified: new Date(sheet.last_modified),
+      lastModified: new Date(sheet.last_modified || sheet.lastModified),
+      createdAt: sheet.created_at || sheet.createdAt,
     }))
 
     return NextResponse.json({ data: transformedSheets })
@@ -27,13 +26,20 @@ export async function POST(request: NextRequest) {
   try {
     const sheet = await request.json()
 
-    const result = await sql`
-      INSERT INTO spreadsheets (id, name, cells) 
-      VALUES (${sheet.id}, ${sheet.name}, ${JSON.stringify(sheet.cells || {})})
-      RETURNING *
-    `
+    const spreadsheetsCollection = await getCollection("spreadsheets")
 
-    return NextResponse.json({ data: result[0] })
+    const sheetDoc = {
+      id: sheet.id,
+      name: sheet.name,
+      cells: sheet.cells || {},
+      last_modified: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+    }
+
+    const result = await spreadsheetsCollection.insertOne(sheetDoc)
+    const insertedSheet = await spreadsheetsCollection.findOne({ _id: result.insertedId })
+
+    return NextResponse.json({ data: insertedSheet })
   } catch (error) {
     console.error("Error creating spreadsheet:", error)
     return NextResponse.json({ error: "Failed to create spreadsheet" }, { status: 500 })

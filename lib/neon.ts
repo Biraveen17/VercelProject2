@@ -1,188 +1,136 @@
 import { neon } from "@neondatabase/serverless"
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set")
-}
-
-export const sql = neon(process.env.DATABASE_URL)
+// Initialize the SQL client using the DATABASE_URL environment variable
+export const sql = neon(process.env.DATABASE_URL!)
 
 // Database initialization function
-export async function initializeDatabase() {
+export async function initializeDatabase(): Promise<void> {
   try {
-    // Create guests table
+    console.log("[v0] Initializing database...")
+
+    // Create admin_sessions table if it doesn't exist
+    await sql`
+      CREATE TABLE IF NOT EXISTS admin_sessions (
+        id SERIAL PRIMARY KEY,
+        session_id VARCHAR(255) UNIQUE NOT NULL,
+        username VARCHAR(100) NOT NULL,
+        user_data JSONB,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `
+
+    // Create guests table if it doesn't exist
     await sql`
       CREATE TABLE IF NOT EXISTS guests (
-        id TEXT PRIMARY KEY,
-        type TEXT NOT NULL CHECK (type IN ('individual', 'group')),
-        group_name TEXT,
-        guest_name TEXT,
+        id SERIAL PRIMARY KEY,
+        guest_id VARCHAR(255) UNIQUE NOT NULL,
+        type VARCHAR(20) NOT NULL CHECK (type IN ('individual', 'group')),
+        group_name VARCHAR(255),
+        guest_name VARCHAR(255),
         max_group_size INTEGER,
         group_members JSONB,
         notes TEXT,
-        rsvp_status TEXT NOT NULL DEFAULT 'pending' CHECK (rsvp_status IN ('pending', 'attending', 'not-attending')),
+        rsvp_status VARCHAR(20) DEFAULT 'pending' CHECK (rsvp_status IN ('pending', 'attending', 'not-attending')),
         events JSONB DEFAULT '[]',
         dietary_requirements TEXT,
         questions TEXT,
-        side TEXT CHECK (side IN ('bride', 'groom')),
-        last_updated TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        side VARCHAR(10) CHECK (side IN ('bride', 'groom')),
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `
 
-    // Create budget_items table
+    // Create budget_items table if it doesn't exist
     await sql`
       CREATE TABLE IF NOT EXISTS budget_items (
-        id TEXT PRIMARY KEY,
-        category1 TEXT NOT NULL,
-        category2 TEXT NOT NULL,
-        item_name TEXT NOT NULL,
-        vendor TEXT NOT NULL,
-        cost DECIMAL(10,2) NOT NULL DEFAULT 0,
-        status TEXT NOT NULL DEFAULT 'planned' CHECK (status IN ('planned', 'booked', 'paid')),
+        id SERIAL PRIMARY KEY,
+        item_id VARCHAR(255) UNIQUE NOT NULL,
+        category1 VARCHAR(255) NOT NULL,
+        category2 VARCHAR(255) NOT NULL,
+        item_name VARCHAR(255) NOT NULL,
+        vendor VARCHAR(255) NOT NULL,
+        cost DECIMAL(10,2) NOT NULL,
+        status VARCHAR(20) DEFAULT 'planned' CHECK (status IN ('planned', 'booked', 'paid')),
         notes TEXT,
-        last_updated TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `
 
-    // Create wedding_settings table
+    // Create wedding_settings table if it doesn't exist
     await sql`
       CREATE TABLE IF NOT EXISTS wedding_settings (
-        id TEXT PRIMARY KEY DEFAULT 'default',
-        bride_name TEXT NOT NULL,
-        groom_name TEXT NOT NULL,
+        id SERIAL PRIMARY KEY,
+        bride_name VARCHAR(255) NOT NULL,
+        groom_name VARCHAR(255) NOT NULL,
         wedding_date DATE NOT NULL,
         ceremony_date DATE NOT NULL,
         reception_date DATE NOT NULL,
-        venue TEXT NOT NULL,
-        location TEXT NOT NULL,
+        venue VARCHAR(255) NOT NULL,
+        location VARCHAR(255) NOT NULL,
         allow_video_download BOOLEAN DEFAULT true,
         allow_video_fullscreen BOOLEAN DEFAULT true,
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `
 
-    // Create content_pages table
+    // Create content_pages table if it doesn't exist
     await sql`
       CREATE TABLE IF NOT EXISTS content_pages (
-        id TEXT PRIMARY KEY,
-        page_key TEXT UNIQUE NOT NULL,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL,
-        content TEXT NOT NULL,
+        id SERIAL PRIMARY KEY,
+        page_key VARCHAR(255) UNIQUE NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        content TEXT,
         enabled BOOLEAN DEFAULT true,
-        page_order INTEGER DEFAULT 1,
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        page_order INTEGER DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `
 
-    // Create spreadsheets table
-    await sql`
-      CREATE TABLE IF NOT EXISTS spreadsheets (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        cells JSONB DEFAULT '{}',
-        last_modified TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
-    `
-
-    // Create admin_sessions table for authentication
-    await sql`
-      CREATE TABLE IF NOT EXISTS admin_sessions (
-        session_id TEXT PRIMARY KEY,
-        username TEXT NOT NULL,
-        user_data JSONB NOT NULL,
-        expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      )
-    `
-
-    // Create indexes for better performance
-    await sql`CREATE INDEX IF NOT EXISTS idx_guests_type ON guests(type)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_guests_group_name ON guests(group_name)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_guests_rsvp_status ON guests(rsvp_status)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_budget_items_category1 ON budget_items(category1)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_budget_items_status ON budget_items(status)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_content_pages_page_key ON content_pages(page_key)`
-    await sql`CREATE INDEX IF NOT EXISTS idx_content_pages_enabled ON content_pages(enabled)`
-
-    console.log("Database initialized successfully")
-    return true
+    console.log("[v0] Database initialization completed successfully")
   } catch (error) {
-    console.error("Database initialization failed:", error)
-    return false
+    console.error("[v0] Error initializing database:", error)
+    throw error
   }
 }
 
-// Helper function to insert default settings if they don't exist
-export async function insertDefaultSettings() {
+// Insert default settings if none exist
+export async function insertDefaultSettings(): Promise<void> {
   try {
-    const existingSettings = await sql`SELECT id FROM wedding_settings WHERE id = 'default'`
+    // Check if settings already exist
+    const existingSettings = await sql`SELECT COUNT(*) as count FROM wedding_settings`
 
-    if (existingSettings.length === 0) {
+    if (existingSettings[0].count === 0) {
+      console.log("[v0] Inserting default wedding settings...")
+
       await sql`
         INSERT INTO wedding_settings (
-          id, bride_name, groom_name, wedding_date, ceremony_date, reception_date, venue, location
+          bride_name, groom_name, wedding_date, ceremony_date, reception_date,
+          venue, location, allow_video_download, allow_video_fullscreen
         ) VALUES (
-          'default', 'Varnie', 'Biraveen', '2026-03-27', '2026-03-27', '2026-03-28', 'Paphos, Cyprus', 'Cyprus'
+          'Varnie', 'Biraveen', '2026-03-27', '2026-03-27', '2026-03-28',
+          'Paphos, Cyprus', 'Cyprus', true, true
         )
       `
+
+      console.log("[v0] Default settings inserted successfully")
     }
+  } catch (error) {
+    console.error("[v0] Error inserting default settings:", error)
+    throw error
+  }
+}
 
-    // Insert default content pages if they don't exist
-    const defaultPages = [
-      {
-        page_key: "home",
-        title: "Varnie & Biraveen",
-        description: "Together with our families, we invite you to celebrate our Tamil Hindu wedding",
-        content: "We are thrilled to invite you to join us as we begin our journey together as husband and wife...",
-        page_order: 1,
-      },
-      {
-        page_key: "events",
-        title: "Wedding Events",
-        description: "Join us for two beautiful days of celebration in the stunning setting of Paphos, Cyprus",
-        content: "Our celebration will include traditional Tamil Hindu ceremonies and modern reception festivities...",
-        page_order: 2,
-      },
-      {
-        page_key: "venue",
-        title: "Venue & Location",
-        description: "Discover the beautiful venues in Paphos, Cyprus where we'll celebrate our special day",
-        content: "Both our ceremony and reception will take place in stunning beachfront locations...",
-        page_order: 3,
-      },
-      {
-        page_key: "travel",
-        title: "Travel to Cyprus",
-        description: "Everything you need to know for your journey to our wedding in beautiful Paphos, Cyprus",
-        content: "Cyprus is easily accessible from major European cities with direct flights to Paphos...",
-        page_order: 4,
-      },
-      {
-        page_key: "gallery",
-        title: "Our Gallery",
-        description: "Capturing the beautiful moments of our journey together",
-        content: "Browse through our engagement photos and pre-wedding celebrations...",
-        page_order: 5,
-      },
-    ]
-
-    for (const page of defaultPages) {
-      const existing = await sql`SELECT id FROM content_pages WHERE page_key = ${page.page_key}`
-      if (existing.length === 0) {
-        await sql`
-          INSERT INTO content_pages (id, page_key, title, description, content, page_order)
-          VALUES (${page.page_key}, ${page.page_key}, ${page.title}, ${page.description}, ${page.content}, ${page.page_order})
-        `
-      }
-    }
-
-    console.log("Default data inserted successfully")
+// Helper function to test database connection
+export async function testConnection(): Promise<boolean> {
+  try {
+    await sql`SELECT 1 as test`
+    console.log("[v0] Database connection test successful")
     return true
   } catch (error) {
-    console.error("Failed to insert default data:", error)
+    console.error("[v0] Database connection test failed:", error)
     return false
   }
 }

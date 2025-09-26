@@ -1,4 +1,5 @@
 export interface Guest {
+  _id?: string
   id: string
   type: "individual" | "group"
   groupName?: string
@@ -10,11 +11,13 @@ export interface Guest {
   events: ("ceremony" | "reception")[]
   dietaryRequirements?: string
   questions?: string
-  side?: "bride" | "groom" // Added side field
+  side?: "bride" | "groom"
   lastUpdated: string
+  createdAt?: string
 }
 
 export interface BudgetItem {
+  _id?: string
   id: string
   category1: string
   category2: string
@@ -24,9 +27,11 @@ export interface BudgetItem {
   status: "planned" | "booked" | "paid"
   notes?: string
   lastUpdated: string
+  createdAt?: string
 }
 
 export interface WeddingSettings {
+  _id?: string
   brideName: string
   groomName: string
   weddingDate: string
@@ -36,6 +41,27 @@ export interface WeddingSettings {
   location: string
   allowVideoDownload: boolean
   allowVideoFullscreen: boolean
+  updatedAt?: string
+}
+
+export interface ContentPage {
+  _id?: string
+  pageKey: string
+  title: string
+  description: string
+  content: string
+  enabled: boolean
+  pageOrder: number
+  updatedAt?: string
+}
+
+export interface AdminSession {
+  _id?: string
+  sessionId: string
+  username: string
+  userData: any
+  expiresAt: Date
+  createdAt?: Date
 }
 
 // Default settings
@@ -71,18 +97,20 @@ export function saveGuests(guests: Guest[]): void {
   console.warn("saveGuests is deprecated - use individual API operations instead")
 }
 
-export async function addGuest(guest: Omit<Guest, "id" | "lastUpdated">): Promise<Guest | null> {
+export async function addGuest(guest: Omit<Guest, "id" | "lastUpdated" | "_id" | "createdAt">): Promise<Guest | null> {
   try {
     const newGuest: Guest = {
       ...guest,
       id: Date.now().toString(),
       lastUpdated: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     }
 
     const response = await fetch("/api/guests", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("wedding_admin_token")}`,
       },
       body: JSON.stringify(newGuest),
     })
@@ -110,6 +138,7 @@ export async function updateGuest(id: string, updates: Partial<Guest>): Promise<
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("wedding_admin_token")}`,
       },
       body: JSON.stringify(updatedData),
     })
@@ -129,6 +158,9 @@ export async function deleteGuest(id: string): Promise<boolean> {
   try {
     const response = await fetch(`/api/guests/${id}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("wedding_admin_token")}`,
+      },
     })
 
     if (!response.ok) {
@@ -226,18 +258,22 @@ export function saveBudgetItems(items: BudgetItem[]): void {
   console.warn("saveBudgetItems is deprecated - use individual API operations instead")
 }
 
-export async function addBudgetItem(item: Omit<BudgetItem, "id" | "lastUpdated">): Promise<BudgetItem | null> {
+export async function addBudgetItem(
+  item: Omit<BudgetItem, "id" | "lastUpdated" | "_id" | "createdAt">,
+): Promise<BudgetItem | null> {
   try {
     const newItem: BudgetItem = {
       ...item,
       id: Date.now().toString(),
       lastUpdated: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     }
 
     const response = await fetch("/api/budget", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("wedding_admin_token")}`,
       },
       body: JSON.stringify(newItem),
     })
@@ -265,6 +301,7 @@ export async function updateBudgetItem(id: string, updates: Partial<BudgetItem>)
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("wedding_admin_token")}`,
       },
       body: JSON.stringify(updatedData),
     })
@@ -284,6 +321,9 @@ export async function deleteBudgetItem(id: string): Promise<boolean> {
   try {
     const response = await fetch(`/api/budget/${id}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("wedding_admin_token")}`,
+      },
     })
 
     if (!response.ok) {
@@ -318,6 +358,7 @@ export async function saveSettings(settings: WeddingSettings): Promise<boolean> 
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("wedding_admin_token")}`,
       },
       body: JSON.stringify(settings),
     })

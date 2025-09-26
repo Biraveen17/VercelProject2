@@ -6,9 +6,15 @@ export async function POST() {
   try {
     console.log("[v0] Starting database setup...")
 
-    // Create admin_sessions table
+    await sql`DROP TABLE IF EXISTS admin_sessions CASCADE`
+    console.log("[v0] Dropped existing admin_sessions table")
+
+    await sql`DROP TABLE IF EXISTS guests CASCADE`
+    console.log("[v0] Dropped existing guests table")
+
+    // Create admin_sessions table with correct schema
     await sql`
-      CREATE TABLE IF NOT EXISTS admin_sessions (
+      CREATE TABLE admin_sessions (
         id SERIAL PRIMARY KEY,
         token VARCHAR(255) UNIQUE NOT NULL,
         user_id INTEGER NOT NULL,
@@ -21,7 +27,7 @@ export async function POST() {
 
     // Create guests table
     await sql`
-      CREATE TABLE IF NOT EXISTS guests (
+      CREATE TABLE guests (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255),
@@ -37,33 +43,20 @@ export async function POST() {
     `
     console.log("[v0] Created guests table")
 
-    // Insert default admin user if not exists
-    const existingAdmin = await sql`
-      SELECT * FROM admin_sessions WHERE username = 'admin' LIMIT 1
+    console.log("[v0] Creating default admin session...")
+    const token = "token_" + Math.random().toString(36).substring(2) + Date.now().toString(36)
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+    await sql`
+      INSERT INTO admin_sessions (token, user_id, username, expires_at)
+      VALUES (${token}, 1, 'admin', ${expiresAt.toISOString()})
     `
-
-    if (existingAdmin.length === 0) {
-      console.log("[v0] Creating default admin session...")
-      // Create a long-lasting admin session for initial setup
-      const token = "token_" + Math.random().toString(36).substring(2) + Date.now().toString(36)
-      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-
-      await sql`
-        INSERT INTO admin_sessions (token, user_id, username, expires_at)
-        VALUES (${token}, 1, 'admin', ${expiresAt.toISOString()})
-      `
-      console.log("[v0] Default admin session created with token:", token)
-
-      return Response.json({
-        success: true,
-        message: "Database setup complete",
-        adminToken: token,
-      })
-    }
+    console.log("[v0] Default admin session created with token:", token)
 
     return Response.json({
       success: true,
-      message: "Database setup complete - admin already exists",
+      message: "Database setup complete",
+      adminToken: token,
     })
   } catch (error) {
     console.error("[v0] Database setup error:", error)

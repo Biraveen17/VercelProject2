@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { neon } from "@neondatabase/serverless"
-
-const sql = neon(process.env.DATABASE_URL!)
+import { getCollection } from "@/lib/mongodb"
 
 interface AdminUser {
   username: string
@@ -40,10 +38,14 @@ export async function POST(request: NextRequest) {
 
     console.log("[v0] Creating session with token:", token)
 
-    await sql`
-      INSERT INTO admin_sessions (session_id, username, user_data, expires_at, created_at)
-      VALUES (${token}, ${user.username}, ${JSON.stringify(user)}, ${expiresAt.toISOString()}, ${new Date().toISOString()})
-    `
+    const sessionsCollection = await getCollection("admin_sessions")
+    await sessionsCollection.insertOne({
+      session_id: token,
+      username: user.username,
+      user_data: user,
+      expires_at: expiresAt,
+      created_at: new Date(),
+    })
 
     console.log("[v0] Session created successfully")
 

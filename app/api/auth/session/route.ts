@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { neon } from "@neondatabase/serverless"
-
-const sql = neon(process.env.DATABASE_URL!)
+import { getCollection } from "@/lib/mongodb"
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,28 +13,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ authenticated: false }, { status: 401 })
     }
 
-    // Check session in database
-    const sessions = await sql`
-      SELECT session_id, username, user_data, expires_at
-      FROM admin_sessions 
-      WHERE session_id = ${token}
-      AND expires_at > ${new Date().toISOString()}
-    `
+    const sessionsCollection = await getCollection("admin_sessions")
+    const session = await sessionsCollection.findOne({
+      session_id: token,
+      expires_at: { $gt: new Date() },
+    })
 
-    console.log("[v0] Database sessions found:", sessions.length)
+    console.log("[v0] Database session found:", session ? "yes" : "no")
 
-    if (sessions.length === 0) {
+    if (!session) {
       console.log("[v0] Session expired or doesn't exist")
       return NextResponse.json({ authenticated: false }, { status: 401 })
     }
 
-    const session = sessions[0]
-    let userData
-    if (typeof session.user_data === "string") {
-      userData = JSON.parse(session.user_data)
-    } else {
-      userData = session.user_data
-    }
+    const userData = session.user_data
     console.log("[v0] Session valid for user:", userData.username)
 
     return NextResponse.json({

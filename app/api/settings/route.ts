@@ -1,17 +1,16 @@
-import { sql } from "@/lib/neon"
+import { getCollection } from "@/lib/mongodb"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET() {
   try {
     console.log("[v0] Settings API: Starting GET request")
 
-    const settings = await sql`
-      SELECT * FROM wedding_settings WHERE id = 'default'
-    `
+    const settingsCollection = await getCollection("wedding_settings")
+    const settings = await settingsCollection.findOne({ _id: "default" })
 
     console.log("[v0] Settings API: Query result:", settings)
 
-    if (settings.length === 0) {
+    if (!settings) {
       console.log("[v0] Settings API: No settings found, returning defaults")
       // Return default settings if none exist
       const defaultSettings = {
@@ -31,15 +30,15 @@ export async function GET() {
     console.log("[v0] Settings API: Transforming settings data")
     // Transform database format back to frontend format
     const transformedSettings = {
-      brideName: settings[0].bride_name,
-      groomName: settings[0].groom_name,
-      weddingDate: settings[0].wedding_date,
-      ceremonyDate: settings[0].ceremony_date,
-      receptionDate: settings[0].reception_date,
-      venue: settings[0].venue,
-      location: settings[0].location,
-      allowVideoDownload: settings[0].allow_video_download,
-      allowVideoFullscreen: settings[0].allow_video_fullscreen,
+      brideName: settings.bride_name || settings.brideName,
+      groomName: settings.groom_name || settings.groomName,
+      weddingDate: settings.wedding_date || settings.weddingDate,
+      ceremonyDate: settings.ceremony_date || settings.ceremonyDate,
+      receptionDate: settings.reception_date || settings.receptionDate,
+      venue: settings.venue,
+      location: settings.location,
+      allowVideoDownload: settings.allow_video_download ?? settings.allowVideoDownload,
+      allowVideoFullscreen: settings.allow_video_fullscreen ?? settings.allowVideoFullscreen,
     }
 
     console.log("[v0] Settings API: Returning transformed settings:", transformedSettings)
@@ -54,30 +53,31 @@ export async function PUT(request: NextRequest) {
   try {
     const settings = await request.json()
 
-    const result = await sql`
-      INSERT INTO wedding_settings (
-        id, bride_name, groom_name, wedding_date, ceremony_date, reception_date,
-        venue, location, allow_video_download, allow_video_fullscreen, updated_at
-      ) VALUES (
-        'default', ${settings.brideName}, ${settings.groomName}, ${settings.weddingDate},
-        ${settings.ceremonyDate}, ${settings.receptionDate}, ${settings.venue},
-        ${settings.location}, ${settings.allowVideoDownload}, ${settings.allowVideoFullscreen}, NOW()
-      )
-      ON CONFLICT (id) DO UPDATE SET
-        bride_name = ${settings.brideName},
-        groom_name = ${settings.groomName},
-        wedding_date = ${settings.weddingDate},
-        ceremony_date = ${settings.ceremonyDate},
-        reception_date = ${settings.receptionDate},
-        venue = ${settings.venue},
-        location = ${settings.location},
-        allow_video_download = ${settings.allowVideoDownload},
-        allow_video_fullscreen = ${settings.allowVideoFullscreen},
-        updated_at = NOW()
-      RETURNING *
-    `
+    const settingsCollection = await getCollection("wedding_settings")
 
-    return NextResponse.json({ data: result[0] })
+    // Transform frontend format to MongoDB document
+    const settingsDoc = {
+      _id: "default",
+      bride_name: settings.brideName,
+      groom_name: settings.groomName,
+      wedding_date: settings.weddingDate,
+      ceremony_date: settings.ceremonyDate,
+      reception_date: settings.receptionDate,
+      venue: settings.venue,
+      location: settings.location,
+      allow_video_download: settings.allowVideoDownload,
+      allow_video_fullscreen: settings.allowVideoFullscreen,
+      updated_at: new Date().toISOString(),
+    }
+
+    // Use upsert to insert or update
+    const result = await settingsCollection.findOneAndUpdate(
+      { _id: "default" },
+      { $set: settingsDoc },
+      { upsert: true, returnDocument: "after" },
+    )
+
+    return NextResponse.json({ data: result })
   } catch (error) {
     console.error("[v0] Settings API: Error updating settings:", error)
     return NextResponse.json({ error: "Failed to update settings" }, { status: 500 })

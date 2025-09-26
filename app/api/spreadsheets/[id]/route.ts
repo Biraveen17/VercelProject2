@@ -1,24 +1,39 @@
-import { sql } from "@/lib/neon"
+import { getCollection } from "@/lib/mongodb"
 import { type NextRequest, NextResponse } from "next/server"
+import { ObjectId } from "mongodb"
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const updates = await request.json()
 
-    const result = await sql`
-      UPDATE spreadsheets SET
-        name = ${updates.name},
-        cells = ${JSON.stringify(updates.cells || {})},
-        last_modified = NOW()
-      WHERE id = ${params.id}
-      RETURNING *
-    `
+    const spreadsheetsCollection = await getCollection("spreadsheets")
 
-    if (result.length === 0) {
+    const updateDoc = {
+      name: updates.name,
+      cells: updates.cells || {},
+      last_modified: new Date().toISOString(),
+    }
+
+    // Try to update by custom id first, then by MongoDB _id
+    let result = await spreadsheetsCollection.findOneAndUpdate(
+      { id: params.id },
+      { $set: updateDoc },
+      { returnDocument: "after" },
+    )
+
+    if (!result && ObjectId.isValid(params.id)) {
+      result = await spreadsheetsCollection.findOneAndUpdate(
+        { _id: new ObjectId(params.id) },
+        { $set: updateDoc },
+        { returnDocument: "after" },
+      )
+    }
+
+    if (!result) {
       return NextResponse.json({ error: "Spreadsheet not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ data: result[0] })
+    return NextResponse.json({ data: result })
   } catch (error) {
     console.error("Error updating spreadsheet:", error)
     return NextResponse.json({ error: "Failed to update spreadsheet" }, { status: 500 })
@@ -27,15 +42,20 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const result = await sql`
-      DELETE FROM spreadsheets WHERE id = ${params.id} RETURNING id
-    `
+    const spreadsheetsCollection = await getCollection("spreadsheets")
 
-    if (result.length === 0) {
+    // Try to delete by custom id first, then by MongoDB _id
+    let result = await spreadsheetsCollection.findOneAndDelete({ id: params.id })
+
+    if (!result && ObjectId.isValid(params.id)) {
+      result = await spreadsheetsCollection.findOneAndDelete({ _id: new ObjectId(params.id) })
+    }
+
+    if (!result) {
       return NextResponse.json({ error: "Spreadsheet not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ data: { id: result[0].id } })
+    return NextResponse.json({ data: { id: result.id || result._id.toString() } })
   } catch (error) {
     console.error("Error deleting spreadsheet:", error)
     return NextResponse.json({ error: "Failed to delete spreadsheet" }, { status: 500 })

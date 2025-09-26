@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { neon } from "@neondatabase/serverless"
-
-const sql = neon(process.env.DATABASE_URL!)
+import { getCollection } from "@/lib/mongodb"
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,11 +7,8 @@ export async function POST(request: NextRequest) {
     const token = authHeader?.replace("Bearer ", "")
 
     if (token) {
-      // Remove session from database
-      await sql`
-        DELETE FROM admin_sessions 
-        WHERE session_id = ${token}
-      `
+      const sessionsCollection = await getCollection("admin_sessions")
+      await sessionsCollection.deleteOne({ session_id: token })
     }
 
     return NextResponse.json({ success: true })

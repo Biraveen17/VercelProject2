@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { neon } from "@neondatabase/serverless"
-
-const sql = neon(process.env.DATABASE_URL!)
+import { getCollection } from "@/lib/mongodb"
 
 const SITE_PASSWORDS = ["kalyanam2026", "varniebiraveen"]
 
@@ -20,10 +18,12 @@ export async function POST(request: NextRequest) {
     const sessionId = `site_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
 
-    await sql`
-      INSERT INTO site_access_sessions (session_id, expires_at, created_at)
-      VALUES (${sessionId}, ${expiresAt.toISOString()}, ${new Date().toISOString()})
-    `
+    const siteAccessCollection = await getCollection("site_access_sessions")
+    await siteAccessCollection.insertOne({
+      session_id: sessionId,
+      expires_at: expiresAt,
+      created_at: new Date(),
+    })
 
     // Set site access cookie
     const response = NextResponse.json({ success: true })
@@ -50,15 +50,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ hasAccess: false }, { status: 401 })
     }
 
-    // Check site access session in database
-    const sessions = await sql`
-      SELECT session_id, expires_at
-      FROM site_access_sessions 
-      WHERE session_id = ${sessionId}
-      AND expires_at > ${new Date().toISOString()}
-    `
+    const siteAccessCollection = await getCollection("site_access_sessions")
+    const session = await siteAccessCollection.findOne({
+      session_id: sessionId,
+      expires_at: { $gt: new Date() },
+    })
 
-    if (sessions.length === 0) {
+    if (!session) {
       // Session expired or doesn't exist
       const response = NextResponse.json({ hasAccess: false }, { status: 401 })
       response.cookies.delete("wedding_site_access")
