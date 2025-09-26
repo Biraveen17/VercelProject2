@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getCollection } from "@/lib/mongodb"
+import { sql } from "@/lib/neon"
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,20 +13,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ authenticated: false }, { status: 401 })
     }
 
-    const sessionsCollection = await getCollection("admin_sessions")
-    const session = await sessionsCollection.findOne({
-      session_id: token,
-      expires_at: { $gt: new Date() },
-    })
+    const sessions = await sql`
+      SELECT * FROM admin_sessions 
+      WHERE session_id = ${token} AND expires_at > NOW()
+    `
 
-    console.log("[v0] Database session found:", session ? "yes" : "no")
+    console.log("[v0] Database session found:", sessions.length > 0 ? "yes" : "no")
 
-    if (!session) {
+    if (sessions.length === 0) {
       console.log("[v0] Session expired or doesn't exist")
       return NextResponse.json({ authenticated: false }, { status: 401 })
     }
 
-    const userData = session.user_data
+    const session = sessions[0]
+    const userData = typeof session.user_data === "string" ? JSON.parse(session.user_data) : session.user_data
     console.log("[v0] Session valid for user:", userData.username)
 
     return NextResponse.json({
