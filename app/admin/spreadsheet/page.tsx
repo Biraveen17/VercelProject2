@@ -69,80 +69,30 @@ export default function SpreadsheetPage() {
     }
   }, [formulaInput])
 
-  const loadSpreadsheets = async () => {
-    try {
-      const response = await fetch("/api/spreadsheets")
-      if (response.ok) {
-        const result = await response.json()
-        const sheets = result.data || []
-
-        // Convert lastModified strings back to Date objects
-        const processedSheets = sheets.map((sheet: any) => ({
-          ...sheet,
-          lastModified: new Date(sheet.lastModified),
-        }))
-
-        setSpreadsheets(processedSheets)
-        if (processedSheets.length > 0 && !activeSheet) {
-          setActiveSheet(processedSheets[0].id)
-        }
-      } else {
-        // Create default sheet if none exist
-        await createDefaultSheet()
+  const loadSpreadsheets = () => {
+    const saved = localStorage.getItem("wedding-spreadsheets")
+    if (saved) {
+      const sheets = JSON.parse(saved)
+      setSpreadsheets(sheets)
+      if (sheets.length > 0 && !activeSheet) {
+        setActiveSheet(sheets[0].id)
       }
-    } catch (error) {
-      console.error("Error loading spreadsheets:", error)
-      // Create default sheet on error
-      await createDefaultSheet()
-    }
-  }
-
-  const createDefaultSheet = async () => {
-    const defaultSheet: Spreadsheet = {
-      id: "sheet-1",
-      name: "Wedding Planning",
-      cells: {},
-      lastModified: new Date(),
-    }
-
-    try {
-      const response = await fetch("/api/spreadsheets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(defaultSheet),
-      })
-
-      if (response.ok) {
-        setSpreadsheets([defaultSheet])
-        setActiveSheet(defaultSheet.id)
+    } else {
+      // Create default sheet
+      const defaultSheet: Spreadsheet = {
+        id: "sheet-1",
+        name: "Wedding Planning",
+        cells: {},
+        lastModified: new Date(),
       }
-    } catch (error) {
-      console.error("Error creating default sheet:", error)
-      // Fallback to local state
       setSpreadsheets([defaultSheet])
       setActiveSheet(defaultSheet.id)
     }
   }
 
-  const saveSpreadsheets = useCallback(async (sheets: Spreadsheet[]) => {
+  const saveSpreadsheets = useCallback((sheets: Spreadsheet[]) => {
+    localStorage.setItem("wedding-spreadsheets", JSON.stringify(sheets))
     setSpreadsheets(sheets)
-
-    // Save each sheet to database
-    for (const sheet of sheets) {
-      try {
-        await fetch(`/api/spreadsheets/${sheet.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(sheet),
-        })
-      } catch (error) {
-        console.error("Error saving spreadsheet:", error)
-      }
-    }
   }, [])
 
   const getCurrentSheet = () => {
@@ -340,7 +290,7 @@ export default function SpreadsheetPage() {
     saveSpreadsheets(updatedSheets)
   }
 
-  const createNewSheet = async () => {
+  const createNewSheet = () => {
     if (!newSheetName.trim()) return
 
     const newSheet: Spreadsheet = {
@@ -350,45 +300,21 @@ export default function SpreadsheetPage() {
       lastModified: new Date(),
     }
 
-    try {
-      const response = await fetch("/api/spreadsheets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newSheet),
-      })
-
-      if (response.ok) {
-        const updatedSheets = [...spreadsheets, newSheet]
-        setSpreadsheets(updatedSheets)
-        setActiveSheet(newSheet.id)
-        setNewSheetName("")
-        setShowNewSheetDialog(false)
-      }
-    } catch (error) {
-      console.error("Error creating new sheet:", error)
-    }
+    const updatedSheets = [...spreadsheets, newSheet]
+    saveSpreadsheets(updatedSheets)
+    setActiveSheet(newSheet.id)
+    setNewSheetName("")
+    setShowNewSheetDialog(false)
   }
 
-  const deleteSheet = async (sheetId: string) => {
+  const deleteSheet = (sheetId: string) => {
     if (spreadsheets.length <= 1) return // Don't delete the last sheet
 
-    try {
-      const response = await fetch(`/api/spreadsheets/${sheetId}`, {
-        method: "DELETE",
-      })
+    const updatedSheets = spreadsheets.filter((s) => s.id !== sheetId)
+    saveSpreadsheets(updatedSheets)
 
-      if (response.ok) {
-        const updatedSheets = spreadsheets.filter((s) => s.id !== sheetId)
-        setSpreadsheets(updatedSheets)
-
-        if (activeSheet === sheetId) {
-          setActiveSheet(updatedSheets[0].id)
-        }
-      }
-    } catch (error) {
-      console.error("Error deleting sheet:", error)
+    if (activeSheet === sheetId) {
+      setActiveSheet(updatedSheets[0].id)
     }
   }
 

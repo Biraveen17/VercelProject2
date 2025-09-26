@@ -18,78 +18,26 @@ export default function AdminPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
-  const [currentUser, setCurrentUser] = useState<any>(null)
-  const [guests, setGuests] = useState<any[]>([])
-  const [budgetItems, setBudgetItems] = useState<any[]>([])
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const isAuth = await isAuthenticated()
-      setAuthenticated(isAuth)
-      if (isAuth) {
-        const user = await getCurrentUser()
-        setCurrentUser(user)
-      }
-      setLoading(false)
-    }
-
-    checkAuth()
+    setAuthenticated(isAuthenticated())
+    setLoading(false)
   }, [])
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("[v0] Starting login process...")
-    setError("")
-
-    try {
-      const success = await login(username, password)
-      console.log("[v0] Login result:", success)
-
-      if (success) {
-        console.log("[v0] Login successful, checking token in localStorage...")
-
-        await new Promise((resolve) => setTimeout(resolve, 300))
-
-        const token = localStorage.getItem("wedding_admin_token")
-        console.log("[v0] Token in localStorage:", token ? "found" : "not found")
-
-        if (token) {
-          setAuthenticated(true)
-          setError("")
-          const user = await getCurrentUser()
-          console.log("[v0] Current user:", user)
-          setCurrentUser(user)
-        } else {
-          console.log("[v0] Token not found after login")
-          setError("Authentication failed - please try again")
-        }
-      } else {
-        console.log("[v0] Login failed")
-        setError("Invalid credentials")
-      }
-    } catch (error) {
-      console.error("[v0] Login error:", error)
-      setError("Login failed. Please try again.")
+    if (login(username, password)) {
+      setAuthenticated(true)
+      setError("")
+    } else {
+      setError("Invalid credentials")
     }
   }
 
-  const handleLogout = async () => {
-    await logout()
+  const handleLogout = () => {
+    logout()
     setAuthenticated(false)
-    setCurrentUser(null)
   }
-
-  useEffect(() => {
-    if (authenticated) {
-      const loadData = async () => {
-        const guestData = await getGuests()
-        const budgetData = await getBudgetItems()
-        setGuests(guestData)
-        setBudgetItems(budgetData)
-      }
-      loadData()
-    }
-  }, [authenticated])
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
@@ -135,17 +83,26 @@ export default function AdminPage() {
     )
   }
 
+  const guests = getGuests()
+  const budgetItems = getBudgetItems()
+  const currentUser = getCurrentUser()
+
+  // For groups, count by maxGroupSize; for individuals, count as 1 each
   const totalRSVPs = guests.reduce((total, guest) => {
     if (guest.type === "group" && guest.maxGroupSize && !guest.guestName) {
+      // This is a group header - count by max group size
       return total + guest.maxGroupSize
     } else if (guest.type === "individual" && !guest.groupName) {
+      // This is an individual not belonging to any group
       return total + 1
     }
+    // Skip individual group members as they're already counted in the group header
     return total
   }, 0)
 
   const attendingGuests = guests.reduce((total, guest) => {
     if (guest.type === "group" && guest.maxGroupSize && !guest.guestName && guest.rsvpStatus === "attending") {
+      // Group header attending - count actual group members who responded
       const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
       return total + groupMembers.filter((g) => g.rsvpStatus === "attending").length
     } else if (guest.type === "individual" && !guest.groupName && guest.rsvpStatus === "attending") {
@@ -156,6 +113,7 @@ export default function AdminPage() {
 
   const notAttendingGuests = guests.reduce((total, guest) => {
     if (guest.type === "group" && guest.maxGroupSize && !guest.guestName && guest.rsvpStatus === "not-attending") {
+      // Group header not attending - count actual group members who responded
       const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
       return total + groupMembers.filter((g) => g.rsvpStatus === "not-attending").length
     } else if (guest.type === "individual" && !guest.groupName && guest.rsvpStatus === "not-attending") {
@@ -166,6 +124,7 @@ export default function AdminPage() {
 
   const pendingGuests = guests.reduce((total, guest) => {
     if (guest.type === "group" && guest.maxGroupSize && !guest.guestName && guest.rsvpStatus === "pending") {
+      // Group header pending - count by max group size
       return total + guest.maxGroupSize
     } else if (guest.type === "individual" && !guest.groupName && guest.rsvpStatus === "pending") {
       return total + 1
@@ -181,6 +140,7 @@ export default function AdminPage() {
       guest.rsvpStatus === "attending" &&
       guest.events.includes("ceremony")
     ) {
+      // Group attending ceremony - count actual group members
       const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
       return total + groupMembers.filter((g) => g.rsvpStatus === "attending" && g.events.includes("ceremony")).length
     } else if (
@@ -202,6 +162,7 @@ export default function AdminPage() {
       guest.rsvpStatus === "attending" &&
       guest.events.includes("reception")
     ) {
+      // Group attending reception - count actual group members
       const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
       return total + groupMembers.filter((g) => g.rsvpStatus === "attending" && g.events.includes("reception")).length
     } else if (

@@ -82,22 +82,17 @@ export default function BudgetTrackerPage() {
   })
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const isAuth = await isAuthenticated()
-      if (!isAuth) {
-        router.push("/admin")
-        return
-      }
-      setAuthenticated(true)
-      await loadBudgetItems()
-      setLoading(false)
+    if (!isAuthenticated()) {
+      router.push("/admin")
+      return
     }
-    checkAuth()
+    setAuthenticated(true)
+    loadBudgetItems()
+    setLoading(false)
   }, [router])
 
-  const loadBudgetItems = async () => {
-    const items = await getBudgetItems()
-    setBudgetItems(items)
+  const loadBudgetItems = () => {
+    setBudgetItems(getBudgetItems())
   }
 
   const handleSort = (field: keyof BudgetItem) => {
@@ -310,10 +305,10 @@ export default function BudgetTrackerPage() {
     return { planned, booked, paid, total: planned + booked + paid }
   }, [budgetItems])
 
-  const handleAddItem = async (e: React.FormEvent) => {
+  const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault()
-    await addBudgetItem(formData)
-    await loadBudgetItems()
+    addBudgetItem(formData)
+    loadBudgetItems()
     setShowAddDialog(false)
     resetForm()
   }
@@ -342,19 +337,19 @@ export default function BudgetTrackerPage() {
     }
   }
 
-  const handleUpdateItem = async (e: React.FormEvent) => {
+  const handleUpdateItem = (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingItem) return
 
-    await updateBudgetItem(editingItem.id, formData)
-    await loadBudgetItems()
+    updateBudgetItem(editingItem.id, formData)
+    loadBudgetItems()
     setEditingItem(null)
     resetForm()
   }
 
-  const confirmDeleteItem = async () => {
-    await deleteBudgetItem(deleteConfirmation.itemId)
-    await loadBudgetItems()
+  const confirmDeleteItem = () => {
+    deleteBudgetItem(deleteConfirmation.itemId)
+    loadBudgetItems()
     setDeleteConfirmation({ show: false, itemId: "", itemName: "" })
   }
 

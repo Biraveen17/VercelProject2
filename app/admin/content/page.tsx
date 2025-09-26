@@ -71,74 +71,26 @@ export default function ContentEditorPage() {
   })
 
   useEffect(() => {
-    const checkAuth = async () => {
-      console.log("[v0] Content editor: Checking authentication...")
-      const isAuth = await isAuthenticated()
-      console.log("[v0] Content editor: Authentication result:", isAuth)
-
-      if (!isAuth) {
-        console.log("[v0] Content editor: Not authenticated, redirecting to admin")
-        router.push("/admin")
-        return
-      }
-
-      setAuthenticated(true)
-      await loadContentData()
-      setLoading(false)
+    if (!isAuthenticated()) {
+      router.push("/admin")
+      return
     }
-    checkAuth()
+    setAuthenticated(true)
+    loadContentData()
+    setLoading(false)
   }, [router])
 
-  const loadContentData = async () => {
-    try {
-      console.log("[v0] Content editor: Loading content data...")
-      const token = localStorage.getItem("wedding_admin_token")
-      const response = await fetch("/api/content", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        if (result.data && Object.keys(result.data).length > 0) {
-          setContentData(result.data)
-          console.log("[v0] Content editor: Content data loaded successfully")
-        }
-      } else {
-        console.log("[v0] Content editor: Failed to load content data:", response.status)
-      }
-    } catch (error) {
-      console.error("[v0] Content editor: Error loading content data:", error)
-      // Keep default data if API fails
+  const loadContentData = () => {
+    // In a real app, this would load from the database
+    const savedContent = localStorage.getItem("wedding_content")
+    if (savedContent) {
+      setContentData(JSON.parse(savedContent))
     }
   }
 
-  const saveContentData = async () => {
-    try {
-      console.log("[v0] Content editor: Saving content data...")
-      const token = localStorage.getItem("wedding_admin_token")
-      const response = await fetch("/api/content", {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(contentData),
-      })
-
-      if (response.ok) {
-        console.log("[v0] Content editor: Content saved successfully")
-        alert("Content saved successfully!")
-      } else {
-        console.log("[v0] Content editor: Failed to save content:", response.status)
-        throw new Error("Failed to save content")
-      }
-    } catch (error) {
-      console.error("[v0] Content editor: Error saving content:", error)
-      alert("Failed to save content. Please try again.")
-    }
+  const saveContentData = () => {
+    localStorage.setItem("wedding_content", JSON.stringify(contentData))
+    alert("Content saved successfully!")
   }
 
   const updatePageContent = (page: keyof ContentData, field: keyof PageContent, value: string | boolean | number) => {
