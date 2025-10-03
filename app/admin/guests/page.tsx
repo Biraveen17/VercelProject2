@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
 import { logout } from "@/lib/auth"
 import { Plus, Edit, Trash2, LogOut, ArrowLeft, Users } from "lucide-react"
@@ -549,6 +549,10 @@ export default function GuestManagementPage() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add Individual Guest</DialogTitle>
+              <DialogDescription>
+                Add a new guest to your wedding list. You can assign them to an existing group or keep them as an
+                individual guest.
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAddIndividualGuest} className="space-y-4">
               {errorMessage && (
@@ -645,6 +649,9 @@ export default function GuestManagementPage() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add New Group</DialogTitle>
+              <DialogDescription>
+                Create a new group for families or parties. You can add individual guests to this group later.
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAddNewGroup} className="space-y-4">
               {errorMessage && (
@@ -717,6 +724,9 @@ export default function GuestManagementPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Confirm Delete</DialogTitle>
+              <DialogDescription>
+                This action cannot be undone. The guest will be permanently removed from your list.
+              </DialogDescription>
             </DialogHeader>
             <div className="py-4">
               <p>
@@ -746,6 +756,9 @@ export default function GuestManagementPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Confirm Delete Group</DialogTitle>
+              <DialogDescription>
+                The group will be deleted but members will remain as individual guests.
+              </DialogDescription>
             </DialogHeader>
             <div className="py-4">
               <p>
@@ -774,6 +787,7 @@ export default function GuestManagementPage() {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Guest Details</DialogTitle>
+              <DialogDescription>Update guest information, RSVP status, and event attendance.</DialogDescription>
             </DialogHeader>
             {editingGuest && (
               <form
@@ -979,6 +993,9 @@ export default function GuestManagementPage() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Edit Group Details</DialogTitle>
+              <DialogDescription>
+                Update the group name, size, and which side of the family they belong to.
+              </DialogDescription>
             </DialogHeader>
             {editingGroup && (
               <form
