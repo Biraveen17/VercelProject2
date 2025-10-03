@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
 
     const group = {
       name: body.name,
-      size: body.size || 0,
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
     }

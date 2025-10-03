@@ -12,7 +12,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       {
         $set: {
           name: body.name,
-          size: body.size,
           lastUpdated: new Date().toISOString(),
         },
       },

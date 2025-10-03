@@ -19,7 +19,6 @@ interface Group {
   _id?: string
   id?: string
   name: string
-  size: number
   createdAt: string
   lastUpdated: string
 }
@@ -76,7 +75,6 @@ export default function GuestManagementPage() {
 
   const [groupFormData, setGroupFormData] = useState({
     name: "",
-    size: 1,
   })
 
   const [errorMessage, setErrorMessage] = useState("")
@@ -176,8 +174,20 @@ export default function GuestManagementPage() {
     }
 
     try {
+      let guestName = guestFormData.name.trim()
+
+      if (guestFormData.guestType === "tbc" && guestFormData.groupId) {
+        const selectedGroup = groups.find((g) => (g._id || g.id) === guestFormData.groupId)
+        if (selectedGroup) {
+          // Count existing TBC guests in this group
+          const tbcGuestsInGroup = guests.filter((g) => g.groupId === guestFormData.groupId && g.guestType === "tbc")
+          const tbcCount = tbcGuestsInGroup.length + 1
+          guestName = `${selectedGroup.name}-TBC-${tbcCount}`
+        }
+      }
+
       const guestData = {
-        name: guestFormData.guestType === "tbc" ? "TBC" : guestFormData.name.trim(),
+        name: guestName,
         guestType: guestFormData.guestType,
         isChild: guestFormData.isChild,
         side: guestFormData.side,
@@ -237,7 +247,6 @@ export default function GuestManagementPage() {
     try {
       const groupData = {
         name: groupFormData.name.trim(),
-        size: groupFormData.size,
       }
 
       const response = await fetch("/api/groups", {
@@ -251,7 +260,6 @@ export default function GuestManagementPage() {
         setShowAddGroupDialog(false)
         setGroupFormData({
           name: "",
-          size: 1,
         })
       } else {
         const error = await response.json()
@@ -482,9 +490,7 @@ export default function GuestManagementPage() {
                     <React.Fragment key={groupId}>
                       <tr className="bg-red-100 dark:bg-red-900/20">
                         <td className="p-3 font-semibold text-red-800 dark:text-red-200">GROUP: {group.name}</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">
-                          Group ({members.length}/{group.size})
-                        </td>
+                        <td className="p-3 text-red-800 dark:text-red-200">Group ({members.length})</td>
                         <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3 text-red-800 dark:text-red-200" colSpan={3}>
                           -
@@ -496,7 +502,7 @@ export default function GuestManagementPage() {
                               variant="outline"
                               onClick={() => {
                                 setEditingGroup(group)
-                                setGroupFormData({ name: group.name, size: group.size })
+                                setGroupFormData({ name: group.name })
                               }}
                               className="hover:text-primary"
                             >
@@ -727,20 +733,6 @@ export default function GuestManagementPage() {
                   value={groupFormData.name}
                   onChange={(e) => setGroupFormData({ ...groupFormData, name: e.target.value })}
                   placeholder="Enter group or family name"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="groupSize">Group Size *</Label>
-                <Input
-                  id="groupSize"
-                  type="number"
-                  min="1"
-                  max="20"
-                  value={groupFormData.size}
-                  onChange={(e) => setGroupFormData({ ...groupFormData, size: Number.parseInt(e.target.value) })}
-                  placeholder="Enter maximum number of people in this group"
                   required
                 />
               </div>
@@ -1040,7 +1032,7 @@ export default function GuestManagementPage() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Edit Group Details</DialogTitle>
-              <DialogDescription>Update the group name and size.</DialogDescription>
+              <DialogDescription>Update the group name.</DialogDescription>
             </DialogHeader>
             {editingGroup && (
               <form
@@ -1054,7 +1046,6 @@ export default function GuestManagementPage() {
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
                         name: groupFormData.name,
-                        size: groupFormData.size,
                       }),
                     })
 
@@ -1077,20 +1068,6 @@ export default function GuestManagementPage() {
                     value={groupFormData.name}
                     onChange={(e) => setGroupFormData({ ...groupFormData, name: e.target.value })}
                     placeholder="Enter group or family name"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="editGroupSize">Group Size *</Label>
-                  <Input
-                    id="editGroupSize"
-                    type="number"
-                    min="1"
-                    max="20"
-                    value={groupFormData.size}
-                    onChange={(e) => setGroupFormData({ ...groupFormData, size: Number.parseInt(e.target.value) })}
-                    placeholder="Enter maximum number of people in this group"
                     required
                   />
                 </div>
