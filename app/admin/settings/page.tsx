@@ -8,10 +8,21 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { isAuthenticated, logout } from "@/lib/auth"
-import { getSettings, saveSettings, type WeddingSettings } from "@/lib/database"
 import { ArrowLeft, LogOut, Save, Settings } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+
+interface WeddingSettings {
+  brideName: string
+  groomName: string
+  weddingDate: string
+  ceremonyDate: string
+  receptionDate: string
+  venue: string
+  location: string
+  allowVideoDownload: boolean
+  allowVideoFullscreen: boolean
+}
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -39,14 +50,38 @@ export default function SettingsPage() {
     setLoading(false)
   }, [router])
 
-  const loadSettings = () => {
-    setSettings(getSettings())
+  const loadSettings = async () => {
+    try {
+      const response = await fetch("/api/settings")
+      if (response.ok) {
+        const data = await response.json()
+        // Remove MongoDB-specific fields before setting state
+        const { type, lastUpdated, _id, ...settingsData } = data
+        setSettings(settingsData as WeddingSettings)
+      }
+    } catch (error) {
+      console.error("[v0] Error loading settings:", error)
+    }
   }
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    saveSettings(settings)
-    alert("Settings saved successfully!")
+    try {
+      const response = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      })
+
+      if (response.ok) {
+        alert("Settings saved successfully!")
+      } else {
+        alert("Failed to save settings")
+      }
+    } catch (error) {
+      console.error("[v0] Error saving settings:", error)
+      alert("Failed to save settings")
+    }
   }
 
   const updateSetting = (field: keyof WeddingSettings, value: string | boolean) => {

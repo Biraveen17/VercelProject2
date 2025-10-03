@@ -49,4 +49,14 @@ export async function getSettingsCollection(): Promise<Collection> {
   return db.collection("settings")
 }
 
+export async function getSpreadsheetCollection(): Promise<Collection> {
+  const db = await getDatabase()
+  return db.collection("spreadsheet")
+}
+
+export async function getContentCollection(): Promise<Collection> {
+  const db = await getDatabase()
+  return db.collection("content")
+}
+
 export default clientPromise

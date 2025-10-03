@@ -80,17 +80,37 @@ export default function ContentEditorPage() {
     setLoading(false)
   }, [router])
 
-  const loadContentData = () => {
-    // In a real app, this would load from the database
-    const savedContent = localStorage.getItem("wedding_content")
-    if (savedContent) {
-      setContentData(JSON.parse(savedContent))
+  const loadContentData = async () => {
+    try {
+      const response = await fetch("/api/content")
+      if (response.ok) {
+        const data = await response.json()
+        // Remove the type field before setting state
+        const { type, lastUpdated, _id, ...contentPages } = data
+        setContentData(contentPages as ContentData)
+      }
+    } catch (error) {
+      console.error("[v0] Error loading content:", error)
     }
   }
 
-  const saveContentData = () => {
-    localStorage.setItem("wedding_content", JSON.stringify(contentData))
-    alert("Content saved successfully!")
+  const saveContentData = async () => {
+    try {
+      const response = await fetch("/api/content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contentData),
+      })
+
+      if (response.ok) {
+        alert("Content saved successfully!")
+      } else {
+        alert("Failed to save content")
+      }
+    } catch (error) {
+      console.error("[v0] Error saving content:", error)
+      alert("Failed to save content")
+    }
   }
 
   const updatePageContent = (page: keyof ContentData, field: keyof PageContent, value: string | boolean | number) => {

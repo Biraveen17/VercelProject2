@@ -69,30 +69,36 @@ export default function SpreadsheetPage() {
     }
   }, [formulaInput])
 
-  const loadSpreadsheets = () => {
-    const saved = localStorage.getItem("wedding-spreadsheets")
-    if (saved) {
-      const sheets = JSON.parse(saved)
-      setSpreadsheets(sheets)
-      if (sheets.length > 0 && !activeSheet) {
-        setActiveSheet(sheets[0].id)
+  const loadSpreadsheets = async () => {
+    try {
+      const response = await fetch("/api/spreadsheet")
+      if (response.ok) {
+        const sheets = await response.json()
+        setSpreadsheets(sheets)
+        if (sheets.length > 0 && !activeSheet) {
+          setActiveSheet(sheets[0].id)
+        }
       }
-    } else {
-      // Create default sheet
-      const defaultSheet: Spreadsheet = {
-        id: "sheet-1",
-        name: "Wedding Planning",
-        cells: {},
-        lastModified: new Date(),
-      }
-      setSpreadsheets([defaultSheet])
-      setActiveSheet(defaultSheet.id)
+    } catch (error) {
+      console.error("[v0] Error loading spreadsheets:", error)
     }
   }
 
-  const saveSpreadsheets = useCallback((sheets: Spreadsheet[]) => {
-    localStorage.setItem("wedding-spreadsheets", JSON.stringify(sheets))
-    setSpreadsheets(sheets)
+  const saveSpreadsheets = useCallback(async (sheets: Spreadsheet[]) => {
+    try {
+      const response = await fetch("/api/spreadsheet", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sheets),
+      })
+
+      if (response.ok) {
+        const updatedSheets = await response.json()
+        setSpreadsheets(updatedSheets)
+      }
+    } catch (error) {
+      console.error("[v0] Error saving spreadsheets:", error)
+    }
   }, [])
 
   const getCurrentSheet = () => {
@@ -290,7 +296,7 @@ export default function SpreadsheetPage() {
     saveSpreadsheets(updatedSheets)
   }
 
-  const createNewSheet = () => {
+  const createNewSheet = async () => {
     if (!newSheetName.trim()) return
 
     const newSheet: Spreadsheet = {
@@ -300,21 +306,43 @@ export default function SpreadsheetPage() {
       lastModified: new Date(),
     }
 
-    const updatedSheets = [...spreadsheets, newSheet]
-    saveSpreadsheets(updatedSheets)
-    setActiveSheet(newSheet.id)
-    setNewSheetName("")
-    setShowNewSheetDialog(false)
+    try {
+      const response = await fetch("/api/spreadsheet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newSheet),
+      })
+
+      if (response.ok) {
+        const updatedSheets = [...spreadsheets, newSheet]
+        setSpreadsheets(updatedSheets)
+        setActiveSheet(newSheet.id)
+        setNewSheetName("")
+        setShowNewSheetDialog(false)
+      }
+    } catch (error) {
+      console.error("[v0] Error creating sheet:", error)
+    }
   }
 
-  const deleteSheet = (sheetId: string) => {
-    if (spreadsheets.length <= 1) return // Don't delete the last sheet
+  const deleteSheet = async (sheetId: string) => {
+    if (spreadsheets.length <= 1) return
 
-    const updatedSheets = spreadsheets.filter((s) => s.id !== sheetId)
-    saveSpreadsheets(updatedSheets)
+    try {
+      const response = await fetch(`/api/spreadsheet/${sheetId}`, {
+        method: "DELETE",
+      })
 
-    if (activeSheet === sheetId) {
-      setActiveSheet(updatedSheets[0].id)
+      if (response.ok) {
+        const updatedSheets = spreadsheets.filter((s) => s.id !== sheetId)
+        setSpreadsheets(updatedSheets)
+
+        if (activeSheet === sheetId) {
+          setActiveSheet(updatedSheets[0].id)
+        }
+      }
+    } catch (error) {
+      console.error("[v0] Error deleting sheet:", error)
     }
   }
 
@@ -487,7 +515,7 @@ export default function SpreadsheetPage() {
                           e.preventDefault()
                         }
                       }}
-                      placeholder="Enter value or formula (e.g., =SUM(A1:A5), =B2+C2)"
+                      placeholder="Enter value or formula (e.g., =SUM(A1:A5), =AVERAGE(A1:A5), or simple arithmetic like =A1+B1*2)"
                       className="flex-1"
                     />
                     <Button
