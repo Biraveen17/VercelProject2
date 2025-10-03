@@ -784,8 +784,8 @@ export default function GuestManagementPage() {
                         </Select>
                       </div>
                     </th>
+                    <th className="p-4 text-left">Last Updated UTC</th>
                     <th className="p-4 text-left">Created</th>
-                    <th className="p-4 text-left">Last Updated</th>
                     <th className="p-4 text-left">Actions</th>
                   </tr>
                 </thead>
@@ -823,8 +823,13 @@ export default function GuestManagementPage() {
                           <td className="p-4">{guest.notes ? "YES" : "NO"}</td>
                           <td className="p-4">{guest.questions ? "YES" : "NO"}</td>
                           <td className="p-4">{guest.dietaryRequirements ? "Yes" : "No"}</td>
+                          <td className="p-4 text-xs">
+                            {new Date(guest.lastUpdated).toLocaleString("en-US", {
+                              timeZone: "UTC",
+                              timeZoneName: "short",
+                            })}
+                          </td>
                           <td className="p-4 text-xs">{new Date(guest.createdAt).toLocaleDateString()}</td>
-                          <td className="p-4 text-xs">{new Date(guest.lastUpdated).toLocaleDateString()}</td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button
@@ -914,8 +919,13 @@ export default function GuestManagementPage() {
                           <td className="p-4">{member.notes ? "YES" : "NO"}</td>
                           <td className="p-4">{member.questions ? "YES" : "NO"}</td>
                           <td className="p-4">{member.dietaryRequirements ? "Yes" : "No"}</td>
+                          <td className="p-4 text-xs">
+                            {new Date(member.lastUpdated).toLocaleString("en-US", {
+                              timeZone: "UTC",
+                              timeZoneName: "short",
+                            })}
+                          </td>
                           <td className="p-4 text-xs">{new Date(member.createdAt).toLocaleDateString()}</td>
-                          <td className="p-4 text-xs">{new Date(member.lastUpdated).toLocaleDateString()}</td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button
