@@ -255,7 +255,7 @@ export default function AdminPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <Link href="/admin/guests">
               <CardContent className="p-6 text-center">
@@ -272,16 +272,6 @@ export default function AdminPage() {
                 <DollarSign className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="font-semibold mb-2">Budget Tracker</h3>
                 <p className="text-sm text-muted-foreground">Track expenses and payments</p>
-              </CardContent>
-            </Link>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <Link href="/admin/content">
-              <CardContent className="p-6 text-center">
-                <Calendar className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Content Editor</h3>
-                <p className="text-sm text-muted-foreground">Edit website pages</p>
               </CardContent>
             </Link>
           </Card>

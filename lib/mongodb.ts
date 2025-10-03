@@ -54,9 +54,4 @@ export async function getSpreadsheetCollection(): Promise<Collection> {
   return db.collection("spreadsheet")
 }
 
-export async function getContentCollection(): Promise<Collection> {
-  const db = await getDatabase()
-  return db.collection("content")
-}
-
 export default clientPromise
