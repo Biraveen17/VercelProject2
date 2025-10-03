@@ -89,6 +89,7 @@ export default function GuestManagementPage() {
     ageGroup: "",
     hasNotes: "",
     hasQuestions: "",
+    hasDietaryRequirements: "",
   })
 
   const loadData = async () => {
@@ -147,6 +148,8 @@ export default function GuestManagementPage() {
       if (filters.hasNotes === "no" && guest.notes) return false
       if (filters.hasQuestions === "yes" && !guest.questions) return false
       if (filters.hasQuestions === "no" && guest.questions) return false
+      if (filters.hasDietaryRequirements === "yes" && !guest.dietaryRequirements) return false
+      if (filters.hasDietaryRequirements === "no" && guest.dietaryRequirements) return false
       return true
     })
 
@@ -202,6 +205,9 @@ export default function GuestManagementPage() {
       "Dietary Requirements",
       "Has Notes",
       "Has Questions",
+      "Has Dietary Requirements",
+      "Created",
+      "Last Updated",
       "Group",
     ]
 
@@ -218,6 +224,9 @@ export default function GuestManagementPage() {
         guest.dietaryRequirements || "",
         guest.notes ? "Yes" : "No",
         guest.questions ? "Yes" : "No",
+        guest.dietaryRequirements ? "Yes" : "No",
+        new Date(guest.createdAt).toLocaleString(),
+        new Date(guest.lastUpdated).toLocaleString(),
         group,
       ]
     })
@@ -757,6 +766,26 @@ export default function GuestManagementPage() {
                         </Select>
                       </div>
                     </th>
+                    <th className="p-4 text-left">
+                      <div className="flex flex-col gap-2">
+                        <span>Dietary Req.</span>
+                        <Select
+                          value={filters.hasDietaryRequirements}
+                          onValueChange={(value) => setFilters({ ...filters, hasDietaryRequirements: value })}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="yes">Yes</SelectItem>
+                            <SelectItem value="no">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </th>
+                    <th className="p-4 text-left">Created</th>
+                    <th className="p-4 text-left">Last Updated</th>
                     <th className="p-4 text-left">Actions</th>
                   </tr>
                 </thead>
@@ -765,7 +794,7 @@ export default function GuestManagementPage() {
                   {groupedGuests.ungrouped.length > 0 && (
                     <>
                       <tr className="bg-blue-100 dark:bg-blue-900/20">
-                        <td colSpan={9} className="p-3 font-semibold text-blue-800 dark:text-blue-200">
+                        <td colSpan={12} className="p-3 font-semibold text-blue-800 dark:text-blue-200">
                           Individual Guests ({groupedGuests.ungrouped.length})
                         </td>
                       </tr>
@@ -793,6 +822,9 @@ export default function GuestManagementPage() {
                           <td className="p-4">{guest.events.length > 0 ? guest.events.join(", ") : "-"}</td>
                           <td className="p-4">{guest.notes ? "YES" : "NO"}</td>
                           <td className="p-4">{guest.questions ? "YES" : "NO"}</td>
+                          <td className="p-4">{guest.dietaryRequirements ? "Yes" : "No"}</td>
+                          <td className="p-4 text-xs">{new Date(guest.createdAt).toLocaleDateString()}</td>
+                          <td className="p-4 text-xs">{new Date(guest.lastUpdated).toLocaleDateString()}</td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button
@@ -829,6 +861,9 @@ export default function GuestManagementPage() {
                         <td className="p-3 text-red-800 dark:text-red-200" colSpan={3}>
                           -
                         </td>
+                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3">
                           <div className="flex gap-2">
@@ -878,6 +913,9 @@ export default function GuestManagementPage() {
                           <td className="p-4">{member.events.length > 0 ? member.events.join(", ") : "-"}</td>
                           <td className="p-4">{member.notes ? "YES" : "NO"}</td>
                           <td className="p-4">{member.questions ? "YES" : "NO"}</td>
+                          <td className="p-4">{member.dietaryRequirements ? "Yes" : "No"}</td>
+                          <td className="p-4 text-xs">{new Date(member.createdAt).toLocaleDateString()}</td>
+                          <td className="p-4 text-xs">{new Date(member.lastUpdated).toLocaleDateString()}</td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button
@@ -1057,7 +1095,7 @@ export default function GuestManagementPage() {
                   id="guestNotes"
                   value={guestFormData.notes}
                   onChange={(e) => setGuestFormData({ ...guestFormData, notes: e.target.value })}
-                  placeholder="Any special notes about this guest..."
+                  placeholder="Any notes about this guest..."
                 />
               </div>
 
