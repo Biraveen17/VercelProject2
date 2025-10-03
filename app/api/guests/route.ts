@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getGuestsCollection } from "@/lib/mongodb"
+import { getGuestsCollection, getGroupsCollection } from "@/lib/mongodb"
 
 export async function GET() {
   try {
@@ -16,24 +16,34 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const collection = await getGuestsCollection()
+    const guestsCollection = await getGuestsCollection()
+    const groupsCollection = await getGroupsCollection()
+
+    const existingGuest = await guestsCollection.findOne({ name: body.name })
+    if (existingGuest) {
+      return NextResponse.json({ error: "A guest with this name already exists" }, { status: 400 })
+    }
+
+    const existingGroup = await groupsCollection.findOne({ name: body.name })
+    if (existingGroup) {
+      return NextResponse.json({ error: "A group with this name already exists" }, { status: 400 })
+    }
 
     const guest = {
-      type: body.type,
-      groupName: body.groupName || null,
-      guestName: body.guestName || null,
-      maxGroupSize: body.maxGroupSize || null,
-      groupMembers: body.groupMembers || [],
+      name: body.name,
+      isChild: body.isChild || false,
+      side: body.side || null,
+      groupId: body.groupId || null, // Reference to group by ID
       notes: body.notes || "",
       rsvpStatus: body.rsvpStatus || "pending",
       events: body.events || [],
       dietaryRequirements: body.dietaryRequirements || "",
       questions: body.questions || "",
-      side: body.side || null,
+      createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
     }
 
-    const result = await collection.insertOne(guest)
+    const result = await guestsCollection.insertOne(guest)
 
     return NextResponse.json({ ...guest, _id: result.insertedId }, { status: 201 })
   } catch (error) {

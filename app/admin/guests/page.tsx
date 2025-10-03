@@ -1,67 +1,59 @@
 "use client"
 
 import React, { useState, useMemo, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 import { logout } from "@/lib/auth"
-import { Plus, Edit, Trash2, Filter, LogOut, ArrowLeft } from "lucide-react"
+import { Plus, Edit, Trash2, LogOut, ArrowLeft, Users } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { checkAuthentication } from "@/lib/auth"
 
+interface Group {
+  _id?: string
+  id?: string
+  name: string
+  size: number
+  side: "bride" | "groom"
+  createdAt: string
+  lastUpdated: string
+}
+
 interface Guest {
   _id?: string
   id?: string
-  type: "individual" | "group"
-  groupName?: string
-  guestName?: string
-  maxGroupSize?: number
-  groupMembers?: string[]
+  name: string
+  isChild: boolean
+  side: "bride" | "groom"
+  groupId?: string | null
   notes?: string
   rsvpStatus: "pending" | "attending" | "not-attending"
   events: ("ceremony" | "reception")[]
   dietaryRequirements?: string
   questions?: string
-  side?: "bride" | "groom"
+  createdAt: string
   lastUpdated: string
-}
-
-const loadGuests = async (
-  setGuests: React.Dispatch<React.SetStateAction<Guest[]>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-) => {
-  try {
-    const response = await fetch("/api/guests")
-    if (response.ok) {
-      const data = await response.json()
-      // Map _id to id for compatibility
-      const guestsWithId = data.map((guest: any) => ({
-        ...guest,
-        id: guest._id || guest.id,
-      }))
-      setGuests(guestsWithId)
-    } else {
-      console.error("Failed to fetch guests")
-    }
-  } catch (error) {
-    console.error("Error loading guests:", error)
-  } finally {
-    setLoading(false)
-  }
 }
 
 export default function GuestManagementPage() {
   const router = useRouter()
   const [authenticated, setAuthenticated] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  const [groups, setGroups] = useState<Group[]>([])
   const [guests, setGuests] = useState<Guest[]>([])
-  const [showAddDialog, setShowAddDialog] = useState(false)
+
+  const [showAddGuestDialog, setShowAddGuestDialog] = useState(false)
+  const [showAddGroupDialog, setShowAddGroupDialog] = useState(false)
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null)
+  const [editingGroup, setEditingGroup] = useState<Group | null>(null)
+
   const [deleteConfirmation, setDeleteConfirmation] = useState<{ show: boolean; guestId: string; guestName: string }>({
     show: false,
     guestId: "",
@@ -72,42 +64,53 @@ export default function GuestManagementPage() {
     groupId: string
     groupName: string
   }>({ show: false, groupId: "", groupName: "" })
-  const [sortField, setSortField] = useState<keyof Guest>("lastUpdated")
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
-  const [filters, setFilters] = useState({
-    rsvpStatus: "",
-    events: "",
-    groupName: "",
-    side: "",
+
+  const [guestFormData, setGuestFormData] = useState({
+    name: "",
+    isChild: false,
+    side: "bride" as "bride" | "groom",
+    groupId: "",
+    notes: "",
   })
 
-  const [formData, setFormData] = useState({
-    type: "individual" as "individual" | "group",
-    guestName: "",
-    groupName: "",
-    maxGroupSize: 1,
-    groupMembers: [""],
-    notes: "",
-    rsvpStatus: "pending" as "pending" | "attending" | "not-attending",
-    events: [] as string[],
-    dietaryRequirements: "",
-    questions: "",
+  const [groupFormData, setGroupFormData] = useState({
+    name: "",
+    size: 1,
     side: "bride" as "bride" | "groom",
   })
 
-  const [addToGroupData, setAddToGroupData] = useState({
-    selectedGroup: "",
-    newGuestName: "",
-  })
+  const [errorMessage, setErrorMessage] = useState("")
 
-  const [showAddToGroupDialog, setShowAddToGroupDialog] = useState(false)
+  const loadData = async () => {
+    try {
+      const [groupsResponse, guestsResponse] = await Promise.all([fetch("/api/groups"), fetch("/api/guests")])
+
+      if (groupsResponse.ok) {
+        const groupsData = await groupsResponse.json()
+        setGroups(groupsData.map((g: any) => ({ ...g, id: g._id || g.id })))
+      } else {
+        console.error("Failed to fetch groups")
+      }
+
+      if (guestsResponse.ok) {
+        const guestsData = await guestsResponse.json()
+        setGuests(guestsData.map((g: any) => ({ ...g, id: g._id || g.id })))
+      } else {
+        console.error("Failed to fetch guests")
+      }
+    } catch (error) {
+      console.error("Error loading data:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     const checkAuth = async () => {
       const isAuth = await checkAuthentication()
       setAuthenticated(isAuth)
       if (isAuth) {
-        loadGuests(setGuests, setLoading)
+        loadData()
       } else {
         setLoading(false)
       }
@@ -116,114 +119,139 @@ export default function GuestManagementPage() {
   }, [])
 
   const groupedGuests = useMemo(() => {
-    const groups: { [key: string]: { header: Guest | null; members: Guest[] } } = {}
+    const groupedData: { [key: string]: { group: Group; members: Guest[] } } = {}
     const ungrouped: Guest[] = []
 
     guests.forEach((guest) => {
-      if (guest.groupName) {
-        if (!groups[guest.groupName]) {
-          groups[guest.groupName] = { header: null, members: [] }
-        }
-
-        if (guest.type === "group" && !guest.guestName && guest.maxGroupSize) {
-          groups[guest.groupName].header = guest
+      if (guest.groupId) {
+        const group = groups.find((g) => (g._id || g.id) === guest.groupId)
+        if (group) {
+          const groupKey = group._id || group.id || ""
+          if (!groupedData[groupKey]) {
+            groupedData[groupKey] = { group, members: [] }
+          }
+          groupedData[groupKey].members.push(guest)
         } else {
-          groups[guest.groupName].members.push(guest)
+          // If a guest has a groupId but the group doesn't exist, treat them as ungrouped
+          ungrouped.push(guest)
         }
       } else {
         ungrouped.push(guest)
       }
     })
 
-    return { groups, ungrouped }
-  }, [guests])
+    return { groups: groupedData, ungrouped }
+  }, [guests, groups])
 
-  const handleEditGroupHeader = (groupHeader: Guest) => {
-    setEditingGuest(groupHeader)
-    setFormData({
-      type: "group",
-      guestName: "",
-      groupName: groupHeader.groupName || "",
-      maxGroupSize: groupHeader.maxGroupSize || 1,
-      groupMembers: groupHeader.groupMembers || [""],
-      notes: groupHeader.notes || "",
-      rsvpStatus: groupHeader.rsvpStatus,
-      events: groupHeader.events || [],
-      dietaryRequirements: "",
-      questions: "",
-      side: groupHeader.side || "bride",
-    })
-  }
-
-  const handleEditIndividualGuest = (guest: Guest) => {
-    setEditingGuest(guest)
-    const currentType = guest.groupName ? guest.groupName : "individual"
-    setFormData({
-      type: currentType,
-      guestName: guest.guestName || "",
-      groupName: guest.groupName || "",
-      maxGroupSize: 1,
-      groupMembers: [""],
-      notes: guest.notes || "",
-      rsvpStatus: guest.rsvpStatus,
-      events: guest.events || [],
-      dietaryRequirements: guest.dietaryRequirements || "",
-      questions: guest.questions || "",
-      side: guest.side || "bride",
-    })
-  }
-
-  const handleEditGuest = (guest: Guest) => {
-    if (guest.type === "group" && !guest.guestName && guest.maxGroupSize) {
-      handleEditGroupHeader(guest)
-    } else {
-      handleEditIndividualGuest(guest)
-    }
-  }
-
-  const handleUpdateGuest = async (e: React.FormEvent) => {
+  const handleAddIndividualGuest = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!editingGuest) return
+    setErrorMessage("")
+
+    // Basic validation for name
+    if (!guestFormData.name.trim()) {
+      setErrorMessage("Guest name is required.")
+      return
+    }
+
+    // Check if guest name already exists
+    const isGuestNameDuplicate = guests.some(
+      (g) => g.name.toLowerCase().trim() === guestFormData.name.trim().toLowerCase(),
+    )
+    const isGroupNameDuplicate = groups.some(
+      (g) => g.name.toLowerCase().trim() === guestFormData.name.trim().toLowerCase(),
+    )
+    if (isGuestNameDuplicate || isGroupNameDuplicate) {
+      setErrorMessage("A guest or group with this name already exists. Please use a different name.")
+      return
+    }
 
     try {
-      const guestId = editingGuest._id || editingGuest.id
-      let updates: any
-
-      if (editingGuest.type === "group" && !editingGuest.guestName && editingGuest.maxGroupSize) {
-        updates = {
-          groupName: formData.groupName,
-          maxGroupSize: formData.maxGroupSize,
-          notes: formData.notes,
-          side: formData.side,
-        }
-      } else {
-        updates = {
-          guestName: formData.guestName,
-          groupName: formData.type === "individual" ? undefined : formData.type,
-          notes: formData.notes,
-          rsvpStatus: formData.rsvpStatus,
-          events: formData.events as ("ceremony" | "reception")[],
-          dietaryRequirements: formData.dietaryRequirements,
-          questions: formData.questions,
-          side: formData.side,
-        }
+      const guestData = {
+        name: guestFormData.name.trim(),
+        isChild: guestFormData.isChild,
+        side: guestFormData.side,
+        groupId: guestFormData.groupId && guestFormData.groupId !== "none" ? guestFormData.groupId : null,
+        notes: guestFormData.notes || "",
+        rsvpStatus: "pending" as const,
+        events: [] as ("ceremony" | "reception")[],
       }
 
-      const response = await fetch(`/api/guests/${guestId}`, {
-        method: "PATCH",
+      const response = await fetch("/api/guests", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
+        body: JSON.stringify(guestData),
       })
 
       if (response.ok) {
-        await loadGuests(setGuests, setLoading)
-        setEditingGuest(null)
-        resetForm()
+        await loadData()
+        setShowAddGuestDialog(false)
+        setGuestFormData({
+          name: "",
+          isChild: false,
+          side: "bride",
+          groupId: "",
+          notes: "",
+        })
       } else {
-        console.error("Failed to update guest")
+        const error = await response.json()
+        setErrorMessage(error.error || "Failed to add guest. Please try again.")
       }
     } catch (error) {
-      console.error("Error updating guest:", error)
+      console.error("Error adding guest:", error)
+      setErrorMessage("An error occurred while adding the guest.")
+    }
+  }
+
+  const handleAddNewGroup = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setErrorMessage("")
+
+    // Basic validation for name
+    if (!groupFormData.name.trim()) {
+      setErrorMessage("Group name is required.")
+      return
+    }
+
+    // Check if group name already exists
+    const isGroupNameDuplicate = groups.some(
+      (g) => g.name.toLowerCase().trim() === groupFormData.name.trim().toLowerCase(),
+    )
+    const isGuestNameDuplicate = guests.some(
+      (g) => g.name.toLowerCase().trim() === groupFormData.name.trim().toLowerCase(),
+    )
+    if (isGroupNameDuplicate || isGuestNameDuplicate) {
+      setErrorMessage("A guest or group with this name already exists. Please use a different name.")
+      return
+    }
+
+    try {
+      const groupData = {
+        name: groupFormData.name.trim(),
+        size: groupFormData.size,
+        side: groupFormData.side,
+      }
+
+      const response = await fetch("/api/groups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(groupData),
+      })
+
+      if (response.ok) {
+        await loadData()
+        setShowAddGroupDialog(false)
+        setGroupFormData({
+          name: "",
+          size: 1,
+          side: "bride",
+        })
+      } else {
+        const error = await response.json()
+        setErrorMessage(error.error || "Failed to add group. Please try again.")
+      }
+    } catch (error) {
+      console.error("Error adding group:", error)
+      setErrorMessage("An error occurred while adding the group.")
     }
   }
 
@@ -233,7 +261,7 @@ export default function GuestManagementPage() {
       setDeleteConfirmation({
         show: true,
         guestId: id,
-        guestName: guest.guestName || guest.groupName || "Unknown Guest",
+        guestName: guest.name,
       })
     }
   }
@@ -245,184 +273,42 @@ export default function GuestManagementPage() {
       })
 
       if (response.ok) {
-        await loadGuests(setGuests, setLoading)
+        await loadData()
         setDeleteConfirmation({ show: false, guestId: "", guestName: "" })
       } else {
         console.error("Failed to delete guest")
+        // Optionally show an error message to the user
       }
     } catch (error) {
       console.error("Error deleting guest:", error)
+      // Optionally show an error message to the user
     }
   }
 
-  const handleAddGuest = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    try {
-      if (formData.type === "group") {
-        // First create the group header
-        const groupHeaderData = {
-          type: "group" as const,
-          guestName: undefined,
-          groupName: formData.groupName,
-          maxGroupSize: formData.maxGroupSize,
-          groupMembers: formData.groupMembers.filter((m) => m.trim()),
-          notes: formData.notes || undefined,
-          rsvpStatus: "pending" as const,
-          events: [] as ("ceremony" | "reception")[],
-          side: formData.side,
-        }
-
-        await fetch("/api/guests", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(groupHeaderData),
-        })
-
-        // Then create individual guest entries for each filled member name
-        const filledMembers = formData.groupMembers.filter((member) => member.trim() !== "")
-        for (const memberName of filledMembers) {
-          const memberData = {
-            type: "individual" as const,
-            guestName: memberName.trim(),
-            groupName: formData.groupName,
-            notes: `Member of ${formData.groupName}`,
-            rsvpStatus: "pending" as const,
-            events: [] as ("ceremony" | "reception")[],
-            side: formData.side,
-          }
-          await fetch("/api/guests", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(memberData),
-          })
-        }
-      } else {
-        // Individual guest creation
-        const guestData = {
-          type: formData.type,
-          guestName: formData.guestName,
-          notes: formData.notes || undefined,
-          rsvpStatus: "pending" as const,
-          events: [] as ("ceremony" | "reception")[],
-          side: formData.side,
-        }
-        await fetch("/api/guests", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(guestData),
-        })
-      }
-
-      await loadGuests(setGuests, setLoading)
-      setShowAddDialog(false)
-      resetForm()
-    } catch (error) {
-      console.error("Error adding guest:", error)
-    }
-  }
-
-  const handleAddGroup = (e: React.FormEvent) => {
-    e.preventDefault()
-    // This function is not used anymore, keeping for compatibility
-  }
-
-  const handleAddToGroup = (e: React.FormEvent) => {
-    e.preventDefault()
-    // This function is not used anymore, keeping for compatibility
-  }
-
-  const resetForm = () => {
-    setFormData({
-      type: "individual",
-      guestName: "",
-      groupName: "",
-      maxGroupSize: 1,
-      groupMembers: [""],
-      notes: "",
-      rsvpStatus: "pending",
-      events: [],
-      dietaryRequirements: "",
-      questions: "",
-      side: "bride",
+  const handleDeleteGroup = (group: Group) => {
+    setDeleteGroupConfirmation({
+      show: true,
+      groupId: group._id || group.id || "",
+      groupName: group.name,
     })
-  }
-
-  const exportToCSV = () => {
-    const headers = [
-      "Group Name",
-      "Guest Name",
-      "Max Group Size",
-      "RSVP Status",
-      "Events",
-      "Dietary Requirements",
-      "Questions",
-      "Last Updated",
-      "Side",
-    ]
-
-    const csvData = guests.map((guest) => [
-      guest.groupName || "",
-      guest.guestName || "",
-      guest.maxGroupSize || "",
-      guest.rsvpStatus,
-      guest.events.join(", "),
-      guest.dietaryRequirements || "",
-      guest.questions || "",
-      new Date(guest.lastUpdated).toLocaleString(),
-      guest.side || "",
-    ])
-
-    const csvContent = [headers, ...csvData].map((row) => row.map((field) => `"${field}"`).join(",")).join("\n")
-
-    const blob = new Blob([csvContent], { type: "text/csv" })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "wedding-guests.csv"
-    a.click()
-    window.URL.revokeObjectURL(url)
-  }
-
-  const getActualGroupSize = (groupName: string): number => {
-    const allGuests = guests
-    return allGuests.filter((g) => g.groupName === groupName).length
-  }
-
-  const handleDeleteGroup = (groupHeader: Guest) => {
-    if (groupHeader) {
-      setDeleteGroupConfirmation({
-        show: true,
-        groupId: groupHeader._id || groupHeader.id || "",
-        groupName: groupHeader.groupName || "Unknown Group",
-      })
-    }
   }
 
   const confirmDeleteGroup = async () => {
     try {
-      const groupName = deleteGroupConfirmation.groupName
-
-      // Delete the group header
-      await fetch(`/api/guests/${deleteGroupConfirmation.groupId}`, {
+      const response = await fetch(`/api/groups/${deleteGroupConfirmation.groupId}`, {
         method: "DELETE",
       })
 
-      // Delete all members of the group
-      const membersToDelete = guests.filter((g) => g.groupName === groupName)
-      for (const member of membersToDelete) {
-        const memberId = member._id || member.id
-        if (memberId) {
-          await fetch(`/api/guests/${memberId}`, {
-            method: "DELETE",
-          })
-        }
+      if (response.ok) {
+        await loadData()
+        setDeleteGroupConfirmation({ show: false, groupId: "", groupName: "" })
+      } else {
+        console.error("Failed to delete group")
+        // Optionally show an error message to the user
       }
-
-      await loadGuests(setGuests, setLoading)
-      setDeleteGroupConfirmation({ show: false, groupId: "", groupName: "" })
     } catch (error) {
       console.error("Error deleting group:", error)
+      // Optionally show an error message to the user
     }
   }
 
@@ -433,6 +319,13 @@ export default function GuestManagementPage() {
   if (!authenticated) {
     return null
   }
+
+  const totalGuests = guests.length
+  const brideGuests = guests.filter((g) => g.side === "bride").length
+  const groomGuests = guests.filter((g) => g.side === "groom").length
+  const attending = guests.filter((g) => g.rsvpStatus === "attending").length
+  const notAttending = guests.filter((g) => g.rsvpStatus === "not-attending").length
+  const pending = guests.filter((g) => g.rsvpStatus === "pending").length
 
   return (
     <div className="min-h-screen floral-background p-6">
@@ -461,82 +354,26 @@ export default function GuestManagementPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold">
-                {guests.reduce((total, guest) => {
-                  if (guest.type === "group" && guest.rsvpStatus === "pending" && guest.maxGroupSize) {
-                    return total + guest.maxGroupSize
-                  }
-                  return total + 1
-                }, 0)}
-              </div>
-              <div className="text-sm text-muted-foreground">Total RSVP Count</div>
+              <div className="text-2xl font-bold">{totalGuests}</div>
+              <div className="text-sm text-muted-foreground">Total Guests</div>
               <div className="text-xs text-muted-foreground mt-1">
-                Bride:{" "}
-                {guests.reduce((total, guest) => {
-                  if (guest.side === "bride") {
-                    if (guest.type === "group" && guest.groupMembers) {
-                      return total + guest.groupMembers.filter((member) => member.trim()).length
-                    }
-                    return total + 1
-                  }
-                  return total
-                }, 0)}{" "}
-                | Groom:{" "}
-                {guests.reduce((total, guest) => {
-                  if (guest.side === "groom") {
-                    if (guest.type === "group" && guest.groupMembers) {
-                      return total + guest.groupMembers.filter((member) => member.trim()).length
-                    }
-                    return total + 1
-                  }
-                  return total
-                }, 0)}
+                Bride: {brideGuests} | Groom: {groomGuests}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-green-600">
-                {guests.reduce((total, guest) => {
-                  if (guest.rsvpStatus === "attending") {
-                    if (guest.type === "group" && guest.groupMembers) {
-                      return total + guest.groupMembers.filter((member) => member.trim()).length
-                    }
-                    return total + 1
-                  }
-                  return total
-                }, 0)}
-              </div>
+              <div className="text-2xl font-bold text-green-600">{attending}</div>
               <div className="text-sm text-muted-foreground">Attending</div>
               <div className="text-xs text-muted-foreground mt-1">
-                Bride:{" "}
-                {guests.reduce((total, guest) => {
-                  if (guest.rsvpStatus === "attending" && guest.side === "bride") {
-                    if (guest.type === "group" && guest.groupMembers) {
-                      return total + guest.groupMembers.filter((member) => member.trim()).length
-                    }
-                    return total + 1
-                  }
-                  return total
-                }, 0)}{" "}
-                | Groom:{" "}
-                {guests.reduce((total, guest) => {
-                  if (guest.rsvpStatus === "attending" && guest.side === "groom") {
-                    if (guest.type === "group" && guest.groupMembers) {
-                      return total + guest.groupMembers.filter((member) => member.trim()).length
-                    }
-                    return total + 1
-                  }
-                  return total
-                }, 0)}
+                Bride: {guests.filter((g) => g.rsvpStatus === "attending" && g.side === "bride").length} | Groom:{" "}
+                {guests.filter((g) => g.rsvpStatus === "attending" && g.side === "groom").length}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-red-600">
-                {guests.filter((g) => g.rsvpStatus === "not-attending").length}
-              </div>
+              <div className="text-2xl font-bold text-red-600">{notAttending}</div>
               <div className="text-sm text-muted-foreground">Not Attending</div>
               <div className="text-xs text-muted-foreground mt-1">
                 Bride: {guests.filter((g) => g.rsvpStatus === "not-attending" && g.side === "bride").length} | Groom:{" "}
@@ -546,116 +383,27 @@ export default function GuestManagementPage() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-yellow-600">
-                {guests.reduce((total, guest) => {
-                  if (guest.rsvpStatus === "pending") {
-                    if (guest.type === "group" && guest.maxGroupSize) {
-                      return total + guest.maxGroupSize
-                    }
-                    return total + 1
-                  }
-                  return total
-                }, 0)}
-              </div>
+              <div className="text-2xl font-bold text-yellow-600">{pending}</div>
               <div className="text-sm text-muted-foreground">Pending</div>
               <div className="text-xs text-muted-foreground mt-1">
-                Bride:{" "}
-                {guests.reduce((total, guest) => {
-                  if (guest.rsvpStatus === "pending" && guest.side === "bride") {
-                    if (guest.type === "group" && guest.maxGroupSize) {
-                      return total + guest.maxGroupSize
-                    }
-                    return total + 1
-                  }
-                  return total
-                }, 0)}{" "}
-                | Groom:{" "}
-                {guests.reduce((total, guest) => {
-                  if (guest.rsvpStatus === "pending" && guest.side === "groom") {
-                    if (guest.type === "group" && guest.maxGroupSize) {
-                      return total + guest.maxGroupSize
-                    }
-                    return total + 1
-                  }
-                  return total
-                }, 0)}
+                Bride: {guests.filter((g) => g.rsvpStatus === "pending" && g.side === "bride").length} | Groom:{" "}
+                {guests.filter((g) => g.rsvpStatus === "pending" && g.side === "groom").length}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Actions */}
+        {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button onClick={() => setShowAddGuestDialog(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Add Guest
           </Button>
+          <Button onClick={() => setShowAddGroupDialog(true)} variant="outline">
+            <Users className="w-4 h-4 mr-2" />
+            Add Group
+          </Button>
         </div>
-
-        {/* Filters */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5" />
-              Filters
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label>RSVP Status</Label>
-                <Select
-                  value={filters.rsvpStatus}
-                  onValueChange={(value) => setFilters({ ...filters, rsvpStatus: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="All statuses" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All statuses</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="attending">Attending</SelectItem>
-                    <SelectItem value="not-attending">Not Attending</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Events</Label>
-                <Select value={filters.events} onValueChange={(value) => setFilters({ ...filters, events: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All events" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All events</SelectItem>
-                    <SelectItem value="ceremony">Ceremony</SelectItem>
-                    <SelectItem value="reception">Reception</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Group Name</Label>
-                <Input
-                  value={filters.groupName}
-                  onChange={(e) => setFilters({ ...filters, groupName: e.target.value })}
-                  placeholder="Search group names..."
-                />
-              </div>
-              <div>
-                <Label>Side</Label>
-                <Select value={filters.side} onValueChange={(value) => setFilters({ ...filters, side: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All sides" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All sides</SelectItem>
-                    <SelectItem value="bride">Bride Side</SelectItem>
-                    <SelectItem value="groom">Groom Side</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Guest List */}
         <Card>
@@ -669,175 +417,128 @@ export default function GuestManagementPage() {
                     <th className="p-4 text-left">Side</th>
                     <th className="p-4 text-left">RSVP Status</th>
                     <th className="p-4 text-left">Events</th>
-                    <th className="p-4 text-left">Dietary</th>
-                    <th className="p-4 text-left">Questions</th>
                     <th className="p-4 text-left">Notes</th>
                     <th className="p-4 text-left">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Individual Guests Header */}
+                  {/* Individual Guests */}
                   {groupedGuests.ungrouped.length > 0 && (
-                    <tr className="bg-blue-100 dark:bg-blue-900/20">
-                      <td colSpan={9} className="p-3 font-semibold text-blue-800 dark:text-blue-200">
-                        Individual ({groupedGuests.ungrouped.length} guests)
-                      </td>
-                    </tr>
-                  )}
-
-                  {groupedGuests.ungrouped.map((guest) => (
-                    <tr key={guest.id} className="border-b hover:bg-muted/50">
-                      <td className="p-4">{guest.guestName}</td>
-                      <td className="p-4">Individual</td>
-                      <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
-                      <td className="p-4">{guest.rsvpStatus}</td>
-                      <td className="p-4">
-                        <div className="flex gap-1 flex-wrap">
-                          {guest.events?.map((event) => (
-                            <span
-                              key={event}
-                              className={`px-2 py-1 text-xs rounded-full ${
-                                event === "ceremony"
-                                  ? "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200"
-                                  : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200"
-                              }`}
-                            >
-                              {event === "ceremony" ? "Wedding" : "Reception"}
-                            </span>
-                          )) || <span className="text-muted-foreground">None</span>}
-                        </div>
-                      </td>
-                      <td className="p-4 max-w-xs">
-                        <div className="truncate" title={guest.dietaryRequirements}>
-                          {guest.dietaryRequirements || "-"}
-                        </div>
-                      </td>
-                      <td className="p-4 max-w-xs">
-                        <div className="truncate" title={guest.questions}>
-                          {guest.questions || "-"}
-                        </div>
-                      </td>
-                      <td className="p-4 max-w-xs">
-                        <div className="truncate" title={guest.notes}>
-                          {guest.notes || "-"}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => handleEditGuest(guest)}>
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteGuest(guest.id as string)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-
-                  {/* Group Guests */}
-                  {Object.entries(groupedGuests.groups).map(([groupName, groupData]) => {
-                    const { header, members } = groupData
-                    const actualCount = members.length
-                    const maxSize = header?.maxGroupSize || actualCount
-
-                    return (
-                      <React.Fragment key={groupName}>
-                        <tr className="bg-red-100 dark:bg-red-900/20">
-                          <td className="p-3 font-semibold text-red-800 dark:text-red-200">GROUP: {groupName}</td>
-                          <td className="p-3 text-red-800 dark:text-red-200">
-                            Group ({actualCount} guests, max: {maxSize})
+                    <>
+                      <tr className="bg-blue-100 dark:bg-blue-900/20">
+                        <td colSpan={7} className="p-3 font-semibold text-blue-800 dark:text-blue-200">
+                          Individual Guests ({groupedGuests.ungrouped.length})
+                        </td>
+                      </tr>
+                      {groupedGuests.ungrouped.map((guest) => (
+                        <tr key={guest.id} className="border-b hover:bg-muted/50">
+                          <td className="p-4">
+                            {guest.name}{" "}
+                            {guest.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
                           </td>
-                          <td className="p-3 text-red-800 dark:text-red-200">
-                            {header?.side === "bride" ? "Bride" : "Groom"}
-                          </td>
-                          <td className="p-3 text-red-800 dark:text-red-200">{header?.rsvpStatus || "pending"}</td>
-                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                          <td className="p-3 text-red-800 dark:text-red-200">{header?.notes || "-"}</td>
-                          <td className="p-3">
+                          <td className="p-4">Individual</td>
+                          <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
+                          <td className="p-4">{guest.rsvpStatus}</td>
+                          <td className="p-4">{guest.events.length > 0 ? guest.events.join(", ") : "-"}</td>
+                          <td className="p-4 max-w-xs truncate">{guest.notes || "-"}</td>
+                          <td className="p-4">
                             <div className="flex gap-2">
-                              {header && (
-                                <Button size="sm" variant="outline" onClick={() => handleEditGroupHeader(header)}>
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                              )}
-                              {header && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleDeleteGroup(header)}
-                                  className="text-destructive hover:text-destructive"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setEditingGuest(guest)}
+                                className="hover:text-primary"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteGuest(guest.id as string)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
                             </div>
                           </td>
                         </tr>
-                        {members.map((member, index) => (
-                          <tr key={`${member.id}-${index}`} className="border-b hover:bg-muted/50">
-                            <td className="p-4 pl-8">{member.guestName}</td>
-                            <td className="p-4">{groupName} Member</td>
-                            <td className="p-4">{member.side === "bride" ? "Bride" : "Groom"}</td>
-                            <td className="p-4">{member.rsvpStatus}</td>
-                            <td className="p-4">
-                              <div className="flex gap-1 flex-wrap">
-                                {member.events?.map((event) => (
-                                  <span
-                                    key={event}
-                                    className={`px-2 py-1 text-xs rounded-full ${
-                                      event === "ceremony"
-                                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200"
-                                        : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200"
-                                    }`}
-                                  >
-                                    {event === "ceremony" ? "Wedding" : "Reception"}
-                                  </span>
-                                )) || <span className="text-muted-foreground">None</span>}
-                              </div>
-                            </td>
-                            <td className="p-4 max-w-xs">
-                              <div className="truncate" title={member.dietaryRequirements}>
-                                {member.dietaryRequirements || "-"}
-                              </div>
-                            </td>
-                            <td className="p-4 max-w-xs">
-                              <div className="truncate" title={member.questions}>
-                                {member.questions || "-"}
-                              </div>
-                            </td>
-                            <td className="p-4 max-w-xs">
-                              <div className="truncate" title={member.notes}>
-                                {member.notes || "-"}
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <div className="flex gap-2">
-                                <Button size="sm" variant="outline" onClick={() => handleEditIndividualGuest(member)}>
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleDeleteGuest(member.id as string)}
-                                  className="text-destructive hover:text-destructive"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </React.Fragment>
-                    )
-                  })}
+                      ))}
+                    </>
+                  )}
+
+                  {/* Groups */}
+                  {Object.entries(groupedGuests.groups).map(([groupId, { group, members }]) => (
+                    <React.Fragment key={groupId}>
+                      <tr className="bg-red-100 dark:bg-red-900/20">
+                        <td className="p-3 font-semibold text-red-800 dark:text-red-200">GROUP: {group.name}</td>
+                        <td className="p-3 text-red-800 dark:text-red-200">
+                          Group ({members.length}/{group.size})
+                        </td>
+                        <td className="p-3 text-red-800 dark:text-red-200">
+                          {group.side === "bride" ? "Bride" : "Groom"}
+                        </td>
+                        <td className="p-3 text-red-800 dark:text-red-200" colSpan={3}>
+                          -
+                        </td>
+                        <td className="p-3">
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setEditingGroup(group)
+                                setGroupFormData({ name: group.name, size: group.size, side: group.side })
+                              }}
+                              className="hover:text-primary"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteGroup(group)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                      {members.map((member) => (
+                        <tr key={member.id} className="border-b hover:bg-muted/50">
+                          <td className="p-4 pl-8">
+                            {member.name}{" "}
+                            {member.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
+                          </td>
+                          <td className="p-4">Group Member</td>
+                          <td className="p-4">{member.side === "bride" ? "Bride" : "Groom"}</td>
+                          <td className="p-4">{member.rsvpStatus}</td>
+                          <td className="p-4">{member.events.length > 0 ? member.events.join(", ") : "-"}</td>
+                          <td className="p-4 max-w-xs truncate">{member.notes || "-"}</td>
+                          <td className="p-4">
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setEditingGuest(member)}
+                                className="hover:text-primary"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteGuest(member.id as string)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -845,38 +546,43 @@ export default function GuestManagementPage() {
         </Card>
 
         {/* Add Guest Dialog */}
-        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <Dialog open={showAddGuestDialog} onOpenChange={setShowAddGuestDialog}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Add New Guest</DialogTitle>
+              <DialogTitle>Add Individual Guest</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleAddGuest} className="space-y-4">
+            <form onSubmit={handleAddIndividualGuest} className="space-y-4">
+              {errorMessage && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{errorMessage}</div>
+              )}
+
               <div>
-                <Label>Guest Type</Label>
-                <Select
-                  value={formData.type}
-                  onValueChange={(value: "individual" | "group") => {
-                    setFormData({ ...formData, type: value })
-                    if (value === "individual") {
-                      setFormData((prev) => ({ ...prev, maxGroupSize: 1, groupMembers: [""] }))
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="individual">Individual</SelectItem>
-                    <SelectItem value="group">Group</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="guestName">Guest Name *</Label>
+                <Input
+                  id="guestName"
+                  value={guestFormData.name}
+                  onChange={(e) => setGuestFormData({ ...guestFormData, name: e.target.value })}
+                  placeholder="Enter guest's full name"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isChild"
+                  checked={guestFormData.isChild}
+                  onCheckedChange={(checked) => setGuestFormData({ ...guestFormData, isChild: checked as boolean })}
+                />
+                <Label htmlFor="isChild" className="cursor-pointer">
+                  This guest is a child
+                </Label>
               </div>
 
               <div>
-                <Label>Side</Label>
+                <Label>Side *</Label>
                 <Select
-                  value={formData.side}
-                  onValueChange={(value: "bride" | "groom") => setFormData({ ...formData, side: value })}
+                  value={guestFormData.side}
+                  onValueChange={(value: "bride" | "groom") => setGuestFormData({ ...guestFormData, side: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -888,105 +594,46 @@ export default function GuestManagementPage() {
                 </Select>
               </div>
 
-              {formData.type === "individual" ? (
-                <div>
-                  <Label htmlFor="guestName">Guest Name</Label>
-                  <Input
-                    id="guestName"
-                    value={formData.guestName}
-                    onChange={(e) => setFormData({ ...formData, guestName: e.target.value })}
-                    placeholder="Enter guest's full name"
-                    required
-                  />
-                </div>
-              ) : (
-                <>
-                  <div>
-                    <Label htmlFor="groupName">Group Name</Label>
-                    <Input
-                      id="groupName"
-                      value={formData.groupName}
-                      onChange={(e) => setFormData({ ...formData, groupName: e.target.value })}
-                      placeholder="Enter group or family name"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="maxGroupSize">Maximum Group Size</Label>
-                    <Input
-                      id="maxGroupSize"
-                      type="number"
-                      min="1"
-                      max="20"
-                      value={formData.maxGroupSize || ""}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        if (value === "") {
-                          setFormData({
-                            ...formData,
-                            maxGroupSize: 0,
-                            groupMembers: [],
-                          })
-                        } else {
-                          const size = Number.parseInt(value)
-                          setFormData({
-                            ...formData,
-                            maxGroupSize: size,
-                            groupMembers: Array(size).fill(""),
-                          })
-                        }
-                      }}
-                      onKeyDown={(e) => {
-                        if (
-                          e.key === "Backspace" &&
-                          e.currentTarget.selectionStart === 1 &&
-                          e.currentTarget.selectionEnd === 1
-                        ) {
-                          e.preventDefault()
-                          setFormData({
-                            ...formData,
-                            maxGroupSize: 0,
-                            groupMembers: [],
-                          })
-                        }
-                      }}
-                      placeholder="Enter maximum number of people"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label>Group Member Names (Optional)</Label>
-                    <div className="max-h-48 overflow-y-auto border rounded-md p-2 space-y-2">
-                      {formData.groupMembers.map((member, index) => (
-                        <Input
-                          key={index}
-                          value={member}
-                          onChange={(e) => {
-                            const newMembers = [...formData.groupMembers]
-                            newMembers[index] = e.target.value
-                            setFormData({ ...formData, groupMembers: newMembers })
-                          }}
-                          placeholder={`Member ${index + 1} full name`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
+              <div>
+                <Label>Group (Optional)</Label>
+                <Select
+                  value={guestFormData.groupId}
+                  onValueChange={(value) => setGuestFormData({ ...guestFormData, groupId: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a group or leave as individual" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No Group (Individual)</SelectItem>
+                    {groups.map((group) => (
+                      <SelectItem key={group.id} value={group._id || group.id || ""}>
+                        {group.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               <div>
-                <Label htmlFor="notes">Notes</Label>
+                <Label htmlFor="guestNotes">Notes</Label>
                 <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  id="guestNotes"
+                  value={guestFormData.notes}
+                  onChange={(e) => setGuestFormData({ ...guestFormData, notes: e.target.value })}
                   placeholder="Any special notes about this guest..."
                 />
               </div>
 
               <div className="flex gap-2">
                 <Button type="submit">Add Guest</Button>
-                <Button type="button" variant="outline" onClick={() => setShowAddDialog(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowAddGuestDialog(false)
+                    setErrorMessage("")
+                  }}
+                >
                   Cancel
                 </Button>
               </div>
@@ -994,219 +641,68 @@ export default function GuestManagementPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Guest Dialog */}
-        <Dialog open={!!editingGuest} onOpenChange={() => setEditingGuest(null)}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        {/* Add Group Dialog */}
+        <Dialog open={showAddGroupDialog} onOpenChange={setShowAddGroupDialog}>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>
-                {editingGuest?.type === "group" && !editingGuest?.guestName
-                  ? "Edit Group Details"
-                  : "Edit Guest Details"}
-              </DialogTitle>
+              <DialogTitle>Add New Group</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleUpdateGuest} className="space-y-4">
-              {editingGuest?.type === "group" && !editingGuest?.guestName ? (
-                // Group header edit form - only group name and max size
-                <>
-                  <div>
-                    <Label htmlFor="editGroupName">Group Name</Label>
-                    <Input
-                      id="editGroupName"
-                      value={formData.groupName}
-                      onChange={(e) => setFormData({ ...formData, groupName: e.target.value })}
-                      placeholder="Enter group or family name"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="editMaxGroupSize">Maximum Group Size</Label>
-                    <Input
-                      id="editMaxGroupSize"
-                      type="number"
-                      min="1"
-                      max="20"
-                      value={formData.maxGroupSize || ""}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        if (value === "") {
-                          setFormData({ ...formData, maxGroupSize: 0 })
-                        } else {
-                          setFormData({ ...formData, maxGroupSize: Number.parseInt(value) })
-                        }
-                      }}
-                      placeholder="Enter maximum number of people"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label>Side</Label>
-                    <Select
-                      value={formData.side}
-                      onValueChange={(value: "bride" | "groom") => setFormData({ ...formData, side: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="bride">Bride Side</SelectItem>
-                        <SelectItem value="groom">Groom Side</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="editNotes">Notes</Label>
-                    <Textarea
-                      id="editNotes"
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      placeholder="Any special notes about this group..."
-                    />
-                  </div>
-                </>
-              ) : (
-                // Individual guest edit form - full guest details
-                <>
-                  <div>
-                    <Label>Guest Type</Label>
-                    <Select
-                      value={formData.type}
-                      onValueChange={(value: string) => {
-                        setFormData({ ...formData, type: value })
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="individual">Individual</SelectItem>
-                        {Object.keys(groupedGuests.groups).map((groupName) => (
-                          <SelectItem key={groupName} value={groupName}>
-                            {groupName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="editGuestName">Guest Name</Label>
-                    <Input
-                      id="editGuestName"
-                      value={formData.guestName}
-                      onChange={(e) => setFormData({ ...formData, guestName: e.target.value })}
-                      placeholder="Enter guest's full name"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Side</Label>
-                    <Select
-                      value={formData.side}
-                      onValueChange={(value: "bride" | "groom") => setFormData({ ...formData, side: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="bride">Bride Side</SelectItem>
-                        <SelectItem value="groom">Groom Side</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label>RSVP Status</Label>
-                    <Select
-                      value={formData.rsvpStatus}
-                      onValueChange={(value: "pending" | "attending" | "not-attending") =>
-                        setFormData({ ...formData, rsvpStatus: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="attending">Attending</SelectItem>
-                        <SelectItem value="not-attending">Not Attending</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label>Events Attending</Label>
-                    <div className="space-y-2">
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={formData.events.includes("ceremony")}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setFormData({ ...formData, events: [...formData.events, "ceremony"] })
-                            } else {
-                              setFormData({ ...formData, events: formData.events.filter((e) => e !== "ceremony") })
-                            }
-                          }}
-                          className="mr-2"
-                        />
-                        Ceremony
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={formData.events.includes("reception")}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setFormData({ ...formData, events: [...formData.events, "reception"] })
-                            } else {
-                              setFormData({ ...formData, events: formData.events.filter((e) => e !== "reception") })
-                            }
-                          }}
-                          className="mr-2"
-                        />
-                        Reception
-                      </label>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="editDietary">Dietary Requirements</Label>
-                    <Textarea
-                      id="editDietary"
-                      value={formData.dietaryRequirements}
-                      onChange={(e) => setFormData({ ...formData, dietaryRequirements: e.target.value })}
-                      placeholder="Any dietary requirements or allergies..."
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="editQuestions">Questions/Comments</Label>
-                    <Textarea
-                      id="editQuestions"
-                      value={formData.questions}
-                      onChange={(e) => setFormData({ ...formData, questions: e.target.value })}
-                      placeholder="Any questions or comments..."
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="editNotes">Notes</Label>
-                    <Textarea
-                      id="editNotes"
-                      value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      placeholder="Any special notes about this guest..."
-                    />
-                  </div>
-                </>
+            <form onSubmit={handleAddNewGroup} className="space-y-4">
+              {errorMessage && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{errorMessage}</div>
               )}
 
+              <div>
+                <Label htmlFor="groupName">Group Name *</Label>
+                <Input
+                  id="groupName"
+                  value={groupFormData.name}
+                  onChange={(e) => setGroupFormData({ ...groupFormData, name: e.target.value })}
+                  placeholder="Enter group or family name"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="groupSize">Group Size *</Label>
+                <Input
+                  id="groupSize"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={groupFormData.size}
+                  onChange={(e) => setGroupFormData({ ...groupFormData, size: Number.parseInt(e.target.value) })}
+                  placeholder="Enter maximum number of people in this group"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label>Side *</Label>
+                <Select
+                  value={groupFormData.side}
+                  onValueChange={(value: "bride" | "groom") => setGroupFormData({ ...groupFormData, side: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bride">Bride Side</SelectItem>
+                    <SelectItem value="groom">Groom Side</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="flex gap-2">
-                <Button type="submit">
-                  {editingGuest?.type === "group" && !editingGuest?.guestName ? "Update Group" : "Update Guest"}
-                </Button>
-                <Button type="button" variant="outline" onClick={() => setEditingGuest(null)}>
+                <Button type="submit">Add Group</Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowAddGroupDialog(false)
+                    setErrorMessage("")
+                  }}
+                >
                   Cancel
                 </Button>
               </div>
@@ -1214,6 +710,7 @@ export default function GuestManagementPage() {
           </DialogContent>
         </Dialog>
 
+        {/* Delete Guest Confirmation */}
         <Dialog
           open={deleteConfirmation.show}
           onOpenChange={(open) => !open && setDeleteConfirmation({ show: false, guestId: "", guestName: "" })}
@@ -1233,15 +730,16 @@ export default function GuestManagementPage() {
                 variant="outline"
                 onClick={() => setDeleteConfirmation({ show: false, guestId: "", guestName: "" })}
               >
-                No, Cancel
+                Cancel
               </Button>
               <Button variant="destructive" onClick={confirmDeleteGuest}>
-                Yes, Delete
+                Delete
               </Button>
             </div>
           </DialogContent>
         </Dialog>
 
+        {/* Delete Group Confirmation */}
         <Dialog
           open={deleteGroupConfirmation.show}
           onOpenChange={(open) => !open && setDeleteGroupConfirmation({ show: false, groupId: "", groupName: "" })}
@@ -1255,7 +753,7 @@ export default function GuestManagementPage() {
                 Are you sure you want to delete the group <strong>{deleteGroupConfirmation.groupName}</strong>?
               </p>
               <p className="text-sm text-muted-foreground mt-2">
-                This will delete the group and all its members. This action cannot be undone.
+                This will only delete the group. Members will become individual guests.
               </p>
             </div>
             <div className="flex gap-2 justify-end">
@@ -1263,12 +761,308 @@ export default function GuestManagementPage() {
                 variant="outline"
                 onClick={() => setDeleteGroupConfirmation({ show: false, groupId: "", groupName: "" })}
               >
-                No, Cancel
+                Cancel
               </Button>
               <Button variant="destructive" onClick={confirmDeleteGroup}>
-                Yes, Delete Group
+                Delete Group
               </Button>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Guest Dialog */}
+        <Dialog open={!!editingGuest} onOpenChange={() => setEditingGuest(null)}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Guest Details</DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                if (!editingGuest) return
+
+                try {
+                  const response = await fetch(`/api/guests/${editingGuest._id || editingGuest.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      name: editingGuest.name,
+                      isChild: editingGuest.isChild,
+                      side: editingGuest.side,
+                      groupId: editingGuest.groupId,
+                      notes: editingGuest.notes,
+                      rsvpStatus: editingGuest.rsvpStatus,
+                      events: editingGuest.events,
+                      dietaryRequirements: editingGuest.dietaryRequirements,
+                      questions: editingGuest.questions,
+                    }),
+                  })
+
+                  if (response.ok) {
+                    await loadData()
+                    setEditingGuest(null)
+                  } else {
+                    console.error("Failed to update guest")
+                    // Handle error
+                  }
+                } catch (error) {
+                  console.error("Error updating guest:", error)
+                  // Handle error
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <Label htmlFor="editGuestName">Guest Name</Label>
+                <Input
+                  id="editGuestName"
+                  value={editingGuest.name}
+                  onChange={(e) => setEditingGuest({ ...editingGuest, name: e.target.value })}
+                  placeholder="Enter guest's full name"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="editIsChild"
+                  checked={editingGuest.isChild}
+                  onCheckedChange={(checked) => setEditingGuest({ ...editingGuest, isChild: checked as boolean })}
+                />
+                <Label htmlFor="editIsChild" className="cursor-pointer">
+                  This guest is a child
+                </Label>
+              </div>
+
+              <div>
+                <Label>Side</Label>
+                <Select
+                  value={editingGuest.side}
+                  onValueChange={(value: "bride" | "groom") => setEditingGuest({ ...editingGuest, side: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bride">Bride Side</SelectItem>
+                    <SelectItem value="groom">Groom Side</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>RSVP Status</Label>
+                <Select
+                  value={editingGuest.rsvpStatus}
+                  onValueChange={(value: "pending" | "attending" | "not-attending") =>
+                    setEditingGuest({ ...editingGuest, rsvpStatus: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="attending">Attending</SelectItem>
+                    <SelectItem value="not-attending">Not Attending</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Events Attending</Label>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={editingGuest.events.includes("ceremony")}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setEditingGuest({ ...editingGuest, events: [...editingGuest.events, "ceremony"] })
+                        } else {
+                          setEditingGuest({
+                            ...editingGuest,
+                            events: editingGuest.events.filter((e) => e !== "ceremony"),
+                          })
+                        }
+                      }}
+                      className="mr-2"
+                    />
+                    Ceremony
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={editingGuest.events.includes("reception")}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setEditingGuest({ ...editingGuest, events: [...editingGuest.events, "reception"] })
+                        } else {
+                          setEditingGuest({
+                            ...editingGuest,
+                            events: editingGuest.events.filter((e) => e !== "reception"),
+                          })
+                        }
+                      }}
+                      className="mr-2"
+                    />
+                    Reception
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="editDietary">Dietary Requirements</Label>
+                <Textarea
+                  id="editDietary"
+                  value={editingGuest.dietaryRequirements || ""}
+                  onChange={(e) => setEditingGuest({ ...editingGuest, dietaryRequirements: e.target.value })}
+                  placeholder="Any dietary requirements or allergies..."
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="editQuestions">Questions/Comments</Label>
+                <Textarea
+                  id="editQuestions"
+                  value={editingGuest.questions || ""}
+                  onChange={(e) => setEditingGuest({ ...editingGuest, questions: e.target.value })}
+                  placeholder="Any questions or comments..."
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="editNotes">Notes</Label>
+                <Textarea
+                  id="editNotes"
+                  value={editingGuest.notes || ""}
+                  onChange={(e) => setEditingGuest({ ...editingGuest, notes: e.target.value })}
+                  placeholder="Any special notes about this guest..."
+                />
+              </div>
+
+              <div>
+                <Label>Group</Label>
+                <Select
+                  value={editingGuest.groupId || "none"}
+                  onValueChange={(value) =>
+                    setEditingGuest({ ...editingGuest, groupId: value === "none" ? null : value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No Group (Individual)</SelectItem>
+                    {groups.map((group) => (
+                      <SelectItem key={group.id} value={group._id || group.id || ""}>
+                        {group.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex gap-2">
+                <Button type="submit">Update Guest</Button>
+                <Button type="button" variant="outline" onClick={() => setEditingGuest(null)}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Group Dialog */}
+        <Dialog open={!!editingGroup} onOpenChange={() => setEditingGroup(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Group Details</DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                if (!editingGroup) return
+
+                try {
+                  const response = await fetch(`/api/groups/${editingGroup._id || editingGroup.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      name: groupFormData.name,
+                      size: groupFormData.size,
+                      side: groupFormData.side,
+                    }),
+                  })
+
+                  if (response.ok) {
+                    await loadData()
+                    setEditingGroup(null)
+                  } else {
+                    console.error("Failed to update group")
+                    // Handle error
+                  }
+                } catch (error) {
+                  console.error("Error updating group:", error)
+                  // Handle error
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <Label htmlFor="editGroupName">Group Name *</Label>
+                <Input
+                  id="editGroupName"
+                  value={groupFormData.name}
+                  onChange={(e) => setGroupFormData({ ...groupFormData, name: e.target.value })}
+                  placeholder="Enter group or family name"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="editGroupSize">Group Size *</Label>
+                <Input
+                  id="editGroupSize"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={groupFormData.size}
+                  onChange={(e) => setGroupFormData({ ...groupFormData, size: Number.parseInt(e.target.value) })}
+                  placeholder="Enter maximum number of people in this group"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label>Side *</Label>
+                <Select
+                  value={groupFormData.side}
+                  onValueChange={(value: "bride" | "groom") => setGroupFormData({ ...groupFormData, side: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bride">Bride Side</SelectItem>
+                    <SelectItem value="groom">Groom Side</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex gap-2">
+                <Button type="submit">Update Group</Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setEditingGroup(null)
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
