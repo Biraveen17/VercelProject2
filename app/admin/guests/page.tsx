@@ -20,7 +20,6 @@ interface Group {
   id?: string
   name: string
   size: number
-  side: "bride" | "groom"
   createdAt: string
   lastUpdated: string
 }
@@ -76,7 +75,6 @@ export default function GuestManagementPage() {
   const [groupFormData, setGroupFormData] = useState({
     name: "",
     size: 1,
-    side: "bride" as "bride" | "groom",
   })
 
   const [errorMessage, setErrorMessage] = useState("")
@@ -227,7 +225,6 @@ export default function GuestManagementPage() {
       const groupData = {
         name: groupFormData.name.trim(),
         size: groupFormData.size,
-        side: groupFormData.side,
       }
 
       const response = await fetch("/api/groups", {
@@ -242,7 +239,6 @@ export default function GuestManagementPage() {
         setGroupFormData({
           name: "",
           size: 1,
-          side: "bride",
         })
       } else {
         const error = await response.json()
@@ -473,9 +469,7 @@ export default function GuestManagementPage() {
                         <td className="p-3 text-red-800 dark:text-red-200">
                           Group ({members.length}/{group.size})
                         </td>
-                        <td className="p-3 text-red-800 dark:text-red-200">
-                          {group.side === "bride" ? "Bride" : "Groom"}
-                        </td>
+                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3 text-red-800 dark:text-red-200" colSpan={3}>
                           -
                         </td>
@@ -486,7 +480,7 @@ export default function GuestManagementPage() {
                               variant="outline"
                               onClick={() => {
                                 setEditingGroup(group)
-                                setGroupFormData({ name: group.name, size: group.size, side: group.side })
+                                setGroupFormData({ name: group.name, size: group.size })
                               }}
                               className="hover:text-primary"
                             >
@@ -681,22 +675,6 @@ export default function GuestManagementPage() {
                   placeholder="Enter maximum number of people in this group"
                   required
                 />
-              </div>
-
-              <div>
-                <Label>Side *</Label>
-                <Select
-                  value={groupFormData.side}
-                  onValueChange={(value: "bride" | "groom") => setGroupFormData({ ...groupFormData, side: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bride">Bride Side</SelectItem>
-                    <SelectItem value="groom">Groom Side</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="flex gap-2">
@@ -993,9 +971,7 @@ export default function GuestManagementPage() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Edit Group Details</DialogTitle>
-              <DialogDescription>
-                Update the group name, size, and which side of the family they belong to.
-              </DialogDescription>
+              <DialogDescription>Update the group name and size.</DialogDescription>
             </DialogHeader>
             {editingGroup && (
               <form
@@ -1010,7 +986,6 @@ export default function GuestManagementPage() {
                       body: JSON.stringify({
                         name: groupFormData.name,
                         size: groupFormData.size,
-                        side: groupFormData.side,
                       }),
                     })
 
@@ -1049,22 +1024,6 @@ export default function GuestManagementPage() {
                     placeholder="Enter maximum number of people in this group"
                     required
                   />
-                </div>
-
-                <div>
-                  <Label>Side *</Label>
-                  <Select
-                    value={groupFormData.side}
-                    onValueChange={(value: "bride" | "groom") => setGroupFormData({ ...groupFormData, side: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="bride">Bride Side</SelectItem>
-                      <SelectItem value="groom">Groom Side</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 <div className="flex gap-2">
