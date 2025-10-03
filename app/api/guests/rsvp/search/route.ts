@@ -20,6 +20,16 @@ export async function GET(request: NextRequest) {
     })
 
     if (guest) {
+      if (guest.lockStatus === "locked") {
+        return NextResponse.json(
+          {
+            error:
+              "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
+          },
+          { status: 400 },
+        )
+      }
+
       if (guest.rsvpStatus && guest.rsvpStatus !== "pending") {
         return NextResponse.json(
           {
@@ -37,6 +47,18 @@ export async function GET(request: NextRequest) {
         }
 
         const groupGuests = await guestsCollection.find({ groupId: guest.groupId }).toArray()
+
+        const hasLockedGuest = groupGuests.some((g) => g.lockStatus === "locked")
+        if (hasLockedGuest) {
+          return NextResponse.json(
+            {
+              error:
+                "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
+            },
+            { status: 400 },
+          )
+        }
+
         const hasSubmittedRSVP = groupGuests.some((g) => g.rsvpStatus && g.rsvpStatus !== "pending")
         if (hasSubmittedRSVP) {
           return NextResponse.json(
@@ -67,6 +89,17 @@ export async function GET(request: NextRequest) {
 
     if (group) {
       const groupGuests = await guestsCollection.find({ groupId: group._id.toString() }).toArray()
+
+      const hasLockedGuest = groupGuests.some((g) => g.lockStatus === "locked")
+      if (hasLockedGuest) {
+        return NextResponse.json(
+          {
+            error:
+              "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
+          },
+          { status: 400 },
+        )
+      }
 
       const hasSubmittedRSVP = groupGuests.some((g) => g.rsvpStatus && g.rsvpStatus !== "pending")
       if (hasSubmittedRSVP) {

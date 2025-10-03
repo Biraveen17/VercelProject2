@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
 import { logout } from "@/lib/auth"
-import { Plus, Edit, Trash2, LogOut, ArrowLeft, Users, Download } from "lucide-react"
+import { Plus, Edit, Trash2, LogOut, ArrowLeft, Users, Download, Lock, Unlock } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { checkAuthentication } from "@/lib/auth"
@@ -39,6 +39,7 @@ interface Guest {
   questions?: string
   createdAt: string
   lastUpdated: string
+  lockStatus?: "locked" | "unlocked"
 }
 
 export default function GuestManagementPage() {
@@ -90,6 +91,9 @@ export default function GuestManagementPage() {
     hasNotes: "",
     hasQuestions: "",
     hasDietaryRequirements: "",
+    lockStatus: "",
+    createdDate: "",
+    lastUpdatedDate: "",
   })
 
   const loadData = async () => {
@@ -150,6 +154,18 @@ export default function GuestManagementPage() {
       if (filters.hasQuestions === "no" && guest.questions) return false
       if (filters.hasDietaryRequirements === "yes" && !guest.dietaryRequirements) return false
       if (filters.hasDietaryRequirements === "no" && guest.dietaryRequirements) return false
+      if (filters.lockStatus && filters.lockStatus !== "all") {
+        const guestLockStatus = guest.lockStatus || "unlocked"
+        if (guestLockStatus !== filters.lockStatus) return false
+      }
+      if (filters.createdDate) {
+        const guestDate = new Date(guest.createdAt).toISOString().split("T")[0]
+        if (guestDate !== filters.createdDate) return false
+      }
+      if (filters.lastUpdatedDate) {
+        const guestDate = new Date(guest.lastUpdated).toISOString().split("T")[0]
+        if (guestDate !== filters.lastUpdatedDate) return false
+      }
       return true
     })
 
@@ -295,6 +311,7 @@ export default function GuestManagementPage() {
         notes: guestFormData.notes || "",
         rsvpStatus: "pending" as const,
         events: [] as ("ceremony" | "reception")[],
+        lockStatus: "unlocked" as const, // Default lock status to unlocked
       }
 
       const response = await fetch("/api/guests", {
@@ -426,6 +443,28 @@ export default function GuestManagementPage() {
     } catch (error) {
       console.error("Error deleting group:", error)
       // Optionally show an error message to the user
+    }
+  }
+
+  const handleToggleLock = async (guest: Guest) => {
+    try {
+      const newLockStatus = guest.lockStatus === "locked" ? "unlocked" : "locked"
+      const response = await fetch(`/api/guests/${guest._id || guest.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...guest,
+          lockStatus: newLockStatus,
+        }),
+      })
+
+      if (response.ok) {
+        await loadData()
+      } else {
+        console.error("Failed to toggle lock status")
+      }
+    } catch (error) {
+      console.error("Error toggling lock status:", error)
     }
   }
 
@@ -784,8 +823,47 @@ export default function GuestManagementPage() {
                         </Select>
                       </div>
                     </th>
-                    <th className="p-4 text-left">Last Updated UTC</th>
-                    <th className="p-4 text-left">Created UTC</th>
+                    {/* Added table headers for Last Updated, Created, and Lock Status */}
+                    <th className="p-4 text-left">
+                      <div className="flex flex-col gap-2">
+                        <span>Last Updated UTC</span>
+                        <Input
+                          type="date"
+                          value={filters.lastUpdatedDate}
+                          onChange={(e) => setFilters({ ...filters, lastUpdatedDate: e.target.value })}
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                    </th>
+                    <th className="p-4 text-left">
+                      <div className="flex flex-col gap-2">
+                        <span>Created UTC</span>
+                        <Input
+                          type="date"
+                          value={filters.createdDate}
+                          onChange={(e) => setFilters({ ...filters, createdDate: e.target.value })}
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                    </th>
+                    <th className="p-4 text-left">
+                      <div className="flex flex-col gap-2">
+                        <span>Lock Status</span>
+                        <Select
+                          value={filters.lockStatus}
+                          onValueChange={(value) => setFilters({ ...filters, lockStatus: value })}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="locked">Locked</SelectItem>
+                            <SelectItem value="unlocked">Unlocked</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </th>
                     <th className="p-4 text-left">Actions</th>
                   </tr>
                 </thead>
@@ -794,7 +872,8 @@ export default function GuestManagementPage() {
                   {groupedGuests.ungrouped.length > 0 && (
                     <>
                       <tr className="bg-blue-100 dark:bg-blue-900/20">
-                        <td colSpan={12} className="p-3 font-semibold text-blue-800 dark:text-blue-200">
+                        {/* Adjusted colspan for new columns */}
+                        <td colSpan={13} className="p-3 font-semibold text-blue-800 dark:text-blue-200">
                           Individual Guests ({groupedGuests.ungrouped.length})
                         </td>
                       </tr>
@@ -869,6 +948,24 @@ export default function GuestManagementPage() {
                           </td>
                           {/* </CHANGE> */}
                           <td className="p-4">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleToggleLock(guest)}
+                              className={
+                                guest.lockStatus === "locked"
+                                  ? "text-green-600 hover:text-green-700"
+                                  : "text-red-600 hover:text-red-700"
+                              }
+                            >
+                              {guest.lockStatus === "locked" ? (
+                                <Lock className="w-4 h-4" />
+                              ) : (
+                                <Unlock className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </td>
+                          <td className="p-4">
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
@@ -904,6 +1001,8 @@ export default function GuestManagementPage() {
                         <td className="p-3 text-red-800 dark:text-red-200" colSpan={3}>
                           -
                         </td>
+                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3 text-red-800 dark:text-red-200">-</td>
@@ -1002,6 +1101,24 @@ export default function GuestManagementPage() {
                             })}
                           </td>
                           {/* </CHANGE> */}
+                          <td className="p-4">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleToggleLock(member)}
+                              className={
+                                member.lockStatus === "locked"
+                                  ? "text-green-600 hover:text-green-700"
+                                  : "text-red-600 hover:text-red-700"
+                              }
+                            >
+                              {member.lockStatus === "locked" ? (
+                                <Lock className="w-4 h-4" />
+                              ) : (
+                                <Unlock className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button
@@ -1341,6 +1458,7 @@ export default function GuestManagementPage() {
                         events: editingGuest.events,
                         dietaryRequirements: editingGuest.dietaryRequirements,
                         questions: editingGuest.questions,
+                        lockStatus: editingGuest.lockStatus, // Include lockStatus in update
                       }),
                     })
 
@@ -1559,7 +1677,7 @@ export default function GuestManagementPage() {
                     const response = await fetch(`/api/groups/${editingGroup._id || editingGroup.id}`, {
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
+                      body: JSON.JSON.stringify({
                         name: groupFormData.name,
                       }),
                     })
