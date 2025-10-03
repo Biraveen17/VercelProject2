@@ -61,12 +61,28 @@ export default function RSVPPage() {
 
       setSearchResult(data)
 
-      if (data.type === "group" && data.guests) {
+      if (data.type === "individual" && data.guest) {
+        const guest = data.guest
+        setIsAttending(guest.rsvpStatus === "attending" ? "yes" : guest.rsvpStatus === "not-attending" ? "no" : "")
+        setEvents(guest.events || [])
+        setDietaryRequirements(guest.dietaryRequirements || "")
+        setQuestions(guest.questions || "")
+      } else if (data.type === "group" && data.guests) {
         const initialNames: { [key: string]: string } = {}
         data.guests.forEach((guest: Guest) => {
           initialNames[guest._id] = guest.guestType === "tbc" ? "" : guest.name
         })
         setGuestNames(initialNames)
+
+        const firstGuest = data.guests[0]
+        if (firstGuest) {
+          setIsAttending(
+            firstGuest.rsvpStatus === "attending" ? "yes" : firstGuest.rsvpStatus === "not-attending" ? "no" : "",
+          )
+          setEvents(firstGuest.events || [])
+          setDietaryRequirements(firstGuest.dietaryRequirements || "")
+          setQuestions(firstGuest.questions || "")
+        }
       }
 
       setStep(2)

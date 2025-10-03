@@ -24,17 +24,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(
           {
             error:
-              "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
-          },
-          { status: 400 },
-        )
-      }
-
-      if (guest.rsvpStatus && guest.rsvpStatus !== "pending") {
-        return NextResponse.json(
-          {
-            error:
-              "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
+              "Your RSVP has either been locked or the name was not found. If you need to make changes, please contact us directly.",
           },
           { status: 400 },
         )
@@ -53,18 +43,7 @@ export async function GET(request: NextRequest) {
           return NextResponse.json(
             {
               error:
-                "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
-            },
-            { status: 400 },
-          )
-        }
-
-        const hasSubmittedRSVP = groupGuests.some((g) => g.rsvpStatus && g.rsvpStatus !== "pending")
-        if (hasSubmittedRSVP) {
-          return NextResponse.json(
-            {
-              error:
-                "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
+                "Your RSVP has either been locked or the name was not found. If you need to make changes, please contact us directly.",
             },
             { status: 400 },
           )
@@ -95,18 +74,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(
           {
             error:
-              "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
-          },
-          { status: 400 },
-        )
-      }
-
-      const hasSubmittedRSVP = groupGuests.some((g) => g.rsvpStatus && g.rsvpStatus !== "pending")
-      if (hasSubmittedRSVP) {
-        return NextResponse.json(
-          {
-            error:
-              "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
+              "Your RSVP has either been locked or the name was not found. If you need to make changes, please contact us directly.",
           },
           { status: 400 },
         )
@@ -122,7 +90,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
+          "Your RSVP has either been locked or the name was not found. If you need to make changes, please contact us directly.",
       },
       { status: 404 },
     )
