@@ -82,46 +82,36 @@ export default function GuestManagementPage() {
   const [errorMessage, setErrorMessage] = useState("")
 
   const loadData = async () => {
-    console.log("[v0] Starting to load data...")
     try {
-      console.log("[v0] Fetching groups and guests...")
       const [groupsResponse, guestsResponse] = await Promise.all([fetch("/api/groups"), fetch("/api/guests")])
-
-      console.log("[v0] Groups response status:", groupsResponse.status)
-      console.log("[v0] Guests response status:", guestsResponse.status)
 
       if (groupsResponse.ok) {
         const groupsData = await groupsResponse.json()
-        console.log("[v0] Groups data received:", groupsData)
-        setGroups(groupsData.map((g: any) => ({ ...g, id: g._id || g.id })))
+        setGroups(Array.isArray(groupsData) ? groupsData.map((g: any) => ({ ...g, id: g._id || g.id })) : [])
       } else {
-        console.error("[v0] Failed to fetch groups, status:", groupsResponse.status)
-        const errorText = await groupsResponse.text()
-        console.error("[v0] Groups error response:", errorText)
+        console.error("Failed to fetch groups")
+        setGroups([])
       }
 
       if (guestsResponse.ok) {
         const guestsData = await guestsResponse.json()
-        console.log("[v0] Guests data received:", guestsData)
-        setGuests(guestsData.map((g: any) => ({ ...g, id: g._id || g.id })))
+        setGuests(Array.isArray(guestsData) ? guestsData.map((g: any) => ({ ...g, id: g._id || g.id })) : [])
       } else {
-        console.error("[v0] Failed to fetch guests, status:", guestsResponse.status)
-        const errorText = await guestsResponse.text()
-        console.error("[v0] Guests error response:", errorText)
+        console.error("Failed to fetch guests")
+        setGuests([])
       }
     } catch (error) {
-      console.error("[v0] Error loading data:", error)
+      console.error("Error loading data:", error)
+      setGroups([])
+      setGuests([])
     } finally {
       setLoading(false)
-      console.log("[v0] Data loading complete")
     }
   }
 
   useEffect(() => {
     const checkAuth = async () => {
-      console.log("[v0] Checking authentication...")
       const isAuth = await checkAuthentication()
-      console.log("[v0] Authentication result:", isAuth)
       setAuthenticated(isAuth)
       if (isAuth) {
         loadData()
@@ -133,10 +123,6 @@ export default function GuestManagementPage() {
   }, [])
 
   const groupedGuests = useMemo(() => {
-    console.log("[v0] Computing grouped guests...")
-    console.log("[v0] Total guests:", guests.length)
-    console.log("[v0] Total groups:", groups.length)
-
     const groupedData: { [key: string]: { group: Group; members: Guest[] } } = {}
     const ungrouped: Guest[] = []
 
@@ -150,7 +136,6 @@ export default function GuestManagementPage() {
           }
           groupedData[groupKey].members.push(guest)
         } else {
-          // If a guest has a groupId but the group doesn't exist, treat them as ungrouped
           ungrouped.push(guest)
         }
       } else {
@@ -158,10 +143,6 @@ export default function GuestManagementPage() {
       }
     })
 
-    console.log("[v0] Grouped data computed:", {
-      groupCount: Object.keys(groupedData).length,
-      ungroupedCount: ungrouped.length,
-    })
     return { groups: groupedData, ungrouped }
   }, [guests, groups])
 
@@ -169,13 +150,11 @@ export default function GuestManagementPage() {
     e.preventDefault()
     setErrorMessage("")
 
-    // Basic validation for name
     if (!guestFormData.name.trim()) {
       setErrorMessage("Guest name is required.")
       return
     }
 
-    // Check if guest name already exists
     const isGuestNameDuplicate = guests.some(
       (g) => g.name.toLowerCase().trim() === guestFormData.name.trim().toLowerCase(),
     )
@@ -228,13 +207,11 @@ export default function GuestManagementPage() {
     e.preventDefault()
     setErrorMessage("")
 
-    // Basic validation for name
     if (!groupFormData.name.trim()) {
       setErrorMessage("Group name is required.")
       return
     }
 
-    // Check if group name already exists
     const isGroupNameDuplicate = groups.some(
       (g) => g.name.toLowerCase().trim() === groupFormData.name.trim().toLowerCase(),
     )
