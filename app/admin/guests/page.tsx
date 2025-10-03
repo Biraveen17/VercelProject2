@@ -29,6 +29,7 @@ interface Guest {
   name: string
   guestType: "defined" | "tbc"
   isChild: boolean
+  ageGroup?: "under-4" | "4-12" | "over-12" // Added age group field for children
   side: "bride" | "groom"
   groupId?: string | null
   notes?: string
@@ -68,6 +69,7 @@ export default function GuestManagementPage() {
     name: "",
     guestType: "defined" as "defined" | "tbc",
     isChild: false,
+    ageGroup: "" as "" | "under-4" | "4-12" | "over-12", // Added age group to form data
     side: "bride" as "bride" | "groom",
     groupId: "",
     notes: "",
@@ -179,7 +181,6 @@ export default function GuestManagementPage() {
       if (guestFormData.guestType === "tbc" && guestFormData.groupId) {
         const selectedGroup = groups.find((g) => (g._id || g.id) === guestFormData.groupId)
         if (selectedGroup) {
-          // Count existing TBC guests in this group
           const tbcGuestsInGroup = guests.filter((g) => g.groupId === guestFormData.groupId && g.guestType === "tbc")
           const tbcCount = tbcGuestsInGroup.length + 1
           guestName = `${selectedGroup.name}-TBC-${tbcCount}`
@@ -190,6 +191,7 @@ export default function GuestManagementPage() {
         name: guestName,
         guestType: guestFormData.guestType,
         isChild: guestFormData.isChild,
+        ageGroup: guestFormData.isChild && guestFormData.ageGroup ? guestFormData.ageGroup : undefined, // Include age group if child
         side: guestFormData.side,
         groupId: guestFormData.groupId && guestFormData.groupId !== "none" ? guestFormData.groupId : null,
         notes: guestFormData.notes || "",
@@ -210,6 +212,7 @@ export default function GuestManagementPage() {
           name: "",
           guestType: "defined",
           isChild: false,
+          ageGroup: "", // Reset age group
           side: "bride",
           groupId: "",
           notes: "",
@@ -339,9 +342,71 @@ export default function GuestManagementPage() {
   const totalGuests = guests.length
   const brideGuests = guests.filter((g) => g.side === "bride").length
   const groomGuests = guests.filter((g) => g.side === "groom").length
+
+  // Adults and children
+  const adults = guests.filter((g) => !g.isChild).length
+  const children = guests.filter((g) => g.isChild).length
+  const childrenUnder4 = guests.filter((g) => g.isChild && g.ageGroup === "under-4").length
+  const children4to12 = guests.filter((g) => g.isChild && g.ageGroup === "4-12").length
+  const childrenOver12 = guests.filter((g) => g.isChild && g.ageGroup === "over-12").length
+
+  // TBC guests
+  const tbcGuests = guests.filter((g) => g.guestType === "tbc").length
+  const tbcBride = guests.filter((g) => g.guestType === "tbc" && g.side === "bride").length
+  const tbcGroom = guests.filter((g) => g.guestType === "tbc" && g.side === "groom").length
+  const tbcAdults = guests.filter((g) => g.guestType === "tbc" && !g.isChild).length
+  const tbcChildren = guests.filter((g) => g.guestType === "tbc" && g.isChild).length
+  const tbcChildrenUnder4 = guests.filter((g) => g.guestType === "tbc" && g.isChild && g.ageGroup === "under-4").length
+  const tbcChildren4to12 = guests.filter((g) => g.guestType === "tbc" && g.isChild && g.ageGroup === "4-12").length
+  const tbcChildrenOver12 = guests.filter((g) => g.guestType === "tbc" && g.isChild && g.ageGroup === "over-12").length
+
+  // Attending
   const attending = guests.filter((g) => g.rsvpStatus === "attending").length
+  const attendingBride = guests.filter((g) => g.rsvpStatus === "attending" && g.side === "bride").length
+  const attendingGroom = guests.filter((g) => g.rsvpStatus === "attending" && g.side === "groom").length
+  const attendingAdults = guests.filter((g) => g.rsvpStatus === "attending" && !g.isChild).length
+  const attendingChildren = guests.filter((g) => g.rsvpStatus === "attending" && g.isChild).length
+  const attendingChildrenUnder4 = guests.filter(
+    (g) => g.rsvpStatus === "attending" && g.isChild && g.ageGroup === "under-4",
+  ).length
+  const attendingChildren4to12 = guests.filter(
+    (g) => g.rsvpStatus === "attending" && g.isChild && g.ageGroup === "4-12",
+  ).length
+  const attendingChildrenOver12 = guests.filter(
+    (g) => g.rsvpStatus === "attending" && g.isChild && g.ageGroup === "over-12",
+  ).length
+
+  // Not Attending
   const notAttending = guests.filter((g) => g.rsvpStatus === "not-attending").length
+  const notAttendingBride = guests.filter((g) => g.rsvpStatus === "not-attending" && g.side === "bride").length
+  const notAttendingGroom = guests.filter((g) => g.rsvpStatus === "not-attending" && g.side === "groom").length
+  const notAttendingAdults = guests.filter((g) => g.rsvpStatus === "not-attending" && !g.isChild).length
+  const notAttendingChildren = guests.filter((g) => g.rsvpStatus === "not-attending" && g.isChild).length
+  const notAttendingChildrenUnder4 = guests.filter(
+    (g) => g.rsvpStatus === "not-attending" && g.isChild && g.ageGroup === "under-4",
+  ).length
+  const notAttendingChildren4to12 = guests.filter(
+    (g) => g.rsvpStatus === "not-attending" && g.isChild && g.ageGroup === "4-12",
+  ).length
+  const notAttendingChildrenOver12 = guests.filter(
+    (g) => g.rsvpStatus === "not-attending" && g.isChild && g.ageGroup === "over-12",
+  ).length
+
+  // Pending
   const pending = guests.filter((g) => g.rsvpStatus === "pending").length
+  const pendingBride = guests.filter((g) => g.rsvpStatus === "pending" && g.side === "bride").length
+  const pendingGroom = guests.filter((g) => g.rsvpStatus === "pending" && g.side === "groom").length
+  const pendingAdults = guests.filter((g) => g.rsvpStatus === "pending" && !g.isChild).length
+  const pendingChildren = guests.filter((g) => g.rsvpStatus === "pending" && g.isChild).length
+  const pendingChildrenUnder4 = guests.filter(
+    (g) => g.rsvpStatus === "pending" && g.isChild && g.ageGroup === "under-4",
+  ).length
+  const pendingChildren4to12 = guests.filter(
+    (g) => g.rsvpStatus === "pending" && g.isChild && g.ageGroup === "4-12",
+  ).length
+  const pendingChildrenOver12 = guests.filter(
+    (g) => g.rsvpStatus === "pending" && g.isChild && g.ageGroup === "over-12",
+  ).length
 
   return (
     <div className="min-h-screen floral-background p-6">
@@ -366,8 +431,8 @@ export default function GuestManagementPage() {
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+          {/* Total Guests */}
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold">{totalGuests}</div>
@@ -375,36 +440,91 @@ export default function GuestManagementPage() {
               <div className="text-xs text-muted-foreground mt-1">
                 Bride: {brideGuests} | Groom: {groomGuests}
               </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Adults: {adults} | Children: {children}
+              </div>
+              {children > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  &lt;4: {childrenUnder4} | 4-12: {children4to12} | &gt;12: {childrenOver12}
+                </div>
+              )}
             </CardContent>
           </Card>
+
+          {/* TBC Guests */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-2xl font-bold text-blue-600">{tbcGuests}</div>
+              <div className="text-sm text-muted-foreground">TBC Guests</div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Bride: {tbcBride} | Groom: {tbcGroom}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Adults: {tbcAdults} | Children: {tbcChildren}
+              </div>
+              {tbcChildren > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  &lt;4: {tbcChildrenUnder4} | 4-12: {tbcChildren4to12} | &gt;12: {tbcChildrenOver12}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Attending */}
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-green-600">{attending}</div>
               <div className="text-sm text-muted-foreground">Attending</div>
               <div className="text-xs text-muted-foreground mt-1">
-                Bride: {guests.filter((g) => g.rsvpStatus === "attending" && g.side === "bride").length} | Groom:{" "}
-                {guests.filter((g) => g.rsvpStatus === "attending" && g.side === "groom").length}
+                Bride: {attendingBride} | Groom: {attendingGroom}
               </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Adults: {attendingAdults} | Children: {attendingChildren}
+              </div>
+              {attendingChildren > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  &lt;4: {attendingChildrenUnder4} | 4-12: {attendingChildren4to12} | &gt;12: {attendingChildrenOver12}
+                </div>
+              )}
             </CardContent>
           </Card>
+
+          {/* Not Attending */}
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-red-600">{notAttending}</div>
               <div className="text-sm text-muted-foreground">Not Attending</div>
               <div className="text-xs text-muted-foreground mt-1">
-                Bride: {guests.filter((g) => g.rsvpStatus === "not-attending" && g.side === "bride").length} | Groom:{" "}
-                {guests.filter((g) => g.rsvpStatus === "not-attending" && g.side === "groom").length}
+                Bride: {notAttendingBride} | Groom: {notAttendingGroom}
               </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Adults: {notAttendingAdults} | Children: {notAttendingChildren}
+              </div>
+              {notAttendingChildren > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  &lt;4: {notAttendingChildrenUnder4} | 4-12: {notAttendingChildren4to12} | &gt;12:{" "}
+                  {notAttendingChildrenOver12}
+                </div>
+              )}
             </CardContent>
           </Card>
+
+          {/* Pending */}
           <Card>
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-yellow-600">{pending}</div>
               <div className="text-sm text-muted-foreground">Pending</div>
               <div className="text-xs text-muted-foreground mt-1">
-                Bride: {guests.filter((g) => g.rsvpStatus === "pending" && g.side === "bride").length} | Groom:{" "}
-                {guests.filter((g) => g.rsvpStatus === "pending" && g.side === "groom").length}
+                Bride: {pendingBride} | Groom: {pendingGroom}
               </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Adults: {pendingAdults} | Children: {pendingChildren}
+              </div>
+              {pendingChildren > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  &lt;4: {pendingChildrenUnder4} | 4-12: {pendingChildren4to12} | &gt;12: {pendingChildrenOver12}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -453,7 +573,11 @@ export default function GuestManagementPage() {
                             {guest.guestType === "tbc" && (
                               <span className="text-xs text-blue-600 font-semibold">(TBC)</span>
                             )}
-                            {guest.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
+                            {guest.isChild && (
+                              <span className="text-xs text-muted-foreground">
+                                (Child{guest.ageGroup ? ` - ${guest.ageGroup}` : ""})
+                              </span>
+                            )}
                           </td>
                           <td className="p-4">{guest.guestType === "defined" ? "Defined" : "TBC"}</td>
                           <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
@@ -526,7 +650,11 @@ export default function GuestManagementPage() {
                             {member.guestType === "tbc" && (
                               <span className="text-xs text-blue-600 font-semibold">(TBC)</span>
                             )}
-                            {member.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
+                            {member.isChild && (
+                              <span className="text-xs text-muted-foreground">
+                                (Child{member.ageGroup ? ` - ${member.ageGroup}` : ""})
+                              </span>
+                            )}
                           </td>
                           <td className="p-4">{member.guestType === "defined" ? "Defined" : "TBC"}</td>
                           <td className="p-4">{member.side === "bride" ? "Bride" : "Groom"}</td>
@@ -565,7 +693,7 @@ export default function GuestManagementPage() {
 
         {/* Add Guest Dialog */}
         <Dialog open={showAddGuestDialog} onOpenChange={setShowAddGuestDialog}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add Individual Guest</DialogTitle>
               <DialogDescription>
@@ -584,7 +712,6 @@ export default function GuestManagementPage() {
                   value={guestFormData.guestType}
                   onValueChange={(value: "defined" | "tbc") => {
                     setGuestFormData({ ...guestFormData, guestType: value })
-                    // Clear name if switching to TBC
                     if (value === "tbc") {
                       setGuestFormData({ ...guestFormData, guestType: value, name: "" })
                     }
@@ -637,6 +764,27 @@ export default function GuestManagementPage() {
                   This guest is a child
                 </Label>
               </div>
+
+              {guestFormData.isChild && (
+                <div>
+                  <Label>Age Group *</Label>
+                  <Select
+                    value={guestFormData.ageGroup}
+                    onValueChange={(value: "under-4" | "4-12" | "over-12") =>
+                      setGuestFormData({ ...guestFormData, ageGroup: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select age group" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="under-4">Under 4 years</SelectItem>
+                      <SelectItem value="4-12">4-12 years</SelectItem>
+                      <SelectItem value="over-12">Over 12 years</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div>
                 <Label>Side *</Label>
@@ -841,6 +989,7 @@ export default function GuestManagementPage() {
                         name: editingGuest.name,
                         guestType: editingGuest.guestType,
                         isChild: editingGuest.isChild,
+                        ageGroup: editingGuest.isChild ? editingGuest.ageGroup : undefined, // Include age group
                         side: editingGuest.side,
                         groupId: editingGuest.groupId,
                         notes: editingGuest.notes,
@@ -886,6 +1035,27 @@ export default function GuestManagementPage() {
                     This guest is a child
                   </Label>
                 </div>
+
+                {editingGuest.isChild && (
+                  <div>
+                    <Label>Age Group *</Label>
+                    <Select
+                      value={editingGuest.ageGroup || ""}
+                      onValueChange={(value: "under-4" | "4-12" | "over-12") =>
+                        setEditingGuest({ ...editingGuest, ageGroup: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select age group" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="under-4">Under 4 years</SelectItem>
+                        <SelectItem value="4-12">4-12 years</SelectItem>
+                        <SelectItem value="over-12">Over 12 years</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 <div>
                   <Label>Side</Label>

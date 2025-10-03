@@ -104,6 +104,46 @@ export default function TravelPage() {
         {/* Accommodation */}
         <section className="mb-12">
           <h2 className="text-3xl font-bold text-center mb-8">Where to Stay</h2>
+
+          <Card className="mb-8 bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Hotel className="w-6 h-6 text-primary" />
+                Featured Hotel - Coral Beach Hotel & Resort
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                We recommend staying at the beautiful Coral Beach Hotel & Resort, located just 5 minutes from our
+                wedding venues.
+              </p>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-2">Hotel Highlights</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• 5-star beachfront luxury resort</li>
+                    <li>• Private beach access</li>
+                    <li>• Multiple pools and spa facilities</li>
+                    <li>• Several restaurants and bars</li>
+                    <li>• 5 minutes from wedding venues</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Special Wedding Guest Rate</h4>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    We've arranged special rates for our wedding guests. Contact the hotel directly and mention our
+                    wedding to receive the discounted rate.
+                  </p>
+                  <Button className="w-full">
+                    <Hotel className="w-4 h-4 mr-2" />
+                    Book at Coral Beach Hotel
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <h3 className="text-xl font-semibold text-center mb-6">Other Accommodation Options</h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
