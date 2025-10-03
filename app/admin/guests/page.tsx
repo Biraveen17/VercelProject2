@@ -785,7 +785,7 @@ export default function GuestManagementPage() {
                       </div>
                     </th>
                     <th className="p-4 text-left">Last Updated UTC</th>
-                    <th className="p-4 text-left">Created</th>
+                    <th className="p-4 text-left">Created UTC</th>
                     <th className="p-4 text-left">Actions</th>
                   </tr>
                 </thead>
@@ -829,7 +829,12 @@ export default function GuestManagementPage() {
                               timeZoneName: "short",
                             })}
                           </td>
-                          <td className="p-4 text-xs">{new Date(guest.createdAt).toLocaleDateString()}</td>
+                          <td className="p-4 text-xs">
+                            {new Date(guest.createdAt).toLocaleString("en-US", {
+                              timeZone: "UTC",
+                              timeZoneName: "short",
+                            })}
+                          </td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button
@@ -925,7 +930,12 @@ export default function GuestManagementPage() {
                               timeZoneName: "short",
                             })}
                           </td>
-                          <td className="p-4 text-xs">{new Date(member.createdAt).toLocaleDateString()}</td>
+                          <td className="p-4 text-xs">
+                            {new Date(member.createdAt).toLocaleString("en-US", {
+                              timeZone: "UTC",
+                              timeZoneName: "short",
+                            })}
+                          </td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button
