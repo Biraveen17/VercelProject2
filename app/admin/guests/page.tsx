@@ -775,200 +775,202 @@ export default function GuestManagementPage() {
             <DialogHeader>
               <DialogTitle>Edit Guest Details</DialogTitle>
             </DialogHeader>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault()
-                if (!editingGuest) return
+            {editingGuest && (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  if (!editingGuest) return
 
-                try {
-                  const response = await fetch(`/api/guests/${editingGuest._id || editingGuest.id}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      name: editingGuest.name,
-                      isChild: editingGuest.isChild,
-                      side: editingGuest.side,
-                      groupId: editingGuest.groupId,
-                      notes: editingGuest.notes,
-                      rsvpStatus: editingGuest.rsvpStatus,
-                      events: editingGuest.events,
-                      dietaryRequirements: editingGuest.dietaryRequirements,
-                      questions: editingGuest.questions,
-                    }),
-                  })
+                  try {
+                    const response = await fetch(`/api/guests/${editingGuest._id || editingGuest.id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        name: editingGuest.name,
+                        isChild: editingGuest.isChild,
+                        side: editingGuest.side,
+                        groupId: editingGuest.groupId,
+                        notes: editingGuest.notes,
+                        rsvpStatus: editingGuest.rsvpStatus,
+                        events: editingGuest.events,
+                        dietaryRequirements: editingGuest.dietaryRequirements,
+                        questions: editingGuest.questions,
+                      }),
+                    })
 
-                  if (response.ok) {
-                    await loadData()
-                    setEditingGuest(null)
-                  } else {
-                    console.error("Failed to update guest")
+                    if (response.ok) {
+                      await loadData()
+                      setEditingGuest(null)
+                    } else {
+                      console.error("Failed to update guest")
+                      // Handle error
+                    }
+                  } catch (error) {
+                    console.error("Error updating guest:", error)
                     // Handle error
                   }
-                } catch (error) {
-                  console.error("Error updating guest:", error)
-                  // Handle error
-                }
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <Label htmlFor="editGuestName">Guest Name</Label>
-                <Input
-                  id="editGuestName"
-                  value={editingGuest.name}
-                  onChange={(e) => setEditingGuest({ ...editingGuest, name: e.target.value })}
-                  placeholder="Enter guest's full name"
-                  required
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="editIsChild"
-                  checked={editingGuest.isChild}
-                  onCheckedChange={(checked) => setEditingGuest({ ...editingGuest, isChild: checked as boolean })}
-                />
-                <Label htmlFor="editIsChild" className="cursor-pointer">
-                  This guest is a child
-                </Label>
-              </div>
-
-              <div>
-                <Label>Side</Label>
-                <Select
-                  value={editingGuest.side}
-                  onValueChange={(value: "bride" | "groom") => setEditingGuest({ ...editingGuest, side: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bride">Bride Side</SelectItem>
-                    <SelectItem value="groom">Groom Side</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>RSVP Status</Label>
-                <Select
-                  value={editingGuest.rsvpStatus}
-                  onValueChange={(value: "pending" | "attending" | "not-attending") =>
-                    setEditingGuest({ ...editingGuest, rsvpStatus: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="attending">Attending</SelectItem>
-                    <SelectItem value="not-attending">Not Attending</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>Events Attending</Label>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={editingGuest.events.includes("ceremony")}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setEditingGuest({ ...editingGuest, events: [...editingGuest.events, "ceremony"] })
-                        } else {
-                          setEditingGuest({
-                            ...editingGuest,
-                            events: editingGuest.events.filter((e) => e !== "ceremony"),
-                          })
-                        }
-                      }}
-                      className="mr-2"
-                    />
-                    Ceremony
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={editingGuest.events.includes("reception")}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setEditingGuest({ ...editingGuest, events: [...editingGuest.events, "reception"] })
-                        } else {
-                          setEditingGuest({
-                            ...editingGuest,
-                            events: editingGuest.events.filter((e) => e !== "reception"),
-                          })
-                        }
-                      }}
-                      className="mr-2"
-                    />
-                    Reception
-                  </label>
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <Label htmlFor="editGuestName">Guest Name</Label>
+                  <Input
+                    id="editGuestName"
+                    value={editingGuest.name}
+                    onChange={(e) => setEditingGuest({ ...editingGuest, name: e.target.value })}
+                    placeholder="Enter guest's full name"
+                    required
+                  />
                 </div>
-              </div>
 
-              <div>
-                <Label htmlFor="editDietary">Dietary Requirements</Label>
-                <Textarea
-                  id="editDietary"
-                  value={editingGuest.dietaryRequirements || ""}
-                  onChange={(e) => setEditingGuest({ ...editingGuest, dietaryRequirements: e.target.value })}
-                  placeholder="Any dietary requirements or allergies..."
-                />
-              </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="editIsChild"
+                    checked={editingGuest.isChild}
+                    onCheckedChange={(checked) => setEditingGuest({ ...editingGuest, isChild: checked as boolean })}
+                  />
+                  <Label htmlFor="editIsChild" className="cursor-pointer">
+                    This guest is a child
+                  </Label>
+                </div>
 
-              <div>
-                <Label htmlFor="editQuestions">Questions/Comments</Label>
-                <Textarea
-                  id="editQuestions"
-                  value={editingGuest.questions || ""}
-                  onChange={(e) => setEditingGuest({ ...editingGuest, questions: e.target.value })}
-                  placeholder="Any questions or comments..."
-                />
-              </div>
+                <div>
+                  <Label>Side</Label>
+                  <Select
+                    value={editingGuest.side}
+                    onValueChange={(value: "bride" | "groom") => setEditingGuest({ ...editingGuest, side: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="bride">Bride Side</SelectItem>
+                      <SelectItem value="groom">Groom Side</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div>
-                <Label htmlFor="editNotes">Notes</Label>
-                <Textarea
-                  id="editNotes"
-                  value={editingGuest.notes || ""}
-                  onChange={(e) => setEditingGuest({ ...editingGuest, notes: e.target.value })}
-                  placeholder="Any special notes about this guest..."
-                />
-              </div>
+                <div>
+                  <Label>RSVP Status</Label>
+                  <Select
+                    value={editingGuest.rsvpStatus}
+                    onValueChange={(value: "pending" | "attending" | "not-attending") =>
+                      setEditingGuest({ ...editingGuest, rsvpStatus: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="attending">Attending</SelectItem>
+                      <SelectItem value="not-attending">Not Attending</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div>
-                <Label>Group</Label>
-                <Select
-                  value={editingGuest.groupId || "none"}
-                  onValueChange={(value) =>
-                    setEditingGuest({ ...editingGuest, groupId: value === "none" ? null : value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No Group (Individual)</SelectItem>
-                    {groups.map((group) => (
-                      <SelectItem key={group.id} value={group._id || group.id || ""}>
-                        {group.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                <div>
+                  <Label>Events Attending</Label>
+                  <div className="space-y-2">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={editingGuest.events.includes("ceremony")}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setEditingGuest({ ...editingGuest, events: [...editingGuest.events, "ceremony"] })
+                          } else {
+                            setEditingGuest({
+                              ...editingGuest,
+                              events: editingGuest.events.filter((e) => e !== "ceremony"),
+                            })
+                          }
+                        }}
+                        className="mr-2"
+                      />
+                      Ceremony
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={editingGuest.events.includes("reception")}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setEditingGuest({ ...editingGuest, events: [...editingGuest.events, "reception"] })
+                          } else {
+                            setEditingGuest({
+                              ...editingGuest,
+                              events: editingGuest.events.filter((e) => e !== "reception"),
+                            })
+                          }
+                        }}
+                        className="mr-2"
+                      />
+                      Reception
+                    </label>
+                  </div>
+                </div>
 
-              <div className="flex gap-2">
-                <Button type="submit">Update Guest</Button>
-                <Button type="button" variant="outline" onClick={() => setEditingGuest(null)}>
-                  Cancel
-                </Button>
-              </div>
-            </form>
+                <div>
+                  <Label htmlFor="editDietary">Dietary Requirements</Label>
+                  <Textarea
+                    id="editDietary"
+                    value={editingGuest.dietaryRequirements || ""}
+                    onChange={(e) => setEditingGuest({ ...editingGuest, dietaryRequirements: e.target.value })}
+                    placeholder="Any dietary requirements or allergies..."
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="editQuestions">Questions/Comments</Label>
+                  <Textarea
+                    id="editQuestions"
+                    value={editingGuest.questions || ""}
+                    onChange={(e) => setEditingGuest({ ...editingGuest, questions: e.target.value })}
+                    placeholder="Any questions or comments..."
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="editNotes">Notes</Label>
+                  <Textarea
+                    id="editNotes"
+                    value={editingGuest.notes || ""}
+                    onChange={(e) => setEditingGuest({ ...editingGuest, notes: e.target.value })}
+                    placeholder="Any special notes about this guest..."
+                  />
+                </div>
+
+                <div>
+                  <Label>Group</Label>
+                  <Select
+                    value={editingGuest.groupId || "none"}
+                    onValueChange={(value) =>
+                      setEditingGuest({ ...editingGuest, groupId: value === "none" ? null : value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No Group (Individual)</SelectItem>
+                      {groups.map((group) => (
+                        <SelectItem key={group.id} value={group._id || group.id || ""}>
+                          {group.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button type="submit">Update Guest</Button>
+                  <Button type="button" variant="outline" onClick={() => setEditingGuest(null)}>
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            )}
           </DialogContent>
         </Dialog>
 
@@ -978,90 +980,90 @@ export default function GuestManagementPage() {
             <DialogHeader>
               <DialogTitle>Edit Group Details</DialogTitle>
             </DialogHeader>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault()
-                if (!editingGroup) return
+            {editingGroup && (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  if (!editingGroup) return
 
-                try {
-                  const response = await fetch(`/api/groups/${editingGroup._id || editingGroup.id}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      name: groupFormData.name,
-                      size: groupFormData.size,
-                      side: groupFormData.side,
-                    }),
-                  })
+                  try {
+                    const response = await fetch(`/api/groups/${editingGroup._id || editingGroup.id}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        name: groupFormData.name,
+                        size: groupFormData.size,
+                        side: groupFormData.side,
+                      }),
+                    })
 
-                  if (response.ok) {
-                    await loadData()
-                    setEditingGroup(null)
-                  } else {
-                    console.error("Failed to update group")
-                    // Handle error
+                    if (response.ok) {
+                      await loadData()
+                      setEditingGroup(null)
+                    } else {
+                      console.error("Failed to update group")
+                    }
+                  } catch (error) {
+                    console.error("Error updating group:", error)
                   }
-                } catch (error) {
-                  console.error("Error updating group:", error)
-                  // Handle error
-                }
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <Label htmlFor="editGroupName">Group Name *</Label>
-                <Input
-                  id="editGroupName"
-                  value={groupFormData.name}
-                  onChange={(e) => setGroupFormData({ ...groupFormData, name: e.target.value })}
-                  placeholder="Enter group or family name"
-                  required
-                />
-              </div>
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <Label htmlFor="editGroupName">Group Name *</Label>
+                  <Input
+                    id="editGroupName"
+                    value={groupFormData.name}
+                    onChange={(e) => setGroupFormData({ ...groupFormData, name: e.target.value })}
+                    placeholder="Enter group or family name"
+                    required
+                  />
+                </div>
 
-              <div>
-                <Label htmlFor="editGroupSize">Group Size *</Label>
-                <Input
-                  id="editGroupSize"
-                  type="number"
-                  min="1"
-                  max="20"
-                  value={groupFormData.size}
-                  onChange={(e) => setGroupFormData({ ...groupFormData, size: Number.parseInt(e.target.value) })}
-                  placeholder="Enter maximum number of people in this group"
-                  required
-                />
-              </div>
+                <div>
+                  <Label htmlFor="editGroupSize">Group Size *</Label>
+                  <Input
+                    id="editGroupSize"
+                    type="number"
+                    min="1"
+                    max="20"
+                    value={groupFormData.size}
+                    onChange={(e) => setGroupFormData({ ...groupFormData, size: Number.parseInt(e.target.value) })}
+                    placeholder="Enter maximum number of people in this group"
+                    required
+                  />
+                </div>
 
-              <div>
-                <Label>Side *</Label>
-                <Select
-                  value={groupFormData.side}
-                  onValueChange={(value: "bride" | "groom") => setGroupFormData({ ...groupFormData, side: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bride">Bride Side</SelectItem>
-                    <SelectItem value="groom">Groom Side</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                <div>
+                  <Label>Side *</Label>
+                  <Select
+                    value={groupFormData.side}
+                    onValueChange={(value: "bride" | "groom") => setGroupFormData({ ...groupFormData, side: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="bride">Bride Side</SelectItem>
+                      <SelectItem value="groom">Groom Side</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="flex gap-2">
-                <Button type="submit">Update Group</Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setEditingGroup(null)
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
+                <div className="flex gap-2">
+                  <Button type="submit">Update Group</Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setEditingGroup(null)
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            )}
           </DialogContent>
         </Dialog>
       </div>
