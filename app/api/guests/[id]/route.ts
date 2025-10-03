@@ -2,6 +2,23 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getGuestsCollection } from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const collection = await getGuestsCollection()
+
+    const guest = await collection.findOne({ _id: new ObjectId(params.id) })
+
+    if (!guest) {
+      return NextResponse.json({ error: "Guest not found" }, { status: 404 })
+    }
+
+    return NextResponse.json(guest)
+  } catch (error) {
+    console.error("Error fetching guest:", error)
+    return NextResponse.json({ error: "Failed to fetch guest" }, { status: 500 })
+  }
+}
+
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await request.json()
@@ -11,17 +28,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       { _id: new ObjectId(params.id) },
       {
         $set: {
-          type: body.type,
-          groupName: body.groupName || null,
-          guestName: body.guestName || null,
-          maxGroupSize: body.maxGroupSize || null,
-          groupMembers: body.groupMembers || [],
+          name: body.name,
+          isChild: body.isChild || false,
+          side: body.side || null,
+          groupId: body.groupId || null,
           notes: body.notes || "",
-          rsvpStatus: body.rsvpStatus,
+          rsvpStatus: body.rsvpStatus || "pending",
           events: body.events || [],
           dietaryRequirements: body.dietaryRequirements || "",
           questions: body.questions || "",
-          side: body.side || null,
           lastUpdated: new Date().toISOString(),
         },
       },

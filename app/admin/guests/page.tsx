@@ -28,6 +28,7 @@ interface Guest {
   _id?: string
   id?: string
   name: string
+  guestType: "defined" | "tbc"
   isChild: boolean
   side: "bride" | "groom"
   groupId?: string | null
@@ -66,6 +67,7 @@ export default function GuestManagementPage() {
 
   const [guestFormData, setGuestFormData] = useState({
     name: "",
+    guestType: "defined" as "defined" | "tbc",
     isChild: false,
     side: "bride" as "bride" | "groom",
     groupId: "",
@@ -148,25 +150,35 @@ export default function GuestManagementPage() {
     e.preventDefault()
     setErrorMessage("")
 
-    if (!guestFormData.name.trim()) {
-      setErrorMessage("Guest name is required.")
+    if (guestFormData.guestType === "tbc") {
+      if (!guestFormData.groupId || guestFormData.groupId === "none") {
+        setErrorMessage("TBC guests must belong to a group. Please select a group.")
+        return
+      }
+    }
+
+    if (guestFormData.guestType === "defined" && !guestFormData.name.trim()) {
+      setErrorMessage("Guest name is required for defined guests.")
       return
     }
 
-    const isGuestNameDuplicate = guests.some(
-      (g) => g.name.toLowerCase().trim() === guestFormData.name.trim().toLowerCase(),
-    )
-    const isGroupNameDuplicate = groups.some(
-      (g) => g.name.toLowerCase().trim() === guestFormData.name.trim().toLowerCase(),
-    )
-    if (isGuestNameDuplicate || isGroupNameDuplicate) {
-      setErrorMessage("A guest or group with this name already exists. Please use a different name.")
-      return
+    if (guestFormData.guestType === "defined" && guestFormData.name.trim()) {
+      const isGuestNameDuplicate = guests.some(
+        (g) => g.name.toLowerCase().trim() === guestFormData.name.trim().toLowerCase(),
+      )
+      const isGroupNameDuplicate = groups.some(
+        (g) => g.name.toLowerCase().trim() === guestFormData.name.trim().toLowerCase(),
+      )
+      if (isGuestNameDuplicate || isGroupNameDuplicate) {
+        setErrorMessage("A guest or group with this name already exists. Please use a different name.")
+        return
+      }
     }
 
     try {
       const guestData = {
-        name: guestFormData.name.trim(),
+        name: guestFormData.guestType === "tbc" ? "TBC" : guestFormData.name.trim(),
+        guestType: guestFormData.guestType,
         isChild: guestFormData.isChild,
         side: guestFormData.side,
         groupId: guestFormData.groupId && guestFormData.groupId !== "none" ? guestFormData.groupId : null,
@@ -186,6 +198,7 @@ export default function GuestManagementPage() {
         setShowAddGuestDialog(false)
         setGuestFormData({
           name: "",
+          guestType: "defined",
           isChild: false,
           side: "bride",
           groupId: "",
@@ -429,9 +442,12 @@ export default function GuestManagementPage() {
                         <tr key={guest.id} className="border-b hover:bg-muted/50">
                           <td className="p-4">
                             {guest.name}{" "}
+                            {guest.guestType === "tbc" && (
+                              <span className="text-xs text-blue-600 font-semibold">(TBC)</span>
+                            )}
                             {guest.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
                           </td>
-                          <td className="p-4">Individual</td>
+                          <td className="p-4">{guest.guestType === "defined" ? "Defined" : "TBC"}</td>
                           <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
                           <td className="p-4">{guest.rsvpStatus}</td>
                           <td className="p-4">{guest.events.length > 0 ? guest.events.join(", ") : "-"}</td>
@@ -501,9 +517,12 @@ export default function GuestManagementPage() {
                         <tr key={member.id} className="border-b hover:bg-muted/50">
                           <td className="p-4 pl-8">
                             {member.name}{" "}
+                            {member.guestType === "tbc" && (
+                              <span className="text-xs text-blue-600 font-semibold">(TBC)</span>
+                            )}
                             {member.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
                           </td>
-                          <td className="p-4">Group Member</td>
+                          <td className="p-4">{member.guestType === "defined" ? "Defined" : "TBC"}</td>
                           <td className="p-4">{member.side === "bride" ? "Bride" : "Groom"}</td>
                           <td className="p-4">{member.rsvpStatus}</td>
                           <td className="p-4">{member.events.length > 0 ? member.events.join(", ") : "-"}</td>
@@ -554,15 +573,53 @@ export default function GuestManagementPage() {
               )}
 
               <div>
-                <Label htmlFor="guestName">Guest Name *</Label>
-                <Input
-                  id="guestName"
-                  value={guestFormData.name}
-                  onChange={(e) => setGuestFormData({ ...guestFormData, name: e.target.value })}
-                  placeholder="Enter guest's full name"
-                  required
-                />
+                <Label>Guest Type *</Label>
+                <Select
+                  value={guestFormData.guestType}
+                  onValueChange={(value: "defined" | "tbc") => {
+                    setGuestFormData({ ...guestFormData, guestType: value })
+                    // Clear name if switching to TBC
+                    if (value === "tbc") {
+                      setGuestFormData({ ...guestFormData, guestType: value, name: "" })
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="defined">Defined Guest (Known Name)</SelectItem>
+                    <SelectItem value="tbc">TBC Guest (To Be Confirmed)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {guestFormData.guestType === "defined"
+                    ? "A guest with a known name that you enter now"
+                    : "A guest whose name will be filled in when they RSVP (must belong to a group)"}
+                </p>
               </div>
+
+              {guestFormData.guestType === "defined" && (
+                <div>
+                  <Label htmlFor="guestName">Guest Name *</Label>
+                  <Input
+                    id="guestName"
+                    value={guestFormData.name}
+                    onChange={(e) => setGuestFormData({ ...guestFormData, name: e.target.value })}
+                    placeholder="Enter guest's full name"
+                    required
+                  />
+                </div>
+              )}
+
+              {guestFormData.guestType === "tbc" && (
+                <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded">
+                  <p className="text-sm">
+                    TBC guests will have their name filled in when they complete the RSVP form. You must assign them to
+                    a group.
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center space-x-2">
                 <Checkbox
@@ -592,16 +649,24 @@ export default function GuestManagementPage() {
               </div>
 
               <div>
-                <Label>Group (Optional)</Label>
+                <Label>Group {guestFormData.guestType === "tbc" ? "*" : "(Optional)"}</Label>
                 <Select
                   value={guestFormData.groupId}
                   onValueChange={(value) => setGuestFormData({ ...guestFormData, groupId: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a group or leave as individual" />
+                    <SelectValue
+                      placeholder={
+                        guestFormData.guestType === "tbc"
+                          ? "Select a group (required)"
+                          : "Select a group or leave as individual"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">No Group (Individual)</SelectItem>
+                    {guestFormData.guestType === "defined" && (
+                      <SelectItem value="none">No Group (Individual)</SelectItem>
+                    )}
                     {groups.map((group) => (
                       <SelectItem key={group.id} value={group._id || group.id || ""}>
                         {group.name}
@@ -609,6 +674,9 @@ export default function GuestManagementPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                {guestFormData.guestType === "tbc" && (
+                  <p className="text-xs text-red-600 mt-1">TBC guests must belong to a group</p>
+                )}
               </div>
 
               <div>
@@ -779,6 +847,7 @@ export default function GuestManagementPage() {
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
                         name: editingGuest.name,
+                        guestType: editingGuest.guestType,
                         isChild: editingGuest.isChild,
                         side: editingGuest.side,
                         groupId: editingGuest.groupId,

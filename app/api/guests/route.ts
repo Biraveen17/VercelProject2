@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
 
     const guest = {
       name: body.name,
+      guestType: body.guestType || "defined",
       isChild: body.isChild || false,
       side: body.side || null,
       groupId: body.groupId || null, // Reference to group by ID
