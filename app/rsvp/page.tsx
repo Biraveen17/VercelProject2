@@ -3,121 +3,144 @@
 import type React from "react"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { submitIndividualRSVP, submitGroupRSVP, getGuests, type Guest } from "@/lib/database"
 import { useLanguage } from "@/lib/language-context"
+
+interface Guest {
+  _id: string
+  name: string
+  guestType: "defined" | "tbc"
+  isChild: boolean
+  side?: "bride" | "groom"
+  groupId?: string
+  notes?: string
+  rsvpStatus: "pending" | "attending" | "not-attending"
+  events: ("wedding" | "reception")[]
+  dietaryRequirements?: string
+  questions?: string
+  ageGroup?: string
+}
+
+interface Group {
+  _id: string
+  name: string
+}
 
 export default function RSVPPage() {
   const { t } = useLanguage()
   const [step, setStep] = useState(1)
   const [guestName, setGuestName] = useState("")
-  const [foundGuest, setFoundGuest] = useState<Guest | null>(null)
+  const [searchResult, setSearchResult] = useState<{
+    type: "individual" | "group"
+    guest?: Guest
+    group?: Group
+    guests?: Guest[]
+  } | null>(null)
   const [isAttending, setIsAttending] = useState<string>("")
   const [events, setEvents] = useState<string[]>([])
   const [dietaryRequirements, setDietaryRequirements] = useState("")
   const [questions, setQuestions] = useState("")
-  const [groupMembers, setGroupMembers] = useState<string[]>([])
+  const [guestNames, setGuestNames] = useState<{ [key: string]: string }>({})
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleGuestSearch = (e: React.FormEvent) => {
+  const handleGuestSearch = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`/api/guests/rsvp/search?name=${encodeURIComponent(guestName)}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || "Failed to find guest")
+        setIsLoading(false)
+        return
+      }
+
+      setSearchResult(data)
+
+      if (data.type === "group" && data.guests) {
+        const initialNames: { [key: string]: string } = {}
+        data.guests.forEach((guest: Guest) => {
+          initialNames[guest._id] = guest.guestType === "tbc" ? "" : guest.name
+        })
+        setGuestNames(initialNames)
+      }
+
+      setStep(2)
+    } catch (error) {
+      console.error("Error searching for guest:", error)
+      setError("An error occurred while searching. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleRSVPSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
-    const allGuests = getGuests()
-    const normalizedName = guestName.toLowerCase().trim()
-
-    const groupByName = allGuests.find(
-      (g: Guest) => g.type === "group" && g.groupName?.toLowerCase().trim() === normalizedName,
-    )
-
-    if (groupByName) {
-      // Found group by name - show group RSVP form
-      if (groupByName.rsvpStatus && groupByName.rsvpStatus !== "pending") {
-        setError("Your group has already submitted an RSVP. If you need to make changes, please contact us directly.")
-        return
-      }
-      setFoundGuest(groupByName)
-      const maxSize = groupByName.maxGroupSize || 1
-      const existingMembers = groupByName.groupMembers || []
-      const initialMembers = Array(maxSize)
-        .fill("")
-        .map((_, index) => existingMembers[index] || "")
-      setGroupMembers(initialMembers)
-      setStep(2)
-      return
-    }
-
-    const groupWithMember = allGuests.find(
-      (g: Guest) =>
-        g.type === "group" &&
-        g.groupMembers &&
-        g.groupMembers.some((member: string) => member.toLowerCase().trim() === normalizedName),
-    )
-
-    if (groupWithMember) {
-      // Found as group member - show group RSVP form
-      if (groupWithMember.rsvpStatus && groupWithMember.rsvpStatus !== "pending") {
-        setError("Your group has already submitted an RSVP. If you need to make changes, please contact us directly.")
-        return
-      }
-      setFoundGuest(groupWithMember)
-      const maxSize = groupWithMember.maxGroupSize || 1
-      const existingMembers = groupWithMember.groupMembers || []
-      const initialMembers = Array(maxSize)
-        .fill("")
-        .map((_, index) => existingMembers[index] || "")
-      setGroupMembers(initialMembers)
-      setStep(2)
-      return
-    }
-
-    const individualGuest = allGuests.find(
-      (g: Guest) => g.type === "individual" && !g.groupName && g.guestName?.toLowerCase().trim() === normalizedName,
-    )
-
-    if (individualGuest) {
-      // Found individual guest - show individual RSVP form
-      if (individualGuest.rsvpStatus && individualGuest.rsvpStatus !== "pending") {
-        setError("You have already submitted your RSVP. If you need to make changes, please contact us directly.")
-        return
-      }
-      setFoundGuest(individualGuest)
-      setStep(2)
-      return
-    }
-
-    // No match found
-    setError("Guest name not found. Please check the spelling or contact us for assistance.")
-  }
-
-  const handleRSVPSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!foundGuest) return
-
     if (isAttending === "yes" && events.length === 0) {
-      setError("Please select at least one event (wedding ceremony or reception) to attend.")
+      setError("Please select at least one event (wedding or reception) to attend.")
       return
     }
 
-    if (foundGuest.type === "group" && groupMembers.length > 0) {
-      submitGroupRSVP(foundGuest, {
-        isAttending: isAttending === "yes",
-        events: isAttending === "yes" ? (events as ("ceremony" | "reception")[]) : [],
-        dietaryRequirements: isAttending === "yes" ? dietaryRequirements : "",
-        questions: questions,
-        groupMembers: groupMembers,
-      })
-    } else {
-      submitIndividualRSVP(foundGuest, {
-        isAttending: isAttending === "yes",
-        events: isAttending === "yes" ? (events as ("ceremony" | "reception")[]) : [],
-        dietaryRequirements: isAttending === "yes" ? dietaryRequirements : "",
-        questions: questions,
-      })
-    }
+    setIsLoading(true)
 
-    setSuccess(true)
-    setStep(3)
+    try {
+      let requestBody: any
+
+      if (searchResult?.type === "group") {
+        const guests = searchResult.guests?.map((guest) => ({
+          _id: guest._id,
+          name: guestNames[guest._id] || guest.name,
+          guestType: guest.guestType,
+        }))
+
+        requestBody = {
+          type: "group",
+          groupId: searchResult.group?._id,
+          isAttending: isAttending === "yes",
+          events: isAttending === "yes" ? events : [],
+          dietaryRequirements: isAttending === "yes" ? dietaryRequirements : "",
+          questions: questions,
+          guests: guests,
+        }
+      } else {
+        requestBody = {
+          type: "individual",
+          guestId: searchResult?.guest?._id,
+          isAttending: isAttending === "yes",
+          events: isAttending === "yes" ? events : [],
+          dietaryRequirements: isAttending === "yes" ? dietaryRequirements : "",
+          questions: questions,
+        }
+      }
+
+      const response = await fetch("/api/guests/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || "Failed to submit RSVP")
+        setIsLoading(false)
+        return
+      }
+
+      setSuccess(true)
+      setStep(3)
+    } catch (error) {
+      console.error("Error submitting RSVP:", error)
+      setError("An error occurred while submitting. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (success) {
@@ -170,29 +193,33 @@ export default function RSVPPage() {
                     className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
                     placeholder={t("namePlaceholder")}
                     required
+                    disabled={isLoading}
                   />
                 </div>
                 {error && <p className="text-destructive text-sm">{error}</p>}
                 <button
                   type="submit"
-                  className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors"
+                  className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  disabled={isLoading}
                 >
-                  {t("findGuest")}
+                  {isLoading ? "Searching..." : t("findGuest")}
                 </button>
               </form>
             </CardContent>
           </Card>
         )}
 
-        {step === 2 && foundGuest && (
+        {step === 2 && searchResult && (
           <Card>
             <CardContent className="p-6">
               <div className="mb-6">
                 <h2 className="text-xl font-semibold mb-2">
-                  {t("welcomeGuest", { name: foundGuest.guestName || foundGuest.groupName })}
+                  {t("welcomeGuest", {
+                    name: searchResult.type === "group" ? searchResult.group?.name : searchResult.guest?.name,
+                  })}
                 </h2>
-                {foundGuest.type === "group" && (
-                  <p className="text-muted-foreground">{t("groupBooking", { size: foundGuest.maxGroupSize })}</p>
+                {searchResult.type === "group" && searchResult.guests && (
+                  <p className="text-muted-foreground">{t("groupBooking", { size: searchResult.guests.length })}</p>
                 )}
               </div>
 
@@ -236,14 +263,14 @@ export default function RSVPPage() {
                         <label className="flex items-center">
                           <input
                             type="checkbox"
-                            value="ceremony"
-                            checked={events.includes("ceremony")}
+                            value="wedding"
+                            checked={events.includes("wedding")}
                             onChange={(e) => {
-                              setError("") // Clear error when user makes selection
+                              setError("")
                               if (e.target.checked) {
-                                setEvents([...events, "ceremony"])
+                                setEvents([...events, "wedding"])
                               } else {
-                                setEvents(events.filter((event) => event !== "ceremony"))
+                                setEvents(events.filter((event) => event !== "wedding"))
                               }
                             }}
                             className="mr-2"
@@ -256,7 +283,7 @@ export default function RSVPPage() {
                             value="reception"
                             checked={events.includes("reception")}
                             onChange={(e) => {
-                              setError("") // Clear error when user makes selection
+                              setError("")
                               if (e.target.checked) {
                                 setEvents([...events, "reception"])
                               } else {
@@ -270,38 +297,30 @@ export default function RSVPPage() {
                       </div>
                     </div>
 
-                    {foundGuest.type === "group" && groupMembers.length > 0 && (
+                    {searchResult.type === "group" && searchResult.guests && searchResult.guests.length > 0 && (
                       <div>
                         <label className="block text-sm font-medium mb-3">{t("groupMemberNames")}</label>
-                        {(() => {
-                          const filledMembers = groupMembers.filter((member) => member.trim() !== "")
-                          const maxSize = foundGuest.maxGroupSize || groupMembers.length
-                          if (filledMembers.length < maxSize && filledMembers.length > 0) {
-                            const missingCount = maxSize - filledMembers.length
-                            return (
-                              <p className="text-amber-600 text-sm mb-2 bg-amber-50 dark:bg-amber-900/20 p-2 rounded">
-                                Note: You have {maxSize} group size but are submitting {filledMembers.length} guests.
-                                The couple will understand your group size has reduced by {missingCount}.
-                              </p>
-                            )
-                          }
-                          return null
-                        })()}
                         <div className="space-y-2">
-                          {groupMembers.map((member, index) => (
-                            <input
-                              key={index}
-                              type="text"
-                              value={member}
-                              onChange={(e) => {
-                                setError("") // Clear error when user makes changes
-                                const newMembers = [...groupMembers]
-                                newMembers[index] = e.target.value
-                                setGroupMembers(newMembers)
-                              }}
-                              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
-                              placeholder={t("memberNamePlaceholder", { number: index + 1 })}
-                            />
+                          {searchResult.guests.map((guest, index) => (
+                            <div key={guest._id}>
+                              <input
+                                type="text"
+                                value={guestNames[guest._id] || ""}
+                                onChange={(e) => {
+                                  setGuestNames({ ...guestNames, [guest._id]: e.target.value })
+                                }}
+                                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                                placeholder={
+                                  guest.guestType === "tbc"
+                                    ? t("memberNamePlaceholder", { number: index + 1 })
+                                    : guest.name
+                                }
+                                readOnly={guest.guestType === "defined"}
+                              />
+                              {guest.guestType === "tbc" && (
+                                <p className="text-xs text-muted-foreground mt-1">Please enter the guest name</p>
+                              )}
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -340,16 +359,27 @@ export default function RSVPPage() {
                 <div className="flex gap-4">
                   <button
                     type="button"
-                    onClick={() => setStep(1)}
+                    onClick={() => {
+                      setStep(1)
+                      setSearchResult(null)
+                      setIsAttending("")
+                      setEvents([])
+                      setDietaryRequirements("")
+                      setQuestions("")
+                      setGuestNames({})
+                      setError("")
+                    }}
                     className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-md hover:bg-secondary/80 transition-colors"
+                    disabled={isLoading}
                   >
                     {t("back")}
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors"
+                    className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    disabled={isLoading}
                   >
-                    {t("submitRSVP")}
+                    {isLoading ? "Submitting..." : t("submitRSVP")}
                   </button>
                 </div>
               </form>
