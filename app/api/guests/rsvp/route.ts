@@ -5,8 +5,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const collection = await getGuestsCollection()
-
-    // Find guest by name (similar to findGuestForRSVP logic)
     const normalizedName = body.name.toLowerCase().trim()
 
     // Try to find group first
@@ -19,7 +17,7 @@ export async function POST(request: NextRequest) {
     if (!guest) {
       guest = await collection.findOne({
         type: "group",
-        groupMembers: { $elemMatch: { $regex: new RegExp(`^${normalizedName}$`, "i") } },
+        groupMembers: { $elemMatch: { $regex: new RegExp(normalizedName, "i") } },
       })
     }
 
@@ -27,7 +25,7 @@ export async function POST(request: NextRequest) {
     if (!guest) {
       guest = await collection.findOne({
         type: "individual",
-        groupName: { $exists: false },
+        groupName: null,
         guestName: { $regex: new RegExp(`^${normalizedName}$`, "i") },
       })
     }
@@ -37,15 +35,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Update guest with RSVP data
-    const updateData = {
-      rsvpStatus: body.isAttending ? "attending" : "not-attending",
-      events: body.isAttending ? body.events : [],
-      dietaryRequirements: body.isAttending ? body.dietaryRequirements : "",
-      questions: body.questions || "",
-      lastUpdated: new Date().toISOString(),
-    }
-
-    await collection.updateOne({ _id: guest._id }, { $set: updateData })
+    await collection.updateOne(
+      { _id: guest._id },
+      {
+        $set: {
+          rsvpStatus: body.isAttending ? "attending" : "not-attending",
+          events: body.isAttending ? body.events : [],
+          dietaryRequirements: body.isAttending ? body.dietaryRequirements : "",
+          questions: body.questions || "",
+          lastUpdated: new Date().toISOString(),
+        },
+      },
+    )
 
     return NextResponse.json({ success: true })
   } catch (error) {

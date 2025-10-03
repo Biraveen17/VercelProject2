@@ -7,14 +7,25 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const body = await request.json()
     const collection = await getGuestsCollection()
 
-    const updateData = {
-      ...body,
-      lastUpdated: new Date().toISOString(),
-      _id: undefined, // Remove _id from update data
-      id: undefined, // Remove id from update data
-    }
-
-    const result = await collection.updateOne({ _id: new ObjectId(params.id) }, { $set: updateData })
+    const result = await collection.updateOne(
+      { _id: new ObjectId(params.id) },
+      {
+        $set: {
+          type: body.type,
+          groupName: body.groupName || null,
+          guestName: body.guestName || null,
+          maxGroupSize: body.maxGroupSize || null,
+          groupMembers: body.groupMembers || [],
+          notes: body.notes || "",
+          rsvpStatus: body.rsvpStatus,
+          events: body.events || [],
+          dietaryRequirements: body.dietaryRequirements || "",
+          questions: body.questions || "",
+          side: body.side || null,
+          lastUpdated: new Date().toISOString(),
+        },
+      },
+    )
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ error: "Guest not found" }, { status: 404 })

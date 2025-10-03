@@ -7,14 +7,21 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const body = await request.json()
     const collection = await getBudgetCollection()
 
-    const updateData = {
-      ...body,
-      lastUpdated: new Date().toISOString(),
-      _id: undefined, // Remove _id from update data
-      id: undefined, // Remove id from update data
-    }
-
-    const result = await collection.updateOne({ _id: new ObjectId(params.id) }, { $set: updateData })
+    const result = await collection.updateOne(
+      { _id: new ObjectId(params.id) },
+      {
+        $set: {
+          category1: body.category1,
+          category2: body.category2,
+          itemName: body.itemName,
+          vendor: body.vendor,
+          cost: body.cost,
+          status: body.status,
+          notes: body.notes || "",
+          lastUpdated: new Date().toISOString(),
+        },
+      },
+    )
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ error: "Budget item not found" }, { status: 404 })
