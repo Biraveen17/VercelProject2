@@ -29,7 +29,7 @@ interface Guest {
   name: string
   guestType: "defined" | "tbc"
   isChild: boolean
-  ageGroup?: "under-4" | "4-12" | "over-12" // Added age group field for children
+  ageGroup?: "under-4" | "4-12" | "over-12" // Made optional for children
   side: "bride" | "groom"
   groupId?: string | null
   notes?: string
@@ -242,7 +242,7 @@ export default function GuestManagementPage() {
     const isGuestNameDuplicate = guests.some(
       (g) => g.name.toLowerCase().trim() === groupFormData.name.trim().toLowerCase(),
     )
-    if (isGroupNameDuplicate || isGuestNameDuplicate) {
+    if (isGroupNameDuplicate || isGroupNameDuplicate) {
       setErrorMessage("A guest or group with this name already exists. Please use a different name.")
       return
     }
@@ -531,11 +531,11 @@ export default function GuestManagementPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <Button onClick={() => setShowAddGuestDialog(true)}>
+          <Button onClick={() => setShowAddGuestDialog(true)} className="w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Add Guest
           </Button>
-          <Button onClick={() => setShowAddGroupDialog(true)} variant="outline">
+          <Button onClick={() => setShowAddGroupDialog(true)} variant="outline" className="w-full sm:w-auto">
             <Users className="w-4 h-4 mr-2" />
             Add Group
           </Button>
@@ -767,7 +767,7 @@ export default function GuestManagementPage() {
 
               {guestFormData.isChild && (
                 <div>
-                  <Label>Age Group *</Label>
+                  <Label>Age Group (Optional)</Label>
                   <Select
                     value={guestFormData.ageGroup}
                     onValueChange={(value: "under-4" | "4-12" | "over-12") =>
@@ -775,7 +775,7 @@ export default function GuestManagementPage() {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select age group" />
+                      <SelectValue placeholder="Select age group (optional)" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="under-4">Under 4 years</SelectItem>
@@ -783,6 +783,7 @@ export default function GuestManagementPage() {
                       <SelectItem value="over-12">Over 12 years</SelectItem>
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground mt-1">Optional: Select age group for better planning</p>
                 </div>
               )}
 
@@ -1038,7 +1039,7 @@ export default function GuestManagementPage() {
 
                 {editingGuest.isChild && (
                   <div>
-                    <Label>Age Group *</Label>
+                    <Label>Age Group (Optional)</Label>
                     <Select
                       value={editingGuest.ageGroup || ""}
                       onValueChange={(value: "under-4" | "4-12" | "over-12") =>
@@ -1046,7 +1047,7 @@ export default function GuestManagementPage() {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select age group" />
+                        <SelectValue placeholder="Select age group (optional)" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="under-4">Under 4 years</SelectItem>
@@ -1054,6 +1055,7 @@ export default function GuestManagementPage() {
                         <SelectItem value="over-12">Over 12 years</SelectItem>
                       </SelectContent>
                     </Select>
+                    <p className="text-xs text-muted-foreground mt-1">Optional: Select age group for better planning</p>
                   </div>
                 )}
 
@@ -1111,7 +1113,7 @@ export default function GuestManagementPage() {
                         }}
                         className="mr-2"
                       />
-                      Ceremony
+                      Wedding
                     </label>
                     <label className="flex items-center">
                       <input
