@@ -208,7 +208,7 @@
 
   .floral-background::before {
     content: "";
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     right: 0;
@@ -217,10 +217,18 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-attachment: scroll;
     opacity: 0.4;
     pointer-events: none;
     z-index: -1;
+  }
+
+  /* Add fixed background only on larger screens */
+  @media (min-width: 768px) {
+    .floral-background::before {
+      position: fixed;
+      background-attachment: fixed;
+    }
   }
 
   /* Elegant section spacing */
