@@ -4,89 +4,83 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color scheme to match elegant wedding invitation design */
-  --background: #f5f0e1; /* Cream/Beige */
-  --foreground: #374151; /* Dark Cream */
-  --card: #ffffff; /* White */
-  --card-foreground: #374151; /* Dark Cream */
-  --popover: #f8f4e3; /* Light Cream */
-  --popover-foreground: #374151; /* Dark Cream */
-  --primary: #d4af37; /* Gold */
+  /* Updated color scheme inspired by the elegant design references */
+  --background: #faf8f5; /* Warm cream */
+  --foreground: #2c2c2c; /* Rich charcoal */
+  --card: #ffffff; /* Pure white */
+  --card-foreground: #2c2c2c; /* Rich charcoal */
+  --popover: #faf8f5; /* Warm cream */
+  --popover-foreground: #2c2c2c; /* Rich charcoal */
+  --primary: #8b7355; /* Warm taupe */
   --primary-foreground: #ffffff; /* White */
-  --secondary: #c0b283; /* Bronze */
-  --secondary-foreground: #ffffff; /* White */
-  --muted: #f8f4e3; /* Light Cream */
-  --muted-foreground: #6b7280; /* Muted text */
-  --accent: #d4af37; /* Gold */
+  --secondary: #d4c5b0; /* Soft beige */
+  --secondary-foreground: #2c2c2c; /* Rich charcoal */
+  --muted: #f5f2ed; /* Light cream */
+  --muted-foreground: #6b6b6b; /* Medium gray */
+  --accent: #8b7355; /* Warm taupe */
   --accent-foreground: #ffffff; /* White */
   --destructive: #dc2626; /* Red for alerts */
   --destructive-foreground: #ffffff; /* White */
-  --border: #d4af37; /* Gold borders */
+  --border: #e5ddd1; /* Soft border */
   --input: #ffffff; /* White input backgrounds */
-  --ring: rgba(212, 175, 55, 0.3); /* Gold focus ring */
-  --chart-1: #f5f0e1;
-  --chart-2: #d4af37;
-  --chart-3: #c0b283;
+  --ring: rgba(139, 115, 85, 0.2); /* Taupe focus ring */
+  --chart-1: #faf8f5;
+  --chart-2: #8b7355;
+  --chart-3: #d4c5b0;
   --chart-4: #ffffff;
-  --chart-5: #f8f4e3;
-  --radius: 0.5rem;
-  --sidebar: #f5f0e1;
-  --sidebar-foreground: #374151;
-  --sidebar-primary: #d4af37;
+  --chart-5: #f5f2ed;
+  --radius: 0.75rem;
+  --sidebar: #faf8f5;
+  --sidebar-foreground: #2c2c2c;
+  --sidebar-primary: #8b7355;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #c0b283;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #d4af37;
-  --sidebar-ring: rgba(212, 175, 55, 0.3);
-  --font-caramello: "Caramello"; /* Added Caramello font variable */
-  --font-island-moments: "Island Moments"; /* Updated font variable to Island Moments */
+  --sidebar-accent: #d4c5b0;
+  --sidebar-accent-foreground: #2c2c2c;
+  --sidebar-border: #e5ddd1;
+  --sidebar-ring: rgba(139, 115, 85, 0.2);
+  --font-island-moments: "Island Moments";
 }
 
 .dark {
-  /* Updated dark mode to maintain elegance with darker cream tones */
-  --background: #2d2520;
-  --foreground: #f5f0e1;
-  --card: #3a342e;
-  --card-foreground: #f5f0e1;
-  --popover: #3a342e;
-  --popover-foreground: #f5f0e1;
-  --primary: #d4af37;
-  --primary-foreground: #2d2520;
-  --secondary: #c0b283;
-  --secondary-foreground: #2d2520;
-  --muted: #4a453f;
+  --background: #1a1a1a;
+  --foreground: #faf8f5;
+  --card: #2a2a2a;
+  --card-foreground: #faf8f5;
+  --popover: #2a2a2a;
+  --popover-foreground: #faf8f5;
+  --primary: #a89580;
+  --primary-foreground: #1a1a1a;
+  --secondary: #6b6b6b;
+  --secondary-foreground: #faf8f5;
+  --muted: #3a3a3a;
   --muted-foreground: #a0a0a0;
-  --accent: #d4af37;
-  --accent-foreground: #2d2520;
+  --accent: #a89580;
+  --accent-foreground: #1a1a1a;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #d4af37;
-  --input: #3a342e;
-  --ring: rgba(212, 175, 55, 0.3);
-  --chart-1: #2d2520;
-  --chart-2: #d4af37;
-  --chart-3: #c0b283;
-  --chart-4: #3a342e;
-  --chart-5: #4a453f;
-  --radius: 0.5rem;
-  --sidebar: #2d2520;
-  --sidebar-foreground: #f5f0e1;
-  --sidebar-primary: #d4af37;
-  --sidebar-primary-foreground: #2d2520;
-  --sidebar-accent: #c0b283;
-  --sidebar-accent-foreground: #2d2520;
-  --sidebar-border: #d4af37;
-  --sidebar-ring: rgba(212, 175, 55, 0.3);
-  --font-caramello: "Caramello"; /* Added Caramello font variable */
-  --font-island-moments: "Island Moments"; /* Updated font variable to Island Moments */
+  --border: #3a3a3a;
+  --input: #2a2a2a;
+  --ring: rgba(168, 149, 128, 0.2);
+  --chart-1: #1a1a1a;
+  --chart-2: #a89580;
+  --chart-3: #6b6b6b;
+  --chart-4: #2a2a2a;
+  --chart-5: #3a3a3a;
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #faf8f5;
+  --sidebar-primary: #a89580;
+  --sidebar-primary-foreground: #1a1a1a;
+  --sidebar-accent: #6b6b6b;
+  --sidebar-accent-foreground: #faf8f5;
+  --sidebar-border: #3a3a3a;
+  --sidebar-ring: rgba(168, 149, 128, 0.2);
 }
 
 @theme inline {
-  /* Updated font hierarchy for elegant wedding invitation style */
   --font-sans: var(--font-crimson);
   --font-serif: var(--font-playfair);
   --font-script: var(--font-dancing);
-  --font-island-moments: var(--font-island-moments); /* Updated font variable to Island Moments */
+  --font-island-moments: var(--font-island-moments);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -133,41 +127,41 @@
     @apply bg-background text-foreground;
   }
 
-  /* Enhanced typography for elegant wedding invitation style */
+  /* Enhanced typography inspired by the design references */
   h1 {
-    @apply font-serif text-4xl md:text-6xl font-bold tracking-widest text-primary;
+    @apply font-serif text-4xl md:text-6xl font-light tracking-wide text-foreground;
   }
 
   h2 {
-    @apply font-serif text-3xl md:text-4xl font-semibold tracking-wide text-secondary;
+    @apply font-serif text-3xl md:text-4xl font-light tracking-wide text-foreground;
   }
 
   h3 {
-    @apply font-serif text-2xl md:text-3xl font-semibold tracking-wide;
+    @apply font-serif text-2xl md:text-3xl font-light tracking-wide text-foreground;
   }
 
   h4,
   h5,
   h6 {
-    @apply font-serif tracking-wide;
+    @apply font-serif font-light tracking-wide text-foreground;
   }
 
-  /* Enhanced form styling with gold accents */
+  /* Clean form styling */
   input,
   textarea,
   select {
-    @apply bg-input border-2 border-border shadow-sm rounded-md;
+    @apply bg-input border border-border shadow-sm rounded-lg transition-all duration-200;
   }
 
   input:focus,
   textarea:focus,
   select:focus {
-    @apply border-primary ring-2 ring-primary/20;
+    @apply border-primary ring-2 ring-primary/10 outline-none;
   }
 
-  /* Card styling with elegant borders */
+  /* Minimal card styling */
   .card {
-    @apply bg-card border-2 border-primary/20 shadow-lg rounded-lg;
+    @apply bg-card border border-border shadow-sm rounded-lg;
   }
 
   /* Script styling for decorative elements */
@@ -176,53 +170,40 @@
     @apply text-primary;
   }
 
-  /* Added Caramello font class */
-  .caramello {
-    font-family: var(--font-caramello);
-    @apply text-primary;
-  }
-
-  /* Added Island Moments font class */
+  /* Island Moments font class */
   .island-moments {
     font-family: var(--font-island-moments);
     @apply text-primary;
   }
 
-  /* Added decorative border class for invitation-style elements */
+  /* Clean decorative border inspired by the design references */
   .decorative-border {
-    @apply border-2 border-primary/30 bg-gradient-to-br from-background to-muted/50;
+    @apply border border-border bg-card/50 backdrop-blur-sm;
     position: relative;
   }
 
-  .decorative-border::after {
+  .decorative-border::before {
     content: "";
     position: absolute;
-    top: -1px;
-    left: -1px;
-    right: -1px;
-    bottom: -1px;
-    background: linear-gradient(
-      45deg,
-      rgba(212, 175, 55, 0.3) 0%,
-      rgba(192, 178, 131, 0.2) 25%,
-      transparent 50%,
-      rgba(192, 178, 131, 0.2) 75%,
-      rgba(212, 175, 55, 0.3) 100%
-    );
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(139, 115, 85, 0.03) 50%, transparent 100%);
     border-radius: inherit;
-    z-index: -1;
-    opacity: 0.6;
+    pointer-events: none;
   }
 
-  /* Added spaced lettering class for formal text */
+  /* Refined spaced lettering */
   .spaced-letters {
-    @apply tracking-widest uppercase;
+    @apply tracking-[0.2em] uppercase text-sm font-light;
   }
 
-  /* Simplified floral background using cleaner wedding invitation image */
+  /* Minimal background styling */
   .floral-background {
     position: relative;
     min-height: 100vh;
+    background: linear-gradient(135deg, #faf8f5 0%, #f5f2ed 100%);
   }
 
   .floral-background::before {
@@ -232,28 +213,47 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url("https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Wedding_Invitation_Page%203.jpg-61GrNFyYM1TLmcYD7mLO3U8liWj89Z.jpeg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    opacity: 0.3;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%238b7355' fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
     pointer-events: none;
     z-index: -1;
-  }
-
-  /* Fixed mobile and tablet background to show full floral image */
-  @media (max-width: 1024px) {
-    .floral-background::before {
-      background-attachment: scroll;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
   }
 
   .floral-background > * {
     position: relative;
     z-index: 1;
+  }
+
+  /* Enhanced button styling */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 border border-primary;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-primary border border-primary hover:bg-primary hover:text-primary-foreground;
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* Elegant section spacing */
+  .section-spacing {
+    @apply py-20 px-6;
+  }
+
+  /* Typography hierarchy inspired by the design references */
+  .display-text {
+    @apply font-serif text-5xl md:text-7xl font-light tracking-wide leading-tight;
+  }
+
+  .subtitle-text {
+    @apply font-serif text-xl md:text-2xl font-light tracking-wide text-muted-foreground;
+  }
+
+  .body-text {
+    @apply font-sans text-base leading-relaxed text-foreground;
+  }
+
+  .caption-text {
+    @apply font-sans text-sm tracking-wide uppercase text-muted-foreground;
   }
 }

@@ -66,182 +66,186 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen floral-background scroll-smooth" style={{ scrollSnapType: "y mandatory" }}>
-      <section className="relative py-20 px-4" style={{ scrollSnapAlign: "start" }}>
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="mb-8">
-            <div className="relative mx-auto mb-6 max-w-4xl">
+    <div className="min-h-screen floral-background">
+      {/* Hero Section */}
+      <section className="section-spacing">
+        <div className="max-w-6xl mx-auto">
+          {/* Photo Display */}
+          <div className="mb-16">
+            <div className="relative mx-auto mb-8 max-w-4xl">
               {proposalPhotos.photo1 || proposalPhotos.photo2 ? (
-                <div className="relative">
+                <div className="relative overflow-hidden rounded-2xl shadow-2xl">
                   <img
                     src={getCurrentPhoto() || "/placeholder.svg"}
                     alt="Proposal photos"
-                    className="w-full rounded-lg shadow-lg transition-opacity duration-1000 object-cover"
+                    className="w-full transition-opacity duration-1000 object-cover"
                     style={{ aspectRatio: "16 / 9" }}
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
               ) : (
-                <div className="w-full aspect-video bg-muted/50 rounded-lg flex items-center justify-center border-2 border-primary/20">
-                  <p className="text-muted-foreground font-serif">Loading proposal photos...</p>
+                <div className="w-full aspect-video bg-muted/30 rounded-2xl flex items-center justify-center border border-border">
+                  <p className="caption-text">Loading proposal photos...</p>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="mb-8 space-y-4">
-            <h1 className="island-moments text-5xl md:text-7xl font-bold text-primary mb-18">Varnie & Biraveen</h1>
-            <div className="script text-3xl md:text-4xl text-secondary mb-18">Wedding Invitation</div>
-            <p className="text-xl md:text-2xl text-foreground mb-12 spaced-letters font-serif">{t("homeSubtitle")}</p>
+          {/* Names and Title */}
+          <div className="text-center mb-16 space-y-6">
+            <h1 className="display-text island-moments">Varnie & Biraveen</h1>
+            <div className="script text-4xl md:text-5xl text-primary">Wedding Invitation</div>
+            <p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>
           </div>
 
-          <div className="mb-8 p-6 decorative-border rounded-lg">
-            <div className="grid md:grid-cols-2 gap-8 relative">
-              {/* Wedding Information - Left Side */}
-              <div className="text-center">
-                <div className="spaced-letters text-lg font-serif text-secondary mb-2">wedding ceremony</div>
-                <div className="spaced-letters text-lg font-serif text-secondary mb-2">march 27th 2026</div>
-                <div className="text-sm text-muted-foreground mb-2">at 9 am</div>
-              </div>
+          {/* Wedding Details */}
+          <div className="mb-16">
+            <div className="decorative-border rounded-2xl p-8 md:p-12 max-w-4xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-12">
+                {/* Ceremony */}
+                <div className="text-center space-y-3">
+                  <div className="caption-text text-primary mb-4">Wedding Ceremony</div>
+                  <div className="body-text text-2xl font-light">March 27th, 2026</div>
+                  <div className="caption-text">at 9:00 AM</div>
+                </div>
 
-              {/* Vertical Divider Line for desktop */}
-              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/30 transform -translate-x-1/2 hidden md:block"></div>
-
-              {/* Horizontal Divider Line for mobile */}
-              <div className="w-full h-px bg-primary/30 md:hidden"></div>
-
-              {/* Reception Information - Right Side */}
-              <div className="text-center">
-                <div className="spaced-letters text-lg font-serif text-secondary mb-2">reception</div>
-                <div className="spaced-letters text-lg font-serif text-secondary mb-2">march 28th 2026</div>
-                <div className="text-sm text-muted-foreground mb-2">at 5 pm</div>
+                {/* Reception */}
+                <div className="text-center space-y-3">
+                  <div className="caption-text text-primary mb-4">Reception</div>
+                  <div className="body-text text-2xl font-light">March 28th, 2026</div>
+                  <div className="caption-text">at 5:00 PM</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button
-              asChild
-              size="lg"
-              className="text-lg px-8 bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-primary"
-            >
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-20">
+            <Button asChild size="lg" className="btn-primary text-lg px-12 py-4 rounded-full">
               <Link href="/rsvp">{t("rsvpNow")}</Link>
             </Button>
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="text-lg px-8 border-2 border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground bg-transparent"
+              className="btn-secondary text-lg px-12 py-4 rounded-full bg-transparent"
             >
               <Link href="/events">{t("viewEvents")}</Link>
             </Button>
           </div>
 
-          <div className="w-full h-px bg-primary/30 mb-8" style={{ scrollSnapAlign: "start" }}></div>
-
-          <div className="mb-8 p-6 decorative-border rounded-lg">
-            <div className="text-base font-serif text-center mb-6 flex items-center justify-center gap-2">
-              <Heart className="w-5 h-5 text-primary" />
-              <span>{t("welcomeTitle").toUpperCase()}</span>
-              <Heart className="w-5 h-5 text-primary" />
-            </div>
-            <div className="text-center space-y-4">
-              <p className="text-lg leading-relaxed font-serif">{t("welcomeDescription1")}</p>
-              <p className="text-lg leading-relaxed font-serif">{t("welcomeDescription2")}</p>
-            </div>
-          </div>
-
-          <div className="mb-8">
-            <h3 className="text-xl font-serif text-secondary mb-4 spaced-letters">{t("countdownTitle")}</h3>
-            <div className="flex justify-center">
-              <div className="gap-6">
-                <CountdownTimer />
+          {/* Welcome Message */}
+          <div className="decorative-border rounded-2xl p-8 md:p-12 max-w-4xl mx-auto mb-16">
+            <div className="text-center space-y-6">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <Heart className="w-5 h-5 text-primary" />
+                <span className="caption-text text-primary">{t("welcomeTitle")}</span>
+                <Heart className="w-5 h-5 text-primary" />
+              </div>
+              <div className="space-y-4 max-w-3xl mx-auto">
+                <p className="body-text text-lg leading-relaxed">{t("welcomeDescription1")}</p>
+                <p className="body-text text-lg leading-relaxed">{t("welcomeDescription2")}</p>
               </div>
             </div>
           </div>
+
+          {/* Countdown */}
+          <div className="text-center mb-16">
+            <h3 className="caption-text text-primary mb-8">{t("countdownTitle")}</h3>
+            <CountdownTimer />
+          </div>
         </div>
       </section>
 
-      <section className="py-16 px-4" style={{ scrollSnapAlign: "start" }}>
-        <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="text-center decorative-border">
-              <CardContent className="p-6">
-                <Calendar className="w-8 h-8 text-primary mx-auto mb-3" />
-                <h3 className="font-serif font-semibold mb-2 spaced-letters text-sm">{t("ceremonyTitle")}</h3>
-                <p className="text-sm text-muted-foreground font-serif">{t("ceremonyDate")}</p>
-                <p className="text-sm text-muted-foreground font-serif">{t("ceremonyTime")}</p>
+      {/* Event Details Grid */}
+      <section className="section-spacing bg-muted/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <Card className="decorative-border text-center p-8">
+              <CardContent className="space-y-4">
+                <Calendar className="w-10 h-10 text-primary mx-auto" />
+                <h3 className="caption-text text-primary">{t("ceremonyTitle")}</h3>
+                <div className="space-y-1">
+                  <p className="body-text font-light">{t("ceremonyDate")}</p>
+                  <p className="caption-text">{t("ceremonyTime")}</p>
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="text-center decorative-border">
-              <CardContent className="p-6">
-                <Users className="w-8 h-8 text-secondary mx-auto mb-3" />
-                <h3 className="font-serif font-semibold mb-2 spaced-letters text-sm">{t("receptionTitle")}</h3>
-                <p className="text-sm text-muted-foreground font-serif">{t("receptionDate")}</p>
-                <p className="text-sm text-muted-foreground font-serif">{t("receptionTime")}</p>
+            <Card className="decorative-border text-center p-8">
+              <CardContent className="space-y-4">
+                <Users className="w-10 h-10 text-primary mx-auto" />
+                <h3 className="caption-text text-primary">{t("receptionTitle")}</h3>
+                <div className="space-y-1">
+                  <p className="body-text font-light">{t("receptionDate")}</p>
+                  <p className="caption-text">{t("receptionTime")}</p>
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="text-center decorative-border">
-              <CardContent className="p-6">
-                <MapPin className="w-8 h-8 text-primary mx-auto mb-3" />
-                <h3 className="font-serif font-semibold mb-2 spaced-letters text-sm">{t("locationTitle")}</h3>
-                <p className="text-sm text-muted-foreground font-serif">{t("homeLocation")}</p>
-                <p className="text-sm text-muted-foreground font-serif">{t("locationDescription")}</p>
+            <Card className="decorative-border text-center p-8">
+              <CardContent className="space-y-4">
+                <MapPin className="w-10 h-10 text-primary mx-auto" />
+                <h3 className="caption-text text-primary">{t("locationTitle")}</h3>
+                <div className="space-y-1">
+                  <p className="body-text font-light">{t("homeLocation")}</p>
+                  <p className="caption-text">{t("locationDescription")}</p>
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="text-center decorative-border">
-              <CardContent className="p-6">
-                <Heart className="w-8 h-8 text-secondary mx-auto mb-3" />
-                <h3 className="font-serif font-semibold mb-2 spaced-letters text-sm">{t("dressCodeTitle")}</h3>
-                <p className="text-sm text-muted-foreground font-serif">{t("dressCodeDescription")}</p>
+            <Card className="decorative-border text-center p-8">
+              <CardContent className="space-y-4">
+                <Heart className="w-10 h-10 text-primary mx-auto" />
+                <h3 className="caption-text text-primary">{t("dressCodeTitle")}</h3>
+                <p className="caption-text">{t("dressCodeDescription")}</p>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
-      <section className="py-16 px-4 bg-muted/30" style={{ scrollSnapAlign: "start" }}>
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-serif font-bold text-center text-primary mb-12 spaced-letters">
-            {t("traditionsTitle")}
+      {/* Traditions Section */}
+      <section className="section-spacing">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-center mb-16">
+            <span className="caption-text text-primary block mb-2">{t("traditionsTitle")}</span>
           </h2>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <Card className="decorative-border">
-              <CardHeader>
-                <CardTitle className="text-xl font-serif text-secondary">{t("sacredFireTitle")}</CardTitle>
+            <Card className="decorative-border p-8">
+              <CardHeader className="pb-4">
+                <CardTitle className="caption-text text-primary">{t("sacredFireTitle")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm leading-relaxed font-serif">{t("sacredFireDescription")}</p>
+                <p className="body-text leading-relaxed">{t("sacredFireDescription")}</p>
               </CardContent>
             </Card>
 
-            <Card className="decorative-border">
-              <CardHeader>
-                <CardTitle className="text-xl font-serif text-secondary">{t("mangalsutraTitle")}</CardTitle>
+            <Card className="decorative-border p-8">
+              <CardHeader className="pb-4">
+                <CardTitle className="caption-text text-primary">{t("mangalsutraTitle")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm leading-relaxed font-serif">{t("mangalsutraDescription")}</p>
+                <p className="body-text leading-relaxed">{t("mangalsutraDescription")}</p>
               </CardContent>
             </Card>
 
-            <Card className="decorative-border">
-              <CardHeader>
-                <CardTitle className="text-xl font-serif text-secondary">{t("saptapadiTitle")}</CardTitle>
+            <Card className="decorative-border p-8">
+              <CardHeader className="pb-4">
+                <CardTitle className="caption-text text-primary">{t("saptapadiTitle")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm leading-relaxed font-serif">{t("saptapadiDescription")}</p>
+                <p className="body-text leading-relaxed">{t("saptapadiDescription")}</p>
               </CardContent>
             </Card>
 
-            <Card className="decorative-border">
-              <CardHeader>
-                <CardTitle className="text-xl font-serif text-secondary">{t("ganeshTitle")}</CardTitle>
+            <Card className="decorative-border p-8">
+              <CardHeader className="pb-4">
+                <CardTitle className="caption-text text-primary">{t("ganeshTitle")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm leading-relaxed font-serif">{t("ganeshDescription")}</p>
+                <p className="body-text leading-relaxed">{t("ganeshDescription")}</p>
               </CardContent>
             </Card>
           </div>
