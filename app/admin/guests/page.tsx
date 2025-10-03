@@ -818,23 +818,56 @@ export default function GuestManagementPage() {
                                   : ">12"
                               : "-"}
                           </td>
-                          <td className="p-4">{guest.rsvpStatus}</td>
-                          <td className="p-4">{guest.events.length > 0 ? guest.events.join(", ") : "-"}</td>
-                          <td className="p-4">{guest.notes ? "YES" : "NO"}</td>
-                          <td className="p-4">{guest.questions ? "YES" : "NO"}</td>
+                          <td className="p-4">
+                            <span
+                              className={
+                                guest.rsvpStatus === "attending"
+                                  ? "text-green-600 font-medium"
+                                  : guest.rsvpStatus === "not-attending"
+                                    ? "text-red-600 font-medium"
+                                    : "text-orange-600 font-medium"
+                              }
+                            >
+                              {guest.rsvpStatus === "attending"
+                                ? "Attending"
+                                : guest.rsvpStatus === "not-attending"
+                                  ? "Not attending"
+                                  : "Pending"}
+                            </span>
+                          </td>
+                          {/* </CHANGE> */}
+                          <td className="p-4">
+                            {guest.events.length > 0 ? (
+                              <div className="flex gap-1 flex-wrap">
+                                {guest.events.map((event) => (
+                                  <span
+                                    key={event}
+                                    className="inline-block px-2 py-1 text-xs rounded-full bg-primary/10 text-primary"
+                                  >
+                                    {event === "ceremony" ? "Wedding" : "Reception"}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                          {/* </CHANGE> */}
+                          <td className="p-4">{guest.notes ? "Yes" : "No"}</td>
+                          <td className="p-4">{guest.questions ? "Yes" : "No"}</td>
+                          {/* </CHANGE> */}
                           <td className="p-4">{guest.dietaryRequirements ? "Yes" : "No"}</td>
                           <td className="p-4 text-xs">
                             {new Date(guest.lastUpdated).toLocaleString("en-US", {
                               timeZone: "UTC",
-                              timeZoneName: "short",
                             })}
                           </td>
                           <td className="p-4 text-xs">
                             {new Date(guest.createdAt).toLocaleString("en-US", {
                               timeZone: "UTC",
-                              timeZoneName: "short",
                             })}
                           </td>
+                          {/* </CHANGE> */}
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button
@@ -919,23 +952,56 @@ export default function GuestManagementPage() {
                                   : ">12"
                               : "-"}
                           </td>
-                          <td className="p-4">{member.rsvpStatus}</td>
-                          <td className="p-4">{member.events.length > 0 ? member.events.join(", ") : "-"}</td>
-                          <td className="p-4">{member.notes ? "YES" : "NO"}</td>
-                          <td className="p-4">{member.questions ? "YES" : "NO"}</td>
+                          <td className="p-4">
+                            <span
+                              className={
+                                member.rsvpStatus === "attending"
+                                  ? "text-green-600 font-medium"
+                                  : member.rsvpStatus === "not-attending"
+                                    ? "text-red-600 font-medium"
+                                    : "text-orange-600 font-medium"
+                              }
+                            >
+                              {member.rsvpStatus === "attending"
+                                ? "Attending"
+                                : member.rsvpStatus === "not-attending"
+                                  ? "Not attending"
+                                  : "Pending"}
+                            </span>
+                          </td>
+                          {/* </CHANGE> */}
+                          <td className="p-4">
+                            {member.events.length > 0 ? (
+                              <div className="flex gap-1 flex-wrap">
+                                {member.events.map((event) => (
+                                  <span
+                                    key={event}
+                                    className="inline-block px-2 py-1 text-xs rounded-full bg-primary/10 text-primary"
+                                  >
+                                    {event === "ceremony" ? "Wedding" : "Reception"}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                          {/* </CHANGE> */}
+                          <td className="p-4">{member.notes ? "Yes" : "No"}</td>
+                          <td className="p-4">{member.questions ? "Yes" : "No"}</td>
+                          {/* </CHANGE> */}
                           <td className="p-4">{member.dietaryRequirements ? "Yes" : "No"}</td>
                           <td className="p-4 text-xs">
                             {new Date(member.lastUpdated).toLocaleString("en-US", {
                               timeZone: "UTC",
-                              timeZoneName: "short",
                             })}
                           </td>
                           <td className="p-4 text-xs">
                             {new Date(member.createdAt).toLocaleString("en-US", {
                               timeZone: "UTC",
-                              timeZoneName: "short",
                             })}
                           </td>
+                          {/* </CHANGE> */}
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button
@@ -1033,7 +1099,9 @@ export default function GuestManagementPage() {
                 <Checkbox
                   id="isChild"
                   checked={guestFormData.isChild}
-                  onCheckedChange={(checked) => setGuestFormData({ ...guestFormData, isChild: checked as boolean })}
+                  onCheckedChange={(checked) =>
+                    setGuestFormData({ ...guestFormData, isChild: checked as boolean, ageGroup: "" })
+                  }
                 />
                 <Label htmlFor="isChild" className="cursor-pointer">
                   This guest is a child
@@ -1045,7 +1113,7 @@ export default function GuestManagementPage() {
                   <Label>Age Group (Optional)</Label>
                   <Select
                     value={guestFormData.ageGroup}
-                    onValueChange={(value: "under-4" | "4-12" | "over-12") =>
+                    onValueChange={(value: "" | "under-4" | "4-12" | "over-12") =>
                       setGuestFormData({ ...guestFormData, ageGroup: value })
                     }
                   >

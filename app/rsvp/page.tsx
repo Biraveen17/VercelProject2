@@ -87,6 +87,21 @@ export default function RSVPPage() {
       return
     }
 
+    if (searchResult?.type === "group" && searchResult.guests) {
+      const totalGuests = searchResult.guests.length
+      const namedGuests = searchResult.guests.filter((g) => {
+        const name = guestNames[g._id]
+        return name && name.trim() !== ""
+      }).length
+
+      if (namedGuests < totalGuests) {
+        setError(
+          `This group contains ${totalGuests} guest${totalGuests > 1 ? "s" : ""} but you have only provided ${namedGuests} name${namedGuests !== 1 ? "s" : ""}. Please enter all guest names or contact us if you need assistance.`,
+        )
+        return
+      }
+    }
+
     setIsLoading(true)
 
     try {
