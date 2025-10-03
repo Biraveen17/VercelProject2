@@ -214,9 +214,9 @@
     right: 0;
     bottom: 0;
     background-image: url("/wedding-floral-background.jpg");
-    background-size: contain; /* Use contain to fit entire image on mobile without zooming */
-    background-position: center;
-    background-repeat: no-repeat;
+    background-size: 100% auto;
+    background-position: center top;
+    background-repeat: repeat-y;
     background-attachment: scroll;
     opacity: 0.4;
     pointer-events: none;
