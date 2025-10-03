@@ -66,7 +66,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen floral-background">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <section className="section-spacing">
         <div className="max-w-6xl mx-auto">
@@ -158,7 +158,7 @@ export default function HomePage() {
       </section>
 
       {/* Event Details Grid */}
-      <section className="section-spacing bg-muted/30">
+      <section className="section-spacing">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card className="decorative-border text-center p-8">
