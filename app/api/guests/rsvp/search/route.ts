@@ -20,10 +20,12 @@ export async function GET(request: NextRequest) {
     })
 
     if (guest) {
-      // Check if guest already submitted RSVP
       if (guest.rsvpStatus && guest.rsvpStatus !== "pending") {
         return NextResponse.json(
-          { error: "You have already submitted your RSVP. If you need to make changes, please contact us directly." },
+          {
+            error:
+              "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
+          },
           { status: 400 },
         )
       }
@@ -34,14 +36,13 @@ export async function GET(request: NextRequest) {
           return NextResponse.json({ error: "Group not found" }, { status: 404 })
         }
 
-        // Check if group already submitted RSVP
         const groupGuests = await guestsCollection.find({ groupId: guest.groupId }).toArray()
         const hasSubmittedRSVP = groupGuests.some((g) => g.rsvpStatus && g.rsvpStatus !== "pending")
         if (hasSubmittedRSVP) {
           return NextResponse.json(
             {
               error:
-                "Your group has already submitted an RSVP. If you need to make changes, please contact us directly.",
+                "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
             },
             { status: 400 },
           )
@@ -67,12 +68,12 @@ export async function GET(request: NextRequest) {
     if (group) {
       const groupGuests = await guestsCollection.find({ groupId: group._id.toString() }).toArray()
 
-      // Check if group already submitted RSVP
       const hasSubmittedRSVP = groupGuests.some((g) => g.rsvpStatus && g.rsvpStatus !== "pending")
       if (hasSubmittedRSVP) {
         return NextResponse.json(
           {
-            error: "Your group has already submitted an RSVP. If you need to make changes, please contact us directly.",
+            error:
+              "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
           },
           { status: 400 },
         )
@@ -85,9 +86,11 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // No match found
     return NextResponse.json(
-      { error: "Guest name not found. Please check the spelling or contact us for assistance." },
+      {
+        error:
+          "You have either already submitted your RSVP or your name was not found. If you need to make changes, please contact us directly.",
+      },
       { status: 404 },
     )
   } catch (error) {
