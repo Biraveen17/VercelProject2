@@ -24,26 +24,35 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const body = await request.json()
     const collection = await getGuestsCollection()
 
-    const result = await collection.updateOne(
-      { _id: new ObjectId(params.id) },
-      {
-        $set: {
-          name: body.name,
-          guestType: body.guestType,
-          isChild: body.isChild || false,
-          ageGroup: body.ageGroup || undefined,
-          side: body.side || null,
-          groupId: body.groupId || null,
-          notes: body.notes || "",
-          rsvpStatus: body.rsvpStatus || "pending",
-          events: body.events || [],
-          dietaryRequirements: body.dietaryRequirements || "",
-          questions: body.questions || "",
-          lockStatus: body.lockStatus || "unlocked",
-          lastUpdated: new Date().toISOString(),
-        },
-      },
-    )
+    const existingGuest = await collection.findOne({ _id: new ObjectId(params.id) })
+
+    if (!existingGuest) {
+      return NextResponse.json({ error: "Guest not found" }, { status: 404 })
+    }
+
+    const isOnlyLockStatusUpdate =
+      body.lockStatus !== undefined && body.lockStatus !== existingGuest.lockStatus && Object.keys(body).length === 1
+
+    const updateData: any = {
+      name: body.name,
+      guestType: body.guestType,
+      isChild: body.isChild || false,
+      ageGroup: body.ageGroup || undefined,
+      side: body.side || null,
+      groupId: body.groupId || null,
+      notes: body.notes || "",
+      rsvpStatus: body.rsvpStatus || "pending",
+      events: body.events || [],
+      dietaryRequirements: body.dietaryRequirements || "",
+      questions: body.questions || "",
+      lockStatus: body.lockStatus || "unlocked",
+    }
+
+    if (!isOnlyLockStatusUpdate) {
+      updateData.lastUpdated = new Date().toISOString()
+    }
+
+    const result = await collection.updateOne({ _id: new ObjectId(params.id) }, { $set: updateData })
 
     if (result.matchedCount === 0) {
       return NextResponse.json({ error: "Guest not found" }, { status: 404 })
