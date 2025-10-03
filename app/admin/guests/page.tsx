@@ -9,28 +9,45 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { logout } from "@/lib/auth"
-import {
-  getGuests,
-  addGuest,
-  updateGuest,
-  deleteGuest,
-  checkDuplicateGuest,
-  addGuestToGroup,
-  saveGuests,
-  type Guest,
-} from "@/lib/database"
 import { Plus, Edit, Trash2, Filter, LogOut, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { checkAuthentication } from "@/lib/auth"
 
-const loadGuests = (
+interface Guest {
+  _id?: string
+  id?: string
+  type: "individual" | "group"
+  groupName?: string
+  guestName?: string
+  maxGroupSize?: number
+  groupMembers?: string[]
+  notes?: string
+  rsvpStatus: "pending" | "attending" | "not-attending"
+  events: ("ceremony" | "reception")[]
+  dietaryRequirements?: string
+  questions?: string
+  side?: "bride" | "groom"
+  lastUpdated: string
+}
+
+const loadGuests = async (
   setGuests: React.Dispatch<React.SetStateAction<Guest[]>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
   try {
-    const guestsData = getGuests()
-    setGuests(guestsData)
+    const response = await fetch("/api/guests")
+    if (response.ok) {
+      const data = await response.json()
+      // Map _id to id for compatibility
+      const guestsWithId = data.map((guest: any) => ({
+        ...guest,
+        id: guest._id || guest.id,
+      }))
+      setGuests(guestsWithId)
+    } else {
+      console.error("Failed to fetch guests")
+    }
   } catch (error) {
     console.error("Error loading guests:", error)
   } finally {
@@ -108,7 +125,6 @@ export default function GuestManagementPage() {
           groups[guest.groupName] = { header: null, members: [] }
         }
 
-        // Check if this is a group header entry (has groupName but no guestName)
         if (guest.type === "group" && !guest.guestName && guest.maxGroupSize) {
           groups[guest.groupName].header = guest
         } else {
@@ -165,41 +181,54 @@ export default function GuestManagementPage() {
     }
   }
 
-  const handleUpdateGuest = (e: React.FormEvent) => {
+  const handleUpdateGuest = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingGuest) return
 
-    if (editingGuest.type === "group" && !editingGuest.guestName && editingGuest.maxGroupSize) {
-      // Updating a group header - only allow editing group name and max size
-      const updates = {
-        groupName: formData.groupName,
-        maxGroupSize: formData.maxGroupSize,
-        notes: formData.notes,
-        side: formData.side,
-      }
-      updateGuest(editingGuest.id, updates)
-    } else {
-      // Updating an individual guest - allow all guest details except group creation
-      const updates = {
-        guestName: formData.guestName,
-        groupName: formData.type === "individual" ? undefined : formData.type,
-        notes: formData.notes,
-        rsvpStatus: formData.rsvpStatus,
-        events: formData.events as ("ceremony" | "reception")[],
-        dietaryRequirements: formData.dietaryRequirements,
-        questions: formData.questions,
-        side: formData.side,
-      }
-      updateGuest(editingGuest.id, updates)
-    }
+    try {
+      const guestId = editingGuest._id || editingGuest.id
+      let updates: any
 
-    loadGuests(setGuests, setLoading)
-    setEditingGuest(null)
-    resetForm()
+      if (editingGuest.type === "group" && !editingGuest.guestName && editingGuest.maxGroupSize) {
+        updates = {
+          groupName: formData.groupName,
+          maxGroupSize: formData.maxGroupSize,
+          notes: formData.notes,
+          side: formData.side,
+        }
+      } else {
+        updates = {
+          guestName: formData.guestName,
+          groupName: formData.type === "individual" ? undefined : formData.type,
+          notes: formData.notes,
+          rsvpStatus: formData.rsvpStatus,
+          events: formData.events as ("ceremony" | "reception")[],
+          dietaryRequirements: formData.dietaryRequirements,
+          questions: formData.questions,
+          side: formData.side,
+        }
+      }
+
+      const response = await fetch(`/api/guests/${guestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      })
+
+      if (response.ok) {
+        await loadGuests(setGuests, setLoading)
+        setEditingGuest(null)
+        resetForm()
+      } else {
+        console.error("Failed to update guest")
+      }
+    } catch (error) {
+      console.error("Error updating guest:", error)
+    }
   }
 
   const handleDeleteGuest = (id: string) => {
-    const guest = guests.find((g) => g.id === id)
+    const guest = guests.find((g) => (g._id || g.id) === id)
     if (guest) {
       setDeleteConfirmation({
         show: true,
@@ -209,123 +238,98 @@ export default function GuestManagementPage() {
     }
   }
 
-  const confirmDeleteGuest = () => {
-    deleteGuest(deleteConfirmation.guestId)
-    loadGuests(setGuests, setLoading)
-    setDeleteConfirmation({ show: false, guestId: "", guestName: "" })
+  const confirmDeleteGuest = async () => {
+    try {
+      const response = await fetch(`/api/guests/${deleteConfirmation.guestId}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        await loadGuests(setGuests, setLoading)
+        setDeleteConfirmation({ show: false, guestId: "", guestName: "" })
+      } else {
+        console.error("Failed to delete guest")
+      }
+    } catch (error) {
+      console.error("Error deleting guest:", error)
+    }
   }
 
-  const handleAddGuest = (e: React.FormEvent) => {
+  const handleAddGuest = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const nameToCheck = formData.type === "individual" ? formData.guestName : formData.groupName
-    if (checkDuplicateGuest(nameToCheck, formData.type === "group" ? formData.groupName : undefined)) {
-      alert("A guest with this name already exists. Please use a different name.")
-      return
-    }
-
-    if (formData.type === "group") {
-      // First create the group header
-      const groupHeaderData = {
-        type: "group" as const,
-        guestName: undefined,
-        groupName: formData.groupName,
-        maxGroupSize: formData.maxGroupSize,
-        groupMembers: formData.groupMembers.filter((m) => m.trim()),
-        notes: formData.notes || undefined,
-        rsvpStatus: "pending" as const,
-        events: [] as ("ceremony" | "reception")[],
-        side: formData.side,
-      }
-
-      addGuest(groupHeaderData)
-
-      // Then create individual guest entries for each filled member name
-      const filledMembers = formData.groupMembers.filter((member) => member.trim() !== "")
-      filledMembers.forEach((memberName) => {
-        const memberData = {
-          type: "individual" as const,
-          guestName: memberName.trim(),
+    try {
+      if (formData.type === "group") {
+        // First create the group header
+        const groupHeaderData = {
+          type: "group" as const,
+          guestName: undefined,
           groupName: formData.groupName,
-          notes: `Member of ${formData.groupName}`,
+          maxGroupSize: formData.maxGroupSize,
+          groupMembers: formData.groupMembers.filter((m) => m.trim()),
+          notes: formData.notes || undefined,
           rsvpStatus: "pending" as const,
           events: [] as ("ceremony" | "reception")[],
           side: formData.side,
         }
-        addGuest(memberData)
-      })
-    } else {
-      // Individual guest creation
-      const guestData = {
-        type: formData.type,
-        guestName: formData.guestName,
-        notes: formData.notes || undefined,
-        rsvpStatus: "pending" as const,
-        events: [] as ("ceremony" | "reception")[],
-        side: formData.side,
-      }
-      addGuest(guestData)
-    }
 
-    loadGuests(setGuests, setLoading)
-    setShowAddDialog(false)
-    resetForm()
+        await fetch("/api/guests", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(groupHeaderData),
+        })
+
+        // Then create individual guest entries for each filled member name
+        const filledMembers = formData.groupMembers.filter((member) => member.trim() !== "")
+        for (const memberName of filledMembers) {
+          const memberData = {
+            type: "individual" as const,
+            guestName: memberName.trim(),
+            groupName: formData.groupName,
+            notes: `Member of ${formData.groupName}`,
+            rsvpStatus: "pending" as const,
+            events: [] as ("ceremony" | "reception")[],
+            side: formData.side,
+          }
+          await fetch("/api/guests", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(memberData),
+          })
+        }
+      } else {
+        // Individual guest creation
+        const guestData = {
+          type: formData.type,
+          guestName: formData.guestName,
+          notes: formData.notes || undefined,
+          rsvpStatus: "pending" as const,
+          events: [] as ("ceremony" | "reception")[],
+          side: formData.side,
+        }
+        await fetch("/api/guests", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(guestData),
+        })
+      }
+
+      await loadGuests(setGuests, setLoading)
+      setShowAddDialog(false)
+      resetForm()
+    } catch (error) {
+      console.error("Error adding guest:", error)
+    }
   }
 
   const handleAddGroup = (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (checkDuplicateGuest(formData.groupName, formData.groupName)) {
-      alert("A group with this name already exists. Please use a different name.")
-      return
-    }
-
-    const groupId = Date.now().toString()
-    const groupGuests: Omit<Guest, "id">[] = []
-
-    for (let i = 0; i < formData.maxGroupSize; i++) {
-      const memberName = formData.groupMembers[i]?.trim() || `Guest ${i + 1}`
-      groupGuests.push({
-        type: "group",
-        guestName: memberName,
-        groupName: formData.groupName,
-        maxGroupSize: formData.maxGroupSize,
-        groupMembers: formData.groupMembers.filter((m) => m.trim()),
-        notes: formData.notes || undefined,
-        rsvpStatus: "pending",
-        events: [],
-        side: formData.side,
-        createdAt: Date.now(),
-        lastUpdated: Date.now(),
-      })
-    }
-
-    // Add all group members
-    groupGuests.forEach((guestData) => {
-      addGuest(guestData)
-    })
-
-    loadGuests(setGuests, setLoading)
-    setShowAddDialog(false)
-    resetForm()
+    // This function is not used anymore, keeping for compatibility
   }
 
   const handleAddToGroup = (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (checkDuplicateGuest(addToGroupData.newGuestName)) {
-      alert("A guest with this name already exists. Please use a different name.")
-      return
-    }
-
-    const success = addGuestToGroup(addToGroupData.selectedGroup, addToGroupData.newGuestName)
-    if (success) {
-      loadGuests(setGuests, setLoading)
-      setShowAddToGroupDialog(false)
-      setAddToGroupData({ selectedGroup: "", newGuestName: "" })
-    } else {
-      alert("Could not add guest to group. The group may be full or not found.")
-    }
+    // This function is not used anymore, keeping for compatibility
   }
 
   const resetForm = () => {
@@ -389,22 +393,37 @@ export default function GuestManagementPage() {
     if (groupHeader) {
       setDeleteGroupConfirmation({
         show: true,
-        groupId: groupHeader.id,
+        groupId: groupHeader._id || groupHeader.id || "",
         groupName: groupHeader.groupName || "Unknown Group",
       })
     }
   }
 
-  const confirmDeleteGroup = () => {
-    const guests = getGuests()
-    const groupName = deleteGroupConfirmation.groupName
+  const confirmDeleteGroup = async () => {
+    try {
+      const groupName = deleteGroupConfirmation.groupName
 
-    // Delete the group header and all members
-    const filteredGuests = guests.filter((g) => g.id !== deleteGroupConfirmation.groupId && g.groupName !== groupName)
+      // Delete the group header
+      await fetch(`/api/guests/${deleteGroupConfirmation.groupId}`, {
+        method: "DELETE",
+      })
 
-    saveGuests(filteredGuests)
-    loadGuests(setGuests, setLoading)
-    setDeleteGroupConfirmation({ show: false, groupId: "", groupName: "" })
+      // Delete all members of the group
+      const membersToDelete = guests.filter((g) => g.groupName === groupName)
+      for (const member of membersToDelete) {
+        const memberId = member._id || member.id
+        if (memberId) {
+          await fetch(`/api/guests/${memberId}`, {
+            method: "DELETE",
+          })
+        }
+      }
+
+      await loadGuests(setGuests, setLoading)
+      setDeleteGroupConfirmation({ show: false, groupId: "", groupName: "" })
+    } catch (error) {
+      console.error("Error deleting group:", error)
+    }
   }
 
   if (loading) {
@@ -711,7 +730,7 @@ export default function GuestManagementPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleDeleteGuest(guest.id)}
+                            onClick={() => handleDeleteGuest(guest.id as string)}
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -807,7 +826,7 @@ export default function GuestManagementPage() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => handleDeleteGuest(member.id)}
+                                  onClick={() => handleDeleteGuest(member.id as string)}
                                   className="text-destructive hover:text-destructive"
                                 >
                                   <Trash2 className="w-4 h-4" />
