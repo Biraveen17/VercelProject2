@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
 import { logout } from "@/lib/auth"
-import { Plus, Edit, Trash2, LogOut, ArrowLeft, Users } from "lucide-react"
+import { Plus, Edit, Trash2, LogOut, ArrowLeft, Users, Download } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { checkAuthentication } from "@/lib/auth"
@@ -81,6 +81,16 @@ export default function GuestManagementPage() {
 
   const [errorMessage, setErrorMessage] = useState("")
 
+  const [filters, setFilters] = useState({
+    name: "",
+    type: "",
+    side: "",
+    rsvpStatus: "",
+    ageGroup: "",
+    hasNotes: "",
+    hasQuestions: "",
+  })
+
   const loadData = async () => {
     try {
       const [groupsResponse, guestsResponse] = await Promise.all([fetch("/api/groups"), fetch("/api/guests")])
@@ -126,7 +136,21 @@ export default function GuestManagementPage() {
     const groupedData: { [key: string]: { group: Group; members: Guest[] } } = {}
     const ungrouped: Guest[] = []
 
-    guests.forEach((guest) => {
+    // Apply filters
+    const filteredGuests = guests.filter((guest) => {
+      if (filters.name && !guest.name.toLowerCase().includes(filters.name.toLowerCase())) return false
+      if (filters.type && filters.type !== "all" && guest.guestType !== filters.type) return false
+      if (filters.side && filters.side !== "all" && guest.side !== filters.side) return false
+      if (filters.rsvpStatus && filters.rsvpStatus !== "all" && guest.rsvpStatus !== filters.rsvpStatus) return false
+      if (filters.ageGroup && filters.ageGroup !== "all" && guest.ageGroup !== filters.ageGroup) return false
+      if (filters.hasNotes === "yes" && !guest.notes) return false
+      if (filters.hasNotes === "no" && guest.notes) return false
+      if (filters.hasQuestions === "yes" && !guest.questions) return false
+      if (filters.hasQuestions === "no" && guest.questions) return false
+      return true
+    })
+
+    filteredGuests.forEach((guest) => {
       if (guest.groupId) {
         const group = groups.find((g) => (g._id || g.id) === guest.groupId)
         if (group) {
@@ -143,8 +167,73 @@ export default function GuestManagementPage() {
       }
     })
 
+    // Sort members within each group: defined first, then TBC, both by createdAt
+    Object.values(groupedData).forEach((groupData) => {
+      groupData.members.sort((a, b) => {
+        // First sort by guest type (defined before TBC)
+        if (a.guestType !== b.guestType) {
+          return a.guestType === "defined" ? -1 : 1
+        }
+        // Then sort by creation date within the same type
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      })
+    })
+
+    // Sort ungrouped guests the same way
+    ungrouped.sort((a, b) => {
+      if (a.guestType !== b.guestType) {
+        return a.guestType === "defined" ? -1 : 1
+      }
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    })
+
     return { groups: groupedData, ungrouped }
-  }, [guests, groups])
+  }, [guests, groups, filters])
+
+  const exportToCSV = () => {
+    const headers = [
+      "Name",
+      "Type",
+      "Side",
+      "Child",
+      "Age Group",
+      "RSVP Status",
+      "Events",
+      "Dietary Requirements",
+      "Has Notes",
+      "Has Questions",
+      "Group",
+    ]
+
+    const rows = guests.map((guest) => {
+      const group = guest.groupId ? groups.find((g) => (g._id || g.id) === guest.groupId)?.name || "" : ""
+      return [
+        guest.name,
+        guest.guestType === "defined" ? "Defined" : "TBC",
+        guest.side === "bride" ? "Bride" : "Groom",
+        guest.isChild ? "Yes" : "No",
+        guest.isChild && guest.ageGroup ? guest.ageGroup : "",
+        guest.rsvpStatus,
+        guest.events.join(", "),
+        guest.dietaryRequirements || "",
+        guest.notes ? "Yes" : "No",
+        guest.questions ? "Yes" : "No",
+        group,
+      ]
+    })
+
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", `wedding-guests-${new Date().toISOString().split("T")[0]}.csv`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
   const handleAddIndividualGuest = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -539,6 +628,10 @@ export default function GuestManagementPage() {
             <Users className="w-4 h-4 mr-2" />
             Add Group
           </Button>
+          <Button onClick={exportToCSV} variant="outline" className="w-full sm:w-auto bg-transparent">
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
         </div>
 
         {/* Guest List */}
@@ -548,12 +641,122 @@ export default function GuestManagementPage() {
               <table className="w-full">
                 <thead className="bg-muted">
                   <tr>
-                    <th className="p-4 text-left">Name</th>
-                    <th className="p-4 text-left">Type</th>
-                    <th className="p-4 text-left">Side</th>
-                    <th className="p-4 text-left">RSVP Status</th>
+                    <th className="p-4 text-left">
+                      <div className="flex flex-col gap-2">
+                        <span>Name</span>
+                        <Input
+                          placeholder="Filter..."
+                          value={filters.name}
+                          onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                    </th>
+                    <th className="p-4 text-left">
+                      <div className="flex flex-col gap-2">
+                        <span>Type</span>
+                        <Select value={filters.type} onValueChange={(value) => setFilters({ ...filters, type: value })}>
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="defined">Defined</SelectItem>
+                            <SelectItem value="tbc">TBC</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </th>
+                    <th className="p-4 text-left">
+                      <div className="flex flex-col gap-2">
+                        <span>Side</span>
+                        <Select value={filters.side} onValueChange={(value) => setFilters({ ...filters, side: value })}>
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="bride">Bride</SelectItem>
+                            <SelectItem value="groom">Groom</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </th>
+                    <th className="p-4 text-left">
+                      <div className="flex flex-col gap-2">
+                        <span>Age Group</span>
+                        <Select
+                          value={filters.ageGroup}
+                          onValueChange={(value) => setFilters({ ...filters, ageGroup: value })}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="under-4">&lt;4</SelectItem>
+                            <SelectItem value="4-12">4-12</SelectItem>
+                            <SelectItem value="over-12">&gt;12</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </th>
+                    <th className="p-4 text-left">
+                      <div className="flex flex-col gap-2">
+                        <span>RSVP Status</span>
+                        <Select
+                          value={filters.rsvpStatus}
+                          onValueChange={(value) => setFilters({ ...filters, rsvpStatus: value })}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="attending">Attending</SelectItem>
+                            <SelectItem value="not-attending">Not Attending</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </th>
                     <th className="p-4 text-left">Events</th>
-                    <th className="p-4 text-left">Notes</th>
+                    <th className="p-4 text-left">
+                      <div className="flex flex-col gap-2">
+                        <span>Notes</span>
+                        <Select
+                          value={filters.hasNotes}
+                          onValueChange={(value) => setFilters({ ...filters, hasNotes: value })}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="yes">Yes</SelectItem>
+                            <SelectItem value="no">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </th>
+                    <th className="p-4 text-left">
+                      <div className="flex flex-col gap-2">
+                        <span>Questions</span>
+                        <Select
+                          value={filters.hasQuestions}
+                          onValueChange={(value) => setFilters({ ...filters, hasQuestions: value })}
+                        >
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="yes">Yes</SelectItem>
+                            <SelectItem value="no">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </th>
                     <th className="p-4 text-left">Actions</th>
                   </tr>
                 </thead>
@@ -562,7 +765,7 @@ export default function GuestManagementPage() {
                   {groupedGuests.ungrouped.length > 0 && (
                     <>
                       <tr className="bg-blue-100 dark:bg-blue-900/20">
-                        <td colSpan={7} className="p-3 font-semibold text-blue-800 dark:text-blue-200">
+                        <td colSpan={9} className="p-3 font-semibold text-blue-800 dark:text-blue-200">
                           Individual Guests ({groupedGuests.ungrouped.length})
                         </td>
                       </tr>
@@ -573,17 +776,23 @@ export default function GuestManagementPage() {
                             {guest.guestType === "tbc" && (
                               <span className="text-xs text-blue-600 font-semibold">(TBC)</span>
                             )}
-                            {guest.isChild && (
-                              <span className="text-xs text-muted-foreground">
-                                (Child{guest.ageGroup ? ` - ${guest.ageGroup}` : ""})
-                              </span>
-                            )}
+                            {guest.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
                           </td>
                           <td className="p-4">{guest.guestType === "defined" ? "Defined" : "TBC"}</td>
                           <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
+                          <td className="p-4">
+                            {guest.isChild && guest.ageGroup
+                              ? guest.ageGroup === "under-4"
+                                ? "<4"
+                                : guest.ageGroup === "4-12"
+                                  ? "4-12"
+                                  : ">12"
+                              : "-"}
+                          </td>
                           <td className="p-4">{guest.rsvpStatus}</td>
                           <td className="p-4">{guest.events.length > 0 ? guest.events.join(", ") : "-"}</td>
-                          <td className="p-4 max-w-xs truncate">{guest.notes || "-"}</td>
+                          <td className="p-4">{guest.notes ? "YES" : "NO"}</td>
+                          <td className="p-4">{guest.questions ? "YES" : "NO"}</td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button
@@ -616,9 +825,11 @@ export default function GuestManagementPage() {
                         <td className="p-3 font-semibold text-red-800 dark:text-red-200">GROUP: {group.name}</td>
                         <td className="p-3 text-red-800 dark:text-red-200">Group ({members.length})</td>
                         <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3 text-red-800 dark:text-red-200" colSpan={3}>
                           -
                         </td>
+                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3">
                           <div className="flex gap-2">
                             <Button
@@ -650,17 +861,23 @@ export default function GuestManagementPage() {
                             {member.guestType === "tbc" && (
                               <span className="text-xs text-blue-600 font-semibold">(TBC)</span>
                             )}
-                            {member.isChild && (
-                              <span className="text-xs text-muted-foreground">
-                                (Child{member.ageGroup ? ` - ${member.ageGroup}` : ""})
-                              </span>
-                            )}
+                            {member.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
                           </td>
                           <td className="p-4">{member.guestType === "defined" ? "Defined" : "TBC"}</td>
                           <td className="p-4">{member.side === "bride" ? "Bride" : "Groom"}</td>
+                          <td className="p-4">
+                            {member.isChild && member.ageGroup
+                              ? member.ageGroup === "under-4"
+                                ? "<4"
+                                : member.ageGroup === "4-12"
+                                  ? "4-12"
+                                  : ">12"
+                              : "-"}
+                          </td>
                           <td className="p-4">{member.rsvpStatus}</td>
                           <td className="p-4">{member.events.length > 0 ? member.events.join(", ") : "-"}</td>
-                          <td className="p-4 max-w-xs truncate">{member.notes || "-"}</td>
+                          <td className="p-4">{member.notes ? "YES" : "NO"}</td>
+                          <td className="p-4">{member.questions ? "YES" : "NO"}</td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <Button
