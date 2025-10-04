@@ -23,7 +23,7 @@ export default function EventsPage() {
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-3 mb-4">
                   <div>
-                    <h2 className="caption-text text-primary">Hindu Wedding Ceremony</h2>
+                    <h2 className="caption-text text-primary">Wedding Ceremony</h2>
                     <p className="body-text">Traditional Tamil Hindu Rituals</p>
                   </div>
                 </div>
@@ -40,7 +40,7 @@ export default function EventsPage() {
                 <div className="flex items-start gap-3">
                   <Clock className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                   <div>
-                    <p className="body-text">10:00 AM - 17:00</p>
+                    <p className="body-text">10:00 - 17:00</p>
                   </div>
                 </div>
 
@@ -114,7 +114,7 @@ export default function EventsPage() {
                   <div>
                     <p className="body-text">Dress Code</p>
                     <p className="caption-text">Suit, black tie optional</p>
-                    <p className="caption-text">Cocktail dresses, saree, lehenga</p>
+                    <p className="caption-text">Cocktail dress, saree, lehenga</p>
                   </div>
                 </div>
 
