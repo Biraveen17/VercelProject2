@@ -15,7 +15,7 @@ export default function VenuePage() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="display-text mb-6">
-            {t("venue")} & {t("locationTitle")}
+            {t("locationTitle")}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">{t("venueDescription")}</p>
         </div>
