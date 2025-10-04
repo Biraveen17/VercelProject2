@@ -108,7 +108,7 @@ export default function HomePage() {
                 {/* Wedding */}
                 <div className="text-center space-y-3">
                   <div className="caption-text text-primary mb-4">Wedding</div>
-                  <div className="body-text text-2xl font-light">March 27th 2026</div>
+                  <div className="body-text text-2xl font-light">March 27th<sup style="vertical-align: super;">th</sup> 2026</div>
                   <div className="caption-text">9:00</div>
                 </div>
                 
