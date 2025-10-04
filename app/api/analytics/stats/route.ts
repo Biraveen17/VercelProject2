@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server"
 import { getPageVisitsCollection, getRsvpSubmissionsCollection } from "@/lib/mongodb"
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 export async function GET() {
   try {
     const requestTime = new Date().toISOString()
