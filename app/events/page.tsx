@@ -222,7 +222,7 @@ export default function EventsPage() {
                     <span className="caption-text">{t("dinnerService")}</span>
                   </div>
                   <div className="flex gap-4">
-                    <span className="body-text text-primary w-20">{t("time2230")}</span>
+                    <span className="body-text text-primary w-20">{t("time2200")}</span>
                     <span className="caption-text">{t("danceFloor")}</span>
                   </div>
                 </div>
