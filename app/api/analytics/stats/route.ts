@@ -3,10 +3,16 @@ import { getPageVisitsCollection, getRsvpSubmissionsCollection } from "@/lib/mon
 
 export async function GET() {
   try {
-    console.log("[v0] Fetching analytics stats")
+    console.log("[v0] Fetching analytics stats - START")
 
     const pageVisitsCollection = await getPageVisitsCollection()
     const rsvpSubmissionsCollection = await getRsvpSubmissionsCollection()
+
+    console.log("[v0] Connected to rsvpSubmissions collection")
+
+    // Get total count first
+    const totalCount = await rsvpSubmissionsCollection.countDocuments({})
+    console.log("[v0] Total RSVP submissions in database:", totalCount)
 
     const pages = ["home", "events", "venue", "travel", "rsvp", "gallery"]
 
@@ -44,8 +50,8 @@ export async function GET() {
     }))
 
     const rsvpSubmissions = await rsvpSubmissionsCollection.find({}).sort({ timestamp: -1 }).toArray()
-
-    console.log("[v0] RSVP submissions found:", rsvpSubmissions.length)
+    console.log("[v0] RSVP submissions retrieved:", rsvpSubmissions.length)
+    console.log("[v0] First 3 RSVP submissions:", JSON.stringify(rsvpSubmissions.slice(0, 3), null, 2))
 
     const rsvpSubmissionsData = rsvpSubmissions.map((submission: any) => ({
       name: submission.guestName,
@@ -53,6 +59,8 @@ export async function GET() {
       status: submission.rsvpStatus,
       events: submission.events,
     }))
+
+    console.log("[v0] Returning analytics data with", rsvpSubmissionsData.length, "RSVP submissions")
 
     return NextResponse.json(
       {

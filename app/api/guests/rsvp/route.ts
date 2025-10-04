@@ -5,6 +5,8 @@ import { ObjectId } from "mongodb"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    console.log("[v0] RSVP submission received:", JSON.stringify(body, null, 2))
+
     const collection = await getGuestsCollection()
     const rsvpSubmissionsCollection = await getRsvpSubmissionsCollection()
 
@@ -28,13 +30,17 @@ export async function POST(request: NextRequest) {
 
         await collection.updateOne({ _id: new ObjectId(guestData._id) }, { $set: updateData })
 
-        await rsvpSubmissionsCollection.insertOne({
+        const submissionData = {
           guestId: guestData._id,
           guestName: guestData.name || updateData.name,
           rsvpStatus: updateData.rsvpStatus,
           events: updateData.events,
           timestamp: updateData.lastUpdated,
-        })
+        }
+        console.log("[v0] Inserting RSVP submission:", JSON.stringify(submissionData, null, 2))
+
+        const insertResult = await rsvpSubmissionsCollection.insertOne(submissionData)
+        console.log("[v0] RSVP submission inserted with ID:", insertResult.insertedId)
       }
 
       return NextResponse.json({ success: true })
@@ -59,20 +65,24 @@ export async function POST(request: NextRequest) {
         },
       )
 
-      await rsvpSubmissionsCollection.insertOne({
+      const submissionData = {
         guestId: guestId,
         guestName: guest?.name || "Unknown",
         rsvpStatus: isAttending ? "attending" : "not-attending",
         events: isAttending ? events : [],
         timestamp: timestamp,
-      })
+      }
+      console.log("[v0] Inserting individual RSVP submission:", JSON.stringify(submissionData, null, 2))
+
+      const insertResult = await rsvpSubmissionsCollection.insertOne(submissionData)
+      console.log("[v0] Individual RSVP submission inserted with ID:", insertResult.insertedId)
 
       return NextResponse.json({ success: true })
     }
 
     return NextResponse.json({ error: "Invalid request type" }, { status: 400 })
   } catch (error) {
-    console.error("Error submitting RSVP:", error)
+    console.error("[v0] Error submitting RSVP:", error)
     return NextResponse.json({ error: "Failed to submit RSVP" }, { status: 500 })
   }
 }
