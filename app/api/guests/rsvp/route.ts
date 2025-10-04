@@ -10,6 +10,9 @@ export async function POST(request: NextRequest) {
     const collection = await getGuestsCollection()
     const rsvpSubmissionsCollection = await getRsvpSubmissionsCollection()
 
+    console.log("[v0] Using database:", rsvpSubmissionsCollection.dbName)
+    console.log("[v0] Using collection:", rsvpSubmissionsCollection.collectionName)
+
     if (body.type === "group") {
       const { groupId, isAttending, events, dietaryRequirements, questions, guests } = body
 
@@ -41,6 +44,12 @@ export async function POST(request: NextRequest) {
 
         const insertResult = await rsvpSubmissionsCollection.insertOne(submissionData)
         console.log("[v0] RSVP submission inserted with ID:", insertResult.insertedId)
+
+        const verifyInsert = await rsvpSubmissionsCollection.findOne({ _id: insertResult.insertedId })
+        console.log("[v0] Verified inserted document:", JSON.stringify(verifyInsert, null, 2))
+
+        const totalCount = await rsvpSubmissionsCollection.countDocuments({})
+        console.log("[v0] Total RSVP submissions after insert:", totalCount)
       }
 
       return NextResponse.json({ success: true })
@@ -76,6 +85,12 @@ export async function POST(request: NextRequest) {
 
       const insertResult = await rsvpSubmissionsCollection.insertOne(submissionData)
       console.log("[v0] Individual RSVP submission inserted with ID:", insertResult.insertedId)
+
+      const verifyInsert = await rsvpSubmissionsCollection.findOne({ _id: insertResult.insertedId })
+      console.log("[v0] Verified inserted document:", JSON.stringify(verifyInsert, null, 2))
+
+      const totalCount = await rsvpSubmissionsCollection.countDocuments({})
+      console.log("[v0] Total RSVP submissions after insert:", totalCount)
 
       return NextResponse.json({ success: true })
     }

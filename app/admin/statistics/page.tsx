@@ -37,7 +37,7 @@ interface AnalyticsData {
 export default function StatisticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [autoRefresh, setAutoRefresh] = useState(true)
+  const [autoRefresh, setAutoRefresh] = useState(false)
 
   useEffect(() => {
     fetchAnalytics()

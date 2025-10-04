@@ -3,16 +3,26 @@ import { getPageVisitsCollection, getRsvpSubmissionsCollection } from "@/lib/mon
 
 export async function GET() {
   try {
-    console.log("[v0] Fetching analytics stats - START")
+    const requestTime = new Date().toISOString()
+    console.log("[v0] ========================================")
+    console.log("[v0] Fetching analytics stats - START at", requestTime)
 
     const pageVisitsCollection = await getPageVisitsCollection()
     const rsvpSubmissionsCollection = await getRsvpSubmissionsCollection()
 
-    console.log("[v0] Connected to rsvpSubmissions collection")
+    console.log("[v0] Connected to collections")
+
+    const collectionName = rsvpSubmissionsCollection.collectionName
+    const dbName = rsvpSubmissionsCollection.dbName
+    console.log("[v0] Database name:", dbName)
+    console.log("[v0] Collection name:", collectionName)
 
     // Get total count first
     const totalCount = await rsvpSubmissionsCollection.countDocuments({})
     console.log("[v0] Total RSVP submissions in database:", totalCount)
+
+    const allSubmissions = await rsvpSubmissionsCollection.find({}).toArray()
+    console.log("[v0] All RSVP submissions (raw):", JSON.stringify(allSubmissions, null, 2))
 
     const pages = ["home", "events", "venue", "travel", "rsvp", "gallery"]
 
@@ -51,7 +61,6 @@ export async function GET() {
 
     const rsvpSubmissions = await rsvpSubmissionsCollection.find({}).sort({ timestamp: -1 }).toArray()
     console.log("[v0] RSVP submissions retrieved:", rsvpSubmissions.length)
-    console.log("[v0] First 3 RSVP submissions:", JSON.stringify(rsvpSubmissions.slice(0, 3), null, 2))
 
     const rsvpSubmissionsData = rsvpSubmissions.map((submission: any) => ({
       name: submission.guestName,
@@ -60,13 +69,21 @@ export async function GET() {
       events: submission.events,
     }))
 
+    console.log("[v0] Transformed RSVP submissions:", JSON.stringify(rsvpSubmissionsData, null, 2))
     console.log("[v0] Returning analytics data with", rsvpSubmissionsData.length, "RSVP submissions")
+    console.log("[v0] ========================================")
 
     return NextResponse.json(
       {
         pageStats,
         homeVisitsWithLocation,
         rsvpSubmissions: rsvpSubmissionsData,
+        _metadata: {
+          requestTime,
+          totalRsvpSubmissions: totalCount,
+          dbName,
+          collectionName,
+        },
       },
       {
         headers: {
