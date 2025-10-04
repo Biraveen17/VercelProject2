@@ -16,20 +16,45 @@ export async function POST(request: NextRequest) {
     if (body.type === "group") {
       const { groupId, isAttending, events, dietaryRequirements, questions, guests } = body
 
+      const allGuests = await collection.find({}).toArray()
+
+      for (const guestData of guests) {
+        const name = guestData.name?.trim()
+        if (name) {
+          // Check if this name already exists for a different guest
+          const duplicateGuest = allGuests.find(
+            (g) => g.name?.toLowerCase() === name.toLowerCase() && g._id.toString() !== guestData._id,
+          )
+
+          if (duplicateGuest) {
+            return NextResponse.json(
+              {
+                error: `A guest with the name "${name}" already exists. Please modify the name slightly to make it unique.`,
+              },
+              { status: 400 },
+            )
+          }
+        }
+      }
+      // </CHANGE>
+
+      const guestsWithNames = guests.filter((g: any) => g.name && g.name.trim() !== "")
+      const guestIdsWithNames = guestsWithNames.map((g: any) => g._id)
+
       const allGroupGuests = await collection.find({ groupId }).toArray()
-      const submittedGuestIds = guests.map((g: any) => g._id)
       const guestsToDelete = allGroupGuests.filter(
-        (g) => g.guestType === "tbc" && !submittedGuestIds.includes(g._id.toString()),
+        (g) => g.guestType === "tbc" && !guestIdsWithNames.includes(g._id.toString()),
       )
 
-      // Delete TBC guests that weren't included in the submission
+      // Permanently delete TBC guests that have no name
       for (const guestToDelete of guestsToDelete) {
+        console.log("[v0] Deleting TBC guest with no name:", guestToDelete._id)
         await collection.deleteOne({ _id: guestToDelete._id })
       }
       // </CHANGE>
 
-      // Update all guests in the group
-      for (const guestData of guests) {
+      // Update all guests in the group that have names
+      for (const guestData of guestsWithNames) {
         const updateData: any = {
           rsvpStatus: isAttending ? "attending" : "not-attending",
           events: isAttending ? events : [],

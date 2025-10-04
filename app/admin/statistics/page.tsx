@@ -3,7 +3,19 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Eye, Users, MapPin, Calendar, RefreshCw, Monitor, Download, Trash2 } from "lucide-react"
+import {
+  ArrowLeft,
+  Eye,
+  Users,
+  MapPin,
+  Calendar,
+  RefreshCw,
+  Monitor,
+  Download,
+  Trash2,
+  Plus,
+  Pencil,
+} from "lucide-react"
 import Link from "next/link"
 import {
   Dialog,
@@ -38,6 +50,19 @@ interface RsvpSubmission {
   events: string[] // Add events field
 }
 
+interface IpExclusion {
+  _id: string
+  ipAddress: string
+  createdAt: string
+}
+
+interface IpNameMapping {
+  _id: string
+  ipAddress: string
+  name: string
+  createdAt: string
+}
+
 interface AnalyticsData {
   pageStats: PageStat[]
   homeVisitsWithLocation: HomeVisit[]
@@ -53,12 +78,27 @@ export default function StatisticsPage() {
   const [resetError, setResetError] = useState("")
   const [resetting, setResetting] = useState(false)
 
+  const [ipExclusions, setIpExclusions] = useState<IpExclusion[]>([])
+  const [ipMappings, setIpMappings] = useState<IpNameMapping[]>([])
+  const [showAddExclusionDialog, setShowAddExclusionDialog] = useState(false)
+  const [showAddMappingDialog, setShowAddMappingDialog] = useState(false)
+  const [editingExclusion, setEditingExclusion] = useState<IpExclusion | null>(null)
+  const [editingMapping, setEditingMapping] = useState<IpNameMapping | null>(null)
+  const [newExclusionIp, setNewExclusionIp] = useState("")
+  const [newMappingIp, setNewMappingIp] = useState("")
+  const [newMappingName, setNewMappingName] = useState("")
+  const [ipError, setIpError] = useState("")
+
   useEffect(() => {
     fetchAnalytics()
+    fetchIpExclusions()
+    fetchIpMappings()
 
     if (autoRefresh) {
       const interval = setInterval(() => {
         fetchAnalytics()
+        fetchIpExclusions()
+        fetchIpMappings()
       }, 5000)
 
       return () => clearInterval(interval)
@@ -165,6 +205,182 @@ export default function StatisticsPage() {
     }
   }
 
+  const fetchIpExclusions = async () => {
+    try {
+      const response = await fetch("/api/analytics/ip-exclusions")
+      if (response.ok) {
+        const exclusions = await response.json()
+        setIpExclusions(exclusions)
+      }
+    } catch (error) {
+      console.error("Error fetching IP exclusions:", error)
+    }
+  }
+
+  const addIpExclusion = async () => {
+    if (!newExclusionIp.trim()) {
+      setIpError("IP address is required")
+      return
+    }
+
+    try {
+      const response = await fetch("/api/analytics/ip-exclusions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ipAddress: newExclusionIp }),
+      })
+
+      if (response.ok) {
+        setShowAddExclusionDialog(false)
+        setNewExclusionIp("")
+        setIpError("")
+        fetchIpExclusions()
+        fetchAnalytics() // Refresh stats
+      } else {
+        const error = await response.json()
+        setIpError(error.error || "Failed to add IP exclusion")
+      }
+    } catch (error) {
+      setIpError("Error adding IP exclusion")
+    }
+  }
+
+  const updateIpExclusion = async () => {
+    if (!editingExclusion || !newExclusionIp.trim()) {
+      setIpError("IP address is required")
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/analytics/ip-exclusions/${editingExclusion._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ipAddress: newExclusionIp }),
+      })
+
+      if (response.ok) {
+        setEditingExclusion(null)
+        setNewExclusionIp("")
+        setIpError("")
+        fetchIpExclusions()
+        fetchAnalytics() // Refresh stats
+      } else {
+        const error = await response.json()
+        setIpError(error.error || "Failed to update IP exclusion")
+      }
+    } catch (error) {
+      setIpError("Error updating IP exclusion")
+    }
+  }
+
+  const deleteIpExclusion = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this IP exclusion?")) return
+
+    try {
+      const response = await fetch(`/api/analytics/ip-exclusions/${id}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        fetchIpExclusions()
+        fetchAnalytics() // Refresh stats
+      }
+    } catch (error) {
+      console.error("Error deleting IP exclusion:", error)
+    }
+  }
+
+  const fetchIpMappings = async () => {
+    try {
+      const response = await fetch("/api/analytics/ip-mappings")
+      if (response.ok) {
+        const mappings = await response.json()
+        setIpMappings(mappings)
+      }
+    } catch (error) {
+      console.error("Error fetching IP mappings:", error)
+    }
+  }
+
+  const addIpMapping = async () => {
+    if (!newMappingIp.trim()) {
+      setIpError("IP address is required")
+      return
+    }
+    if (!newMappingName.trim()) {
+      setIpError("Name is required")
+      return
+    }
+
+    try {
+      const response = await fetch("/api/analytics/ip-mappings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ipAddress: newMappingIp, name: newMappingName }),
+      })
+
+      if (response.ok) {
+        setShowAddMappingDialog(false)
+        setNewMappingIp("")
+        setNewMappingName("")
+        setIpError("")
+        fetchIpMappings()
+        fetchAnalytics() // Refresh stats to show names
+      } else {
+        const error = await response.json()
+        setIpError(error.error || "Failed to add IP mapping")
+      }
+    } catch (error) {
+      setIpError("Error adding IP mapping")
+    }
+  }
+
+  const updateIpMapping = async () => {
+    if (!editingMapping || !newMappingIp.trim() || !newMappingName.trim()) {
+      setIpError("Both IP address and name are required")
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/analytics/ip-mappings/${editingMapping._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ipAddress: newMappingIp, name: newMappingName }),
+      })
+
+      if (response.ok) {
+        setEditingMapping(null)
+        setNewMappingIp("")
+        setNewMappingName("")
+        setIpError("")
+        fetchIpMappings()
+        fetchAnalytics() // Refresh stats to show updated names
+      } else {
+        const error = await response.json()
+        setIpError(error.error || "Failed to update IP mapping")
+      }
+    } catch (error) {
+      setIpError("Error updating IP mapping")
+    }
+  }
+
+  const deleteIpMapping = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this IP name mapping?")) return
+
+    try {
+      const response = await fetch(`/api/analytics/ip-mappings/${id}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        fetchIpMappings()
+        fetchAnalytics() // Refresh stats to show IPs instead of names
+      }
+    } catch (error) {
+      console.error("Error deleting IP mapping:", error)
+    }
+  }
+
   const formatTimestamp = (timestamp: string) => {
     return new Date(timestamp).toLocaleString("en-GB", {
       timeZone: "UTC",
@@ -232,6 +448,176 @@ export default function StatisticsPage() {
           </div>
         </div>
 
+        <div className="mb-8">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Excluded IP Addresses</CardTitle>
+                <Button onClick={() => setShowAddExclusionDialog(true)} size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Exclusion
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                IP addresses in this list will be excluded from all statistics
+              </p>
+              {ipExclusions.length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">No IP exclusions configured</p>
+              ) : (
+                <div className="space-y-2">
+                  {ipExclusions.map((exclusion) => (
+                    <div key={exclusion._id} className="flex items-center justify-between p-3 border rounded-md">
+                      {editingExclusion?._id === exclusion._id ? (
+                        <div className="flex-1 flex items-center gap-2">
+                          <Input
+                            value={newExclusionIp}
+                            onChange={(e) => {
+                              setNewExclusionIp(e.target.value)
+                              setIpError("")
+                            }}
+                            placeholder="IP Address"
+                            className="flex-1"
+                          />
+                          <Button onClick={updateIpExclusion} size="sm">
+                            Save
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setEditingExclusion(null)
+                              setNewExclusionIp("")
+                              setIpError("")
+                            }}
+                            variant="outline"
+                            size="sm"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="font-mono">{exclusion.ipAddress}</span>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => {
+                                setEditingExclusion(exclusion)
+                                setNewExclusionIp(exclusion.ipAddress)
+                                setIpError("")
+                              }}
+                              variant="outline"
+                              size="sm"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button onClick={() => deleteIpExclusion(exclusion._id)} variant="destructive" size="sm">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {ipError && editingExclusion && <p className="text-sm text-red-600 mt-2">{ipError}</p>}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Add IP Name Mappings Section */}
+        <div className="mb-8">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>IP Address Name Mappings</CardTitle>
+                <Button onClick={() => setShowAddMappingDialog(true)} size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Mapping
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Map IP addresses to friendly names for easier identification in statistics
+              </p>
+              {ipMappings.length === 0 ? (
+                <p className="text-center text-muted-foreground py-4">No IP name mappings configured</p>
+              ) : (
+                <div className="space-y-2">
+                  {ipMappings.map((mapping) => (
+                    <div key={mapping._id} className="flex items-center justify-between p-3 border rounded-md">
+                      {editingMapping?._id === mapping._id ? (
+                        <div className="flex-1 flex items-center gap-2">
+                          <Input
+                            value={newMappingIp}
+                            onChange={(e) => {
+                              setNewMappingIp(e.target.value)
+                              setIpError("")
+                            }}
+                            placeholder="IP Address"
+                            className="flex-1"
+                          />
+                          <Input
+                            value={newMappingName}
+                            onChange={(e) => {
+                              setNewMappingName(e.target.value)
+                              setIpError("")
+                            }}
+                            placeholder="Name"
+                            className="flex-1"
+                          />
+                          <Button onClick={updateIpMapping} size="sm">
+                            Save
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setEditingMapping(null)
+                              setNewMappingIp("")
+                              setNewMappingName("")
+                              setIpError("")
+                            }}
+                            variant="outline"
+                            size="sm"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-4">
+                            <span className="font-mono">{mapping.ipAddress}</span>
+                            <span className="text-muted-foreground">→</span>
+                            <span className="font-semibold">{mapping.name}</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => {
+                                setEditingMapping(mapping)
+                                setNewMappingIp(mapping.ipAddress)
+                                setNewMappingName(mapping.name)
+                                setIpError("")
+                              }}
+                              variant="outline"
+                              size="sm"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button onClick={() => deleteIpMapping(mapping._id)} variant="destructive" size="sm">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {ipError && editingMapping && <p className="text-sm text-red-600 mt-2">{ipError}</p>}
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Page Statistics Grid */}
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">Page Analytics</h2>
@@ -294,7 +680,7 @@ export default function StatisticsPage() {
                       <th className="text-left p-2 font-semibold">Country</th>
                       <th className="text-left p-2 font-semibold">City</th>
                       <th className="text-left p-2 font-semibold">Device</th>
-                      <th className="text-left p-2 font-semibold">IP Address</th>
+                      <th className="text-left p-2 font-semibold">IP Address / Name</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -413,6 +799,94 @@ export default function StatisticsPage() {
               <Button variant="destructive" onClick={handleResetStatistics} disabled={resetting}>
                 {resetting ? "Resetting..." : "Reset Statistics"}
               </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showAddExclusionDialog} onOpenChange={setShowAddExclusionDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add IP Exclusion</DialogTitle>
+              <DialogDescription>Enter an IP address to exclude from all statistics</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="exclusion-ip">IP Address</Label>
+                <Input
+                  id="exclusion-ip"
+                  value={newExclusionIp}
+                  onChange={(e) => {
+                    setNewExclusionIp(e.target.value)
+                    setIpError("")
+                  }}
+                  placeholder="e.g., 192.168.1.1"
+                />
+                {ipError && <p className="text-sm text-red-600">{ipError}</p>}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowAddExclusionDialog(false)
+                  setNewExclusionIp("")
+                  setIpError("")
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={addIpExclusion}>Add Exclusion</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add IP Mapping Dialog */}
+        <Dialog open={showAddMappingDialog} onOpenChange={setShowAddMappingDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add IP Name Mapping</DialogTitle>
+              <DialogDescription>Map an IP address to a friendly name for easier identification</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="mapping-ip">IP Address</Label>
+                <Input
+                  id="mapping-ip"
+                  value={newMappingIp}
+                  onChange={(e) => {
+                    setNewMappingIp(e.target.value)
+                    setIpError("")
+                  }}
+                  placeholder="e.g., 192.168.1.1"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="mapping-name">Name</Label>
+                <Input
+                  id="mapping-name"
+                  value={newMappingName}
+                  onChange={(e) => {
+                    setNewMappingName(e.target.value)
+                    setIpError("")
+                  }}
+                  placeholder="e.g., John's Computer"
+                />
+              </div>
+              {ipError && <p className="text-sm text-red-600">{ipError}</p>}
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowAddMappingDialog(false)
+                  setNewMappingIp("")
+                  setNewMappingName("")
+                  setIpError("")
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={addIpMapping}>Add Mapping</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server"
-import { getPageVisitsCollection, getRsvpSubmissionsCollection } from "@/lib/mongodb"
+import {
+  getPageVisitsCollection,
+  getRsvpSubmissionsCollection,
+  getIpExclusionsCollection,
+  getIpNameMappingsCollection,
+} from "@/lib/mongodb"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
@@ -12,6 +17,16 @@ export async function GET() {
 
     const pageVisitsCollection = await getPageVisitsCollection()
     const rsvpSubmissionsCollection = await getRsvpSubmissionsCollection()
+    const ipExclusionsCollection = await getIpExclusionsCollection()
+    const ipNameMappingsCollection = await getIpNameMappingsCollection()
+
+    // Fetch excluded IPs and name mappings
+    const excludedIps = await ipExclusionsCollection.find({}).toArray()
+    const excludedIpAddresses = excludedIps.map((e: any) => e.ipAddress)
+
+    const ipMappings = await ipNameMappingsCollection.find({}).toArray()
+    const ipToNameMap = new Map(ipMappings.map((m: any) => [m.ipAddress, m.name]))
+    // </CHANGE>
 
     console.log("[v0] Connected to collections")
 
@@ -32,7 +47,14 @@ export async function GET() {
     // Get statistics for each page
     const pageStats = await Promise.all(
       pages.map(async (page) => {
-        const visits = await pageVisitsCollection.find({ page }).toArray()
+        const visits = await pageVisitsCollection
+          .find({
+            page,
+            ip: { $nin: excludedIpAddresses },
+          })
+          .toArray()
+        // </CHANGE>
+
         const uniqueVisitors = new Set(visits.map((v: any) => v.ip)).size
         const totalViews = visits.length
         const timestamps = visits
@@ -50,17 +72,25 @@ export async function GET() {
       }),
     )
 
-    // Get home page visits with location
-    const homeVisits = await pageVisitsCollection.find({ page: "home" }).sort({ timestamp: -1 }).toArray()
+    const homeVisits = await pageVisitsCollection
+      .find({
+        page: "home",
+        ip: { $nin: excludedIpAddresses },
+      })
+      .sort({ timestamp: -1 })
+      .toArray()
+    // </CHANGE>
+
     console.log("[v0] Home page visits with location:", homeVisits.length)
 
     const homeVisitsWithLocation = homeVisits.map((visit: any) => ({
       timestamp: visit.timestamp,
       country: visit.country,
       city: visit.city,
-      ip: visit.ip,
+      ip: ipToNameMap.get(visit.ip) || visit.ip, // Use name if mapping exists, otherwise use IP
       device: visit.device || "Unknown",
     }))
+    // </CHANGE>
 
     const rsvpSubmissions = await rsvpSubmissionsCollection.find({}).sort({ timestamp: -1 }).toArray()
     console.log("[v0] RSVP submissions retrieved:", rsvpSubmissions.length)

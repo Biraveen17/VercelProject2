@@ -69,4 +69,15 @@ export async function getRsvpSubmissionsCollection(): Promise<Collection> {
   return db.collection("rsvpSubmissions")
 }
 
+export async function getIpExclusionsCollection(): Promise<Collection> {
+  const db = await getDatabase()
+  return db.collection("ipExclusions")
+}
+
+export async function getIpNameMappingsCollection(): Promise<Collection> {
+  const db = await getDatabase()
+  return db.collection("ipNameMappings")
+}
+// </CHANGE>
+
 export default clientPromise
