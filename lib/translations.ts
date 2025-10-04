@@ -926,7 +926,6 @@ export const translations: Record<string, Translation> = {
     accessibleFacilities: "Installations accessibles",
     professionalSound: "Système audio professionnel",
     fullCatering: "Installations de restauration complètes",
-    danceFloor: "Piste de danse et zone de divertissement",
     venueLocation: "Emplacement du Lieu",
     address: "Adresse",
     mapInstructions:
