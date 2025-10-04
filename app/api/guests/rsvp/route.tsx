@@ -43,9 +43,40 @@ export async function POST(request: NextRequest) {
         guestsToDelete.map((g) => ({ id: g._id.toString(), name: g.name })),
       )
 
-      for (const guestToDelete of guestsToDelete) {
-        console.log("[v0] Deleting TBC guest:", guestToDelete._id.toString(), guestToDelete.name)
-        await collection.deleteOne({ _id: guestToDelete._id })
+      if (guestsToDelete.length > 0) {
+        for (const guestToDelete of guestsToDelete) {
+          try {
+            console.log("[v0] Attempting to delete TBC guest:", {
+              id: guestToDelete._id.toString(),
+              name: guestToDelete.name,
+              type: guestToDelete.guestType,
+            })
+
+            const deleteResult = await collection.deleteOne({ _id: guestToDelete._id })
+            console.log("[v0] Delete result:", {
+              acknowledged: deleteResult.acknowledged,
+              deletedCount: deleteResult.deletedCount,
+            })
+
+            // Verify deletion
+            const stillExists = await collection.findOne({ _id: guestToDelete._id })
+            if (stillExists) {
+              console.error("[v0] ERROR: Guest still exists after deletion attempt!", guestToDelete._id.toString())
+            } else {
+              console.log("[v0] Successfully verified deletion of guest:", guestToDelete._id.toString())
+            }
+          } catch (deleteError) {
+            console.error("[v0] Error deleting TBC guest:", guestToDelete._id.toString(), deleteError)
+            throw deleteError
+          }
+        }
+
+        // Final verification - check how many guests remain in the group
+        const remainingGuests = await collection.find({ groupId }).toArray()
+        console.log(
+          "[v0] Remaining guests in group after deletion:",
+          remainingGuests.map((g) => ({ id: g._id.toString(), name: g.name, type: g.guestType })),
+        )
       }
 
       // Validate for duplicate names
