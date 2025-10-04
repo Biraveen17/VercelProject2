@@ -251,7 +251,8 @@
 
   /* Typography hierarchy inspired by the design references */
   .display-text {
-    @apply font-serif text-5xl md:text-7xl font-light tracking-wide leading-tight;
+    font-family: var(--font-script);
+    @apply text-5xl md:text-7xl font-light tracking-wide leading-tight;
   }
 
   .subtitle-text {
