@@ -132,13 +132,13 @@ export default function RSVPPage() {
 
     if (searchResult?.type === "group" && searchResult.guests) {
       const totalGuests = searchResult.guests.length
-      const namedGuests = searchResult.guests.filter((g) => {
+      const guestsWithEmptyNames = searchResult.guests.filter((g) => {
         const name = guestNames[g._id]
-        return name && name.trim() !== ""
-      }).length
+        return !name || name.trim() === ""
+      })
 
-      if (namedGuests < totalGuests) {
-        const confirmMessage = `Your group originally had ${totalGuests} guest${totalGuests > 1 ? "s" : ""}, but you are only submitting RSVP for ${namedGuests} guest${namedGuests !== 1 ? "s" : ""}. The remaining ${totalGuests - namedGuests} guest${totalGuests - namedGuests !== 1 ? "s" : ""} will be removed from your group. Do you want to continue?`
+      if (guestsWithEmptyNames.length > 0) {
+        const confirmMessage = `${guestsWithEmptyNames.length} guest${guestsWithEmptyNames.length !== 1 ? "s" : ""} with empty names will be permanently deleted from your group. Do you want to continue?`
 
         if (!window.confirm(confirmMessage)) {
           return
@@ -154,7 +154,7 @@ export default function RSVPPage() {
       if (searchResult?.type === "group") {
         const guests = searchResult.guests?.map((guest) => ({
           _id: guest._id,
-          name: guestNames[guest._id] || guest.name,
+          name: guestNames[guest._id] || "", // Send empty string if no name entered
           guestType: guest.guestType,
           isChild: guestChildStatus[guest._id] || false,
           ageGroup: guestChildStatus[guest._id] && guestAgeGroups[guest._id] ? guestAgeGroups[guest._id] : undefined,

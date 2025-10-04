@@ -10,79 +10,48 @@ export async function POST(request: NextRequest) {
     const collection = await getGuestsCollection()
     const rsvpSubmissionsCollection = await getRsvpSubmissionsCollection()
 
-    console.log("[v0] Using database:", rsvpSubmissionsCollection.dbName)
-    console.log("[v0] Using collection:", rsvpSubmissionsCollection.collectionName)
-
     if (body.type === "group") {
       const { groupId, isAttending, events, dietaryRequirements, questions, guests } = body
 
-      const allGroupGuests = await collection.find({ groupId }).toArray()
+      const guestsToDelete = guests.filter((g: any) => !g.name || g.name.trim() === "")
+      const guestsToKeep = guests.filter((g: any) => g.name && g.name.trim() !== "")
+
       console.log(
-        "[v0] All guests in group from database:",
-        allGroupGuests.map((g) => ({ id: g._id.toString(), name: g.name, type: g.guestType })),
+        "[v0] Guests with empty names to delete:",
+        guestsToDelete.map((g: any) => g._id),
       )
       console.log(
-        "[v0] Guests from form submission:",
-        guests.map((g: any) => ({ id: g._id, name: g.name, type: g.guestType })),
-      )
-
-      const guestsWithNames = guests.filter((g: any) => g.name && g.name.trim() !== "")
-      const guestIdsWithNames = guestsWithNames.map((g: any) => g._id)
-      console.log("[v0] Guest IDs with names filled in:", guestIdsWithNames)
-
-      const guestsToDelete = allGroupGuests.filter((dbGuest) => {
-        const isInSubmission = guests.some((formGuest: any) => formGuest._id === dbGuest._id.toString())
-        const hasNameInSubmission = guestIdsWithNames.includes(dbGuest._id.toString())
-
-        // Delete if: it's a TBC guest AND (not in submission OR in submission but no name filled)
-        return dbGuest.guestType === "tbc" && (!isInSubmission || !hasNameInSubmission)
-      })
-
-      console.log(
-        "[v0] TBC guests to delete:",
-        guestsToDelete.map((g) => ({ id: g._id.toString(), name: g.name })),
+        "[v0] Guests with names to keep:",
+        guestsToKeep.map((g: any) => ({ id: g._id, name: g.name })),
       )
 
       if (guestsToDelete.length > 0) {
         for (const guestToDelete of guestsToDelete) {
           try {
-            console.log("[v0] Attempting to delete TBC guest:", {
-              id: guestToDelete._id.toString(),
-              name: guestToDelete.name,
-              type: guestToDelete.guestType,
-            })
+            const guestId = new ObjectId(guestToDelete._id)
+            console.log("[v0] Deleting guest with empty name:", guestToDelete._id)
 
-            const deleteResult = await collection.deleteOne({ _id: guestToDelete._id })
+            const deleteResult = await collection.deleteOne({ _id: guestId })
             console.log("[v0] Delete result:", {
               acknowledged: deleteResult.acknowledged,
               deletedCount: deleteResult.deletedCount,
             })
 
-            // Verify deletion
-            const stillExists = await collection.findOne({ _id: guestToDelete._id })
-            if (stillExists) {
-              console.error("[v0] ERROR: Guest still exists after deletion attempt!", guestToDelete._id.toString())
+            if (deleteResult.deletedCount === 0) {
+              console.error("[v0] WARNING: Guest was not deleted (deletedCount = 0):", guestToDelete._id)
             } else {
-              console.log("[v0] Successfully verified deletion of guest:", guestToDelete._id.toString())
+              console.log("[v0] Successfully deleted guest:", guestToDelete._id)
             }
           } catch (deleteError) {
-            console.error("[v0] Error deleting TBC guest:", guestToDelete._id.toString(), deleteError)
+            console.error("[v0] Error deleting guest:", guestToDelete._id, deleteError)
             throw deleteError
           }
         }
-
-        // Final verification - check how many guests remain in the group
-        const remainingGuests = await collection.find({ groupId }).toArray()
-        console.log(
-          "[v0] Remaining guests in group after deletion:",
-          remainingGuests.map((g) => ({ id: g._id.toString(), name: g.name, type: g.guestType })),
-        )
       }
 
-      // Validate for duplicate names
       const allGuests = await collection.find({}).toArray()
 
-      for (const guestData of guestsWithNames) {
+      for (const guestData of guestsToKeep) {
         const name = guestData.name?.trim()
         if (name) {
           const duplicateGuest = allGuests.find(
@@ -100,8 +69,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Update all guests in the group that have names
-      for (const guestData of guestsWithNames) {
+      for (const guestData of guestsToKeep) {
         const updateData: any = {
           rsvpStatus: isAttending ? "attending" : "not-attending",
           events: isAttending ? events : [],
@@ -126,18 +94,11 @@ export async function POST(request: NextRequest) {
           events: updateData.events,
           timestamp: updateData.lastUpdated,
         }
-        console.log("[v0] Inserting RSVP submission:", JSON.stringify(submissionData, null, 2))
 
-        const insertResult = await rsvpSubmissionsCollection.insertOne(submissionData)
-        console.log("[v0] RSVP submission inserted with ID:", insertResult.insertedId)
-
-        const verifyInsert = await rsvpSubmissionsCollection.findOne({ _id: insertResult.insertedId })
-        console.log("[v0] Verified inserted document:", JSON.stringify(verifyInsert, null, 2))
-
-        const totalCount = await rsvpSubmissionsCollection.countDocuments({})
-        console.log("[v0] Total RSVP submissions after insert:", totalCount)
+        await rsvpSubmissionsCollection.insertOne(submissionData)
       }
 
+      console.log("[v0] RSVP submission complete. Deleted:", guestsToDelete.length, "Updated:", guestsToKeep.length)
       return NextResponse.json({ success: true })
     }
 
@@ -169,16 +130,8 @@ export async function POST(request: NextRequest) {
         events: isAttending ? events : [],
         timestamp: timestamp,
       }
-      console.log("[v0] Inserting individual RSVP submission:", JSON.stringify(submissionData, null, 2))
 
-      const insertResult = await rsvpSubmissionsCollection.insertOne(submissionData)
-      console.log("[v0] Individual RSVP submission inserted with ID:", insertResult.insertedId)
-
-      const verifyInsert = await rsvpSubmissionsCollection.findOne({ _id: insertResult.insertedId })
-      console.log("[v0] Verified inserted document:", JSON.stringify(verifyInsert, null, 2))
-
-      const totalCount = await rsvpSubmissionsCollection.countDocuments({})
-      console.log("[v0] Total RSVP submissions after insert:", totalCount)
+      await rsvpSubmissionsCollection.insertOne(submissionData)
 
       return NextResponse.json({ success: true })
     }
