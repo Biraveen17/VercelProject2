@@ -33,13 +33,15 @@ export async function POST(request: NextRequest) {
       name: body.name,
       guestType: body.guestType || "defined",
       isChild: body.isChild || false,
+      ageGroup: body.isChild && body.ageGroup ? body.ageGroup : undefined, // Only save ageGroup if guest is a child and ageGroup is provided
       side: body.side || null,
-      groupId: body.groupId || null, // Reference to group by ID
+      groupId: body.groupId || null,
       notes: body.notes || "",
       rsvpStatus: body.rsvpStatus || "pending",
       events: body.events || [],
       dietaryRequirements: body.dietaryRequirements || "",
       questions: body.questions || "",
+      lockStatus: body.lockStatus || "unlocked", // Added lockStatus field
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
     }

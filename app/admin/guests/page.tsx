@@ -224,12 +224,12 @@ export default function GuestManagementPage() {
       "Has Dietary Requirements",
       "Created",
       "Last Updated",
-      "Group", // Added Group Name column to CSV export
+      "Group Name", // Added Group Name column header
     ]
 
     const rows = guests.map((guest) => {
-      const group = guest.groupId ? groups.find((g) => (g._id || g.id) === guest.groupId)?.name || "" : ""
-      // </CHANGE>
+      const groupName = guest.groupId ? groups.find((g) => (g._id || g.id) === guest.groupId)?.name || "" : ""
+
       return [
         guest.name,
         guest.guestType === "defined" ? "Defined" : "TBC",
@@ -244,7 +244,7 @@ export default function GuestManagementPage() {
         guest.dietaryRequirements ? "Yes" : "No",
         new Date(guest.createdAt).toLocaleString(),
         new Date(guest.lastUpdated).toLocaleString(),
-        group, // Include group name in CSV
+        groupName, // Include group name in the row
       ]
     })
 

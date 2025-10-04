@@ -37,13 +37,31 @@ export function Navigation() {
   const [showLangMenu, setShowLangMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [pageConfig, setPageConfig] = useState<ContentData | null>(null)
+  const [gallerySettings, setGallerySettings] = useState({ visible: true, accessible: true }) // Added gallery settings state
 
   useEffect(() => {
     const savedContent = localStorage.getItem("wedding_content")
     if (savedContent) {
       setPageConfig(JSON.parse(savedContent))
     }
+
+    fetchGallerySettings()
   }, [])
+
+  const fetchGallerySettings = async () => {
+    try {
+      const response = await fetch("/api/settings")
+      if (response.ok) {
+        const data = await response.json()
+        setGallerySettings({
+          visible: data.galleryVisible ?? true,
+          accessible: data.galleryAccessible ?? true,
+        })
+      }
+    } catch (error) {
+      console.error("Error fetching gallery settings:", error)
+    }
+  }
 
   const getNavItems = () => {
     const baseNavItems = [
@@ -55,18 +73,20 @@ export function Navigation() {
       { href: "/rsvp", label: t("rsvp"), key: "rsvp" },
     ]
 
-    if (!pageConfig) return baseNavItems
-
-    // Filter enabled pages and sort by order
     return baseNavItems
       .filter((item) => {
-        if (item.key === "rsvp") return true // Always show RSVP
+        if (item.key === "gallery" && !gallerySettings.visible) {
+          return false
+        }
+        if (item.key === "rsvp") return true
+        if (!pageConfig) return true
         const pageData = pageConfig[item.key as keyof ContentData]
         return pageData?.enabled !== false
       })
       .sort((a, b) => {
-        if (a.key === "rsvp") return 1 // RSVP always last
+        if (a.key === "rsvp") return 1
         if (b.key === "rsvp") return -1
+        if (!pageConfig) return 0
         const aOrder = pageConfig[a.key as keyof ContentData]?.order || 999
         const bOrder = pageConfig[b.key as keyof ContentData]?.order || 999
         return aOrder - bOrder
