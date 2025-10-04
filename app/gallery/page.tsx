@@ -1,59 +1,9 @@
-"use client"
-
-import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Camera, Heart, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PageTracker } from "@/components/page-tracker"
 
 export default function GalleryPage() {
-  const [accessible, setAccessible] = useState(true)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const checkAccess = async () => {
-      try {
-        const response = await fetch("/api/settings")
-        if (response.ok) {
-          const data = await response.json()
-          setAccessible(data.galleryAccessible ?? true)
-        }
-      } catch (error) {
-        console.error("Error checking gallery access:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    checkAccess()
-  }, [])
-
-  if (loading) {
-    return (
-      <div className="min-h-screen py-12 px-4 flex items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    )
-  }
-
-  if (!accessible) {
-    return (
-      <div className="min-h-screen py-12 px-4">
-        <PageTracker pageName="gallery" />
-        <div className="max-w-2xl mx-auto text-center">
-          <Card>
-            <CardContent className="p-12">
-              <Camera className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h1 className="text-3xl font-bold mb-4">Gallery Coming Soon</h1>
-              <p className="text-muted-foreground">
-                Our photo gallery is currently being prepared. Please check back later to view our beautiful moments!
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    )
-  }
-
   // Placeholder images - in real implementation, these would come from a database or CMS
   const engagementPhotos = Array.from({ length: 12 }, (_, i) => ({
     id: i + 1,

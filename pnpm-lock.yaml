@@ -18,7 +18,7 @@ importers:
         specifier: latest
         version: 2.0.1
       '@neondatabase/serverless':
-        specifier: latest
+        specifier: 1.0.2
         version: 1.0.2
       '@radix-ui/react-accordion':
         specifier: 1.2.2
