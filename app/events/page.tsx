@@ -22,7 +22,6 @@ export default function EventsPage() {
             <CardContent className="p-8 space-y-4">
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <div className="text-3xl">🕉️</div>
                   <div>
                     <h2 className="caption-text text-primary">Hindu Wedding Ceremony</h2>
                     <p className="body-text">Traditional Tamil Hindu Rituals</p>
