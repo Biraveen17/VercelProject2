@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       name: body.name,
       guestType: body.guestType || "defined",
       isChild: body.isChild || false,
-      ageGroup: body.ageGroup || undefined, // Include ageGroup field
+      ageGroup: body.isChild && body.ageGroup ? body.ageGroup : undefined, // Fixed: Only include ageGroup if isChild is true and ageGroup is provided
       side: body.side || null,
       groupId: body.groupId || null,
       notes: body.notes || "",
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       events: body.events || [],
       dietaryRequirements: body.dietaryRequirements || "",
       questions: body.questions || "",
-      lockStatus: body.lockStatus || "unlocked", // Include lockStatus field
+      lockStatus: body.lockStatus || "unlocked",
       createdAt: new Date().toISOString(),
       lastUpdated: new Date().toISOString(),
     }

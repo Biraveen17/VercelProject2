@@ -224,7 +224,7 @@ export default function GuestManagementPage() {
       "Has Dietary Requirements",
       "Created",
       "Last Updated",
-      "Group Name", // Updated column header
+      "Group Name", // Added Group Name column header
     ]
 
     const rows = guests.map((guest) => {
@@ -244,7 +244,7 @@ export default function GuestManagementPage() {
         guest.dietaryRequirements ? "Yes" : "No",
         new Date(guest.createdAt).toLocaleString(),
         new Date(guest.lastUpdated).toLocaleString(),
-        group, // Include group name in CSV
+        group, // Include group name in the row data
       ]
     })
 
