@@ -26,7 +26,6 @@ export async function GET() {
 
     const ipMappings = await ipNameMappingsCollection.find({}).toArray()
     const ipToNameMap = new Map(ipMappings.map((m: any) => [m.ipAddress, m.name]))
-    // </CHANGE>
 
     console.log("[v0] Connected to collections")
 
@@ -44,7 +43,6 @@ export async function GET() {
 
     const pages = ["home", "events", "venue", "travel", "rsvp", "gallery"]
 
-    // Get statistics for each page
     const pageStats = await Promise.all(
       pages.map(async (page) => {
         const visits = await pageVisitsCollection
@@ -53,13 +51,15 @@ export async function GET() {
             ip: { $nin: excludedIpAddresses },
           })
           .toArray()
-        // </CHANGE>
 
         const uniqueVisitors = new Set(visits.map((v: any) => v.ip)).size
         const totalViews = visits.length
         const timestamps = visits
-          .map((v: any) => v.timestamp)
-          .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+          .map((v: any) => ({
+            timestamp: v.timestamp,
+            ip: ipToNameMap.get(v.ip) || v.ip, // Use name if mapping exists, otherwise use IP
+          }))
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 
         console.log(`[v0] Page ${page}: ${uniqueVisitors} unique visitors (by IP), ${totalViews} total views`)
 
@@ -71,6 +71,7 @@ export async function GET() {
         }
       }),
     )
+    // </CHANGE>
 
     const homeVisits = await pageVisitsCollection
       .find({
@@ -79,7 +80,6 @@ export async function GET() {
       })
       .sort({ timestamp: -1 })
       .toArray()
-    // </CHANGE>
 
     console.log("[v0] Home page visits with location:", homeVisits.length)
 
@@ -90,7 +90,6 @@ export async function GET() {
       ip: ipToNameMap.get(visit.ip) || visit.ip, // Use name if mapping exists, otherwise use IP
       device: visit.device || "Unknown",
     }))
-    // </CHANGE>
 
     const rsvpSubmissions = await rsvpSubmissionsCollection.find({}).sort({ timestamp: -1 }).toArray()
     console.log("[v0] RSVP submissions retrieved:", rsvpSubmissions.length)
