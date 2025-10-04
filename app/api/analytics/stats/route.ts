@@ -56,11 +56,20 @@ export async function GET() {
       status: guest.rsvpStatus,
     }))
 
-    return NextResponse.json({
-      pageStats,
-      homeVisitsWithLocation,
-      rsvpSubmissions: rsvpSubmissionsData,
-    })
+    return NextResponse.json(
+      {
+        pageStats,
+        homeVisitsWithLocation,
+        rsvpSubmissions: rsvpSubmissionsData,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      },
+    )
   } catch (error) {
     console.error("[v0] Error fetching analytics:", error)
     return NextResponse.json({ error: "Failed to fetch analytics" }, { status: 500 })

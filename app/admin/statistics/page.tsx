@@ -35,16 +35,30 @@ interface AnalyticsData {
 export default function StatisticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [autoRefresh, setAutoRefresh] = useState(true)
 
   useEffect(() => {
     fetchAnalytics()
-  }, [])
+
+    if (autoRefresh) {
+      const interval = setInterval(() => {
+        fetchAnalytics()
+      }, 5000) // Refresh every 5 seconds
+
+      return () => clearInterval(interval)
+    }
+  }, [autoRefresh])
 
   const fetchAnalytics = async () => {
     console.log("[v0] Fetching analytics data")
     setLoading(true)
     try {
-      const response = await fetch("/api/analytics/stats")
+      const response = await fetch("/api/analytics/stats", {
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      })
       if (response.ok) {
         const analyticsData = await response.json()
         console.log("[v0] Analytics data received:", analyticsData)
@@ -103,10 +117,19 @@ export default function StatisticsPage() {
             </div>
           </div>
           {/* Refresh Button */}
-          <Button onClick={fetchAnalytics} disabled={loading} variant="outline">
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              variant={autoRefresh ? "default" : "outline"}
+              size="sm"
+            >
+              {autoRefresh ? "Auto-refresh On" : "Auto-refresh Off"}
+            </Button>
+            <Button onClick={fetchAnalytics} disabled={loading} variant="outline">
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {/* Page Statistics Grid */}
