@@ -115,6 +115,22 @@ export default function RSVPPage() {
     }
 
     if (searchResult?.type === "group" && searchResult.guests) {
+      for (const guest of searchResult.guests) {
+        if (guestChildStatus[guest._id] && !guestAgeGroups[guest._id]) {
+          setError("Please select an age group for all children.")
+          return
+        }
+      }
+    }
+
+    if (searchResult?.type === "individual" && searchResult.guest) {
+      if (guestChildStatus[searchResult.guest._id] && !guestAgeGroups[searchResult.guest._id]) {
+        setError("Please select an age group if marking as a child.")
+        return
+      }
+    }
+
+    if (searchResult?.type === "group" && searchResult.guests) {
       const totalGuests = searchResult.guests.length
       const namedGuests = searchResult.guests.filter((g) => {
         const name = guestNames[g._id]
@@ -122,10 +138,11 @@ export default function RSVPPage() {
       }).length
 
       if (namedGuests < totalGuests) {
-        setError(
-          `This group contains ${totalGuests} guest${totalGuests > 1 ? "s" : ""} but you have only provided ${namedGuests} name${namedGuests !== 1 ? "s" : ""}. Please enter all guest names or contact us if you need assistance.`,
-        )
-        return
+        const confirmMessage = `Your group originally had ${totalGuests} guest${totalGuests > 1 ? "s" : ""}, but you are only submitting RSVP for ${namedGuests} guest${namedGuests !== 1 ? "s" : ""}. The remaining ${totalGuests - namedGuests} guest${totalGuests - namedGuests !== 1 ? "s" : ""} will be removed from your group. Do you want to continue?`
+
+        if (!window.confirm(confirmMessage)) {
+          return
+        }
       }
     }
 
@@ -392,15 +409,16 @@ export default function RSVPPage() {
                               </div>
                               {guestChildStatus[guest._id] && (
                                 <div>
-                                  <label className="block text-sm font-medium mb-2">Age Group (Optional)</label>
+                                  <label className="block text-sm font-medium mb-2">Age Group *</label>
                                   <select
                                     value={guestAgeGroups[guest._id] || ""}
                                     onChange={(e) => {
                                       setGuestAgeGroups({ ...guestAgeGroups, [guest._id]: e.target.value })
                                     }}
                                     className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                                    required
                                   >
-                                    <option value="">Select age group (optional)</option>
+                                    <option value="">Select age group *</option>
                                     <option value="under-4">Under 4 years</option>
                                     <option value="4-12">4-12 years</option>
                                     <option value="over-12">Over 12 years</option>
@@ -439,7 +457,7 @@ export default function RSVPPage() {
                         </div>
                         {guestChildStatus[searchResult.guest._id] && (
                           <div>
-                            <label className="block text-sm font-medium mb-2">Age Group (Optional)</label>
+                            <label className="block text-sm font-medium mb-2">Age Group *</label>
                             <select
                               value={guestAgeGroups[searchResult.guest._id] || ""}
                               onChange={(e) => {
@@ -449,8 +467,9 @@ export default function RSVPPage() {
                                 })
                               }}
                               className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                              required
                             >
-                              <option value="">Select age group (optional)</option>
+                              <option value="">Select age group *</option>
                               <option value="under-4">Under 4 years</option>
                               <option value="4-12">4-12 years</option>
                               <option value="over-12">Over 12 years</option>

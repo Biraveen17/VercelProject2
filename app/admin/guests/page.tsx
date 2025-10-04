@@ -454,10 +454,10 @@ export default function GuestManagementPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...guest,
           lockStatus: newLockStatus,
         }),
       })
+      // </CHANGE>
 
       if (response.ok) {
         await loadData()

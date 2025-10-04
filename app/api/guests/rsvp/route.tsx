@@ -1,4 +1,6 @@
-// ... existing code ...
+import { type NextRequest, NextResponse } from "next/server"
+import { getGuestsCollection, getRsvpSubmissionsCollection } from "@/lib/mongodb"
+import { ObjectId } from "mongodb"
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +16,18 @@ export async function POST(request: NextRequest) {
     if (body.type === "group") {
       const { groupId, isAttending, events, dietaryRequirements, questions, guests } = body
 
+      const allGroupGuests = await collection.find({ groupId }).toArray()
+      const submittedGuestIds = guests.map((g: any) => g._id)
+      const guestsToDelete = allGroupGuests.filter(
+        (g) => g.guestType === "tbc" && !submittedGuestIds.includes(g._id.toString()),
+      )
+
+      // Delete TBC guests that weren't included in the submission
+      for (const guestToDelete of guestsToDelete) {
+        await collection.deleteOne({ _id: guestToDelete._id })
+      }
+      // </CHANGE>
+
       // Update all guests in the group
       for (const guestData of guests) {
         const updateData: any = {
@@ -21,10 +35,8 @@ export async function POST(request: NextRequest) {
           events: isAttending ? events : [],
           dietaryRequirements: isAttending ? dietaryRequirements : "",
           questions: questions || "",
-          // <CHANGE> Added child status and age group to update data
           isChild: guestData.isChild || false,
           ageGroup: guestData.isChild && guestData.ageGroup ? guestData.ageGroup : undefined,
-          // </CHANGE>
           lastUpdated: new Date().toISOString(),
         }
 
@@ -35,7 +47,23 @@ export async function POST(request: NextRequest) {
 
         await collection.updateOne({ _id: new ObjectId(guestData._id) }, { $set: updateData })
 
-        // ... existing code ...
+        const submissionData = {
+          guestId: guestData._id,
+          guestName: guestData.name || updateData.name,
+          rsvpStatus: updateData.rsvpStatus,
+          events: updateData.events,
+          timestamp: updateData.lastUpdated,
+        }
+        console.log("[v0] Inserting RSVP submission:", JSON.stringify(submissionData, null, 2))
+
+        const insertResult = await rsvpSubmissionsCollection.insertOne(submissionData)
+        console.log("[v0] RSVP submission inserted with ID:", insertResult.insertedId)
+
+        const verifyInsert = await rsvpSubmissionsCollection.findOne({ _id: insertResult.insertedId })
+        console.log("[v0] Verified inserted document:", JSON.stringify(verifyInsert, null, 2))
+
+        const totalCount = await rsvpSubmissionsCollection.countDocuments({})
+        console.log("[v0] Total RSVP submissions after insert:", totalCount)
       }
 
       return NextResponse.json({ success: true })
@@ -55,16 +83,30 @@ export async function POST(request: NextRequest) {
             events: isAttending ? events : [],
             dietaryRequirements: isAttending ? dietaryRequirements : "",
             questions: questions || "",
-            // <CHANGE> Added child status and age group to individual update
             isChild: isChild || false,
             ageGroup: isChild && ageGroup ? ageGroup : undefined,
-            // </CHANGE>
             lastUpdated: timestamp,
           },
         },
       )
 
-      // ... existing code ...
+      const submissionData = {
+        guestId: guestId,
+        guestName: guest?.name || "Unknown",
+        rsvpStatus: isAttending ? "attending" : "not-attending",
+        events: isAttending ? events : [],
+        timestamp: timestamp,
+      }
+      console.log("[v0] Inserting individual RSVP submission:", JSON.stringify(submissionData, null, 2))
+
+      const insertResult = await rsvpSubmissionsCollection.insertOne(submissionData)
+      console.log("[v0] Individual RSVP submission inserted with ID:", insertResult.insertedId)
+
+      const verifyInsert = await rsvpSubmissionsCollection.findOne({ _id: insertResult.insertedId })
+      console.log("[v0] Verified inserted document:", JSON.stringify(verifyInsert, null, 2))
+
+      const totalCount = await rsvpSubmissionsCollection.countDocuments({})
+      console.log("[v0] Total RSVP submissions after insert:", totalCount)
 
       return NextResponse.json({ success: true })
     }
