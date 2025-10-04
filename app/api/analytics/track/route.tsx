@@ -4,7 +4,7 @@ import { getPageVisitsCollection } from "@/lib/mongodb"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { page, uniqueId, userAgent, device } = body // Accept device parameter
+    const { page, uniqueId, userAgent, device } = body
 
     console.log("[v0] Received tracking request for page:", page, "uniqueId:", uniqueId)
 
@@ -14,6 +14,13 @@ export async function POST(request: NextRequest) {
     const city = request.headers.get("x-vercel-ip-city") || "unknown"
 
     console.log("[v0] Location info - IP:", ip, "Country:", country, "City:", city)
+
+    const decodedCity = decodeURIComponent(city)
+    if (decodedCity === "Santa Clara" || city === "Santa%20Clara" || city === "Santa Clara") {
+      console.log("[v0] Filtering out V0 connection from Santa Clara")
+      return NextResponse.json({ success: true, filtered: true })
+    }
+    // </CHANGE>
 
     const pageVisitsCollection = await getPageVisitsCollection()
 
@@ -25,7 +32,7 @@ export async function POST(request: NextRequest) {
       country,
       city,
       userAgent,
-      device, // Store device info
+      device,
     }
 
     const result = await pageVisitsCollection.insertOne(visit)
