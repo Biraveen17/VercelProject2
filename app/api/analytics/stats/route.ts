@@ -33,13 +33,13 @@ export async function GET() {
     const pageStats = await Promise.all(
       pages.map(async (page) => {
         const visits = await pageVisitsCollection.find({ page }).toArray()
-        const uniqueVisitors = new Set(visits.map((v: any) => v.uniqueId)).size
+        const uniqueVisitors = new Set(visits.map((v: any) => v.ip)).size
         const totalViews = visits.length
         const timestamps = visits
           .map((v: any) => v.timestamp)
           .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
 
-        console.log(`[v0] Page ${page}: ${uniqueVisitors} unique visitors, ${totalViews} total views`)
+        console.log(`[v0] Page ${page}: ${uniqueVisitors} unique visitors (by IP), ${totalViews} total views`)
 
         return {
           page,
