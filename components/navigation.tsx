@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/language-context"
-import Image from "next/image"
 
 const languages = [
   { code: "en", name: "English", flag: "🇬🇧" },
@@ -101,24 +100,6 @@ export function Navigation() {
       <nav className="bg-card border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="relative">
-                <Image
-                  src="/wedding-logo.png"
-                  alt="Varnie & Biraveen Wedding Logo"
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                />
-              </div>
-              <div className="block">
-                <span className="font-serif text-lg sm:text-xl font-semibold text-card-foreground tracking-wide">
-                  Varnie & Biraveen
-                </span>
-                <div className="text-xs text-muted-foreground font-sans italic">March 2026 • Cyprus</div>
-              </div>
-            </Link>
-
             {/* Desktop Navigation Links */}
             <div className="hidden md:flex space-x-8">
               {navItems.map((item) => (
@@ -195,11 +176,6 @@ export function Navigation() {
             <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(false)}>
               <X className="w-4 h-4" />
             </Button>
-          </div>
-
-          <div className="text-center mb-6 pb-4 border-b border-border">
-            <div className="font-serif text-lg font-semibold text-card-foreground tracking-wide">Varnie & Biraveen</div>
-            <div className="text-sm text-muted-foreground font-sans italic mt-1">March 2026 • Cyprus</div>
           </div>
 
           <div className="space-y-2">

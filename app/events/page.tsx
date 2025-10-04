@@ -203,7 +203,7 @@ export default function EventsPage() {
                   </div>
                   <div className="flex gap-4">
                     <span className="body-text text-primary w-20">22:30</span>
-                    <span className="caption-text">Dancing begins</span>
+                    <span className="caption-text">Dance floor opens</span>
                   </div>
                 </div>
               </div>
