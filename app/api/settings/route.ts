@@ -19,6 +19,8 @@ export async function GET() {
         location: "Cyprus",
         allowVideoDownload: true,
         allowVideoFullscreen: true,
+        galleryVisible: true,
+        galleryAccessible: true,
         lastUpdated: new Date().toISOString(),
       }
       await collection.insertOne(defaultSettings)
@@ -27,7 +29,7 @@ export async function GET() {
 
     return NextResponse.json(settings)
   } catch (error) {
-    console.error("[v0] Error fetching settings:", error)
+    console.error("Error fetching settings:", error)
     return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 })
   }
 }
@@ -47,7 +49,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json(updatedSettings)
   } catch (error) {
-    console.error("[v0] Error updating settings:", error)
+    console.error("Error updating settings:", error)
     return NextResponse.json({ error: "Failed to update settings" }, { status: 500 })
   }
 }

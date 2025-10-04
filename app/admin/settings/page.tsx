@@ -22,6 +22,8 @@ interface WeddingSettings {
   location: string
   allowVideoDownload: boolean
   allowVideoFullscreen: boolean
+  galleryVisible: boolean
+  galleryAccessible: boolean
 }
 
 export default function SettingsPage() {
@@ -38,6 +40,8 @@ export default function SettingsPage() {
     location: "",
     allowVideoDownload: true,
     allowVideoFullscreen: true,
+    galleryVisible: true,
+    galleryAccessible: true,
   })
 
   useEffect(() => {
@@ -60,7 +64,7 @@ export default function SettingsPage() {
         setSettings(settingsData as WeddingSettings)
       }
     } catch (error) {
-      console.error("[v0] Error loading settings:", error)
+      console.error("Error loading settings:", error)
     }
   }
 
@@ -79,7 +83,7 @@ export default function SettingsPage() {
         alert("Failed to save settings")
       }
     } catch (error) {
-      console.error("[v0] Error saving settings:", error)
+      console.error("Error saving settings:", error)
       alert("Failed to save settings")
     }
   }
@@ -264,6 +268,51 @@ export default function SettingsPage() {
               <p className="text-sm text-muted-foreground">
                 When enabled, visitors can play the video in fullscreen mode
               </p>
+            </CardContent>
+          </Card>
+
+          {/* Gallery Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Gallery Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="galleryVisible"
+                  checked={settings.galleryVisible}
+                  onChange={(e) => updateSetting("galleryVisible", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="galleryVisible">Show gallery in navigation</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                When enabled, the gallery link will be visible in the navigation bar
+              </p>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="galleryAccessible"
+                  checked={settings.galleryAccessible}
+                  onChange={(e) => updateSetting("galleryAccessible", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="galleryAccessible">Allow gallery page access</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                When disabled, the gallery page will redirect to the homepage even if accessed directly
+              </p>
+
+              {!settings.galleryAccessible && settings.galleryVisible && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800">
+                    ⚠️ Warning: Gallery is visible in navigation but not accessible. Consider hiding it from navigation
+                    as well.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
