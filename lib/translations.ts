@@ -215,7 +215,7 @@ export const translations: Record<string, Translation> = {
     logout: "Logout",
 
     // Home page
-    homeTitle: "Varnie & Biraveen",
+    homeTitle: "Varnie Tharmalingam & Biraveen Vijayakumar",
     homeSubtitle: "Together with our families, we invite you to celebrate our Tamil Hindu wedding",
     homeDescription: "March 27-28, 2026 • Paphos, Cyprus",
     homeLocation: "Paphos, Cyprus",
@@ -421,7 +421,7 @@ export const translations: Record<string, Translation> = {
     logout: "Log ud",
 
     // Home page
-    homeTitle: "Varnie & Biraveen",
+    homeTitle: "Varnie Tharmalingam & Biraveen Vijayakumar",
     homeSubtitle: "Sammen med vores familier inviterer vi dig til at fejre vores Tamil Hindu bryllup",
     homeDescription: "27.-28. marts 2026 • Paphos, Cypern",
     homeLocation: "Paphos, Cypern",
@@ -835,7 +835,7 @@ export const translations: Record<string, Translation> = {
     logout: "Déconnexion",
 
     // Home page
-    homeTitle: "Varnie & Biraveen",
+    homeTitle: "Varnie Tharmalingam & Biraveen Vijayakumar",
     homeSubtitle: "Avec nos familles, nous vous invitons à célébrer notre mariage hindou tamoul",
     homeDescription: "27-28 mars 2026 • Paphos, Chypre",
     homeLocation: "Paphos, Chypre",
