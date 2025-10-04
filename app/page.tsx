@@ -105,18 +105,24 @@ export default function HomePage() {
           <div className="mb-16">
             <div className="decorative-border rounded-2xl p-8 md:p-12 max-w-4xl mx-auto">
               <div className="grid md:grid-cols-2 gap-12">
-                {/* Ceremony */}
+                {/* Wedding */}
                 <div className="text-center space-y-3">
-                  <div className="caption-text text-primary mb-4">Wedding Ceremony</div>
-                  <div className="body-text text-2xl font-light">March 27th, 2026</div>
-                  <div className="caption-text">at 9:00 AM</div>
+                  <div className="caption-text text-primary mb-4">Wedding</div>
+                  <div className="body-text text-2xl font-light">March 27th 2026</div>
+                  <div className="caption-text">9:00</div>
                 </div>
+                
+                {/* Vertical Divider Line for desktop */}
+                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/30 transform -translate-x-1/2 hidden md:block"></div>
+
+                {/* Horizontal Divider Line for mobile */}
+                <div className="w-full h-px bg-primary/30 md:hidden"></div>
 
                 {/* Reception */}
                 <div className="text-center space-y-3">
                   <div className="caption-text text-primary mb-4">Reception</div>
-                  <div className="body-text text-2xl font-light">March 28th, 2026</div>
-                  <div className="caption-text">at 5:00 PM</div>
+                  <div className="body-text text-2xl font-light">March 28th 2026</div>
+                  <div className="caption-text">18:00</div>
                 </div>
               </div>
             </div>
