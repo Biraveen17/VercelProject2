@@ -6,6 +6,8 @@ export interface Translation {
   gallery: string
   travel: string
   rsvp: string
+  memories: string
+  registry: string
 
   // Common
   loading: string
@@ -158,6 +160,8 @@ export const translations: Record<string, Translation> = {
     gallery: "Gallery",
     travel: "Travel",
     rsvp: "RSVP",
+    memories: "Memories",
+    registry: "Registry",
 
     // Common
     loading: "Loading...",
@@ -326,6 +330,8 @@ export const translations: Record<string, Translation> = {
     gallery: "Galleri",
     travel: "Rejse",
     rsvp: "RSVP",
+    memories: "Minder",
+    registry: "Gaveregister",
 
     // Common
     loading: "Indlæser...",
@@ -495,6 +501,8 @@ export const translations: Record<string, Translation> = {
     gallery: "படத்தொகுப்பு",
     travel: "பயணம்",
     rsvp: "பதில்",
+    memories: "நினைவுகள்",
+    registry: "பரிசு பதிவு",
 
     // Common
     loading: "ஏற்றுகிறது...",
@@ -664,6 +672,8 @@ export const translations: Record<string, Translation> = {
     gallery: "Galerie",
     travel: "Voyage",
     rsvp: "RSVP",
+    memories: "Souvenirs",
+    registry: "Liste de Cadeaux",
 
     // Common
     loading: "Chargement...",

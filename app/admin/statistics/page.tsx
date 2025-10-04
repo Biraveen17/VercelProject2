@@ -66,7 +66,6 @@ export default function StatisticsPage() {
   }, [autoRefresh])
 
   const fetchAnalytics = async () => {
-    console.log("[v0] Fetching analytics data")
     setLoading(true)
     try {
       const response = await fetch("/api/analytics/stats", {
@@ -77,13 +76,12 @@ export default function StatisticsPage() {
       })
       if (response.ok) {
         const analyticsData = await response.json()
-        console.log("[v0] Analytics data received:", analyticsData)
         setData(analyticsData)
       } else {
-        console.error("[v0] Failed to fetch analytics. Status:", response.status)
+        console.error("Failed to fetch analytics. Status:", response.status)
       }
     } catch (error) {
-      console.error("[v0] Error fetching analytics:", error)
+      console.error("Error fetching analytics:", error)
     } finally {
       setLoading(false)
     }
