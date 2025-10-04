@@ -40,7 +40,7 @@ export default function EventsPage() {
                 <div className="flex items-start gap-3">
                   <Clock className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                   <div>
-                    <p className="body-text">10:00 AM - 5:00 PM</p>
+                    <p className="body-text">10:00 AM - 17:00</p>
                   </div>
                 </div>
 
@@ -56,8 +56,8 @@ export default function EventsPage() {
                   <div>
                     <p className="body-text">Dress Code</p>
                     <p className="caption-text">Traditional Indian Attire</p>
-                    <p className="caption-text">Vetti/Dhoti and shirt for men</p>
-                    <p className="caption-text">Saree for women</p>
+                    <p className="caption-text">Vetti/Dhoti and shirt</p>
+                    <p className="caption-text">Saree</p>
                   </div>
                 </div>
 
@@ -65,8 +65,7 @@ export default function EventsPage() {
                   <Utensils className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                   <div>
                     <p className="body-text">Food & Refreshments</p>
-                    <p className="caption-text">Short eats for starters</p>
-                    <p className="caption-text">Vegetarian lunch and dessert</p>
+                    <p className="caption-text">Vegetarian short eats, lunch and dessert</p>
                   </div>
                 </div>
               </div>
@@ -82,7 +81,7 @@ export default function EventsPage() {
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-3 mb-4">
                   <div>
-                    <h2 className="caption-text text-primary">Wedding Reception</h2>
+                    <h2 className="caption-text text-primary">Reception</h2>
                     <p className="body-text">Dinner, Dancing & Celebration</p>
                   </div>
                 </div>
@@ -99,7 +98,7 @@ export default function EventsPage() {
                 <div className="flex items-start gap-3">
                   <Clock className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                   <div>
-                    <p className="body-text">6:00 PM - 2:00 AM</p>
+                    <p className="body-text">17:00 - Past Midnight</p>
                   </div>
                 </div>
 
@@ -114,8 +113,8 @@ export default function EventsPage() {
                   <Shirt className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                   <div>
                     <p className="body-text">Dress Code</p>
-                    <p className="caption-text">Black tie optional</p>
-                    <p className="caption-text">Cocktail dresses, suits, saree, or lehenga</p>
+                    <p className="caption-text">Suit, black tie optional</p>
+                    <p className="caption-text">Cocktail dresses, saree, lehenga</p>
                   </div>
                 </div>
 
