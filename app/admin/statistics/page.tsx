@@ -3,8 +3,18 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Eye, Users, MapPin, Calendar, RefreshCw, Monitor } from "lucide-react"
+import { ArrowLeft, Eye, Users, MapPin, Calendar, RefreshCw, Monitor, Download, Trash2 } from "lucide-react"
 import Link from "next/link"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 interface PageStat {
   page: string
@@ -38,6 +48,10 @@ export default function StatisticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [autoRefresh, setAutoRefresh] = useState(false)
+  const [showResetDialog, setShowResetDialog] = useState(false)
+  const [resetPassword, setResetPassword] = useState("")
+  const [resetError, setResetError] = useState("")
+  const [resetting, setResetting] = useState(false)
 
   useEffect(() => {
     fetchAnalytics()
@@ -72,6 +86,84 @@ export default function StatisticsPage() {
       console.error("[v0] Error fetching analytics:", error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const exportToCSV = () => {
+    if (!data) return
+
+    // Create CSV content
+    let csvContent = "data:text/csv;charset=utf-8,"
+
+    // Page Statistics
+    csvContent += "PAGE STATISTICS\n"
+    csvContent += "Page,Unique Visitors,Total Views\n"
+    data.pageStats.forEach((stat) => {
+      csvContent += `${getPageDisplayName(stat.page)},${stat.uniqueVisitors},${stat.totalViews}\n`
+    })
+
+    csvContent += "\n"
+
+    // Home Page Visits
+    csvContent += "HOME PAGE VISITS WITH LOCATION\n"
+    csvContent += "Timestamp (UTC),Country,City,Device,IP Address\n"
+    data.homeVisitsWithLocation.forEach((visit) => {
+      csvContent += `${formatTimestamp(visit.timestamp)},${visit.country},${visit.city},"${visit.device}",${visit.ip}\n`
+    })
+
+    csvContent += "\n"
+
+    // RSVP Submissions
+    csvContent += "RSVP SUBMISSION TIMELINE\n"
+    csvContent += "Guest Name,Submission Time (UTC),Status,Events\n"
+    data.rsvpSubmissions.forEach((submission) => {
+      const events =
+        submission.events && submission.events.length > 0
+          ? submission.events.map((e) => e.charAt(0).toUpperCase() + e.slice(1)).join("; ")
+          : "None"
+      csvContent += `${submission.name},${formatTimestamp(submission.timestamp)},${submission.status},${events}\n`
+    })
+
+    // Create download link
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute("download", `wedding-statistics-${new Date().toISOString().split("T")[0]}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const handleResetStatistics = async () => {
+    if (resetPassword !== "Pa55w0rd") {
+      setResetError("Incorrect password")
+      return
+    }
+
+    setResetting(true)
+    setResetError("")
+
+    try {
+      const response = await fetch("/api/analytics/reset", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password: resetPassword }),
+      })
+
+      if (response.ok) {
+        setShowResetDialog(false)
+        setResetPassword("")
+        fetchAnalytics() // Refresh data
+      } else {
+        const error = await response.json()
+        setResetError(error.error || "Failed to reset statistics")
+      }
+    } catch (error) {
+      setResetError("Error resetting statistics")
+    } finally {
+      setResetting(false)
     }
   }
 
@@ -120,6 +212,14 @@ export default function StatisticsPage() {
           </div>
           {/* Refresh Button */}
           <div className="flex items-center gap-2">
+            <Button onClick={exportToCSV} variant="outline" size="sm">
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+            <Button onClick={() => setShowResetDialog(true)} variant="outline" size="sm">
+              <Trash2 className="w-4 h-4 mr-2" />
+              Reset Statistics
+            </Button>
             <Button
               onClick={() => setAutoRefresh(!autoRefresh)}
               variant={autoRefresh ? "default" : "outline"}
@@ -274,6 +374,50 @@ export default function StatisticsPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Reset Statistics Dialog */}
+        <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Reset All Statistics</DialogTitle>
+              <DialogDescription>
+                This will permanently delete all page visit data and RSVP submission history. This action cannot be
+                undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="password">Enter Password to Confirm</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={resetPassword}
+                  onChange={(e) => {
+                    setResetPassword(e.target.value)
+                    setResetError("")
+                  }}
+                  placeholder="Enter password"
+                />
+                {resetError && <p className="text-sm text-red-600">{resetError}</p>}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowResetDialog(false)
+                  setResetPassword("")
+                  setResetError("")
+                }}
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleResetStatistics} disabled={resetting}>
+                {resetting ? "Resetting..." : "Reset Statistics"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
