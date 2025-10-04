@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
-import { getPageVisitsCollection, getGuestsCollection } from "@/lib/mongodb"
+import { getPageVisitsCollection, getRsvpSubmissionsCollection } from "@/lib/mongodb"
 
 export async function GET() {
   try {
     console.log("[v0] Fetching analytics stats")
 
     const pageVisitsCollection = await getPageVisitsCollection()
-    const guestsCollection = await getGuestsCollection()
+    const rsvpSubmissionsCollection = await getRsvpSubmissionsCollection()
 
     const pages = ["home", "events", "venue", "travel", "rsvp", "gallery"]
 
@@ -40,21 +40,18 @@ export async function GET() {
       country: visit.country,
       city: visit.city,
       ip: visit.ip,
-      device: visit.device || "Unknown", // Add device field
+      device: visit.device || "Unknown",
     }))
 
-    // Get RSVP submissions
-    const rsvpSubmissions = await guestsCollection
-      .find({ rsvpStatus: { $ne: "pending" } })
-      .sort({ lastUpdated: -1 })
-      .toArray()
+    const rsvpSubmissions = await rsvpSubmissionsCollection.find({}).sort({ timestamp: -1 }).toArray()
 
     console.log("[v0] RSVP submissions found:", rsvpSubmissions.length)
 
-    const rsvpSubmissionsData = rsvpSubmissions.map((guest: any) => ({
-      name: guest.name,
-      timestamp: guest.lastUpdated,
-      status: guest.rsvpStatus,
+    const rsvpSubmissionsData = rsvpSubmissions.map((submission: any) => ({
+      name: submission.guestName,
+      timestamp: submission.timestamp,
+      status: submission.rsvpStatus,
+      events: submission.events,
     }))
 
     return NextResponse.json(

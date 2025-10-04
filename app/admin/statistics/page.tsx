@@ -25,6 +25,7 @@ interface RsvpSubmission {
   name: string
   timestamp: string
   status: string
+  events: string[] // Add events field
 }
 
 interface AnalyticsData {
@@ -227,7 +228,7 @@ export default function StatisticsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
-                RSVP Submissions
+                RSVP Submission Timeline
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -238,6 +239,7 @@ export default function StatisticsPage() {
                       <th className="text-left p-2 font-semibold">Guest Name</th>
                       <th className="text-left p-2 font-semibold">Submission Time (UTC)</th>
                       <th className="text-left p-2 font-semibold">Status</th>
+                      <th className="text-left p-2 font-semibold">Events</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -255,6 +257,11 @@ export default function StatisticsPage() {
                           >
                             {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
                           </span>
+                        </td>
+                        <td className="p-2">
+                          {submission.events && submission.events.length > 0
+                            ? submission.events.map((e) => e.charAt(0).toUpperCase() + e.slice(1)).join(", ")
+                            : "None"}
                         </td>
                       </tr>
                     ))}

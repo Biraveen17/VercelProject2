@@ -64,4 +64,9 @@ export async function getPageVisitsCollection(): Promise<Collection> {
   return db.collection("pageVisits")
 }
 
+export async function getRsvpSubmissionsCollection(): Promise<Collection> {
+  const db = await getDatabase()
+  return db.collection("rsvpSubmissions")
+}
+
 export default clientPromise
