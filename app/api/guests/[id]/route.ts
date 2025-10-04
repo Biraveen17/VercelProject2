@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getGuestsCollection } from "@/lib/mongodb"
+import { getGuestsCollection, getGroupsCollection } from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
@@ -28,6 +28,25 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     if (!existingGuest) {
       return NextResponse.json({ error: "Guest not found" }, { status: 404 })
+    }
+
+    if (body.name !== undefined && body.name !== existingGuest.name) {
+      const allGuests = await collection.find({}).toArray()
+      const groupsCollection = await getGroupsCollection()
+      const allGroups = await groupsCollection.find({}).toArray()
+
+      const duplicateGuest = allGuests.find(
+        (g) => g.name?.toLowerCase().trim() === body.name.toLowerCase().trim() && g._id.toString() !== params.id,
+      )
+
+      const duplicateGroup = allGroups.find((g) => g.name?.toLowerCase().trim() === body.name.toLowerCase().trim())
+
+      if (duplicateGuest || duplicateGroup) {
+        return NextResponse.json(
+          { error: "A guest or group with this name already exists. Please use a different name." },
+          { status: 400 },
+        )
+      }
     }
 
     const isOnlyLockStatusUpdate = body.lockStatus !== undefined && Object.keys(body).length === 1

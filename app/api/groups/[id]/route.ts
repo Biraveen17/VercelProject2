@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { ObjectId } from "mongodb"
-import { getGroupsCollection } from "@/lib/mongodb"
+import { getGroupsCollection, getGuestsCollection } from "@/lib/mongodb"
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -32,6 +32,31 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   try {
     const body = await request.json()
     const collection = await getGroupsCollection()
+
+    const existingGroup = await collection.findOne({ _id: new ObjectId(params.id) })
+
+    if (!existingGroup) {
+      return NextResponse.json({ error: "Group not found" }, { status: 404 })
+    }
+
+    if (body.name !== undefined && body.name !== existingGroup.name) {
+      const allGroups = await collection.find({}).toArray()
+      const guestsCollection = await getGuestsCollection()
+      const allGuests = await guestsCollection.find({}).toArray()
+
+      const duplicateGroup = allGroups.find(
+        (g) => g.name?.toLowerCase().trim() === body.name.toLowerCase().trim() && g._id.toString() !== params.id,
+      )
+
+      const duplicateGuest = allGuests.find((g) => g.name?.toLowerCase().trim() === body.name.toLowerCase().trim())
+
+      if (duplicateGroup || duplicateGuest) {
+        return NextResponse.json(
+          { error: "A guest or group with this name already exists. Please use a different name." },
+          { status: 400 },
+        )
+      }
+    }
 
     const result = await collection.updateOne(
       { _id: new ObjectId(params.id) },

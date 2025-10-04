@@ -1443,6 +1443,8 @@ export default function GuestManagementPage() {
                   e.preventDefault()
                   if (!editingGuest) return
 
+                  setErrorMessage("")
+
                   try {
                     const response = await fetch(`/api/guests/${editingGuest._id || editingGuest.id}`, {
                       method: "PATCH",
@@ -1451,7 +1453,7 @@ export default function GuestManagementPage() {
                         name: editingGuest.name,
                         guestType: editingGuest.guestType,
                         isChild: editingGuest.isChild,
-                        ageGroup: editingGuest.isChild ? editingGuest.ageGroup : undefined, // Include age group
+                        ageGroup: editingGuest.isChild ? editingGuest.ageGroup : undefined,
                         side: editingGuest.side,
                         groupId: editingGuest.groupId,
                         notes: editingGuest.notes,
@@ -1459,7 +1461,7 @@ export default function GuestManagementPage() {
                         events: editingGuest.events,
                         dietaryRequirements: editingGuest.dietaryRequirements,
                         questions: editingGuest.questions,
-                        lockStatus: editingGuest.lockStatus, // Include lockStatus in update
+                        lockStatus: editingGuest.lockStatus,
                       }),
                     })
 
@@ -1467,16 +1469,19 @@ export default function GuestManagementPage() {
                       await loadData()
                       setEditingGuest(null)
                     } else {
-                      console.error("Failed to update guest")
-                      // Handle error
+                      const error = await response.json()
+                      setErrorMessage(error.error || "Failed to update guest")
                     }
                   } catch (error) {
                     console.error("Error updating guest:", error)
-                    // Handle error
+                    setErrorMessage("An error occurred while updating the guest.")
                   }
                 }}
                 className="space-y-4"
               >
+                {errorMessage && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{errorMessage}</div>
+                )}
                 <div>
                   <Label htmlFor="editGuestName">Guest Name</Label>
                   <Input
@@ -1674,11 +1679,13 @@ export default function GuestManagementPage() {
                   e.preventDefault()
                   if (!editingGroup) return
 
+                  setErrorMessage("")
+
                   try {
                     const response = await fetch(`/api/groups/${editingGroup._id || editingGroup.id}`, {
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.JSON.stringify({
+                      body: JSON.stringify({
                         name: groupFormData.name,
                       }),
                     })
@@ -1687,14 +1694,19 @@ export default function GuestManagementPage() {
                       await loadData()
                       setEditingGroup(null)
                     } else {
-                      console.error("Failed to update group")
+                      const error = await response.json()
+                      setErrorMessage(error.error || "Failed to update group")
                     }
                   } catch (error) {
                     console.error("Error updating group:", error)
+                    setErrorMessage("An error occurred while updating the group.")
                   }
                 }}
                 className="space-y-4"
               >
+                {errorMessage && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{errorMessage}</div>
+                )}
                 <div>
                   <Label htmlFor="editGroupName">Group Name *</Label>
                   <Input
