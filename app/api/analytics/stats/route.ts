@@ -40,6 +40,7 @@ export async function GET() {
       country: visit.country,
       city: visit.city,
       ip: visit.ip,
+      device: visit.device || "Unknown", // Add device field
     }))
 
     // Get RSVP submissions

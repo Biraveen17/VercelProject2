@@ -4,7 +4,7 @@ import { getPageVisitsCollection } from "@/lib/mongodb"
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { page, uniqueId, userAgent } = body
+    const { page, uniqueId, userAgent, device } = body // Accept device parameter
 
     console.log("[v0] Received tracking request for page:", page, "uniqueId:", uniqueId)
 
@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
       country,
       city,
       userAgent,
+      device, // Store device info
     }
 
     const result = await pageVisitsCollection.insertOne(visit)

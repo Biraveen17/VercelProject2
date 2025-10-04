@@ -20,6 +20,48 @@ export function PageTracker({ pageName }: PageTrackerProps) {
       console.log("[v0] Using existing visitor ID:", uniqueId)
     }
 
+    const getDeviceInfo = () => {
+      const ua = navigator.userAgent
+      let deviceType = "Desktop"
+      let browser = "Unknown"
+      let os = "Unknown"
+
+      // Detect device type
+      if (/mobile/i.test(ua)) {
+        deviceType = "Mobile"
+      } else if (/tablet|ipad/i.test(ua)) {
+        deviceType = "Tablet"
+      }
+
+      // Detect browser
+      if (ua.includes("Firefox")) {
+        browser = "Firefox"
+      } else if (ua.includes("Chrome") && !ua.includes("Edg")) {
+        browser = "Chrome"
+      } else if (ua.includes("Safari") && !ua.includes("Chrome")) {
+        browser = "Safari"
+      } else if (ua.includes("Edg")) {
+        browser = "Edge"
+      } else if (ua.includes("MSIE") || ua.includes("Trident")) {
+        browser = "Internet Explorer"
+      }
+
+      // Detect OS
+      if (ua.includes("Windows")) {
+        os = "Windows"
+      } else if (ua.includes("Mac")) {
+        os = "macOS"
+      } else if (ua.includes("Linux")) {
+        os = "Linux"
+      } else if (ua.includes("Android")) {
+        os = "Android"
+      } else if (ua.includes("iOS") || ua.includes("iPhone") || ua.includes("iPad")) {
+        os = "iOS"
+      }
+
+      return `${deviceType} - ${browser} on ${os}`
+    }
+
     // Track the page visit
     const trackVisit = async () => {
       try {
@@ -33,6 +75,7 @@ export function PageTracker({ pageName }: PageTrackerProps) {
             page: pageName,
             uniqueId,
             userAgent: navigator.userAgent,
+            device: getDeviceInfo(), // Add device info
           }),
         })
 

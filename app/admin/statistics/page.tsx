@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Eye, Users, MapPin, Calendar, RefreshCw } from "lucide-react"
+import { ArrowLeft, Eye, Users, MapPin, Calendar, RefreshCw, Monitor } from "lucide-react"
 import Link from "next/link"
 
 interface PageStat {
@@ -18,6 +18,7 @@ interface HomeVisit {
   country: string
   city: string
   ip: string
+  device: string // Add device field
 }
 
 interface RsvpSubmission {
@@ -193,6 +194,7 @@ export default function StatisticsPage() {
                       <th className="text-left p-2 font-semibold">Timestamp (UTC)</th>
                       <th className="text-left p-2 font-semibold">Country</th>
                       <th className="text-left p-2 font-semibold">City</th>
+                      <th className="text-left p-2 font-semibold">Device</th>
                       <th className="text-left p-2 font-semibold">IP Address</th>
                     </tr>
                   </thead>
@@ -202,6 +204,10 @@ export default function StatisticsPage() {
                         <td className="p-2 font-mono text-sm">{formatTimestamp(visit.timestamp)}</td>
                         <td className="p-2">{visit.country}</td>
                         <td className="p-2">{visit.city}</td>
+                        <td className="p-2 flex items-center gap-1">
+                          <Monitor className="w-4 h-4" />
+                          {visit.device}
+                        </td>
                         <td className="p-2 font-mono text-sm">{visit.ip}</td>
                       </tr>
                     ))}
