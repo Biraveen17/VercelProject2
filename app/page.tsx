@@ -88,7 +88,7 @@ export default function HomePage() {
                 </div>
               ) : (
                 <div className="w-full aspect-video bg-muted/30 rounded-2xl flex items-center justify-center border border-border">
-                  <p className="caption-text">Loading proposal photos...</p>
+                  <p className="caption-text">Loading photos...</p>
                 </div>
               )}
             </div>
@@ -202,53 +202,6 @@ export default function HomePage() {
                 <Heart className="w-10 h-10 text-primary mx-auto" />
                 <h3 className="caption-text text-primary">{t("dressCodeTitle")}</h3>
                 <p className="caption-text">{t("dressCodeDescription")}</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Traditions Section */}
-      <section className="section-spacing">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-center mb-16">
-            <span className="caption-text text-primary block mb-2">{t("traditionsTitle")}</span>
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card className="decorative-border p-8">
-              <CardHeader className="pb-4">
-                <CardTitle className="caption-text text-primary">{t("sacredFireTitle")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="body-text leading-relaxed">{t("sacredFireDescription")}</p>
-              </CardContent>
-            </Card>
-
-            <Card className="decorative-border p-8">
-              <CardHeader className="pb-4">
-                <CardTitle className="caption-text text-primary">{t("mangalsutraTitle")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="body-text leading-relaxed">{t("mangalsutraDescription")}</p>
-              </CardContent>
-            </Card>
-
-            <Card className="decorative-border p-8">
-              <CardHeader className="pb-4">
-                <CardTitle className="caption-text text-primary">{t("saptapadiTitle")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="body-text leading-relaxed">{t("saptapadiDescription")}</p>
-              </CardContent>
-            </Card>
-
-            <Card className="decorative-border p-8">
-              <CardHeader className="pb-4">
-                <CardTitle className="caption-text text-primary">{t("ganeshTitle")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="body-text leading-relaxed">{t("ganeshDescription")}</p>
               </CardContent>
             </Card>
           </div>

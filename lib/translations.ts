@@ -44,15 +44,6 @@ export interface Translation {
   locationDescription: string
   dressCodeTitle: string
   dressCodeDescription: string
-  traditionsTitle: string
-  sacredFireTitle: string
-  sacredFireDescription: string
-  mangalsutraTitle: string
-  mangalsutraDescription: string
-  saptapadiTitle: string
-  saptapadiDescription: string
-  ganeshTitle: string
-  ganeshDescription: string
   loveStoryTitle: string
 
   // Venue page
@@ -198,19 +189,6 @@ export const translations: Record<string, Translation> = {
     locationDescription: "Mediterranean Paradise",
     dressCodeTitle: "Dress Code",
     dressCodeDescription: "Traditional Indian or Formal Attire",
-    traditionsTitle: "Understanding Our Hindu Wedding Traditions",
-    sacredFireTitle: "Sacred Fire Ceremony (Agni)",
-    sacredFireDescription:
-      "The sacred fire represents the divine witness to our vows. We will walk around the fire seven times, each circle representing a vow for our married life together.",
-    mangalsutraTitle: "Mangalsutra",
-    mangalsutraDescription:
-      "The groom will tie a sacred necklace around the bride's neck, symbolizing their eternal bond and the bride's new status as a married woman.",
-    saptapadiTitle: "Saptapadi (Seven Steps)",
-    saptapadiDescription:
-      "We will take seven steps together, each step representing a promise for our future - from nourishment and strength to friendship and devotion.",
-    ganeshTitle: "Ganesh Blessings",
-    ganeshDescription:
-      "Lord Ganesh, the remover of obstacles, will be invoked to bless our union and ensure a smooth beginning to our married life.",
     loveStoryTitle: "Our Love Story",
 
     // Venue page
@@ -366,19 +344,6 @@ export const translations: Record<string, Translation> = {
     locationDescription: "Middelhavets Paradis",
     dressCodeTitle: "Påklædningskode",
     dressCodeDescription: "Traditionelt Indisk eller Formelt Tøj",
-    traditionsTitle: "Forstå Vores Hindu Bryllupstraditioner",
-    sacredFireTitle: "Hellig Ild Ceremoni (Agni)",
-    sacredFireDescription:
-      "Den hellige ild repræsenterer det guddommelige vidne til vores løfter. Vi vil gå rundt om ilden syv gange, hvor hver cirkel repræsenterer et løfte for vores gifte liv sammen.",
-    mangalsutraTitle: "Mangalsutra",
-    mangalsutraDescription:
-      "Brudgommen vil binde et helligt halskæde omkring brudens hals, som symboliserer deres evige bånd og brudens nye status som gift kvinde.",
-    saptapadiTitle: "Saptapadi (Syv Skridt)",
-    saptapadiDescription:
-      "Vi vil tage syv skridt sammen, hvor hvert skridt repræsenterer et løfte for vores fremtid - fra næring og styrke til venskab og hengivenhed.",
-    ganeshTitle: "Ganesh Velsignelser",
-    ganeshDescription:
-      "Herre Ganesh, fjerneren af forhindringer, vil blive påkaldt for at velsigne vores forening og sikre en jævn begyndelse på vores gifte liv.",
     loveStoryTitle: "Vores Kærlighedshistorie",
 
     // Venue page
@@ -535,19 +500,6 @@ export const translations: Record<string, Translation> = {
     locationDescription: "மத்திய தரைக்கடல் சொர்க்கம்",
     dressCodeTitle: "உடை விதி",
     dressCodeDescription: "பாரம்பரிய இந்திய அல்லது முறையான உடை",
-    traditionsTitle: "எங்கள் இந்து திருமண பாரம்பரியங்களைப் புரிந்துகொள்ளுதல்",
-    sacredFireTitle: "புனித அக்னி சடங்கு",
-    sacredFireDescription:
-      "புனித அக்னி எங்கள் சபதங்களுக்கு தெய்வீக சாட்சியைக் குறிக்கிறது. நாங்கள் அக்னியைச் சுற்றி ஏழு முறை நடப்போம், ஒவ்வொரு வட்டமும் எங்கள் திருமண வாழ்க்கைக்கான ஒரு சபதத்தைக் குறிக்கிறது.",
-    mangalsutraTitle: "மங்கலசூத்ரம்",
-    mangalsutraDescription:
-      "மணமகன் மணமகளின் கழுத்தில் ஒரு புனித மாலையைக் கட்டுவார், இது அவர்களின் நித்திய பந்தத்தையும் மணமகளின் திருமணமான பெண்ணின் புதிய அந்தஸ்தையும் குறிக்கிறது.",
-    saptapadiTitle: "சப்தபதி (ஏழு அடிகள்)",
-    saptapadiDescription:
-      "நாங்கள் ஒன்றாக ஏழு அடிகள் எடுப்போம், ஒவ்வொரு அடியும் எங்கள் எதிர்காலத்திற்கான ஒரு வாக்குறுதியைக் குறிக்கிறது - ஊட்டச்சத்து மற்றும் வலிமையிலிருந்து நட்பு மற்றும் பக்தி வரை.",
-    ganeshTitle: "கணேஷ் ஆசீர்வாதம்",
-    ganeshDescription:
-      "தடைகளை நீக்குபவரான கணேஷ் பெருமான், எங்கள் இணைப்பை ஆசீர்வதிக்கவும், எங்கள் திருமண வாழ்க்கையின் மென்மையான தொடக்கத்தை உறுதி செய்யவும் அழைக்கப்படுவார்.",
     loveStoryTitle: "எங்கள் காதல் கதை",
 
     // Venue page
@@ -704,19 +656,6 @@ export const translations: Record<string, Translation> = {
     locationDescription: "Paradis Méditerranéen",
     dressCodeTitle: "Code Vestimentaire",
     dressCodeDescription: "Tenue Traditionnelle Indienne ou Formelle",
-    traditionsTitle: "Comprendre nos traditions de mariage hindou",
-    sacredFireTitle: "Cérémonie du Feu Sacré (Agni)",
-    sacredFireDescription:
-      "Le feu sacré représente le témoin divin de nos vœux. Nous marcherons autour du feu sept fois, chaque cercle représentant un vœu pour notre vie conjugale ensemble.",
-    mangalsutraTitle: "Mangalsutra",
-    mangalsutraDescription:
-      "Le marié attachera un collier sacré autour du cou de la mariée, symbolisant leur lien éternel et le nouveau statut de la mariée en tant que femme mariée.",
-    saptapadiTitle: "Saptapadi (Sept Pas)",
-    saptapadiDescription:
-      "Nous ferons sept pas ensemble, chaque pas représentant une promesse pour notre avenir - de la nourriture et de la force à l'amitié et à la dévotion.",
-    ganeshTitle: "Bénédictions de Ganesh",
-    ganeshDescription:
-      "Seigneur Ganesh, celui qui supprime les obstacles, sera invoqué pour bénir notre union et assurer un début harmonieux à notre vie conjugale.",
     loveStoryTitle: "Notre Histoire d'Amour",
 
     // Venue page
