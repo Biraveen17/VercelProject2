@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Eye, Users, MapPin, Calendar } from "lucide-react"
+import { ArrowLeft, Eye, Users, MapPin, Calendar, RefreshCw } from "lucide-react"
 import Link from "next/link"
 
 interface PageStat {
@@ -41,14 +41,19 @@ export default function StatisticsPage() {
   }, [])
 
   const fetchAnalytics = async () => {
+    console.log("[v0] Fetching analytics data")
+    setLoading(true)
     try {
       const response = await fetch("/api/analytics/stats")
       if (response.ok) {
         const analyticsData = await response.json()
+        console.log("[v0] Analytics data received:", analyticsData)
         setData(analyticsData)
+      } else {
+        console.error("[v0] Failed to fetch analytics. Status:", response.status)
       }
     } catch (error) {
-      console.error("Error fetching analytics:", error)
+      console.error("[v0] Error fetching analytics:", error)
     } finally {
       setLoading(false)
     }
@@ -85,16 +90,23 @@ export default function StatisticsPage() {
     <div className="min-h-screen floral-background p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/admin">
-            <Button variant="outline" size="icon">
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-primary">Page Statistics</h1>
-            <p className="text-muted-foreground">Track visitor analytics and RSVP submissions</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Link href="/admin">
+              <Button variant="outline" size="icon">
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-primary">Page Statistics</h1>
+              <p className="text-muted-foreground">Track visitor analytics and RSVP submissions</p>
+            </div>
           </div>
+          {/* Refresh Button */}
+          <Button onClick={fetchAnalytics} disabled={loading} variant="outline">
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
         </div>
 
         {/* Page Statistics Grid */}

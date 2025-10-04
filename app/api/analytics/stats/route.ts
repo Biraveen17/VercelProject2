@@ -3,6 +3,8 @@ import { getPageVisitsCollection, getGuestsCollection } from "@/lib/mongodb"
 
 export async function GET() {
   try {
+    console.log("[v0] Fetching analytics stats")
+
     const pageVisitsCollection = await getPageVisitsCollection()
     const guestsCollection = await getGuestsCollection()
 
@@ -18,6 +20,8 @@ export async function GET() {
           .map((v: any) => v.timestamp)
           .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
 
+        console.log(`[v0] Page ${page}: ${uniqueVisitors} unique visitors, ${totalViews} total views`)
+
         return {
           page,
           uniqueVisitors,
@@ -29,6 +33,7 @@ export async function GET() {
 
     // Get home page visits with location
     const homeVisits = await pageVisitsCollection.find({ page: "home" }).sort({ timestamp: -1 }).toArray()
+    console.log("[v0] Home page visits with location:", homeVisits.length)
 
     const homeVisitsWithLocation = homeVisits.map((visit: any) => ({
       timestamp: visit.timestamp,
@@ -43,6 +48,8 @@ export async function GET() {
       .sort({ lastUpdated: -1 })
       .toArray()
 
+    console.log("[v0] RSVP submissions found:", rsvpSubmissions.length)
+
     const rsvpSubmissionsData = rsvpSubmissions.map((guest: any) => ({
       name: guest.name,
       timestamp: guest.lastUpdated,
@@ -55,7 +62,7 @@ export async function GET() {
       rsvpSubmissions: rsvpSubmissionsData,
     })
   } catch (error) {
-    console.error("Error fetching analytics:", error)
+    console.error("[v0] Error fetching analytics:", error)
     return NextResponse.json({ error: "Failed to fetch analytics" }, { status: 500 })
   }
 }
