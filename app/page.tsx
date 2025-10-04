@@ -1,9 +1,9 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CountdownTimer } from "@/components/countdown-timer"
-import { Heart, MapPin, Calendar, Users } from "lucide-react"
+import { Heart, MapPin, Calendar, Users, Plane, Hotel, Compass } from "lucide-react"
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
 import { useEffect, useState } from "react"
@@ -111,7 +111,7 @@ export default function HomePage() {
                   <div className="body-text text-2xl font-light">March 27th 2026</div>
                   <div className="caption-text">9:00</div>
                 </div>
-                
+
                 {/* Vertical Divider Line for desktop */}
                 <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/30 transform -translate-x-1/2 hidden md:block"></div>
 
@@ -210,6 +210,167 @@ export default function HomePage() {
                 <p className="caption-text">{t("dressCodeDescription")}</p>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Travel Section */}
+      <section className="section-spacing bg-muted/30">
+        <div className="max-w-6xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <Plane className="w-5 h-5 text-primary" />
+              <span className="caption-text text-primary">{t("travel")}</span>
+              <Plane className="w-5 h-5 text-primary" />
+            </div>
+            <h2 className="display-text text-4xl md:text-5xl mb-4">{t("travelTitle")}</h2>
+            <p className="subtitle-text max-w-3xl mx-auto">{t("travelSubtitle")}</p>
+          </div>
+
+          {/* Getting There */}
+          <div className="decorative-border rounded-2xl p-8 md:p-12 mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <Plane className="w-6 h-6 text-primary" />
+              <h3 className="caption-text text-primary">{t("gettingThereTitle")}</h3>
+            </div>
+            <p className="body-text text-lg leading-relaxed mb-8">{t("gettingThereDescription")}</p>
+
+            {/* Airports */}
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <h4 className="body-text font-semibold text-primary">{t("sfoTitle")}</h4>
+                <p className="caption-text">{t("sfoDescription")}</p>
+                <p className="caption-text text-primary">{t("sfoDrive")}</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="body-text font-semibold text-primary">{t("oakTitle")}</h4>
+                <p className="caption-text">{t("oakDescription")}</p>
+                <p className="caption-text text-primary">{t("oakDrive")}</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="body-text font-semibold text-primary">{t("sjcTitle")}</h4>
+                <p className="caption-text">{t("sjcDescription")}</p>
+                <p className="caption-text text-primary">{t("sjcDrive")}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Accommodations */}
+          <div className="decorative-border rounded-2xl p-8 md:p-12 mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <Hotel className="w-6 h-6 text-primary" />
+              <h3 className="caption-text text-primary">{t("accommodationsTitle")}</h3>
+            </div>
+
+            {/* Luxury Hotels */}
+            <div className="mb-8">
+              <h4 className="body-text font-semibold text-primary mb-4">{t("luxuryHotelsTitle")}</h4>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <h5 className="body-text font-semibold">{t("hotel1Name")}</h5>
+                  <p className="caption-text">{t("hotel1Description")}</p>
+                  <Button asChild variant="link" className="p-0 h-auto text-primary">
+                    <a href={t("hotel1Link")} target="_blank" rel="noopener noreferrer">
+                      {t("viewWebsite")} →
+                    </a>
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <h5 className="body-text font-semibold">{t("hotel2Name")}</h5>
+                  <p className="caption-text">{t("hotel2Description")}</p>
+                  <Button asChild variant="link" className="p-0 h-auto text-primary">
+                    <a href={t("hotel2Link")} target="_blank" rel="noopener noreferrer">
+                      {t("viewWebsite")} →
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Mid-Range Hotels */}
+            <div>
+              <h4 className="body-text font-semibold text-primary mb-4">{t("midRangeHotelsTitle")}</h4>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <h5 className="body-text font-semibold">{t("hotel3Name")}</h5>
+                  <p className="caption-text">{t("hotel3Description")}</p>
+                  <Button asChild variant="link" className="p-0 h-auto text-primary">
+                    <a href={t("hotel3Link")} target="_blank" rel="noopener noreferrer">
+                      {t("viewWebsite")} →
+                    </a>
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <h5 className="body-text font-semibold">{t("hotel4Name")}</h5>
+                  <p className="caption-text">{t("hotel4Description")}</p>
+                  <Button asChild variant="link" className="p-0 h-auto text-primary">
+                    <a href={t("hotel4Link")} target="_blank" rel="noopener noreferrer">
+                      {t("viewWebsite")} →
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Things to Do */}
+          <div className="decorative-border rounded-2xl p-8 md:p-12 mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <Compass className="w-6 h-6 text-primary" />
+              <h3 className="caption-text text-primary">{t("thingsToDoTitle")}</h3>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <h4 className="body-text font-semibold text-primary">{t("activity1Title")}</h4>
+                <p className="caption-text">{t("activity1Description")}</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="body-text font-semibold text-primary">{t("activity2Title")}</h4>
+                <p className="caption-text">{t("activity2Description")}</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="body-text font-semibold text-primary">{t("activity3Title")}</h4>
+                <p className="caption-text">{t("activity3Description")}</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="body-text font-semibold text-primary">{t("activity4Title")}</h4>
+                <p className="caption-text">{t("activity4Description")}</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="body-text font-semibold text-primary">{t("activity5Title")}</h4>
+                <p className="caption-text">{t("activity5Description")}</p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="body-text font-semibold text-primary">{t("activity6Title")}</h4>
+                <p className="caption-text">{t("activity6Description")}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Transportation & Tips */}
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="decorative-border rounded-2xl p-8">
+              <h3 className="caption-text text-primary mb-4">{t("transportationTitle")}</h3>
+              <p className="body-text leading-relaxed">{t("transportationDescription")}</p>
+            </div>
+            <div className="decorative-border rounded-2xl p-8">
+              <h3 className="caption-text text-primary mb-4">{t("travelTipsTitle")}</h3>
+              <p className="body-text leading-relaxed">{t("travelTipsDescription")}</p>
+            </div>
+          </div>
+
+          {/* View Full Travel Page CTA */}
+          <div className="text-center mt-12">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="btn-secondary text-lg px-12 py-4 rounded-full bg-transparent"
+            >
+              <Link href="/travel">{t("viewTravelInfo")}</Link>
+            </Button>
           </div>
         </div>
       </section>

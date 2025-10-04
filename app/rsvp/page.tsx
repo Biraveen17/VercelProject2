@@ -41,6 +41,8 @@ export default function RSVPPage() {
   const [dietaryRequirements, setDietaryRequirements] = useState("")
   const [questions, setQuestions] = useState("")
   const [guestNames, setGuestNames] = useState<{ [key: string]: string }>({})
+  const [guestChildStatus, setGuestChildStatus] = useState<{ [key: string]: boolean }>({})
+  const [guestAgeGroups, setGuestAgeGroups] = useState<{ [key: string]: string }>({})
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -68,12 +70,20 @@ export default function RSVPPage() {
         setEvents(guest.events || [])
         setDietaryRequirements(guest.dietaryRequirements || "")
         setQuestions(guest.questions || "")
+        setGuestChildStatus({ [guest._id]: guest.isChild })
+        setGuestAgeGroups({ [guest._id]: guest.ageGroup || "" })
       } else if (data.type === "group" && data.guests) {
         const initialNames: { [key: string]: string } = {}
+        const initialChildStatus: { [key: string]: boolean } = {}
+        const initialAgeGroups: { [key: string]: string } = {}
         data.guests.forEach((guest: Guest) => {
           initialNames[guest._id] = guest.guestType === "tbc" ? "" : guest.name
+          initialChildStatus[guest._id] = guest.isChild
+          initialAgeGroups[guest._id] = guest.ageGroup || ""
         })
         setGuestNames(initialNames)
+        setGuestChildStatus(initialChildStatus)
+        setGuestAgeGroups(initialAgeGroups)
 
         const firstGuest = data.guests[0]
         if (firstGuest) {
@@ -129,6 +139,8 @@ export default function RSVPPage() {
           _id: guest._id,
           name: guestNames[guest._id] || guest.name,
           guestType: guest.guestType,
+          isChild: guestChildStatus[guest._id] || false,
+          ageGroup: guestChildStatus[guest._id] && guestAgeGroups[guest._id] ? guestAgeGroups[guest._id] : undefined,
         }))
 
         requestBody = {
@@ -148,6 +160,11 @@ export default function RSVPPage() {
           events: isAttending === "yes" ? events : [],
           dietaryRequirements: isAttending === "yes" ? dietaryRequirements : "",
           questions: questions,
+          isChild: guestChildStatus[searchResult?.guest?._id || ""] || false,
+          ageGroup:
+            guestChildStatus[searchResult?.guest?._id || ""] && guestAgeGroups[searchResult?.guest?._id || ""]
+              ? guestAgeGroups[searchResult?.guest?._id || ""]
+              : undefined,
         }
       }
 
@@ -334,9 +351,9 @@ export default function RSVPPage() {
                     {searchResult.type === "group" && searchResult.guests && searchResult.guests.length > 0 && (
                       <div>
                         <label className="block text-sm font-medium mb-3">{t("groupMemberNames")}</label>
-                        <div className="space-y-2">
+                        <div className="space-y-4">
                           {searchResult.guests.map((guest, index) => (
-                            <div key={guest._id}>
+                            <div key={guest._id} className="border border-input rounded-md p-4 space-y-3">
                               <input
                                 type="text"
                                 value={guestNames[guest._id] || ""}
@@ -352,11 +369,94 @@ export default function RSVPPage() {
                                 readOnly={guest.guestType === "defined"}
                               />
                               {guest.guestType === "tbc" && (
-                                <p className="text-xs text-muted-foreground mt-1">Please enter the guest name</p>
+                                <p className="text-xs text-muted-foreground">Please enter the guest name</p>
+                              )}
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  id={`child-${guest._id}`}
+                                  checked={guestChildStatus[guest._id] || false}
+                                  onChange={(e) => {
+                                    setGuestChildStatus({ ...guestChildStatus, [guest._id]: e.target.checked })
+                                    if (!e.target.checked) {
+                                      const newAgeGroups = { ...guestAgeGroups }
+                                      delete newAgeGroups[guest._id]
+                                      setGuestAgeGroups(newAgeGroups)
+                                    }
+                                  }}
+                                  className="mr-2"
+                                />
+                                <label htmlFor={`child-${guest._id}`} className="text-sm">
+                                  This guest is a child
+                                </label>
+                              </div>
+                              {guestChildStatus[guest._id] && (
+                                <div>
+                                  <label className="block text-sm font-medium mb-2">Age Group (Optional)</label>
+                                  <select
+                                    value={guestAgeGroups[guest._id] || ""}
+                                    onChange={(e) => {
+                                      setGuestAgeGroups({ ...guestAgeGroups, [guest._id]: e.target.value })
+                                    }}
+                                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                                  >
+                                    <option value="">Select age group (optional)</option>
+                                    <option value="under-4">Under 4 years</option>
+                                    <option value="4-12">4-12 years</option>
+                                    <option value="over-12">Over 12 years</option>
+                                  </select>
+                                </div>
                               )}
                             </div>
                           ))}
                         </div>
+                      </div>
+                    )}
+
+                    {searchResult.type === "individual" && searchResult.guest && (
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={`child-${searchResult.guest._id}`}
+                            checked={guestChildStatus[searchResult.guest._id] || false}
+                            onChange={(e) => {
+                              setGuestChildStatus({
+                                ...guestChildStatus,
+                                [searchResult.guest!._id]: e.target.checked,
+                              })
+                              if (!e.target.checked) {
+                                const newAgeGroups = { ...guestAgeGroups }
+                                delete newAgeGroups[searchResult.guest!._id]
+                                setGuestAgeGroups(newAgeGroups)
+                              }
+                            }}
+                            className="mr-2"
+                          />
+                          <label htmlFor={`child-${searchResult.guest._id}`} className="text-sm">
+                            I am a child
+                          </label>
+                        </div>
+                        {guestChildStatus[searchResult.guest._id] && (
+                          <div>
+                            <label className="block text-sm font-medium mb-2">Age Group (Optional)</label>
+                            <select
+                              value={guestAgeGroups[searchResult.guest._id] || ""}
+                              onChange={(e) => {
+                                setGuestAgeGroups({
+                                  ...guestAgeGroups,
+                                  [searchResult.guest!._id]: e.target.value,
+                                })
+                              }}
+                              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                            >
+                              <option value="">Select age group (optional)</option>
+                              <option value="under-4">Under 4 years</option>
+                              <option value="4-12">4-12 years</option>
+                              <option value="over-12">Over 12 years</option>
+                            </select>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -401,6 +501,8 @@ export default function RSVPPage() {
                       setDietaryRequirements("")
                       setQuestions("")
                       setGuestNames({})
+                      setGuestChildStatus({})
+                      setGuestAgeGroups({})
                       setError("")
                     }}
                     className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-md hover:bg-secondary/80 transition-colors"
