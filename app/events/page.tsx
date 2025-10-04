@@ -11,7 +11,7 @@ export default function EventsPage() {
 
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-primary mb-4">Wedding Events</h1>
+          <h1 className="display-text mb-6">Wedding Events</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Join us for two beautiful days of celebration at Base Event Venue
           </p>

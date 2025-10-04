@@ -55,7 +55,7 @@ export default function GalleryPage() {
 
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-primary mb-4">Our Gallery</h1>
+          <h1 className="display-text mb-6">Our Gallery</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Capturing the beautiful moments of our journey together
           </p>
