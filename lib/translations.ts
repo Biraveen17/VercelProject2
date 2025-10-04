@@ -46,6 +46,58 @@ export interface Translation {
   dressCodeDescription: string
   loveStoryTitle: string
 
+  // Events page
+  eventsPageTitle: string
+  eventsPageSubtitle: string
+  weddingCeremonyTitle: string
+  weddingCeremonySubtitle: string
+  receptionEventTitle: string
+  receptionEventSubtitle: string
+  fridayDate: string
+  saturdayDate: string
+  weddingTime: string
+  receptionTimeRange: string
+  baseEventVenue: string
+  dressCode: string
+  traditionalIndianAttire: string
+  vettiDhotiShirt: string
+  saree: string
+  suitBlackTie: string
+  cocktailDressSareeLehenga: string
+  foodRefreshments: string
+  vegetarianFood: string
+  nonVegVegFood: string
+  ceremonyOutdoors: string
+  receptionIndoors: string
+  detailedScheduleTitle: string
+  scheduleWarning: string
+  fridayScheduleTitle: string
+  saturdayScheduleTitle: string
+  time1000: string
+  time1015: string
+  time1100: string
+  time1130: string
+  time1400: string
+  time1700: string
+  time1730: string
+  time1800: string
+  time1815: string
+  time1900: string
+  time2000: string
+  time2230: string
+  guestArrival: string
+  ganeshPuja: string
+  startersServed: string
+  mainCeremony: string
+  blessingPhotography: string
+  lunchServed: string
+  coupleEntrance: string
+  cakeCutting: string
+  barOpens: string
+  dinnerService: string
+  danceFloor: string
+  rsvpForEvents: string
+
   // Venue page
   venueDescription: string
   venueDescription2: string
@@ -190,6 +242,58 @@ export const translations: Record<string, Translation> = {
     dressCodeTitle: "Dress Code",
     dressCodeDescription: "Traditional Indian or Formal Attire",
     loveStoryTitle: "Our Love Story",
+
+    // Events page
+    eventsPageTitle: "Wedding Events",
+    eventsPageSubtitle: "Join us for two beautiful days of celebration at Base Event Venue",
+    weddingCeremonyTitle: "Wedding Ceremony",
+    weddingCeremonySubtitle: "Traditional Tamil Hindu Rituals",
+    receptionEventTitle: "Reception",
+    receptionEventSubtitle: "Dinner, Dancing & Celebration",
+    fridayDate: "Friday, March 27, 2026",
+    saturdayDate: "Saturday, March 28, 2026",
+    weddingTime: "10:00 - 17:00",
+    receptionTimeRange: "17:00 - Past Midnight",
+    baseEventVenue: "Base Event Venue",
+    dressCode: "Dress Code",
+    traditionalIndianAttire: "Traditional Indian Attire",
+    vettiDhotiShirt: "Vetti/Dhoti and shirt",
+    saree: "Saree",
+    suitBlackTie: "Suit, black tie optional",
+    cocktailDressSareeLehenga: "Cocktail dress, saree, lehenga",
+    foodRefreshments: "Food & Refreshments",
+    vegetarianFood: "Vegetarian short eats, lunch and dessert",
+    nonVegVegFood: "Non-vegetarian and vegetarian options",
+    ceremonyOutdoors: "The ceremony will be held outdoors weather permitting",
+    receptionIndoors: "The reception will be held indoors",
+    detailedScheduleTitle: "Detailed Schedule",
+    scheduleWarning: "⚠️ Please note: The schedule below is a rough estimate and may change",
+    fridayScheduleTitle: "Friday, March 27 - Ceremony Day",
+    saturdayScheduleTitle: "Saturday, March 28 - Reception",
+    time1000: "10:00",
+    time1015: "10:15",
+    time1100: "11:00",
+    time1130: "11:30",
+    time1400: "14:00",
+    time1700: "17:00",
+    time1730: "17:30",
+    time1800: "18:00",
+    time1815: "18:15",
+    time1900: "19:00",
+    time2000: "20:00",
+    time2230: "22:30",
+    guestArrival: "Guest arrival & welcome",
+    ganeshPuja: "Ganesh Puja begins",
+    startersServed: "Starters served",
+    mainCeremony: "Main ceremony rituals",
+    blessingPhotography: "Blessing & photography",
+    lunchServed: "Lunch served",
+    coupleEntrance: "Couple's entrance",
+    cakeCutting: "Cake cutting",
+    barOpens: "Bar opens",
+    dinnerService: "Dinner service",
+    danceFloor: "Dance floor opens",
+    rsvpForEvents: "RSVP for Our Events",
 
     // Venue page
     venueDescription: "Discover the beautiful venue in Paphos, Cyprus where we'll celebrate our special day",
@@ -345,6 +449,58 @@ export const translations: Record<string, Translation> = {
     dressCodeTitle: "Påklædningskode",
     dressCodeDescription: "Traditionelt Indisk eller Formelt Tøj",
     loveStoryTitle: "Vores Kærlighedshistorie",
+
+    // Events page
+    eventsPageTitle: "Bryllupsbegivenheder",
+    eventsPageSubtitle: "Deltag i to smukke dages fejring på Base Event Venue",
+    weddingCeremonyTitle: "Bryllupsceremonien",
+    weddingCeremonySubtitle: "Traditionelle Tamil Hindu Ritualer",
+    receptionEventTitle: "Reception",
+    receptionEventSubtitle: "Middag, Dans & Fejring",
+    fridayDate: "Fredag, 27. marts 2026",
+    saturdayDate: "Lørdag, 28. marts 2026",
+    weddingTime: "10:00 - 17:00",
+    receptionTimeRange: "17:00 - Efter Midnat",
+    baseEventVenue: "Base Event Venue",
+    dressCode: "Påklædningskode",
+    traditionalIndianAttire: "Traditionelt Indisk Tøj",
+    vettiDhotiShirt: "Vetti/Dhoti og skjorte",
+    saree: "Saree",
+    suitBlackTie: "Jakkesæt, sort slips valgfrit",
+    cocktailDressSareeLehenga: "Cocktailkjole, saree, lehenga",
+    foodRefreshments: "Mad & Forfriskninger",
+    vegetarianFood: "Vegetariske snacks, frokost og dessert",
+    nonVegVegFood: "Ikke-vegetariske og vegetariske muligheder",
+    ceremonyOutdoors: "Ceremonien vil blive afholdt udendørs vejret tillader det",
+    receptionIndoors: "Receptionen vil blive afholdt indendørs",
+    detailedScheduleTitle: "Detaljeret Tidsplan",
+    scheduleWarning: "⚠️ Bemærk venligst: Tidsplanen nedenfor er et groft skøn og kan ændre sig",
+    fridayScheduleTitle: "Fredag, 27. marts - Ceremonidag",
+    saturdayScheduleTitle: "Lørdag, 28. marts - Reception",
+    time1000: "10:00",
+    time1015: "10:15",
+    time1100: "11:00",
+    time1130: "11:30",
+    time1400: "14:00",
+    time1700: "17:00",
+    time1730: "17:30",
+    time1800: "18:00",
+    time1815: "18:15",
+    time1900: "19:00",
+    time2000: "20:00",
+    time2230: "22:30",
+    guestArrival: "Gæsteankomst & velkomst",
+    ganeshPuja: "Ganesh Puja begynder",
+    startersServed: "Forretter serveres",
+    mainCeremony: "Hovedceremoniens ritualer",
+    blessingPhotography: "Velsignelse & fotografering",
+    lunchServed: "Frokost serveres",
+    coupleEntrance: "Parrets indtog",
+    cakeCutting: "Kageskæring",
+    barOpens: "Baren åbner",
+    dinnerService: "Middag serveres",
+    danceFloor: "Dansegulvet åbner",
+    rsvpForEvents: "RSVP til Vores Begivenheder",
 
     // Venue page
     venueDescription: "Oplev den smukke lokation i Paphos, Cypern, hvor vi vil fejre vores særlige dag",
@@ -502,6 +658,58 @@ export const translations: Record<string, Translation> = {
     dressCodeDescription: "பாரம்பரிய இந்திய அல்லது முறையான உடை",
     loveStoryTitle: "எங்கள் காதல் கதை",
 
+    // Events page
+    eventsPageTitle: "திருமண நிகழ்வுகள்",
+    eventsPageSubtitle: "பேஸ் இவென்ட் வெனுவில் இரண்டு அழகான நாட்கள் கொண்டாட்டத்தில் எங்களுடன் சேருங்கள்",
+    weddingCeremonyTitle: "திருமண சடங்கு",
+    weddingCeremonySubtitle: "பாரம்பரிய தமிழ் இந்து சடங்குகள்",
+    receptionEventTitle: "வரவேற்பு",
+    receptionEventSubtitle: "இரவு உணவு, நடனம் & கொண்டாட்டம்",
+    fridayDate: "வெள்ளி, மார்ச் 27, 2026",
+    saturdayDate: "சனி, மார்ச் 28, 2026",
+    weddingTime: "10:00 - 17:00",
+    receptionTimeRange: "17:00 - நள்ளிரவுக்கு பிறகு",
+    baseEventVenue: "பேஸ் இவென்ட் வெனு",
+    dressCode: "உடை விதி",
+    traditionalIndianAttire: "பாரம்பரிய இந்திய உடை",
+    vettiDhotiShirt: "வேட்டி/தோத்தி மற்றும் சட்டை",
+    saree: "புடவை",
+    suitBlackTie: "சூட், கருப்பு டை விருப்பமானது",
+    cocktailDressSareeLehenga: "காக்டெய்ல் ஆடை, புடவை, லெஹங்கா",
+    foodRefreshments: "உணவு & பானங்கள்",
+    vegetarianFood: "சைவ சிற்றுண்டி, மதிய உணவு மற்றும் இனிப்பு",
+    nonVegVegFood: "அசைவ மற்றும் சைவ விருப்பங்கள்",
+    ceremonyOutdoors: "வானிலை அனுமதித்தால் சடங்கு வெளியில் நடைபெறும்",
+    receptionIndoors: "வரவேற்பு உட்புறத்தில் நடைபெறும்",
+    detailedScheduleTitle: "விரிவான அட்டவணை",
+    scheduleWarning: "⚠️ தயவுசெய்து கவனிக்கவும்: கீழே உள்ள அட்டவணை தோராயமான மதிப்பீடு மற்றும் மாறலாம்",
+    fridayScheduleTitle: "வெள்ளி, மார்ச் 27 - சடங்கு நாள்",
+    saturdayScheduleTitle: "சனி, மார்ச் 28 - வரவேற்பு",
+    time1000: "10:00",
+    time1015: "10:15",
+    time1100: "11:00",
+    time1130: "11:30",
+    time1400: "14:00",
+    time1700: "17:00",
+    time1730: "17:30",
+    time1800: "18:00",
+    time1815: "18:15",
+    time1900: "19:00",
+    time2000: "20:00",
+    time2230: "22:30",
+    guestArrival: "விருந்தினர் வருகை & வரவேற்பு",
+    ganeshPuja: "கணேஷ் பூஜை தொடங்குகிறது",
+    startersServed: "சிற்றுண்டி வழங்கப்படுகிறது",
+    mainCeremony: "முக்கிய சடங்கு சடங்குகள்",
+    blessingPhotography: "ஆசீர்வாதம் & புகைப்படம்",
+    lunchServed: "மதிய உணவு வழங்கப்படுகிறது",
+    coupleEntrance: "தம்பதியின் நுழைவு",
+    cakeCutting: "கேக் வெட்டுதல்",
+    barOpens: "பார் திறக்கிறது",
+    dinnerService: "இரவு உணவு சேவை",
+    danceFloor: "நடன தளம் திறக்கிறது",
+    rsvpForEvents: "எங்கள் நிகழ்வுகளுக்கு பதிலளிக்கவும்",
+
     // Venue page
     venueDescription: "பாஃபோஸ், சைப்ரஸில் உள்ள அழகான இடத்தைக் கண்டறியுங்கள், அங்கு நாங்கள் எங்கள் சிறப்பு நாளைக் கொண்டாடுவோம்",
     venueDescription2:
@@ -538,7 +746,7 @@ export const translations: Record<string, Translation> = {
     sjcDrive: "சிறந்த விலைகளுக்கு முன்பதிவு செய்யுங்கள்",
     transportationTitle: "போக்குவரத்து",
     transportationDescription:
-      "உங்கள் தங்குமிடத்தின் காலத்திற்கு ஒரு காரை வாடகைக்கு எடுப்பதை நாங்கள் பரிந்��ுரைக்கிறோம், ஏனெனில் இது பாஃபோஸ் மற்றும் சுற்றியுள்ள பகுதிகளை ஆராய நெகிழ்வுத்தன்மையை வழங்குகிறது. டாக்சிகள் எளிதில் கிடைக்கின்றன மற்றும் நியாயமான விலையில் உள்ளன. பல ஹோட்டல்கள் விமான நிலையத்திலிருந்து ஷட்டில் சேவைகளையும் வழங்குகின்றன.",
+      "உங்கள் தங்குமிடத்தின் காலத்திற்கு ஒரு காரை வாடகைக்கு எடுப்பதை நாங்கள் பரிந்துரைக்கிறோம், ஏனெனில் இது பாஃபோஸ் மற்றும் சுற்றியுள்ள பகுதிகளை ஆராய நெகிழ்வுத்தன்மையை வழங்குகிறது. டாக்சிகள் எளிதில் கிடைக்கின்றன மற்றும் நியாயமான விலையில் உள்ளன. பல ஹோட்டல்கள் விமான நிலையத்திலிருந்து ஷட்டில் சேவைகளையும் வழங்குகின்றன.",
     accommodationsTitle: "எங்கு தங்குவது",
     luxuryHotelsTitle: "ஆடம்பர விருப்பங்கள்",
     midRangeHotelsTitle: "நடுத்தர விருப்பங்கள்",
@@ -657,6 +865,58 @@ export const translations: Record<string, Translation> = {
     dressCodeTitle: "Code Vestimentaire",
     dressCodeDescription: "Tenue Traditionnelle Indienne ou Formelle",
     loveStoryTitle: "Notre Histoire d'Amour",
+
+    // Events page
+    eventsPageTitle: "Événements de Mariage",
+    eventsPageSubtitle: "Rejoignez-nous pour deux belles journées de célébration au Base Event Venue",
+    weddingCeremonyTitle: "Cérémonie de Mariage",
+    weddingCeremonySubtitle: "Rituels Hindous Tamouls Traditionnels",
+    receptionEventTitle: "Réception",
+    receptionEventSubtitle: "Dîner, Danse & Célébration",
+    fridayDate: "Vendredi 27 mars 2026",
+    saturdayDate: "Samedi 28 mars 2026",
+    weddingTime: "10:00 - 17:00",
+    receptionTimeRange: "17:00 - Après Minuit",
+    baseEventVenue: "Base Event Venue",
+    dressCode: "Code Vestimentaire",
+    traditionalIndianAttire: "Tenue Traditionnelle Indienne",
+    vettiDhotiShirt: "Vetti/Dhoti et chemise",
+    saree: "Saree",
+    suitBlackTie: "Costume, cravate noire optionnelle",
+    cocktailDressSareeLehenga: "Robe cocktail, saree, lehenga",
+    foodRefreshments: "Nourriture & Rafraîchissements",
+    vegetarianFood: "Amuse-gueules végétariens, déjeuner et dessert",
+    nonVegVegFood: "Options non-végétariennes et végétariennes",
+    ceremonyOutdoors: "La cérémonie aura lieu en plein air si le temps le permet",
+    receptionIndoors: "La réception aura lieu à l'intérieur",
+    detailedScheduleTitle: "Programme Détaillé",
+    scheduleWarning: "⚠️ Veuillez noter : Le programme ci-dessous est une estimation approximative et peut changer",
+    fridayScheduleTitle: "Vendredi 27 mars - Jour de la Cérémonie",
+    saturdayScheduleTitle: "Samedi 28 mars - Réception",
+    time1000: "10:00",
+    time1015: "10:15",
+    time1100: "11:00",
+    time1130: "11:30",
+    time1400: "14:00",
+    time1700: "17:00",
+    time1730: "17:30",
+    time1800: "18:00",
+    time1815: "18:15",
+    time1900: "19:00",
+    time2000: "20:00",
+    time2230: "22:30",
+    guestArrival: "Arrivée et accueil des invités",
+    ganeshPuja: "Ganesh Puja commence",
+    startersServed: "Amuse-gueules servis",
+    mainCeremony: "Rituels de la cérémonie principale",
+    blessingPhotography: "Bénédiction & photographie",
+    lunchServed: "Déjeuner servi",
+    coupleEntrance: "Entrée du couple",
+    cakeCutting: "Découpe du gâteau",
+    barOpens: "Le bar ouvre",
+    dinnerService: "Service du dîner",
+    danceFloor: "La piste de danse ouvre",
+    rsvpForEvents: "RSVP pour Nos Événements",
 
     // Venue page
     venueDescription: "Découvrez le magnifique lieu à Paphos, Chypre où nous célébrerons notre jour spécial",
