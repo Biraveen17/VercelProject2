@@ -84,7 +84,7 @@ export interface Translation {
   time1815: string
   time1900: string
   time2000: string
-  time2230: string
+  time2200: string
   guestArrival: string
   ganeshPuja: string
   startersServed: string
@@ -281,7 +281,7 @@ export const translations: Record<string, Translation> = {
     time1815: "18:15",
     time1900: "19:00",
     time2000: "20:00",
-    time2230: "22:30",
+    time2200: "22:00",
     guestArrival: "Guest arrival & welcome",
     ganeshPuja: "Ganesh Puja begins",
     startersServed: "Starters served",
@@ -306,7 +306,6 @@ export const translations: Record<string, Translation> = {
     accessibleFacilities: "Accessible facilities",
     professionalSound: "Professional sound system",
     fullCatering: "Full catering facilities",
-    danceFloor: "Dance floor and entertainment area",
     venueLocation: "Venue Location",
     address: "Address",
     mapInstructions: "Click and drag to explore the map. Use the fullscreen button to enlarge the view.",
@@ -488,7 +487,7 @@ export const translations: Record<string, Translation> = {
     time1815: "18:15",
     time1900: "19:00",
     time2000: "20:00",
-    time2230: "22:30",
+    time2200: "22:00",
     guestArrival: "Gæsteankomst & velkomst",
     ganeshPuja: "Ganesh Puja begynder",
     startersServed: "Forretter serveres",
@@ -513,7 +512,6 @@ export const translations: Record<string, Translation> = {
     accessibleFacilities: "Tilgængelige faciliteter",
     professionalSound: "Professionel lydsystem",
     fullCatering: "Fulde udstilling af mad",
-    danceFloor: "Dansbord og underholdningsområde",
     venueLocation: "Lokation",
     address: "Adresse",
     mapInstructions: "Klik og træk for at udforske kortet. Brug fuldskærm-knappen til at forstør visningen.",
@@ -696,7 +694,7 @@ export const translations: Record<string, Translation> = {
     time1815: "18:15",
     time1900: "19:00",
     time2000: "20:00",
-    time2230: "22:30",
+    time2200: "22:00",
     guestArrival: "விருந்தினர் வருகை & வரவேற்பு",
     ganeshPuja: "கணேஷ் பூஜை தொடங்குகிறது",
     startersServed: "சிற்றுண்டி வழங்கப்படுகிறது",
@@ -721,7 +719,6 @@ export const translations: Record<string, Translation> = {
     accessibleFacilities: "அணுகக்கூடிய வசதிகள்",
     professionalSound: "தொழில்முறை ஒலி அமைப்பு",
     fullCatering: "முழு உணவு வசதிகள்",
-    danceFloor: "நடன தளம் மற்றும் பொழுதுபோக்கு பகுதி",
     venueLocation: "இடத்தின் இருப்பிடம்",
     address: "முகவரி",
     mapInstructions: "வரைபடத்தை ஆராய கிளிக் செய்து இழுக்கவும். காட்சியை பெரிதாக்க முழுத்திரை பொத்தானைப் பயன்படுத்தவும்.",
@@ -904,7 +901,7 @@ export const translations: Record<string, Translation> = {
     time1815: "18:15",
     time1900: "19:00",
     time2000: "20:00",
-    time2230: "22:30",
+    time2200: "22:00",
     guestArrival: "Arrivée et accueil des invités",
     ganeshPuja: "Ganesh Puja commence",
     startersServed: "Amuse-gueules servis",
