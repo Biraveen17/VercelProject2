@@ -2,10 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, MapPin, Users, Shirt, Camera } from "lucide-react"
 import Link from "next/link"
+import { PageTracker } from "@/components/page-tracker"
 
 export default function EventsPage() {
   return (
     <div className="min-h-screen py-12 px-4">
+      <PageTracker pageName="events" />
+
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-primary mb-4">Wedding Events</h1>

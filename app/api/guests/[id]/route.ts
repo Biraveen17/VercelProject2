@@ -30,23 +30,22 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ error: "Guest not found" }, { status: 404 })
     }
 
-    const isOnlyLockStatusUpdate =
-      body.lockStatus !== undefined && body.lockStatus !== existingGuest.lockStatus && Object.keys(body).length === 1
+    const isOnlyLockStatusUpdate = body.lockStatus !== undefined && Object.keys(body).length === 1
 
-    const updateData: any = {
-      name: body.name,
-      guestType: body.guestType,
-      isChild: body.isChild || false,
-      ageGroup: body.ageGroup || undefined,
-      side: body.side || null,
-      groupId: body.groupId || null,
-      notes: body.notes || "",
-      rsvpStatus: body.rsvpStatus || "pending",
-      events: body.events || [],
-      dietaryRequirements: body.dietaryRequirements || "",
-      questions: body.questions || "",
-      lockStatus: body.lockStatus || "unlocked",
-    }
+    const updateData: any = {}
+
+    if (body.name !== undefined) updateData.name = body.name
+    if (body.guestType !== undefined) updateData.guestType = body.guestType
+    if (body.isChild !== undefined) updateData.isChild = body.isChild
+    if (body.ageGroup !== undefined) updateData.ageGroup = body.ageGroup
+    if (body.side !== undefined) updateData.side = body.side
+    if (body.groupId !== undefined) updateData.groupId = body.groupId
+    if (body.notes !== undefined) updateData.notes = body.notes
+    if (body.rsvpStatus !== undefined) updateData.rsvpStatus = body.rsvpStatus
+    if (body.events !== undefined) updateData.events = body.events
+    if (body.dietaryRequirements !== undefined) updateData.dietaryRequirements = body.dietaryRequirements
+    if (body.questions !== undefined) updateData.questions = body.questions
+    if (body.lockStatus !== undefined) updateData.lockStatus = body.lockStatus
 
     if (!isOnlyLockStatusUpdate) {
       updateData.lastUpdated = new Date().toISOString()

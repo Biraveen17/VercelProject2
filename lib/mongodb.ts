@@ -59,4 +59,9 @@ export async function getGroupsCollection(): Promise<Collection> {
   return db.collection("groups")
 }
 
+export async function getPageVisitsCollection(): Promise<Collection> {
+  const db = await getDatabase()
+  return db.collection("pageVisits")
+}
+
 export default clientPromise

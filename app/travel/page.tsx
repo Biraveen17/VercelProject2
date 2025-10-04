@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button"
 import { Plane, Hotel, Car, MapPin, Wine, Utensils, Camera, Sun } from "lucide-react"
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
+import { PageTracker } from "@/components/page-tracker"
 
 export default function TravelPage() {
   const { t } = useLanguage()
 
   return (
     <div className="min-h-screen section-spacing">
+      <PageTracker pageName="travel" />
+
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">

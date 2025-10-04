@@ -7,6 +7,7 @@ import { Heart, MapPin, Calendar, Users } from "lucide-react"
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
 import { useEffect, useState } from "react"
+import { PageTracker } from "@/components/page-tracker"
 
 export default function HomePage() {
   const { t } = useLanguage()
@@ -67,6 +68,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
+      <PageTracker pageName="home" />
+
       {/* Hero Section */}
       <section className="section-spacing">
         <div className="max-w-6xl mx-auto">

@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Camera, Heart, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { PageTracker } from "@/components/page-tracker"
 
 export default function GalleryPage() {
   // Placeholder images - in real implementation, these would come from a database or CMS
@@ -12,6 +13,8 @@ export default function GalleryPage() {
 
   return (
     <div className="min-h-screen py-12 px-4">
+      <PageTracker pageName="gallery" />
+
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-primary mb-4">Our Gallery</h1>

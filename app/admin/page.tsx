@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { isAuthenticated, login, logout, getCurrentUser } from "@/lib/auth"
-import { Users, DollarSign, Calendar, Settings, LogOut } from "lucide-react"
+import { Users, DollarSign, Calendar, Settings, LogOut, BarChart } from "lucide-react"
 import Link from "next/link"
 
 interface Guest {
@@ -278,6 +278,16 @@ export default function AdminPage() {
                 <Settings className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="font-semibold mb-2">Settings</h3>
                 <p className="text-sm text-muted-foreground">Wedding details and configuration</p>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/admin/statistics">
+              <CardContent className="p-6 text-center">
+                <BarChart className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Page Statistics</h3>
+                <p className="text-sm text-muted-foreground">View visitor analytics and insights</p>
               </CardContent>
             </Link>
           </Card>

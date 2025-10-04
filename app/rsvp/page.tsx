@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useLanguage } from "@/lib/language-context"
+import { PageTracker } from "@/components/page-tracker"
 
 interface Guest {
   _id: string
@@ -177,6 +178,8 @@ export default function RSVPPage() {
   if (success) {
     return (
       <div className="min-h-screen py-12 px-4 flex items-center justify-center">
+        <PageTracker pageName="rsvp" />
+
         <Card className="max-w-md mx-auto text-center">
           <CardContent className="p-8">
             <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">

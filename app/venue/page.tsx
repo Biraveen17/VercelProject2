@@ -3,12 +3,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { MapPin } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
+import { PageTracker } from "@/components/page-tracker"
 
 export default function VenuePage() {
   const { t } = useLanguage()
 
   return (
     <div className="min-h-screen py-12 px-4">
+      <PageTracker pageName="venue" />
+
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-primary mb-4">
