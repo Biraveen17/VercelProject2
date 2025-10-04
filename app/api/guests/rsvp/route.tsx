@@ -16,9 +16,42 @@ export async function POST(request: NextRequest) {
     if (body.type === "group") {
       const { groupId, isAttending, events, dietaryRequirements, questions, guests } = body
 
+      const allGroupGuests = await collection.find({ groupId }).toArray()
+      console.log(
+        "[v0] All guests in group from database:",
+        allGroupGuests.map((g) => ({ id: g._id.toString(), name: g.name, type: g.guestType })),
+      )
+      console.log(
+        "[v0] Guests from form submission:",
+        guests.map((g: any) => ({ id: g._id, name: g.name, type: g.guestType })),
+      )
+
+      const guestsWithNames = guests.filter((g: any) => g.name && g.name.trim() !== "")
+      const guestIdsWithNames = guestsWithNames.map((g: any) => g._id)
+      console.log("[v0] Guest IDs with names filled in:", guestIdsWithNames)
+
+      const guestsToDelete = allGroupGuests.filter((dbGuest) => {
+        const isInSubmission = guests.some((formGuest: any) => formGuest._id === dbGuest._id.toString())
+        const hasNameInSubmission = guestIdsWithNames.includes(dbGuest._id.toString())
+
+        // Delete if: it's a TBC guest AND (not in submission OR in submission but no name filled)
+        return dbGuest.guestType === "tbc" && (!isInSubmission || !hasNameInSubmission)
+      })
+
+      console.log(
+        "[v0] TBC guests to delete:",
+        guestsToDelete.map((g) => ({ id: g._id.toString(), name: g.name })),
+      )
+
+      for (const guestToDelete of guestsToDelete) {
+        console.log("[v0] Deleting TBC guest:", guestToDelete._id.toString(), guestToDelete.name)
+        await collection.deleteOne({ _id: guestToDelete._id })
+      }
+
+      // Validate for duplicate names
       const allGuests = await collection.find({}).toArray()
 
-      for (const guestData of guests) {
+      for (const guestData of guestsWithNames) {
         const name = guestData.name?.trim()
         if (name) {
           const duplicateGuest = allGuests.find(
@@ -34,19 +67,6 @@ export async function POST(request: NextRequest) {
             )
           }
         }
-      }
-
-      const guestsWithNames = guests.filter((g: any) => g.name && g.name.trim() !== "")
-      const guestIdsWithNames = guestsWithNames.map((g: any) => g._id)
-
-      const allGroupGuests = await collection.find({ groupId }).toArray()
-      const guestsToDelete = allGroupGuests.filter(
-        (g) => g.guestType === "tbc" && !guestIdsWithNames.includes(g._id.toString()),
-      )
-
-      for (const guestToDelete of guestsToDelete) {
-        console.log("[v0] Deleting TBC guest with no name:", guestToDelete._id)
-        await collection.deleteOne({ _id: guestToDelete._id })
       }
 
       // Update all guests in the group that have names
