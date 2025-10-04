@@ -177,7 +177,7 @@ export default function RSVPPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen py-12 px-4 flex items-center justify-center">
+      <div className="min-h-screen py-12 flex items-center justify-center">
         <PageTracker pageName="rsvp" />
 
         <Card className="max-w-md mx-auto text-center">
@@ -204,8 +204,8 @@ export default function RSVPPage() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen py-12">
+      <div className="max-w-2xl mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-primary mb-4">{t("rsvpTitle")}</h1>
           <p className="text-lg text-muted-foreground">{t("rsvpSubtitle")}</p>
