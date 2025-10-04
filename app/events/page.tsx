@@ -82,7 +82,6 @@ export default function EventsPage() {
             <CardContent className="p-8 space-y-4">
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <div className="text-3xl">🎉</div>
                   <div>
                     <h2 className="caption-text text-primary">Wedding Reception</h2>
                     <p className="body-text">Dinner, Dancing & Celebration</p>
@@ -181,24 +180,28 @@ export default function EventsPage() {
                 <h3 className="caption-text text-primary mb-4">Saturday, March 28 - Reception</h3>
                 <div className="space-y-3">
                   <div className="flex gap-4">
-                    <span className="body-text text-primary w-20">18:00</span>
+                    <span className="body-text text-primary w-20">17:00</span>
                     <span className="caption-text">Guest arrival & welcome</span>
                   </div>
                   <div className="flex gap-4">
-                    <span className="body-text text-primary w-20">19:00</span>
-                    <span className="caption-text">Cocktail hour begins</span>
+                    <span className="body-text text-primary w-20">17:30</span>
+                    <span className="caption-text">Starters served</span>
                   </div>
                   <div className="flex gap-4">
-                    <span className="body-text text-primary w-20">19:30</span>
+                    <span className="body-text text-primary w-20">18:00</span>
                     <span className="caption-text">Couple's entrance</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="body-text text-primary w-20">18:15</span>
+                    <span className="caption-text">Cake cutting</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="body-text text-primary w-20">19:00</span>
+                    <span className="caption-text">Bar opens</span>
                   </div>
                   <div className="flex gap-4">
                     <span className="body-text text-primary w-20">20:00</span>
                     <span className="caption-text">Dinner service</span>
-                  </div>
-                  <div className="flex gap-4">
-                    <span className="body-text text-primary w-20">21:30</span>
-                    <span className="caption-text">Speeches & toasts</span>
                   </div>
                   <div className="flex gap-4">
                     <span className="body-text text-primary w-20">22:30</span>
