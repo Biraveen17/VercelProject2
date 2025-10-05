@@ -15,6 +15,8 @@ import {
   ParkingCircle,
   Users,
   ExternalLink,
+  Waves,
+  ShoppingBag,
 } from "lucide-react"
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
@@ -379,52 +381,68 @@ export default function TravelPage() {
             <h2 className="text-3xl font-serif font-light mb-4">{t("thingsToDoTitle")}</h2>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
             <Card className="decorative-border text-center">
-              <CardContent className="p-8">
-                <Wine className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="caption-text text-primary mb-3">{t("activity1Title")}</h3>
-                <p className="body-text text-sm">{t("activity1Description")}</p>
+              <CardContent className="p-6">
+                <Wine className="w-10 h-10 text-primary mx-auto mb-3" />
+                <h3 className="caption-text text-primary mb-2 text-sm">{t("activity1Title")}</h3>
+                <p className="body-text text-xs">{t("activity1Description")}</p>
               </CardContent>
             </Card>
 
             <Card className="decorative-border text-center">
-              <CardContent className="p-8">
-                <Sun className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="caption-text text-primary mb-3">{t("activity2Title")}</h3>
-                <p className="body-text text-sm">{t("activity2Description")}</p>
+              <CardContent className="p-6">
+                <Sun className="w-10 h-10 text-primary mx-auto mb-3" />
+                <h3 className="caption-text text-primary mb-2 text-sm">{t("activity2Title")}</h3>
+                <p className="body-text text-xs">{t("activity2Description")}</p>
               </CardContent>
             </Card>
 
             <Card className="decorative-border text-center">
-              <CardContent className="p-8">
-                <Car className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="caption-text text-primary mb-3">{t("activity3Title")}</h3>
-                <p className="body-text text-sm">{t("activity3Description")}</p>
+              <CardContent className="p-6">
+                <Car className="w-10 h-10 text-primary mx-auto mb-3" />
+                <h3 className="caption-text text-primary mb-2 text-sm">{t("activity3Title")}</h3>
+                <p className="body-text text-xs">{t("activity3Description")}</p>
               </CardContent>
             </Card>
 
             <Card className="decorative-border text-center">
-              <CardContent className="p-8">
-                <MapPin className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="caption-text text-primary mb-3">{t("activity4Title")}</h3>
-                <p className="body-text text-sm">{t("activity4Description")}</p>
+              <CardContent className="p-6">
+                <MapPin className="w-10 h-10 text-primary mx-auto mb-3" />
+                <h3 className="caption-text text-primary mb-2 text-sm">{t("activity4Title")}</h3>
+                <p className="body-text text-xs">{t("activity4Description")}</p>
               </CardContent>
             </Card>
 
             <Card className="decorative-border text-center">
-              <CardContent className="p-8">
-                <Camera className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="caption-text text-primary mb-3">{t("activity5Title")}</h3>
-                <p className="body-text text-sm">{t("activity5Description")}</p>
+              <CardContent className="p-6">
+                <Camera className="w-10 h-10 text-primary mx-auto mb-3" />
+                <h3 className="caption-text text-primary mb-2 text-sm">{t("activity5Title")}</h3>
+                <p className="body-text text-xs">{t("activity5Description")}</p>
               </CardContent>
             </Card>
 
             <Card className="decorative-border text-center">
-              <CardContent className="p-8">
-                <Utensils className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="caption-text text-primary mb-3">{t("activity6Title")}</h3>
-                <p className="body-text text-sm">{t("activity6Description")}</p>
+              <CardContent className="p-6">
+                <Utensils className="w-10 h-10 text-primary mx-auto mb-3" />
+                <h3 className="caption-text text-primary mb-2 text-sm">{t("activity6Title")}</h3>
+                <p className="body-text text-xs">{t("activity6Description")}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="decorative-border text-center">
+              <CardContent className="p-6">
+                <Waves className="w-10 h-10 text-primary mx-auto mb-3" />
+                <h3 className="caption-text text-primary mb-2 text-sm">{t("activity7Title")}</h3>
+                <p className="body-text text-xs">{t("activity7Description")}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="decorative-border text-center">
+              <CardContent className="p-6">
+                <ShoppingBag className="w-10 h-10 text-primary mx-auto mb-3" />
+                <h3 className="caption-text text-primary mb-2 text-sm">{t("activity8Title")}</h3>
+                <p className="body-text text-xs">{t("activity8Description")}</p>
               </CardContent>
             </Card>
           </div>

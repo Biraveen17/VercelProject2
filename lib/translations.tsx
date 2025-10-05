@@ -164,6 +164,10 @@ export interface Translation {
   activity5Description: string
   activity6Title: string
   activity6Description: string
+  activity7Title: string
+  activity7Description: string
+  activity8Title: string
+  activity8Description: string
   travelTipsTitle: string
   travelTipsDescription: string
   questionsTitle: string
@@ -379,6 +383,12 @@ export const translations: Record<string, Translation> = {
     activity6Title: "Local Cuisine",
     activity6Description:
       "Savor traditional Cypriot dishes like halloumi, souvlaki, meze platters, and fresh Mediterranean seafood at local tavernas.",
+    activity7Title: "Aphrodite Waterpark",
+    activity7Description:
+      "Enjoy a fun day at one of Cyprus's largest waterparks with thrilling slides, wave pools, and lazy rivers. Perfect for families and thrill-seekers.",
+    activity8Title: "Kings Avenue Mall",
+    activity8Description:
+      "Shop at Paphos's premier shopping destination with international brands, restaurants, a cinema, and entertainment options all under one roof.",
     travelTipsTitle: "Travel Tips",
     travelTipsDescription:
       "• Book accommodations early as March is a popular time to visit Cyprus\n• The weather in March is typically mild and pleasant with temperatures ranging from 60-70°F (15-21°C)\n• Driving is on the left-hand side of the road\n• UK and EU licence holders do not need an International Driving Permit (IDP) as Cyprus is an EU member country\n• Cyprus uses the Euro (€) as currency\n• English is widely spoken in tourist areas\n• Remember to bring your passport and check visa requirements for Cyprus",
@@ -594,6 +604,12 @@ export const translations: Record<string, Translation> = {
     activity6Title: "Lokal Madkultur",
     activity6Description:
       "Smag traditionelle cypriotiske retter som halloumi, souvlaki, meze tallerkener og frisk middelhavs fisk og skaldyr på lokale tavernaer.",
+    activity7Title: "Aphrodite Vandland",
+    activity7Description:
+      "Nyd en sjov dag i en af Cyperns største vandlande med spændende rutsjebaner, bølgebassiner og lazy rivers. Perfekt for familier og spændingssøgende.",
+    activity8Title: "Kings Avenue Mall",
+    activity8Description:
+      "Shop i Paphos' førende shoppingdestination med internationale mærker, restauranter, biograf og underholdningsmuligheder alt sammen under ét tag.",
     travelTipsTitle: "Rejsetips",
     travelTipsDescription:
       "• Book indkvartering tidligt, da marts er en populær tid at besøge Cypern\n• Vejret i marts er typisk mildt og behageligt med temperaturer fra 15-21°C\n• Kørsel er på venstre side af vejen\n• Indehavere af UK og EU kørekort har ikke brug for et internationalt kørekort (IDP), da Cypern er et EU-medlemsland\n• Cypern bruger Euro (€) som valuta\n• Engelsk tales bredt i turistområder\n• Husk at medbringe dit pas og tjek visumkrav for Cypern",
@@ -651,7 +667,7 @@ export const translations: Record<string, Translation> = {
     logout: "வெளியேறு",
 
     // Home page
-    homeTitle: "வர்ணி & பிரவீன்",
+    homeTitle: "வர்ணி தர்மலிங்கம் & பிரவீன் விஜயகுமார்",
     homeSubtitle: "எங்கள் குடும்பங்களுடன் சேர்ந்து, எங்கள் தமிழ் இந்து திருமணத்தை கொண்டாட உங்களை அழைக்கிறோம்",
     homeDescription: "மார்ச் 27-28, 2026 • பாஃபோஸ், சைப்ரஸ்",
     homeLocation: "பாஃபோஸ், சைப்ரஸ்",
@@ -811,6 +827,12 @@ export const translations: Record<string, Translation> = {
     activity6Title: "உள்ளூர் உணவு",
     activity6Description:
       "உள்ளூர் டவர்னாக்களில் ஹலூமி, சௌவ்லாக்கி, மெஸ் தட்டுகள் மற்றும் புதிய மத்திய தரைக்கடல் கடல் உணவு போன்ற பாரம்பரிய சைப்ரியட் உணவுகளை சுவைக்கவும்.",
+    activity7Title: "அஃப்ரோடைட் நீர் பூங்கா",
+    activity7Description:
+      "சைப்ரஸின் மிகப்பெரிய நீர் பூங்காக்களில் ஒன்றில் சிலிர்ப்பூட்டும் ஸ்லைடுகள், அலை குளங்கள் மற்றும் லேசி ரிவர்களுடன் ஒரு வேடிக்கையான நாளை அனுபவிக்கவும். குடும்பங்கள் மற்றும் சாகச தேடுபவர்களுக்கு சரியானது.",
+    activity8Title: "கிங்ஸ் அவென்யூ மால்",
+    activity8Description:
+      "சர்வதேச பிராண்டுகள், உணவகங்கள், சினிமா மற்றும் பொழுதுபோக்கு விருப்பங்கள் அனைத்தும் ஒரே கூரையின் கீழ் உள்ள பாஃபோஸின் முதன்மை ஷாப்பிங் இடத்தில் ஷாப்பிங் செய்யுங்கள்.",
     travelTipsTitle: "பயண குறிப்புகள்",
     travelTipsDescription:
       "• மார்ச் சைப்ரஸைப் பார்வையிட பிரபலமான நேரமாக இருப்பதால் தங்குமிடத்தை முன்கூட்டியே முன்பதிவு செய்யுங்கள்\n• மார்ச் வானிலை பொதுவாக 15-21°C வெப்பநிலை வரம்புடன் மிதமானதாகவும் இனிமையானதாகவும் இருக்கும்\n• வாகனம் ஓட்டுவது சாலையின் இடது பக்கத்தில் உள்ளது\n• சைப்ரஸ் ஒரு EU உறுப்பு நாடாக இருப்பதால் UK மற்றும் EU உரிம வைத்திருப்பவர்களுக்கு சர்வதேச ஓட்டுநர் அனுமதி (IDP) தேவையில்லை\n• சைப்ரஸ் யூரோ (€) ஐ நாணயமாகப் பயன்படுத்துகிறது\n• சுற்றுலா பகுதிகளில் ஆங்கிலம் பரவலாகப் பேசப்படுகிறது\n• உங்கள் பாஸ்போர்ட்டைக் கொண்டு வர நினைவில் கொள்ளுங்கள் மற்றும் சைப்ரஸுக்கான விசா தேவைகளைச் சரிபார்க்கவும்",
@@ -921,7 +943,7 @@ export const translations: Record<string, Translation> = {
     receptionIndoors: "La réception aura lieu à l'intérieur",
     detailedScheduleTitle: "Programme",
     scheduleWarning:
-      "⚠️ Veuillez noter : Le programme ci-dessous est donné à titre indicatif et peut être modifié à l'approche de l’événement",
+      "⚠️ Veuillez noter : Le programme ci-dessous est donné à titre indicatif et peut être modifié à l’approche de l’événement",
     fridayScheduleTitle: "Vendredi 27 mars - Jour de la Cérémonie",
     saturdayScheduleTitle: "Samedi 28 mars - Réception",
     time1000: "10:00",
@@ -1035,6 +1057,12 @@ export const translations: Record<string, Translation> = {
     activity6Title: "Cuisine Locale",
     activity6Description:
       "Savourez des plats chypriotes traditionnels comme le halloumi, le souvlaki, les plateaux de meze et les fruits de mer méditerranéens frais dans les tavernes locales.",
+    activity7Title: "Parc Aquatique Aphrodite",
+    activity7Description:
+      "Profitez d'une journée amusante dans l'un des plus grands parcs aquatiques de Chypre avec des toboggans palpitants, des piscines à vagues et des rivières paresseuses. Parfait pour les familles et les amateurs de sensations fortes.",
+    activity8Title: "Kings Avenue Mall",
+    activity8Description:
+      "Faites du shopping dans la principale destination commerciale de Paphos avec des marques internationales, des restaurants, un cinéma et des options de divertissement, le tout sous un même toit.",
     travelTipsTitle: "Conseils de Voyage",
     travelTipsDescription:
       "• Réservez l'hébergement tôt car mars est une période populaire pour visiter Chypre\n• Le temps en mars est généralement doux et agréable avec des températures allant de 15 à 21°C\n• La conduite se fait sur le côté gauche de la route\n• Les titulaires de permis britanniques et européens n'ont pas besoin d'un permis de conduire international (PCI) car Chypre est un pays membre de l'UE\n• Chypre utilise l'Euro (€) comme monnaie\n• L'anglais est largement parlé dans les zones touristiques\n• N'oubliez pas d'apporter votre passeport et de vérifier les exigences de visa pour Chypre",
