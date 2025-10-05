@@ -361,7 +361,7 @@ export default function TravelPage() {
               <Card key={hotel.name} className="decorative-border overflow-hidden flex flex-col">
                 <div className="relative h-48 w-full">
                   <Image
-                    src={`/.jpg?key=xpyqy&height=200&width=400&query=${encodeURIComponent(hotel.imageQuery)}`}
+                    src={`/.jpg?key=ii7t1&height=200&width=400&query=${encodeURIComponent(hotel.imageQuery)}`}
                     alt={hotel.name}
                     fill
                     className="object-cover"
