@@ -167,12 +167,12 @@ export default function TravelPage() {
             <CardContent className="space-y-6">
               <div className="body-text leading-relaxed max-w-4xl mx-auto space-y-4">
                 <p className="font-semibold text-primary">
-                  We highly recommend hiring a rental car from the airport for the duration of your stay.
+                  We recommend hiring a rental car from the airport for the duration of your stay.
                 </p>
 
                 <p>
-                  There is no Uber service in Cyprus and Bolt availability is limited. Local taxi companies may be
-                  pricey for getting around daily.
+                  There is no Uber service in Cyprus, and Bolt operates on a limited basis. Local taxis are an option,
+                  though they can be relatively expensive for everyday travel.
                 </p>
 
                 <div className="bg-muted/30 p-4 rounded-lg space-y-2">
@@ -250,6 +250,19 @@ export default function TravelPage() {
         <section className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-serif font-light mb-4">{t("accommodationsTitle")}</h2>
+            <p className="body-text text-muted-foreground max-w-3xl mx-auto mb-8">
+              The options below are hotels. If you're traveling with a large group, it's also worth checking{" "}
+              <a
+                href="https://www.airbnb.com/s/Paphos--Cyprus/homes"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-medium"
+              >
+                Airbnb
+              </a>{" "}
+              for vacation rentals and villas.
+            </p>
+            {/* </CHANGE> */}
           </div>
 
           {loading ? (

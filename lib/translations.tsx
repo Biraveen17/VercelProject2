@@ -381,7 +381,7 @@ export const translations: Record<string, Translation> = {
       "Savor traditional Cypriot dishes like halloumi, souvlaki, meze platters, and fresh Mediterranean seafood at local tavernas.",
     travelTipsTitle: "Travel Tips",
     travelTipsDescription:
-      "Book accommodations early as March is a popular time to visit Cyprus. The weather in March is typically mild and pleasant with temperatures ranging from 60-70°F (15-21°C). Cyprus uses the Euro (€) as currency. English is widely spoken in tourist areas. Remember to bring your passport and check visa requirements for Cyprus.",
+      "Book accommodations early as March is a popular time to visit Cyprus. The weather in March is typically mild and pleasant with temperatures ranging from 60-70°F (15-21°C). Driving is on the left-hand side of the road. UK and EU licence holders do not need an International Driving Permit (IDP) as Cyprus is an EU member country. Cyprus uses the Euro (€) as currency. English is widely spoken in tourist areas. Remember to bring your passport and check visa requirements for Cyprus.",
     questionsTitle: "Questions About Travel?",
     questionsDescription:
       "If you have any questions about travel arrangements, accommodations, or things to do in the area, please don't hesitate to reach out through your RSVP.",
@@ -543,16 +543,19 @@ export const translations: Record<string, Translation> = {
     sfoTitle: "Paphos International Airport (PFO)",
     sfoDescription: "Den tætteste og mest bekvemme lufthavn, beliggende kun 15 minutter fra Paphos bycentrum.",
     sfoDrive: "15 minutter til Paphos",
-    sfoDirectFlights: "Direkte fly fra: København (CPH) - sæsonbestemt",
-    sfoAirlines: "Flyselskaber: Norwegian, SAS (sæsonbestemt)",
-    sfoTransitOptions: "Enkelt transit muligheder fra: København via Athen, Wien, Frankfurt eller Amsterdam",
+    sfoDirectFlights:
+      "Direkte fly fra: London Heathrow (LHR), London Gatwick (LGW), Manchester (MAN), Birmingham (BHX), Bristol (BRS), Edinburgh (EDI), Glasgow (GLA), Newcastle (NCL)",
+    sfoAirlines: "Flyselskaber: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air",
+    sfoTransitOptions:
+      "Enkelt transit muligheder fra: London Stansted, Liverpool, Leeds Bradford, Belfast, Cardiff (via Athen, Wien, Frankfurt eller Amsterdam)",
     oakTitle: "Larnaca International Airport (LCA)",
     oakDescription: "Cyperns vigtigste internationale lufthavn med flere flymuligheder fra hele verden.",
     oakDrive: "1 time 30 minutter til Paphos",
-    oakDirectFlights: "Direkte fly fra: København (CPH)",
-    oakAirlines: "Flyselskaber: Norwegian, SAS, Ryanair, easyJet",
+    oakDirectFlights:
+      "Direkte fly fra: London Heathrow (LHR), London Gatwick (LGW), London Stansted (STN), London Luton (LTN), Manchester (MAN), Birmingham (BHX), Bristol (BRS), Edinburgh (EDI), Glasgow (GLA), Newcastle (NCL), Leeds Bradford (LBA), Belfast (BFS)",
+    oakAirlines: "Flyselskaber: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air, Aegean Airlines",
     oakTransitOptions:
-      "Enkelt transit muligheder fra: København, Billund, Aalborg via Athen, Wien, Frankfurt, Amsterdam eller Zürich",
+      "Enkelt transit muligheder fra: De fleste britiske regionale lufthavne via Athen, Wien, Frankfurt, Amsterdam eller Zürich",
     sjcTitle: "Transport fra Lufthavn",
     sjcDescription: "Taxaer, lejebiler og shuttle-tjenester er let tilgængelige på begge lufthavne.",
     sjcDrive: "Forudbestil for bedste priser",
@@ -596,7 +599,7 @@ export const translations: Record<string, Translation> = {
       "Smag traditionelle cypriotiske retter som halloumi, souvlaki, meze tallerkener og frisk middelhavs fisk og skaldyr på lokale tavernaer.",
     travelTipsTitle: "Rejsetips",
     travelTipsDescription:
-      "Book indkvartering tidligt, da marts er en populær tid at besøge Cypern. Vejret i marts er typisk mildt og behageligt med temperaturer fra 60-70°F (15-21°C). Cypern bruger Euro (€) som valuta. Engelsk tales bredt i turistområder. Husk at medbringe dit pas og tjek visumkrav for Cypern.",
+      "Book indkvartering tidligt, da marts er en populær tid at besøge Cypern. Vejret i marts er typisk mildt og behageligt med temperaturer fra 15-21°C. Kørsel er på venstre side af vejen. Indehavere af UK og EU kørekort har ikke brug for et internationalt kørekort (IDP), da Cypern er et EU-medlemsland. Cypern bruger Euro (€) som valuta. Engelsk tales bredt i turistområder. Husk at medbringe dit pas og tjek visumkrav for Cypern.",
     questionsTitle: "Spørgsmål om rejse?",
     questionsDescription:
       "Hvis du har spørgsmål om rejsearrangementer, indkvartering eller ting at lave i området, så tøv ikke med at kontakte os gennem din RSVP.",
@@ -813,7 +816,7 @@ export const translations: Record<string, Translation> = {
       "உள்ளூர் டவர்னாக்களில் ஹலூமி, சௌவ்லாக்கி, மெஸ் தட்டுகள் மற்றும் புதிய மத்திய தரைக்கடல் கடல் உணவு போன்ற பாரம்பரிய சைப்ரியட் உணவுகளை சுவைக்கவும்.",
     travelTipsTitle: "பயண குறிப்புகள்",
     travelTipsDescription:
-      "மார்ச் சைப்ரஸைப் பார்வையிட பிரபலமான நேரமாக இருப்பதால் தங்குமிடத்தை முன்கூட்டியே முன்பதிவு செய்யுங்கள். மார்ச் வானிலை பொதுவாக 60-70°F (15-21°C) வெப்பநிலை வரம்புடன் மிதமானதாகவும் இனிமையானதாகவும் இருக்கும். சைப்ரஸ் யூரோ (€) ஐ நாணயமாகப் பயன்படுத்துகிறது. சுற்றுலா பகுதிகளில் ஆங்கிலம் பரவலாகப் பேசப்படுகிறது. உங்கள் பாஸ்போர்ட்டைக் கொண்டு வர நினைவில் கொள்ளுங்கள் மற்றும் சைப்ரஸுக்கான விசா தேவைகளைச் சரிபார்க்கவும்.",
+      "மார்ச் சைப்ரஸைப் பார்வையிட பிரபலமான நேரமாக இருப்பதால் தங்குமிடத்தை முன்கூட்டியே முன்பதிவு செய்யுங்கள். மார்ச் வானிலை பொதுவாக 15-21°C வெப்பநிலை வரம்புடன் மிதமானதாகவும் இனிமையானதாகவும் இருக்கும். வாகனம் ஓட்டுவது சாலையின் இடது பக்கத்தில் உள்ளது. சைப்ரஸ் ஒரு EU உறுப்பு நாடாக இருப்பதால் UK மற்றும் EU உரிம வைத்திருப்பவர்களுக்கு சர்வதேச ஓட்டுநர் அனுமதி (IDP) தேவையில்லை. சைப்ரஸ் யூரோ (€) ஐ நாணயமாகப் பயன்படுத்துகிறது. சுற்றுலா பகுதிகளில் ஆங்கிலம் பரவலாகப் பேசப்படுகிறது. உங்கள் பாஸ்போர்ட்டைக் கொண்டு வர நினைவில் கொள்ளுங்கள் மற்றும் சைப்ரஸுக்கான விசா தேவைகளைச் சரிபார்க்கவும்.",
     questionsTitle: "பயணம் பற்றி கேள்விகள்?",
     questionsDescription:
       "பயண ஏற்பாடுகள், தங்குமிடம் அல்லது பகுதியில் செய்ய வேண்டிய விஷயங்கள் பற்றி உங்களுக்கு ஏதேனும் கேள்விகள் இருந்தால், உங்கள் RSVP மூலம் தொடர்பு கொள்ள தயங்க வேண்டாம்.",
@@ -1038,7 +1041,7 @@ export const translations: Record<string, Translation> = {
       "Savourez des plats chypriotes traditionnels comme le halloumi, le souvlaki, les plateaux de meze et les fruits de mer méditerranéens frais dans les tavernes locales.",
     travelTipsTitle: "Conseils de Voyage",
     travelTipsDescription:
-      "Réservez l'hébergement tôt car mars est une période populaire pour visiter Chypre. Le temps en mars est généralement doux et agréable avec des températures allant de 60 à 70°F (15-21°C). Chypre utilise l'Euro (€) comme monnaie. L'anglais est largement parlé dans les zones touristiques. N'oubliez pas d'apporter votre passeport et de vérifier les exigences de visa pour Chypre.",
+      "Réservez l'hébergement tôt car mars est une période populaire pour visiter Chypre. Le temps en mars est généralement doux et agréable avec des températures allant de 15 à 21°C. La conduite se fait sur le côté gauche de la route. Les titulaires de permis britanniques et européens n'ont pas besoin d'un permis de conduire international (PCI) car Chypre est un pays membre de l'UE. Chypre utilise l'Euro (€) comme monnaie. L'anglais est largement parlé dans les zones touristiques. N'oubliez pas d'apporter votre passeport et de vérifier les exigences de visa pour Chypre.",
     questionsTitle: "Questions sur le Voyage ?",
     questionsDescription:
       "Si vous avez des questions sur les arrangements de voyage, l'hébergement ou les choses à faire dans la région, n'hésitez pas à nous contacter via votre RSVP.",
