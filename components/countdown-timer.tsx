@@ -36,29 +36,29 @@ export function CountdownTimer() {
   }, [])
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-xs mx-auto">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
       <Card className="text-center">
-        <CardContent className="p-3 aspect-square flex flex-col justify-center">
-          <div className="text-xl font-bold text-primary">{timeLeft.days}</div>
-          <div className="text-xs text-muted-foreground">{t("days")}</div>
+        <CardContent className="p-6 aspect-square flex flex-col justify-center">
+          <div className="text-4xl md:text-5xl font-bold text-primary">{timeLeft.days}</div>
+          <div className="text-base md:text-lg text-muted-foreground mt-2">{t("days")}</div>
         </CardContent>
       </Card>
       <Card className="text-center">
-        <CardContent className="p-3 aspect-square flex flex-col justify-center">
-          <div className="text-xl font-bold text-primary">{timeLeft.hours}</div>
-          <div className="text-xs text-muted-foreground">{t("hours")}</div>
+        <CardContent className="p-6 aspect-square flex flex-col justify-center">
+          <div className="text-4xl md:text-5xl font-bold text-primary">{timeLeft.hours}</div>
+          <div className="text-base md:text-lg text-muted-foreground mt-2">{t("hours")}</div>
         </CardContent>
       </Card>
       <Card className="text-center">
-        <CardContent className="p-3 aspect-square flex flex-col justify-center">
-          <div className="text-xl font-bold text-primary">{timeLeft.minutes}</div>
-          <div className="text-xs text-muted-foreground">{t("minutes")}</div>
+        <CardContent className="p-6 aspect-square flex flex-col justify-center">
+          <div className="text-4xl md:text-5xl font-bold text-primary">{timeLeft.minutes}</div>
+          <div className="text-base md:text-lg text-muted-foreground mt-2">{t("minutes")}</div>
         </CardContent>
       </Card>
       <Card className="text-center">
-        <CardContent className="p-3 aspect-square flex flex-col justify-center">
-          <div className="text-xl font-bold text-primary">{timeLeft.seconds}</div>
-          <div className="text-xs text-muted-foreground">{t("seconds")}</div>
+        <CardContent className="p-6 aspect-square flex flex-col justify-center">
+          <div className="text-4xl md:text-5xl font-bold text-primary">{timeLeft.seconds}</div>
+          <div className="text-base md:text-lg text-muted-foreground mt-2">{t("seconds")}</div>
         </CardContent>
       </Card>
     </div>
