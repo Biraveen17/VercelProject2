@@ -125,17 +125,16 @@ export default function TravelPage() {
               </CardContent>
             </Card>
           </div>
+        </section>
 
-          {/* Transportation */}
-          <Card className="decorative-border mt-8">
+        {/* Travel Tips */}
+        <section className="mb-20">
+          <Card className="decorative-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-3 caption-text text-primary">
-                <Car className="w-6 h-6" />
-                {t("transportationTitle")}
-              </CardTitle>
+              <CardTitle className="caption-text text-primary text-center">{t("travelTipsTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="body-text leading-relaxed">{t("transportationDescription")}</p>
+              <p className="body-text leading-relaxed text-center max-w-4xl mx-auto">{t("travelTipsDescription")}</p>
             </CardContent>
           </Card>
         </section>
@@ -306,18 +305,6 @@ export default function TravelPage() {
               </CardContent>
             </Card>
           </div>
-        </section>
-
-        {/* Travel Tips */}
-        <section className="mb-20">
-          <Card className="decorative-border">
-            <CardHeader>
-              <CardTitle className="caption-text text-primary text-center">{t("travelTipsTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="body-text leading-relaxed text-center max-w-4xl mx-auto">{t("travelTipsDescription")}</p>
-            </CardContent>
-          </Card>
         </section>
 
         {/* Questions CTA */}
