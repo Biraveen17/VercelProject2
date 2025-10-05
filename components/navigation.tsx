@@ -38,6 +38,7 @@ export function Navigation() {
   const [pageConfig, setPageConfig] = useState<ContentData | null>(null)
   const [gallerySettings, setGallerySettings] = useState({ visible: true, accessible: true })
   const [availableLanguages, setAvailableLanguages] = useState(languages)
+  const [autoLanguageDetected, setAutoLanguageDetected] = useState(false)
 
   useEffect(() => {
     const savedContent = localStorage.getItem("wedding_content")
@@ -47,6 +48,7 @@ export function Navigation() {
 
     fetchGallerySettings()
     fetchLanguageSettings()
+    detectAndSetLanguage()
   }, [])
 
   const fetchGallerySettings = async () => {
@@ -80,6 +82,56 @@ export function Navigation() {
       }
     } catch (error) {
       console.error("Error fetching language settings:", error)
+    }
+  }
+
+  const detectAndSetLanguage = async () => {
+    // Check if language has already been manually set by user
+    const hasManualLanguage = localStorage.getItem("wedding_language")
+    if (hasManualLanguage) {
+      setAutoLanguageDetected(true)
+      return
+    }
+
+    try {
+      // Fetch settings to check if auto detection is enabled
+      const settingsResponse = await fetch("/api/settings")
+      if (!settingsResponse.ok) return
+
+      const settings = await settingsResponse.json()
+      if (!settings.enableAutoLanguageDetection) {
+        setAutoLanguageDetected(true)
+        return
+      }
+
+      // Get user's country from geolocation API
+      const geoResponse = await fetch("/api/geo")
+      if (!geoResponse.ok) {
+        setAutoLanguageDetected(true)
+        return
+      }
+
+      const { country } = await geoResponse.json()
+
+      // Map country to language
+      let detectedLanguage = "en" // Default to English
+      if (country === "DK" && settings.enableDanish) {
+        detectedLanguage = "da"
+      } else if (country === "FR" && settings.enableFrench) {
+        detectedLanguage = "fr"
+      } else if (country === "LK" && settings.enableTamil) {
+        detectedLanguage = "ta"
+      }
+
+      // Set the detected language
+      if (detectedLanguage !== language) {
+        setLanguage(detectedLanguage)
+      }
+
+      setAutoLanguageDetected(true)
+    } catch (error) {
+      console.error("Error detecting language:", error)
+      setAutoLanguageDetected(true)
     }
   }
 

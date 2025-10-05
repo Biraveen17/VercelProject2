@@ -26,6 +26,7 @@ export async function GET() {
         enableDanish: true,
         enableFrench: true,
         enableTamil: true,
+        enableAutoLanguageDetection: true,
         lastUpdated: new Date().toISOString(),
       }
       await collection.insertOne(defaultSettings)
