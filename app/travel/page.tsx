@@ -254,7 +254,7 @@ export default function TravelPage() {
         <section className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-serif font-light mb-4">{t("accommodationsTitle")}</h2>
-            <p className="body-text text-muted-foreground max-w-3xl mx-auto mb-8">
+            <p className="body-text text-muted-foreground max-w-4xl mx-auto mb-8">
               <Button
                 asChild
                 size="sm"
