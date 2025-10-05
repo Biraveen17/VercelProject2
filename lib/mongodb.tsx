@@ -78,6 +78,10 @@ export async function getIpNameMappingsCollection(): Promise<Collection> {
   const db = await getDatabase()
   return db.collection("ipNameMappings")
 }
-// </CHANGE>
+
+export async function getHotelsCollection(): Promise<Collection> {
+  const db = await getDatabase()
+  return db.collection("hotels")
+}
 
 export default clientPromise
