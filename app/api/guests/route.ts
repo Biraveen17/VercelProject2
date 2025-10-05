@@ -1,12 +1,33 @@
+import { sql } from "@/lib/neon"
 import { type NextRequest, NextResponse } from "next/server"
-import { getGuestsCollection, getGroupsCollection } from "@/lib/mongodb"
+import { verifyToken } from "@/lib/auth"
 
 export async function GET() {
   try {
-    const collection = await getGuestsCollection()
-    const guests = await collection.find({}).sort({ lastUpdated: -1 }).toArray()
+    const guests = await sql`
+      SELECT * FROM guests 
+      ORDER BY created_at DESC
+    `
 
-    return NextResponse.json(guests)
+    // Transform database format to frontend format
+    const transformedGuests = guests.map((guest: any) => ({
+      id: guest.id,
+      type: guest.type,
+      groupName: guest.group_name,
+      guestName: guest.guest_name,
+      maxGroupSize: guest.max_group_size,
+      groupMembers: guest.group_members || [],
+      notes: guest.notes,
+      rsvpStatus: guest.rsvp_status,
+      events: guest.events || [],
+      dietaryRequirements: guest.dietary_requirements,
+      questions: guest.questions,
+      side: guest.side,
+      lastUpdated: guest.last_updated,
+      createdAt: guest.created_at,
+    }))
+
+    return NextResponse.json({ data: transformedGuests })
   } catch (error) {
     console.error("Error fetching guests:", error)
     return NextResponse.json({ error: "Failed to fetch guests" }, { status: 500 })
@@ -15,40 +36,34 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const guestsCollection = await getGuestsCollection()
-    const groupsCollection = await getGroupsCollection()
-
-    const existingGuest = await guestsCollection.findOne({ name: body.name })
-    if (existingGuest) {
-      return NextResponse.json({ error: "A guest with this name already exists" }, { status: 400 })
+    const authHeader = request.headers.get("authorization")
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const existingGroup = await groupsCollection.findOne({ name: body.name })
-    if (existingGroup) {
-      return NextResponse.json({ error: "A group with this name already exists" }, { status: 400 })
+    const token = authHeader.substring(7)
+    const isValid = await verifyToken(token)
+    if (!isValid) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 })
     }
 
-    const guest = {
-      name: body.name,
-      guestType: body.guestType || "defined",
-      isChild: body.isChild || false,
-      ageGroup: body.isChild && body.ageGroup ? body.ageGroup : undefined, // Only save ageGroup if guest is a child and ageGroup is provided
-      side: body.side || null,
-      groupId: body.groupId || null,
-      notes: body.notes || "",
-      rsvpStatus: body.rsvpStatus || "pending",
-      events: body.events || [],
-      dietaryRequirements: body.dietaryRequirements || "",
-      questions: body.questions || "",
-      lockStatus: body.lockStatus || "unlocked", // Added lockStatus field
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
-    }
+    const guest = await request.json()
 
-    const result = await guestsCollection.insertOne(guest)
+    const result = await sql`
+      INSERT INTO guests (
+        id, type, group_name, guest_name, max_group_size, 
+        group_members, notes, rsvp_status, events, 
+        dietary_requirements, questions, side, last_updated, created_at
+      ) VALUES (
+        ${guest.id}, ${guest.type}, ${guest.groupName}, ${guest.guestName}, 
+        ${guest.maxGroupSize}, ${JSON.stringify(guest.groupMembers || [])}, 
+        ${guest.notes}, ${guest.rsvpStatus}, ${JSON.stringify(guest.events || [])}, 
+        ${guest.dietaryRequirements}, ${guest.questions}, ${guest.side}, 
+        ${guest.lastUpdated}, ${guest.createdAt || new Date().toISOString()}
+      ) RETURNING *
+    `
 
-    return NextResponse.json({ ...guest, _id: result.insertedId }, { status: 201 })
+    return NextResponse.json({ data: result[0] })
   } catch (error) {
     console.error("Error creating guest:", error)
     return NextResponse.json({ error: "Failed to create guest" }, { status: 500 })

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/language-context"
+import Image from "next/image"
 
 const languages = [
   { code: "en", name: "English", flag: "🇬🇧" },
@@ -36,31 +37,13 @@ export function Navigation() {
   const [showLangMenu, setShowLangMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [pageConfig, setPageConfig] = useState<ContentData | null>(null)
-  const [gallerySettings, setGallerySettings] = useState({ visible: true, accessible: true }) // Added gallery settings state
 
   useEffect(() => {
     const savedContent = localStorage.getItem("wedding_content")
     if (savedContent) {
       setPageConfig(JSON.parse(savedContent))
     }
-
-    fetchGallerySettings()
   }, [])
-
-  const fetchGallerySettings = async () => {
-    try {
-      const response = await fetch("/api/settings")
-      if (response.ok) {
-        const data = await response.json()
-        setGallerySettings({
-          visible: data.galleryVisible ?? true,
-          accessible: data.galleryAccessible ?? true,
-        })
-      }
-    } catch (error) {
-      console.error("Error fetching gallery settings:", error)
-    }
-  }
 
   const getNavItems = () => {
     const baseNavItems = [
@@ -72,20 +55,18 @@ export function Navigation() {
       { href: "/rsvp", label: t("rsvp"), key: "rsvp" },
     ]
 
+    if (!pageConfig) return baseNavItems
+
+    // Filter enabled pages and sort by order
     return baseNavItems
       .filter((item) => {
-        if (item.key === "gallery" && !gallerySettings.visible) {
-          return false
-        }
-        if (item.key === "rsvp") return true
-        if (!pageConfig) return true
+        if (item.key === "rsvp") return true // Always show RSVP
         const pageData = pageConfig[item.key as keyof ContentData]
         return pageData?.enabled !== false
       })
       .sort((a, b) => {
-        if (a.key === "rsvp") return 1
+        if (a.key === "rsvp") return 1 // RSVP always last
         if (b.key === "rsvp") return -1
-        if (!pageConfig) return 0
         const aOrder = pageConfig[a.key as keyof ContentData]?.order || 999
         const bOrder = pageConfig[b.key as keyof ContentData]?.order || 999
         return aOrder - bOrder
@@ -100,8 +81,22 @@ export function Navigation() {
       <nav className="bg-card border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="script text-2xl">
-              V & B
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="relative">
+                <Image
+                  src="/wedding-logo.png"
+                  alt="Varnie & Biraveen Wedding Logo"
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
+              </div>
+              <div className="block">
+                <span className="font-serif text-lg sm:text-xl font-semibold text-card-foreground tracking-wide">
+                  Varnie & Biraveen
+                </span>
+                <div className="text-xs text-muted-foreground font-sans italic">March 2026 • Cyprus</div>
+              </div>
             </Link>
 
             {/* Desktop Navigation Links */}
@@ -180,6 +175,11 @@ export function Navigation() {
             <Button variant="ghost" size="sm" onClick={() => setShowMobileMenu(false)}>
               <X className="w-4 h-4" />
             </Button>
+          </div>
+
+          <div className="text-center mb-6 pb-4 border-b border-border">
+            <div className="font-serif text-lg font-semibold text-card-foreground tracking-wide">Varnie & Biraveen</div>
+            <div className="text-sm text-muted-foreground font-sans italic mt-1">March 2026 • Cyprus</div>
           </div>
 
           <div className="space-y-2">

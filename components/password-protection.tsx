@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
+import { checkSiteAccess } from "@/lib/auth"
 
 export function PasswordProtection({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -19,15 +20,18 @@ export function PasswordProtection({ children }: { children: React.ReactNode }) 
       return
     }
 
-    // Check if user has access
-    const hasAccess = localStorage.getItem("wedding_site_access") === "true"
-    if (!hasAccess) {
-      router.push("/password")
-      return
+    const checkAccess = async () => {
+      const hasAccess = await checkSiteAccess()
+      if (!hasAccess) {
+        router.push("/password")
+        return
+      }
+
+      setIsAuthenticated(true)
+      setLoading(false)
     }
 
-    setIsAuthenticated(true)
-    setLoading(false)
+    checkAccess()
   }, [pathname, router])
 
   if (loading) {

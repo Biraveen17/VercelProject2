@@ -1,12 +1,28 @@
+import { sql } from "@/lib/neon"
 import { type NextRequest, NextResponse } from "next/server"
-import { getBudgetCollection } from "@/lib/mongodb"
 
 export async function GET() {
   try {
-    const collection = await getBudgetCollection()
-    const budgetItems = await collection.find({}).sort({ lastUpdated: -1 }).toArray()
+    const budgetItems = await sql`
+      SELECT * FROM budget_items 
+      ORDER BY created_at DESC
+    `
 
-    return NextResponse.json(budgetItems)
+    // Transform database format back to frontend format
+    const transformedItems = budgetItems.map((item: any) => ({
+      id: item.id,
+      category1: item.category1,
+      category2: item.category2,
+      itemName: item.item_name,
+      vendor: item.vendor,
+      cost: typeof item.cost === "string" ? Number.parseFloat(item.cost) : item.cost,
+      status: item.status,
+      notes: item.notes,
+      lastUpdated: item.last_updated,
+      createdAt: item.created_at,
+    }))
+
+    return NextResponse.json({ data: transformedItems })
   } catch (error) {
     console.error("Error fetching budget items:", error)
     return NextResponse.json({ error: "Failed to fetch budget items" }, { status: 500 })
@@ -15,23 +31,20 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const collection = await getBudgetCollection()
+    const item = await request.json()
 
-    const budgetItem = {
-      category1: body.category1,
-      category2: body.category2,
-      itemName: body.itemName,
-      vendor: body.vendor,
-      cost: body.cost,
-      status: body.status,
-      notes: body.notes || "",
-      lastUpdated: new Date().toISOString(),
-    }
+    const result = await sql`
+      INSERT INTO budget_items (
+        id, category1, category2, item_name, vendor, cost, status, notes, last_updated, created_at
+      ) VALUES (
+        ${item.id}, ${item.category1}, ${item.category2}, ${item.itemName}, 
+        ${item.vendor}, ${item.cost}, ${item.status}, ${item.notes}, 
+        ${item.lastUpdated}, ${item.createdAt || new Date().toISOString()}
+      )
+      RETURNING *
+    `
 
-    const result = await collection.insertOne(budgetItem)
-
-    return NextResponse.json({ ...budgetItem, _id: result.insertedId }, { status: 201 })
+    return NextResponse.json({ data: result[0] })
   } catch (error) {
     console.error("Error creating budget item:", error)
     return NextResponse.json({ error: "Failed to create budget item" }, { status: 500 })

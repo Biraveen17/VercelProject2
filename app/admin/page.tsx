@@ -8,35 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { isAuthenticated, login, logout, getCurrentUser } from "@/lib/auth"
-import { Users, DollarSign, Calendar, Settings, LogOut, BarChart } from "lucide-react"
+import { getGuests, getBudgetItems } from "@/lib/database"
+import { Users, DollarSign, Calendar, Settings, LogOut } from "lucide-react"
 import Link from "next/link"
-
-interface Guest {
-  _id: string
-  name: string
-  guestType: "defined" | "tbc"
-  isChild: boolean
-  ageGroup?: string
-  side: "bride" | "groom" | null
-  groupId: string | null
-  notes: string
-  rsvpStatus: "attending" | "not attending" | "pending"
-  events: string[]
-  dietaryRequirements: string
-  questions: string
-  lockStatus: "locked" | "unlocked"
-  createdAt: string
-  lastUpdated: string
-}
-
-interface BudgetItem {
-  _id: string
-  category: string
-  item: string
-  cost: number
-  status: "planned" | "booked" | "paid"
-  notes: string
-}
 
 export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false)
@@ -44,56 +18,78 @@ export default function AdminPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(true)
-  const [guests, setGuests] = useState<Guest[]>([])
-  const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([])
-  const [dataLoading, setDataLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [guests, setGuests] = useState<any[]>([])
+  const [budgetItems, setBudgetItems] = useState<any[]>([])
 
   useEffect(() => {
-    setAuthenticated(isAuthenticated())
-    setLoading(false)
+    const checkAuth = async () => {
+      const isAuth = await isAuthenticated()
+      setAuthenticated(isAuth)
+      if (isAuth) {
+        const user = await getCurrentUser()
+        setCurrentUser(user)
+      }
+      setLoading(false)
+    }
+
+    checkAuth()
   }, [])
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log("[v0] Starting login process...")
+    setError("")
+
+    try {
+      const success = await login(username, password)
+      console.log("[v0] Login result:", success)
+
+      if (success) {
+        console.log("[v0] Login successful, checking token in localStorage...")
+
+        await new Promise((resolve) => setTimeout(resolve, 300))
+
+        const token = localStorage.getItem("wedding_admin_token")
+        console.log("[v0] Token in localStorage:", token ? "found" : "not found")
+
+        if (token) {
+          setAuthenticated(true)
+          setError("")
+          const user = await getCurrentUser()
+          console.log("[v0] Current user:", user)
+          setCurrentUser(user)
+        } else {
+          console.log("[v0] Token not found after login")
+          setError("Authentication failed - please try again")
+        }
+      } else {
+        console.log("[v0] Login failed")
+        setError("Invalid credentials")
+      }
+    } catch (error) {
+      console.error("[v0] Login error:", error)
+      setError("Login failed. Please try again.")
+    }
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    setAuthenticated(false)
+    setCurrentUser(null)
+  }
 
   useEffect(() => {
     if (authenticated) {
-      fetchData()
-    }
-  }, [authenticated])
-
-  const fetchData = async () => {
-    try {
-      setDataLoading(true)
-      const [guestsRes, budgetRes] = await Promise.all([fetch("/api/guests"), fetch("/api/budget")])
-
-      if (guestsRes.ok) {
-        const guestsData = await guestsRes.json()
-        setGuests(guestsData)
-      }
-
-      if (budgetRes.ok) {
-        const budgetData = await budgetRes.json()
+      const loadData = async () => {
+        const guestData = await getGuests()
+        const budgetData = await getBudgetItems()
+        setGuests(guestData)
         setBudgetItems(budgetData)
       }
-    } catch (error) {
-      console.error("Error fetching data:", error)
-    } finally {
-      setDataLoading(false)
+      loadData()
     }
-  }
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (login(username, password)) {
-      setAuthenticated(true)
-      setError("")
-    } else {
-      setError("Invalid credentials")
-    }
-  }
-
-  const handleLogout = () => {
-    logout()
-    setAuthenticated(false)
-  }
+  }, [authenticated])
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
@@ -139,16 +135,85 @@ export default function AdminPage() {
     )
   }
 
-  const currentUser = getCurrentUser()
+  const totalRSVPs = guests.reduce((total, guest) => {
+    if (guest.type === "group" && guest.maxGroupSize && !guest.guestName) {
+      return total + guest.maxGroupSize
+    } else if (guest.type === "individual" && !guest.groupName) {
+      return total + 1
+    }
+    return total
+  }, 0)
 
-  const totalRSVPs = guests.filter((g) => g.rsvpStatus !== "pending").length
-  const attendingGuests = guests.filter((g) => g.rsvpStatus === "attending").length
-  const notAttendingGuests = guests.filter((g) => g.rsvpStatus === "not attending").length
-  const pendingGuests = guests.filter((g) => g.rsvpStatus === "pending").length
+  const attendingGuests = guests.reduce((total, guest) => {
+    if (guest.type === "group" && guest.maxGroupSize && !guest.guestName && guest.rsvpStatus === "attending") {
+      const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
+      return total + groupMembers.filter((g) => g.rsvpStatus === "attending").length
+    } else if (guest.type === "individual" && !guest.groupName && guest.rsvpStatus === "attending") {
+      return total + 1
+    }
+    return total
+  }, 0)
 
-  const ceremonyAttendees = guests.filter((g) => g.rsvpStatus === "attending" && g.events.includes("wedding")).length
+  const notAttendingGuests = guests.reduce((total, guest) => {
+    if (guest.type === "group" && guest.maxGroupSize && !guest.guestName && guest.rsvpStatus === "not-attending") {
+      const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
+      return total + groupMembers.filter((g) => g.rsvpStatus === "not-attending").length
+    } else if (guest.type === "individual" && !guest.groupName && guest.rsvpStatus === "not-attending") {
+      return total + 1
+    }
+    return total
+  }, 0)
 
-  const receptionAttendees = guests.filter((g) => g.rsvpStatus === "attending" && g.events.includes("reception")).length
+  const pendingGuests = guests.reduce((total, guest) => {
+    if (guest.type === "group" && guest.maxGroupSize && !guest.guestName && guest.rsvpStatus === "pending") {
+      return total + guest.maxGroupSize
+    } else if (guest.type === "individual" && !guest.groupName && guest.rsvpStatus === "pending") {
+      return total + 1
+    }
+    return total
+  }, 0)
+
+  const ceremonyAttendees = guests.reduce((total, guest) => {
+    if (
+      guest.type === "group" &&
+      guest.maxGroupSize &&
+      !guest.guestName &&
+      guest.rsvpStatus === "attending" &&
+      guest.events.includes("ceremony")
+    ) {
+      const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
+      return total + groupMembers.filter((g) => g.rsvpStatus === "attending" && g.events.includes("ceremony")).length
+    } else if (
+      guest.type === "individual" &&
+      !guest.groupName &&
+      guest.rsvpStatus === "attending" &&
+      guest.events.includes("ceremony")
+    ) {
+      return total + 1
+    }
+    return total
+  }, 0)
+
+  const receptionAttendees = guests.reduce((total, guest) => {
+    if (
+      guest.type === "group" &&
+      guest.maxGroupSize &&
+      !guest.guestName &&
+      guest.rsvpStatus === "attending" &&
+      guest.events.includes("reception")
+    ) {
+      const groupMembers = guests.filter((g) => g.groupName === guest.groupName && g.guestName)
+      return total + groupMembers.filter((g) => g.rsvpStatus === "attending" && g.events.includes("reception")).length
+    } else if (
+      guest.type === "individual" &&
+      !guest.groupName &&
+      guest.rsvpStatus === "attending" &&
+      guest.events.includes("reception")
+    ) {
+      return total + 1
+    }
+    return total
+  }, 0)
 
   const plannedTotal = budgetItems.filter((i) => i.status === "planned").reduce((sum, i) => sum + i.cost, 0)
   const bookedTotal = budgetItems.filter((i) => i.status === "booked").reduce((sum, i) => sum + i.cost, 0)
@@ -171,69 +236,65 @@ export default function AdminPage() {
         </div>
 
         {/* Summary Statistics */}
-        {dataLoading ? (
-          <div className="text-center py-8">Loading statistics...</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total RSVPs</p>
-                    <p className="text-2xl font-bold">{totalRSVPs}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {attendingGuests} attending • {notAttendingGuests} not attending • {pendingGuests} pending
-                    </p>
-                  </div>
-                  <Users className="w-8 h-8 text-primary" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total RSVPs</p>
+                  <p className="text-2xl font-bold">{totalRSVPs}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {attendingGuests} attending • {notAttendingGuests} not attending • {pendingGuests} pending
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+                <Users className="w-8 h-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Wedding Attendees</p>
-                    <p className="text-2xl font-bold">{ceremonyAttendees}</p>
-                  </div>
-                  <Calendar className="w-8 h-8 text-accent" />
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Ceremony Attendees</p>
+                  <p className="text-2xl font-bold">{ceremonyAttendees}</p>
                 </div>
-              </CardContent>
-            </Card>
+                <Calendar className="w-8 h-8 text-accent" />
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Reception Attendees</p>
-                    <p className="text-2xl font-bold">{receptionAttendees}</p>
-                  </div>
-                  <Calendar className="w-8 h-8 text-accent" />
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Reception Attendees</p>
+                  <p className="text-2xl font-bold">{receptionAttendees}</p>
                 </div>
-              </CardContent>
-            </Card>
+                <Calendar className="w-8 h-8 text-accent" />
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Expense</p>
-                    <p className="text-2xl font-bold">£{totalExpense.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Planned: £{plannedTotal.toLocaleString()} • Booked: £{bookedTotal.toLocaleString()} • Paid: £
-                      {paidTotal.toLocaleString()}
-                    </p>
-                  </div>
-                  <DollarSign className="w-8 h-8 text-primary" />
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Expense</p>
+                  <p className="text-2xl font-bold">£{totalExpense.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Planned: £{plannedTotal.toLocaleString()} • Booked: £{bookedTotal.toLocaleString()} • Paid: £
+                    {paidTotal.toLocaleString()}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+                <DollarSign className="w-8 h-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <Link href="/admin/guests">
               <CardContent className="p-6 text-center">
@@ -250,6 +311,16 @@ export default function AdminPage() {
                 <DollarSign className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="font-semibold mb-2">Budget Tracker</h3>
                 <p className="text-sm text-muted-foreground">Track expenses and payments</p>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/admin/content">
+              <CardContent className="p-6 text-center">
+                <Calendar className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Content Editor</h3>
+                <p className="text-sm text-muted-foreground">Edit website pages</p>
               </CardContent>
             </Link>
           </Card>
@@ -278,16 +349,6 @@ export default function AdminPage() {
                 <Settings className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="font-semibold mb-2">Settings</h3>
                 <p className="text-sm text-muted-foreground">Wedding details and configuration</p>
-              </CardContent>
-            </Link>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <Link href="/admin/statistics">
-              <CardContent className="p-6 text-center">
-                <BarChart className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Page Statistics</h3>
-                <p className="text-sm text-muted-foreground">View visitor analytics and insights</p>
               </CardContent>
             </Link>
           </Card>

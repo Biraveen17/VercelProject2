@@ -1,33 +1,30 @@
+import { sql } from "@/lib/neon"
 import { type NextRequest, NextResponse } from "next/server"
-import { getBudgetCollection } from "@/lib/mongodb"
-import { ObjectId } from "mongodb"
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const body = await request.json()
-    const collection = await getBudgetCollection()
+    const updates = await request.json()
 
-    const result = await collection.updateOne(
-      { _id: new ObjectId(params.id) },
-      {
-        $set: {
-          category1: body.category1,
-          category2: body.category2,
-          itemName: body.itemName,
-          vendor: body.vendor,
-          cost: body.cost,
-          status: body.status,
-          notes: body.notes || "",
-          lastUpdated: new Date().toISOString(),
-        },
-      },
-    )
+    const result = await sql`
+      UPDATE budget_items 
+      SET 
+        category1 = ${updates.category1},
+        category2 = ${updates.category2},
+        item_name = ${updates.itemName},
+        vendor = ${updates.vendor},
+        cost = ${updates.cost},
+        status = ${updates.status},
+        notes = ${updates.notes},
+        last_updated = ${new Date().toISOString()}
+      WHERE id = ${params.id}
+      RETURNING *
+    `
 
-    if (result.matchedCount === 0) {
+    if (result.length === 0) {
       return NextResponse.json({ error: "Budget item not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ data: result[0] })
   } catch (error) {
     console.error("Error updating budget item:", error)
     return NextResponse.json({ error: "Failed to update budget item" }, { status: 500 })
@@ -36,15 +33,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const collection = await getBudgetCollection()
+    const result = await sql`
+      DELETE FROM budget_items 
+      WHERE id = ${params.id}
+      RETURNING id
+    `
 
-    const result = await collection.deleteOne({ _id: new ObjectId(params.id) })
-
-    if (result.deletedCount === 0) {
+    if (result.length === 0) {
       return NextResponse.json({ error: "Budget item not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ data: { id: result[0].id } })
   } catch (error) {
     console.error("Error deleting budget item:", error)
     return NextResponse.json({ error: "Failed to delete budget item" }, { status: 500 })

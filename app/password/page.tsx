@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Heart } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { checkSiteAccess, grantSiteAccess } from "@/lib/auth"
 
 export default function PasswordPage() {
   const router = useRouter()
@@ -17,22 +18,24 @@ export default function PasswordPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check if already authenticated
-    const isAuthenticated = localStorage.getItem("wedding_site_access") === "true"
-    if (isAuthenticated) {
-      router.push("/")
-      return
+    const checkAccess = async () => {
+      const hasAccess = await checkSiteAccess()
+      if (hasAccess) {
+        router.push("/")
+        return
+      }
+      setLoading(false)
     }
-    setLoading(false)
+
+    checkAccess()
   }, [router])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
-    // Simple password protection - in production, this would be more secure
-    if (password.toLowerCase() === "kalyanam2026" || password.toLowerCase() === "varniebiraveen") {
-      localStorage.setItem("wedding_site_access", "true")
+    const success = await grantSiteAccess(password)
+    if (success) {
       router.push("/")
     } else {
       setError("Incorrect password. Please try again.")

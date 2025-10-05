@@ -1,47 +1,8 @@
-"use client"
-
 import { Card, CardContent } from "@/components/ui/card"
 import { Camera, Heart, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { PageTracker } from "@/components/page-tracker"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 
 export default function GalleryPage() {
-  const router = useRouter()
-  const [loading, setLoading] = useState(true)
-  const [accessible, setAccessible] = useState(true)
-
-  useEffect(() => {
-    const checkAccess = async () => {
-      try {
-        const response = await fetch("/api/settings")
-        if (response.ok) {
-          const data = await response.json()
-          const isAccessible = data.galleryAccessible ?? true
-          setAccessible(isAccessible)
-
-          if (!isAccessible) {
-            router.push("/")
-          }
-        }
-      } catch (error) {
-        console.error("Error checking gallery access:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    checkAccess()
-  }, [router])
-
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
-  }
-
-  if (!accessible) {
-    return null
-  }
-
   // Placeholder images - in real implementation, these would come from a database or CMS
   const engagementPhotos = Array.from({ length: 12 }, (_, i) => ({
     id: i + 1,
@@ -51,11 +12,9 @@ export default function GalleryPage() {
 
   return (
     <div className="min-h-screen py-12 px-4">
-      <PageTracker pageName="gallery" />
-
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="display-text mb-6">Our Gallery</h1>
+          <h1 className="text-4xl font-bold text-primary mb-4">Our Gallery</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Capturing the beautiful moments of our journey together
           </p>
