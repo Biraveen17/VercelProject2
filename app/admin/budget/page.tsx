@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { isAuthenticated, logout } from "@/lib/auth"
-import { getBudgetItems, addBudgetItem, updateBudgetItem, deleteBudgetItem, type BudgetItem } from "@/lib/database"
+import { getBudgetItems, addBudgetItem, updateBudgetItem, deleteBudgetItem, type BudgetItem } from "@/lib/database-api"
 import {
   Plus,
   Edit,
@@ -82,17 +82,13 @@ export default function BudgetTrackerPage() {
   })
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const isAuth = await isAuthenticated()
-      if (!isAuth) {
-        router.push("/admin")
-        return
-      }
-      setAuthenticated(true)
-      await loadBudgetItems()
-      setLoading(false)
+    if (!isAuthenticated()) {
+      router.push("/admin")
+      return
     }
-    checkAuth()
+    setAuthenticated(true)
+    loadBudgetItems()
+    setLoading(false)
   }, [router])
 
   const loadBudgetItems = async () => {
@@ -312,10 +308,15 @@ export default function BudgetTrackerPage() {
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault()
-    await addBudgetItem(formData)
-    await loadBudgetItems()
-    setShowAddDialog(false)
-    resetForm()
+    try {
+      await addBudgetItem(formData)
+      await loadBudgetItems()
+      setShowAddDialog(false)
+      resetForm()
+    } catch (error) {
+      console.error("Failed to add budget item:", error)
+      // You could add error handling UI here
+    }
   }
 
   const handleEditItem = (item: BudgetItem) => {
@@ -346,16 +347,26 @@ export default function BudgetTrackerPage() {
     e.preventDefault()
     if (!editingItem) return
 
-    await updateBudgetItem(editingItem.id, formData)
-    await loadBudgetItems()
-    setEditingItem(null)
-    resetForm()
+    try {
+      await updateBudgetItem(editingItem.id, formData)
+      await loadBudgetItems()
+      setEditingItem(null)
+      resetForm()
+    } catch (error) {
+      console.error("Failed to update budget item:", error)
+      // You could add error handling UI here
+    }
   }
 
   const confirmDeleteItem = async () => {
-    await deleteBudgetItem(deleteConfirmation.itemId)
-    await loadBudgetItems()
-    setDeleteConfirmation({ show: false, itemId: "", itemName: "" })
+    try {
+      await deleteBudgetItem(deleteConfirmation.itemId)
+      await loadBudgetItems()
+      setDeleteConfirmation({ show: false, itemId: "", itemName: "" })
+    } catch (error) {
+      console.error("Failed to delete budget item:", error)
+      // You could add error handling UI here
+    }
   }
 
   const resetForm = () => {
@@ -876,7 +887,7 @@ export default function BudgetTrackerPage() {
         )}
 
         {/* Edit Dialog */}
-        <Dialog open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
+        <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Edit Budget Item</DialogTitle>
@@ -884,49 +895,53 @@ export default function BudgetTrackerPage() {
             <form onSubmit={handleUpdateItem} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="editCategory1">Category 1</Label>
+                  <Label htmlFor="edit-category1">Category 1</Label>
                   <Input
-                    id="editCategory1"
+                    id="edit-category1"
                     value={formData.category1}
                     onChange={(e) => setFormData({ ...formData, category1: e.target.value })}
+                    placeholder="e.g., Venue, Catering, Photography"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="editCategory2">Category 2</Label>
+                  <Label htmlFor="edit-category2">Category 2</Label>
                   <Input
-                    id="editCategory2"
+                    id="edit-category2"
                     value={formData.category2}
                     onChange={(e) => setFormData({ ...formData, category2: e.target.value })}
+                    placeholder="e.g., Ceremony, Reception, Equipment"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="editItemName">Item Name</Label>
+                <Label htmlFor="edit-itemName">Item Name</Label>
                 <Input
-                  id="editItemName"
+                  id="edit-itemName"
                   value={formData.itemName}
                   onChange={(e) => setFormData({ ...formData, itemName: e.target.value })}
+                  placeholder="Specific item or service"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="editVendor">Vendor</Label>
+                  <Label htmlFor="edit-vendor">Vendor</Label>
                   <Input
-                    id="editVendor"
+                    id="edit-vendor"
                     value={formData.vendor}
                     onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
+                    placeholder="Vendor or supplier name"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="editCost">Cost (£)</Label>
+                  <Label htmlFor="edit-cost">Cost (£)</Label>
                   <Input
-                    id="editCost"
+                    id="edit-cost"
                     type="number"
                     min="0"
                     step="0.01"
@@ -955,9 +970,9 @@ export default function BudgetTrackerPage() {
               </div>
 
               <div>
-                <Label htmlFor="editNotes">Notes</Label>
+                <Label htmlFor="edit-notes">Notes</Label>
                 <Textarea
-                  id="editNotes"
+                  id="edit-notes"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder="Additional notes or details..."
@@ -974,6 +989,7 @@ export default function BudgetTrackerPage() {
           </DialogContent>
         </Dialog>
 
+        {/* Delete Confirmation Dialog */}
         <Dialog
           open={deleteConfirmation.show}
           onOpenChange={(open) => !open && setDeleteConfirmation({ show: false, itemId: "", itemName: "" })}
@@ -983,9 +999,7 @@ export default function BudgetTrackerPage() {
               <DialogTitle>Confirm Delete</DialogTitle>
             </DialogHeader>
             <div className="py-4">
-              <p>
-                Are you sure you want to delete <strong>{deleteConfirmation.itemName}</strong>?
-              </p>
+              <p>Are you sure you want to delete "{deleteConfirmation.itemName}"?</p>
               <p className="text-sm text-muted-foreground mt-2">This action cannot be undone.</p>
             </div>
             <div className="flex gap-2 justify-end">
@@ -993,10 +1007,10 @@ export default function BudgetTrackerPage() {
                 variant="outline"
                 onClick={() => setDeleteConfirmation({ show: false, itemId: "", itemName: "" })}
               >
-                No, Cancel
+                Cancel
               </Button>
               <Button variant="destructive" onClick={confirmDeleteItem}>
-                Yes, Delete
+                Delete
               </Button>
             </div>
           </DialogContent>

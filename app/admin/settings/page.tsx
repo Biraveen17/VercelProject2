@@ -8,10 +8,23 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { isAuthenticated, logout } from "@/lib/auth"
-import { getSettings, saveSettings, type WeddingSettings } from "@/lib/database"
 import { ArrowLeft, LogOut, Save, Settings } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+
+interface WeddingSettings {
+  brideName: string
+  groomName: string
+  weddingDate: string
+  ceremonyDate: string
+  receptionDate: string
+  venue: string
+  location: string
+  allowVideoDownload: boolean
+  allowVideoFullscreen: boolean
+  galleryVisible: boolean
+  galleryAccessible: boolean
+}
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -27,6 +40,8 @@ export default function SettingsPage() {
     location: "",
     allowVideoDownload: true,
     allowVideoFullscreen: true,
+    galleryVisible: true,
+    galleryAccessible: true,
   })
 
   useEffect(() => {
@@ -39,14 +54,38 @@ export default function SettingsPage() {
     setLoading(false)
   }, [router])
 
-  const loadSettings = () => {
-    setSettings(getSettings())
+  const loadSettings = async () => {
+    try {
+      const response = await fetch("/api/settings")
+      if (response.ok) {
+        const data = await response.json()
+        // Remove MongoDB-specific fields before setting state
+        const { type, lastUpdated, _id, ...settingsData } = data
+        setSettings(settingsData as WeddingSettings)
+      }
+    } catch (error) {
+      console.error("Error loading settings:", error)
+    }
   }
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    saveSettings(settings)
-    alert("Settings saved successfully!")
+    try {
+      const response = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      })
+
+      if (response.ok) {
+        alert("Settings saved successfully!")
+      } else {
+        alert("Failed to save settings")
+      }
+    } catch (error) {
+      console.error("Error saving settings:", error)
+      alert("Failed to save settings")
+    }
   }
 
   const updateSetting = (field: keyof WeddingSettings, value: string | boolean) => {
@@ -229,6 +268,51 @@ export default function SettingsPage() {
               <p className="text-sm text-muted-foreground">
                 When enabled, visitors can play the video in fullscreen mode
               </p>
+            </CardContent>
+          </Card>
+
+          {/* Gallery Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Gallery Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="galleryVisible"
+                  checked={settings.galleryVisible}
+                  onChange={(e) => updateSetting("galleryVisible", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="galleryVisible">Show gallery in navigation</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                When enabled, the gallery link will be visible in the navigation bar
+              </p>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="galleryAccessible"
+                  checked={settings.galleryAccessible}
+                  onChange={(e) => updateSetting("galleryAccessible", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="galleryAccessible">Allow gallery page access</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                When disabled, the gallery page will redirect to the homepage even if accessed directly
+              </p>
+
+              {!settings.galleryAccessible && settings.galleryVisible && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800">
+                    ⚠️ Warning: Gallery is visible in navigation but not accessible. Consider hiding it from navigation
+                    as well.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 

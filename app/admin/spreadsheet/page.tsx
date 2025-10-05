@@ -71,77 +71,33 @@ export default function SpreadsheetPage() {
 
   const loadSpreadsheets = async () => {
     try {
-      const response = await fetch("/api/spreadsheets")
+      const response = await fetch("/api/spreadsheet")
       if (response.ok) {
-        const result = await response.json()
-        const sheets = result.data || []
-
-        // Convert lastModified strings back to Date objects
-        const processedSheets = sheets.map((sheet: any) => ({
-          ...sheet,
-          lastModified: new Date(sheet.lastModified),
-        }))
-
-        setSpreadsheets(processedSheets)
-        if (processedSheets.length > 0 && !activeSheet) {
-          setActiveSheet(processedSheets[0].id)
+        const sheets = await response.json()
+        setSpreadsheets(sheets)
+        if (sheets.length > 0 && !activeSheet) {
+          setActiveSheet(sheets[0].id)
         }
-      } else {
-        // Create default sheet if none exist
-        await createDefaultSheet()
       }
     } catch (error) {
-      console.error("Error loading spreadsheets:", error)
-      // Create default sheet on error
-      await createDefaultSheet()
-    }
-  }
-
-  const createDefaultSheet = async () => {
-    const defaultSheet: Spreadsheet = {
-      id: "sheet-1",
-      name: "Wedding Planning",
-      cells: {},
-      lastModified: new Date(),
-    }
-
-    try {
-      const response = await fetch("/api/spreadsheets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(defaultSheet),
-      })
-
-      if (response.ok) {
-        setSpreadsheets([defaultSheet])
-        setActiveSheet(defaultSheet.id)
-      }
-    } catch (error) {
-      console.error("Error creating default sheet:", error)
-      // Fallback to local state
-      setSpreadsheets([defaultSheet])
-      setActiveSheet(defaultSheet.id)
+      console.error("[v0] Error loading spreadsheets:", error)
     }
   }
 
   const saveSpreadsheets = useCallback(async (sheets: Spreadsheet[]) => {
-    setSpreadsheets(sheets)
+    try {
+      const response = await fetch("/api/spreadsheet", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sheets),
+      })
 
-    // Save each sheet to database
-    for (const sheet of sheets) {
-      try {
-        await fetch(`/api/spreadsheets/${sheet.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(sheet),
-        })
-      } catch (error) {
-        console.error("Error saving spreadsheet:", error)
+      if (response.ok) {
+        const updatedSheets = await response.json()
+        setSpreadsheets(updatedSheets)
       }
+    } catch (error) {
+      console.error("[v0] Error saving spreadsheets:", error)
     }
   }, [])
 
@@ -351,11 +307,9 @@ export default function SpreadsheetPage() {
     }
 
     try {
-      const response = await fetch("/api/spreadsheets", {
+      const response = await fetch("/api/spreadsheet", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newSheet),
       })
 
@@ -367,15 +321,15 @@ export default function SpreadsheetPage() {
         setShowNewSheetDialog(false)
       }
     } catch (error) {
-      console.error("Error creating new sheet:", error)
+      console.error("[v0] Error creating sheet:", error)
     }
   }
 
   const deleteSheet = async (sheetId: string) => {
-    if (spreadsheets.length <= 1) return // Don't delete the last sheet
+    if (spreadsheets.length <= 1) return
 
     try {
-      const response = await fetch(`/api/spreadsheets/${sheetId}`, {
+      const response = await fetch(`/api/spreadsheet/${sheetId}`, {
         method: "DELETE",
       })
 
@@ -388,7 +342,7 @@ export default function SpreadsheetPage() {
         }
       }
     } catch (error) {
-      console.error("Error deleting sheet:", error)
+      console.error("[v0] Error deleting sheet:", error)
     }
   }
 
@@ -561,7 +515,7 @@ export default function SpreadsheetPage() {
                           e.preventDefault()
                         }
                       }}
-                      placeholder="Enter value or formula (e.g., =SUM(A1:A5), =B2+C2)"
+                      placeholder="Enter value or formula (e.g., =SUM(A1:A5), =AVERAGE(A1:A5), or simple arithmetic like =A1+B1*2)"
                       className="flex-1"
                     />
                     <Button

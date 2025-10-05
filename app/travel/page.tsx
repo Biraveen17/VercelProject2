@@ -1,363 +1,500 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Plane, Hotel, Car, MapPin, Sun, Utensils, Camera, Phone } from "lucide-react"
+import {
+  Plane,
+  Hotel,
+  Car,
+  MapPin,
+  Wine,
+  Utensils,
+  Camera,
+  Sun,
+  Star,
+  ParkingCircle,
+  Users,
+  ExternalLink,
+} from "lucide-react"
+import Link from "next/link"
+import { useLanguage } from "@/lib/language-context"
+import { PageTracker } from "@/components/page-tracker"
+import { useState } from "react"
 import Image from "next/image"
 
+interface HotelData {
+  name: string
+  stars: number
+  adultOnly: boolean
+  hasParking: boolean
+  distanceToVenue: string
+  avgPrice: string
+  website: string
+  bookingUrl: string
+  imageQuery: string
+}
+
+const hotels: HotelData[] = [
+  {
+    name: "Coral Beach Hotel & Resort",
+    stars: 5,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "8 km",
+    avgPrice: "€350",
+    website: "https://www.coral.com.cy",
+    bookingUrl: "https://www.booking.com/hotel/cy/coral-beach.html",
+    imageQuery: "luxury beach resort cyprus",
+  },
+  {
+    name: "Annabelle Hotel",
+    stars: 5,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "6 km",
+    avgPrice: "€320",
+    website: "https://www.annabelle.com.cy",
+    bookingUrl: "https://www.booking.com/hotel/cy/annabelle.html",
+    imageQuery: "elegant hotel gardens cyprus",
+  },
+  {
+    name: "Elysium Hotel",
+    stars: 5,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "7 km",
+    avgPrice: "€340",
+    website: "https://www.elysium.com.cy",
+    bookingUrl: "https://www.booking.com/hotel/cy/elysium.html",
+    imageQuery: "stylish hotel sea view cyprus",
+  },
+  {
+    name: "Alexander The Great Beach Hotel",
+    stars: 4,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "5 km",
+    avgPrice: "€180",
+    website: "https://www.alexanderhotel.com.cy",
+    bookingUrl: "https://www.booking.com/hotel/cy/alexander-the-great.html",
+    imageQuery: "beachfront hotel paphos",
+  },
+  {
+    name: "Constantinou Bros Athena Beach Hotel",
+    stars: 4,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "9 km",
+    avgPrice: "€200",
+    website: "https://www.athenabch.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/athena-beach.html",
+    imageQuery: "family beach hotel cyprus",
+  },
+  {
+    name: "Almyra Hotel",
+    stars: 5,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "6.5 km",
+    avgPrice: "€310",
+    website: "https://www.almyra.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/almyra.html",
+    imageQuery: "modern boutique hotel cyprus",
+  },
+  {
+    name: "Constantinou Bros Athena Royal Beach Hotel",
+    stars: 4,
+    adultOnly: true,
+    hasParking: true,
+    distanceToVenue: "9.5 km",
+    avgPrice: "€240",
+    website: "https://www.athenaroyalbch.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/athena-royal-beach.html",
+    imageQuery: "adults only beach resort cyprus",
+  },
+  {
+    name: "Olympic Lagoon Resort Paphos",
+    stars: 5,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "10 km",
+    avgPrice: "€280",
+    website: "https://www.kanikhotels.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/olympic-lagoon-resort.html",
+    imageQuery: "lagoon resort paphos cyprus",
+  },
+  {
+    name: "Azia Resort & Spa",
+    stars: 5,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "12 km",
+    avgPrice: "€290",
+    website: "https://www.aziaresort.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/azia-resort-spa.html",
+    imageQuery: "spa resort paphos",
+  },
+  {
+    name: "Louis Phaethon Beach",
+    stars: 4,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "8.5 km",
+    avgPrice: "€170",
+    website: "https://www.louishotels.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/louis-phaethon-beach.html",
+    imageQuery: "beach hotel paphos cyprus",
+  },
+  {
+    name: "Amavi Hotel",
+    stars: 5,
+    adultOnly: true,
+    hasParking: true,
+    distanceToVenue: "7.5 km",
+    avgPrice: "€330",
+    website: "https://www.amavihotel.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/amavi.html",
+    imageQuery: "adults only luxury hotel cyprus",
+  },
+  {
+    name: "Constantinou Bros Asimina Suites Hotel",
+    stars: 5,
+    adultOnly: true,
+    hasParking: true,
+    distanceToVenue: "9 km",
+    avgPrice: "€360",
+    website: "https://www.asiminasuites.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/asimina-suites.html",
+    imageQuery: "luxury suites adults only cyprus",
+  },
+  {
+    name: "Aquamare Beach Hotel & Spa",
+    stars: 4,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "11 km",
+    avgPrice: "€190",
+    website: "https://www.aquamarehotel.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/aquamare-beach.html",
+    imageQuery: "beach spa hotel paphos",
+  },
+  {
+    name: "Capital Coast Resort & Spa",
+    stars: 5,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "8 km",
+    avgPrice: "€270",
+    website: "https://www.capitalcoastresort.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/capital-coast-resort.html",
+    imageQuery: "coast resort spa cyprus",
+  },
+  {
+    name: "Sentido Cypria Bay",
+    stars: 4,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "10.5 km",
+    avgPrice: "€160",
+    website: "https://www.sentidohotels.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/sentido-cypria-bay.html",
+    imageQuery: "bay hotel paphos cyprus",
+  },
+  {
+    name: "Venus Beach Hotel",
+    stars: 4,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "6 km",
+    avgPrice: "€150",
+    website: "https://www.venusbeach.com.cy",
+    bookingUrl: "https://www.booking.com/hotel/cy/venus-beach.html",
+    imageQuery: "affordable beach hotel paphos",
+  },
+  {
+    name: "Amphora Hotel & Suites",
+    stars: 4,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "5.5 km",
+    avgPrice: "€140",
+    website: "https://www.amphora.com.cy",
+    bookingUrl: "https://www.booking.com/hotel/cy/amphora.html",
+    imageQuery: "hotel suites paphos harbor",
+  },
+  {
+    name: "King Evelthon Beach Hotel & Resort",
+    stars: 5,
+    adultOnly: false,
+    hasParking: true,
+    distanceToVenue: "13 km",
+    avgPrice: "€260",
+    website: "https://www.evelthon.com",
+    bookingUrl: "https://www.booking.com/hotel/cy/king-evelthon.html",
+    imageQuery: "beach resort hotel paphos",
+  },
+]
+
+type SortOption = "name" | "stars" | "distance" | "price"
+
 export default function TravelPage() {
-  const hotels = [
-    // Luxury Resorts
-    {
-      name: "Coral Beach Hotel & Resort",
-      description: "5-star beachfront resort, 5 minutes from venues",
-      category: "Luxury Resort",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Constantinou Bros Athena Beach",
-      description: "Adults-only luxury resort with spa facilities",
-      category: "Luxury Resort",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Elysium Hotel",
-      description: "Elegant 5-star hotel with private beach",
-      category: "Luxury Resort",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Annabelle Hotel",
-      description: "Luxury beachfront hotel with exceptional service",
-      category: "Luxury Resort",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Amathus Beach Hotel",
-      description: "Premium resort with stunning sea views",
-      category: "Luxury Resort",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Olympic Lagoon Resort",
-      description: "Family-friendly luxury resort with water park",
-      category: "Luxury Resort",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    // Mid-Range Hotels
-    {
-      name: "Coral Bay Resort",
-      description: "Family-friendly resort with pools and activities",
-      category: "Mid-Range Hotel",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Corallia Beach Hotel",
-      description: "Comfortable accommodation near the beach",
-      category: "Mid-Range Hotel",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Paphos Gardens Hotel",
-      description: "Boutique hotel in Paphos town center",
-      category: "Mid-Range Hotel",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Aliathon Resort",
-      description: "All-inclusive resort with great amenities",
-      category: "Mid-Range Hotel",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Louis Ledra Beach",
-      description: "Beachfront hotel with excellent facilities",
-      category: "Mid-Range Hotel",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Sentido Cypria Bay",
-      description: "Modern hotel with beautiful gardens",
-      category: "Mid-Range Hotel",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    // Budget Options
-    {
-      name: "Vacation Rentals",
-      description: "Apartments and villas available through Airbnb",
-      category: "Budget Option",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Paphos Youth Hostel",
-      description: "Budget-friendly accommodation for younger guests",
-      category: "Budget Option",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Local Guesthouses",
-      description: "Authentic Cypriot hospitality at great prices",
-      category: "Budget Option",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Daphne Hotel Apartments",
-      description: "Self-catering apartments near the beach",
-      category: "Budget Option",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Mayfair Hotel",
-      description: "Simple and comfortable budget accommodation",
-      category: "Budget Option",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-    {
-      name: "Kissos Hotel",
-      description: "Affordable hotel with friendly service",
-      category: "Budget Option",
-      image: "https://www.annabelle.com.cy/Resources/images/Annabelle/home-hero-1920x1244.jpg",
-    },
-  ]
+  const { t } = useLanguage()
+  const [sortBy, setSortBy] = useState<SortOption>("name")
+
+  const sortedHotels = [...hotels].sort((a, b) => {
+    switch (sortBy) {
+      case "name":
+        return a.name.localeCompare(b.name)
+      case "stars":
+        return b.stars - a.stars
+      case "distance":
+        return Number.parseFloat(a.distanceToVenue) - Number.parseFloat(b.distanceToVenue)
+      case "price":
+        return Number.parseFloat(a.avgPrice.replace("€", "")) - Number.parseFloat(b.avgPrice.replace("€", ""))
+      default:
+        return 0
+    }
+  })
 
   return (
-    <div className="min-h-screen py-12 px-4">
+    <div className="min-h-screen section-spacing">
+      <PageTracker pageName="travel" />
+
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-primary mb-4">Travel to Cyprus</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to know for your journey to our wedding in beautiful Paphos, Cyprus
-          </p>
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h1 className="display-text mb-6">{t("travelTitle")}</h1>
+          <p className="subtitle-text max-w-3xl mx-auto">{t("travelSubtitle")}</p>
         </div>
 
         {/* Getting There */}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold text-center mb-8">Getting There</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card>
+        <section className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-serif font-light mb-4">{t("gettingThereTitle")}</h2>
+            <p className="body-text max-w-3xl mx-auto text-muted-foreground">{t("gettingThereDescription")}</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="decorative-border">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Plane className="w-5 h-5 text-primary" />
-                  Flights to Cyprus
+                <CardTitle className="flex items-center gap-3 caption-text text-primary">
+                  <Plane className="w-6 h-6" />
+                  {t("sfoTitle")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold">Paphos Airport (PFO)</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Main airport serving Paphos, just 20 minutes from our venues.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold">Direct Flights From:</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• London (3.5 hours)</li>
-                    <li>• Manchester (4 hours)</li>
-                    <li>• Copenhagen (4 hours)</li>
-                    <li>• Other major European cities</li>
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="font-semibold">Airlines:</h4>
-                  <p className="text-sm text-muted-foreground">British Airways, easyJet, Ryanair, SAS, TUI</p>
+                <p className="body-text text-sm">{t("sfoDescription")}</p>
+                <div className="pt-2 border-t border-border">
+                  <p className="caption-text text-primary">{t("sfoDrive")}</p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="decorative-border">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Car className="w-5 h-5 text-primary" />
-                  Airport Transfers
+                <CardTitle className="flex items-center gap-3 caption-text text-primary">
+                  <Plane className="w-6 h-6" />
+                  {t("oakTitle")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold">Taxi Service</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Available 24/7, approximately €25-30 to Paphos/Coral Bay area.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold">Car Rental</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Major companies available at airport. Driving is on the left side.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold">Shuttle Services</h4>
-                  <p className="text-sm text-muted-foreground">Pre-book shared shuttles for budget-friendly option.</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-primary" />
-                  Local Transport
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold">Between Venues</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Free shuttle service provided between ceremony and reception venues.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold">Local Buses</h4>
-                  <p className="text-sm text-muted-foreground">Regular service connecting Paphos and Coral Bay.</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold">Taxis</h4>
-                  <p className="text-sm text-muted-foreground">Readily available, or book through hotel concierge.</p>
+                <p className="body-text text-sm">{t("oakDescription")}</p>
+                <div className="pt-2 border-t border-border">
+                  <p className="caption-text text-primary">{t("oakDrive")}</p>
                 </div>
               </CardContent>
             </Card>
           </div>
+
+          {/* Transportation */}
+          <Card className="decorative-border mt-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 caption-text text-primary">
+                <Car className="w-6 h-6" />
+                {t("transportationTitle")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="body-text leading-relaxed">{t("transportationDescription")}</p>
+            </CardContent>
+          </Card>
         </section>
 
-        {/* Accommodation */}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold text-center mb-8">Where to Stay</h2>
+        <section className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-serif font-light mb-4">{t("accommodationsTitle")}</h2>
+          </div>
+
+          <div className="flex flex-wrap gap-3 justify-center mb-8">
+            <Button
+              variant={sortBy === "name" ? "default" : "outline"}
+              onClick={() => setSortBy("name")}
+              className={sortBy === "name" ? "btn-primary" : "btn-secondary bg-transparent"}
+            >
+              Sort by Name
+            </Button>
+            <Button
+              variant={sortBy === "stars" ? "default" : "outline"}
+              onClick={() => setSortBy("stars")}
+              className={sortBy === "stars" ? "btn-primary" : "btn-secondary bg-transparent"}
+            >
+              Sort by Star Rating
+            </Button>
+            <Button
+              variant={sortBy === "distance" ? "default" : "outline"}
+              onClick={() => setSortBy("distance")}
+              className={sortBy === "distance" ? "btn-primary" : "btn-secondary bg-transparent"}
+            >
+              Sort by Distance
+            </Button>
+            <Button
+              variant={sortBy === "price" ? "default" : "outline"}
+              onClick={() => setSortBy("price")}
+              className={sortBy === "price" ? "btn-primary" : "btn-secondary bg-transparent"}
+            >
+              Sort by Price
+            </Button>
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {hotels.map((hotel, index) => (
-              <Card key={index} className="overflow-hidden">
+            {sortedHotels.map((hotel) => (
+              <Card key={hotel.name} className="decorative-border overflow-hidden flex flex-col">
                 <div className="relative h-48 w-full">
-                  <Image src={hotel.image || "/placeholder.svg"} alt={hotel.name} fill className="object-cover" />
+                  <Image
+                    src={`/.jpg?key=ii7t1&height=200&width=400&query=${encodeURIComponent(hotel.imageQuery)}`}
+                    alt={hotel.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-                <CardHeader>
-                  <div className="text-xs text-primary font-semibold mb-1">{hotel.category}</div>
-                  <CardTitle className="text-lg">{hotel.name}</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="caption-text text-primary text-lg leading-tight">{hotel.name}</CardTitle>
+                  <div className="flex items-center gap-1 mt-2">
+                    {Array.from({ length: hotel.stars }).map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+                    ))}
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{hotel.description}</p>
+                <CardContent className="space-y-3 flex-1 flex flex-col">
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                      <span className="body-text text-sm">{hotel.adultOnly ? "Adults Only" : "Family Friendly"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <ParkingCircle className="w-4 h-4 text-muted-foreground" />
+                      <span className="body-text text-sm">{hotel.hasParking ? "Parking Available" : "No Parking"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="w-4 h-4 text-muted-foreground" />
+                      <span className="body-text text-sm">{hotel.distanceToVenue} to venue</span>
+                    </div>
+                    <div className="pt-2 border-t border-border">
+                      <p className="caption-text text-primary font-semibold">{hotel.avgPrice} / night</p>
+                      <p className="text-xs text-muted-foreground">Avg. for 2 adults, late March 2026</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 pt-3">
+                    <Button asChild variant="outline" size="sm" className="flex-1 btn-secondary bg-transparent">
+                      <a href={hotel.website} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3 mr-1" />
+                        Website
+                      </a>
+                    </Button>
+                    <Button asChild size="sm" className="flex-1 btn-primary">
+                      <a href={hotel.bookingUrl} target="_blank" rel="noopener noreferrer">
+                        <Hotel className="w-3 h-3 mr-1" />
+                        Book
+                      </a>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         </section>
 
-        {/* Travel Tips */}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold text-center mb-8">Essential Travel Information</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Travel Requirements</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    Passport & Visa
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    Valid passport required. EU citizens need no visa. UK citizens can stay 90 days visa-free.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold">Currency</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Euro (€). Credit cards widely accepted. ATMs available throughout Paphos.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold">Language</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Greek and Turkish are official languages. English is widely spoken in tourist areas.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Weather & Packing</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold flex items-center gap-2">
-                    <Sun className="w-4 h-4" />
-                    March Weather
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    Pleasant spring weather, 18-22°C (64-72°F). Mostly sunny with occasional light rain.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold">What to Pack</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Light layers for varying temperatures</li>
-                    <li>• Comfortable walking shoes</li>
-                    <li>• Sunscreen and sunglasses</li>
-                    <li>• Light jacket for evenings</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
         {/* Things to Do */}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold text-center mb-8">Explore Cyprus</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="text-center">
-              <CardContent className="p-6">
-                <Camera className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Archaeological Sites</h3>
-                <p className="text-sm text-muted-foreground">
-                  Visit the Tombs of the Kings and Paphos Archaeological Park
-                </p>
+        <section className="mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-serif font-light mb-4">{t("thingsToDoTitle")}</h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Card className="decorative-border text-center">
+              <CardContent className="p-8">
+                <Wine className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h3 className="caption-text text-primary mb-3">{t("activity1Title")}</h3>
+                <p className="body-text text-sm">{t("activity1Description")}</p>
               </CardContent>
             </Card>
 
-            <Card className="text-center">
-              <CardContent className="p-6">
+            <Card className="decorative-border text-center">
+              <CardContent className="p-8">
                 <Sun className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Beautiful Beaches</h3>
-                <p className="text-sm text-muted-foreground">Coral Bay and Lara Beach offer stunning coastlines</p>
+                <h3 className="caption-text text-primary mb-3">{t("activity2Title")}</h3>
+                <p className="body-text text-sm">{t("activity2Description")}</p>
               </CardContent>
             </Card>
 
-            <Card className="text-center">
-              <CardContent className="p-6">
-                <Utensils className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Local Cuisine</h3>
-                <p className="text-sm text-muted-foreground">Try traditional meze, halloumi, and local wines</p>
+            <Card className="decorative-border text-center">
+              <CardContent className="p-8">
+                <Car className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h3 className="caption-text text-primary mb-3">{t("activity3Title")}</h3>
+                <p className="body-text text-sm">{t("activity3Description")}</p>
               </CardContent>
             </Card>
 
-            <Card className="text-center">
-              <CardContent className="p-6">
+            <Card className="decorative-border text-center">
+              <CardContent className="p-8">
                 <MapPin className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Paphos Harbor</h3>
-                <p className="text-sm text-muted-foreground">Charming waterfront with restaurants and shops</p>
+                <h3 className="caption-text text-primary mb-3">{t("activity4Title")}</h3>
+                <p className="body-text text-sm">{t("activity4Description")}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="decorative-border text-center">
+              <CardContent className="p-8">
+                <Camera className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h3 className="caption-text text-primary mb-3">{t("activity5Title")}</h3>
+                <p className="body-text text-sm">{t("activity5Description")}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="decorative-border text-center">
+              <CardContent className="p-8">
+                <Utensils className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h3 className="caption-text text-primary mb-3">{t("activity6Title")}</h3>
+                <p className="body-text text-sm">{t("activity6Description")}</p>
               </CardContent>
             </Card>
           </div>
         </section>
 
-        {/* Contact Information */}
-        <Card className="bg-gradient-to-r from-primary/10 to-accent/10">
-          <CardContent className="p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">Need Help Planning Your Trip?</h2>
-            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              We're here to help make your journey to Cyprus as smooth as possible. Don't hesitate to reach out with any
-              questions about travel, accommodation, or local recommendations.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg">
-                <Phone className="w-4 h-4 mr-2" />
-                Contact Us
+        {/* Travel Tips */}
+        <section className="mb-20">
+          <Card className="decorative-border">
+            <CardHeader>
+              <CardTitle className="caption-text text-primary text-center">{t("travelTipsTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="body-text leading-relaxed text-center max-w-4xl mx-auto">{t("travelTipsDescription")}</p>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Questions CTA */}
+        <section>
+          <Card className="decorative-border bg-gradient-to-r from-primary/5 to-accent/5">
+            <CardContent className="p-12 text-center">
+              <h2 className="text-2xl font-serif font-light mb-4">{t("questionsTitle")}</h2>
+              <p className="body-text text-muted-foreground mb-8 max-w-2xl mx-auto">{t("questionsDescription")}</p>
+              <Button asChild size="lg" className="btn-primary">
+                <Link href="/rsvp">{t("rsvpNow")}</Link>
               </Button>
-              <Button variant="outline" size="lg">
-                <Hotel className="w-4 h-4 mr-2" />
-                Hotel Recommendations
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </section>
       </div>
     </div>
   )
