@@ -23,6 +23,9 @@ export async function GET() {
         allowVideoFullscreen: true,
         galleryVisible: true,
         galleryAccessible: true,
+        enableDanish: true,
+        enableFrench: true,
+        enableTamil: true,
         lastUpdated: new Date().toISOString(),
       }
       await collection.insertOne(defaultSettings)

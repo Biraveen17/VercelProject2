@@ -24,6 +24,9 @@ interface WeddingSettings {
   allowVideoFullscreen: boolean
   galleryVisible: boolean
   galleryAccessible: boolean
+  enableDanish: boolean
+  enableFrench: boolean
+  enableTamil: boolean
 }
 
 export default function SettingsPage() {
@@ -42,6 +45,9 @@ export default function SettingsPage() {
     allowVideoFullscreen: true,
     galleryVisible: true,
     galleryAccessible: true,
+    enableDanish: true,
+    enableFrench: true,
+    enableTamil: true,
   })
 
   useEffect(() => {
@@ -316,6 +322,58 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
+          {/* Language Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Language Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground mb-4">
+                Control which languages are available for guests to select. English is always available.
+              </p>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="enableDanish"
+                  checked={settings.enableDanish}
+                  onChange={(e) => updateSetting("enableDanish", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="enableDanish">🇩🇰 Enable Danish</Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="enableFrench"
+                  checked={settings.enableFrench}
+                  onChange={(e) => updateSetting("enableFrench", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="enableFrench">🇫🇷 Enable French</Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="enableTamil"
+                  checked={settings.enableTamil}
+                  onChange={(e) => updateSetting("enableTamil", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="enableTamil">🇱🇰 Enable Tamil</Label>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+                <p className="text-sm text-blue-800">
+                  💡 Tip: Disabled languages will not appear in the language selector for guests. English is always
+                  available as the default language.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Website Configuration */}
           <Card>
             <CardHeader>
@@ -334,7 +392,11 @@ export default function SettingsPage() {
                   </div>
                   <div>
                     <span className="text-muted-foreground">Languages:</span>
-                    <p>English, Danish, Tamil</p>
+                    <p>
+                      {settings.enableDanish ? "Danish, " : ""}
+                      {settings.enableFrench ? "French, " : ""}
+                      {settings.enableTamil ? "Tamil" : ""}
+                    </p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Admin Users:</span>

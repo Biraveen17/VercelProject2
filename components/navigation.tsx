@@ -36,7 +36,8 @@ export function Navigation() {
   const [showLangMenu, setShowLangMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [pageConfig, setPageConfig] = useState<ContentData | null>(null)
-  const [gallerySettings, setGallerySettings] = useState({ visible: true, accessible: true }) // Added gallery settings state
+  const [gallerySettings, setGallerySettings] = useState({ visible: true, accessible: true })
+  const [availableLanguages, setAvailableLanguages] = useState(languages)
 
   useEffect(() => {
     const savedContent = localStorage.getItem("wedding_content")
@@ -45,6 +46,7 @@ export function Navigation() {
     }
 
     fetchGallerySettings()
+    fetchLanguageSettings()
   }, [])
 
   const fetchGallerySettings = async () => {
@@ -59,6 +61,25 @@ export function Navigation() {
       }
     } catch (error) {
       console.error("Error fetching gallery settings:", error)
+    }
+  }
+
+  const fetchLanguageSettings = async () => {
+    try {
+      const response = await fetch("/api/settings")
+      if (response.ok) {
+        const data = await response.json()
+        const enabledLanguages = languages.filter((lang) => {
+          if (lang.code === "en") return true
+          if (lang.code === "da") return data.enableDanish ?? true
+          if (lang.code === "fr") return data.enableFrench ?? true
+          if (lang.code === "ta") return data.enableTamil ?? true
+          return true
+        })
+        setAvailableLanguages(enabledLanguages)
+      }
+    } catch (error) {
+      console.error("Error fetching language settings:", error)
     }
   }
 
@@ -93,7 +114,7 @@ export function Navigation() {
   }
 
   const navItems = getNavItems()
-  const currentLanguage = languages.find((l) => l.code === language)
+  const currentLanguage = availableLanguages.find((l) => l.code === language)
 
   return (
     <>
@@ -136,7 +157,7 @@ export function Navigation() {
 
                 {showLangMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-popover border border-border rounded-md shadow-lg z-50">
-                    {languages.map((lang) => (
+                    {availableLanguages.map((lang) => (
                       <button
                         key={lang.code}
                         onClick={() => {
