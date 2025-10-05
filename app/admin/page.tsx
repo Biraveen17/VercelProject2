@@ -233,7 +233,7 @@ export default function AdminPage() {
         )}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <Link href="/admin/guests">
               <CardContent className="p-6 text-center">
@@ -288,6 +288,21 @@ export default function AdminPage() {
                 <BarChart className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="font-semibold mb-2">Page Statistics</h3>
                 <p className="text-sm text-muted-foreground">View visitor analytics and insights</p>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/admin/hotels">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 text-primary mx-auto mb-4 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-12 h-12">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold mb-2">Hotels Management</h3>
+                <p className="text-sm text-muted-foreground">Manage hotel listings and details</p>
               </CardContent>
             </Link>
           </Card>
