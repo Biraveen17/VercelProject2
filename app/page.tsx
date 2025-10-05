@@ -169,54 +169,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Event Details Grid */}
-      <section className="section-spacing">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card className="decorative-border text-center p-8">
-              <CardContent className="space-y-4">
-                <Calendar className="w-10 h-10 text-primary mx-auto" />
-                <h3 className="caption-text text-primary">{t("ceremonyTitle")}</h3>
-                <div className="space-y-1">
-                  <p className="body-text font-light">{t("ceremonyDate")}</p>
-                  <p className="caption-text">{t("ceremonyTime")}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="decorative-border text-center p-8">
-              <CardContent className="space-y-4">
-                <Users className="w-10 h-10 text-primary mx-auto" />
-                <h3 className="caption-text text-primary">{t("receptionTitle")}</h3>
-                <div className="space-y-1">
-                  <p className="body-text font-light">{t("receptionDate")}</p>
-                  <p className="caption-text">{t("receptionTime")}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="decorative-border text-center p-8">
-              <CardContent className="space-y-4">
-                <MapPin className="w-10 h-10 text-primary mx-auto" />
-                <h3 className="caption-text text-primary">{t("locationTitle")}</h3>
-                <div className="space-y-1">
-                  <p className="body-text font-light">{t("homeLocation")}</p>
-                  <p className="caption-text">{t("locationDescription")}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="decorative-border text-center p-8">
-              <CardContent className="space-y-4">
-                <Heart className="w-10 h-10 text-primary mx-auto" />
-                <h3 className="caption-text text-primary">{t("dressCodeTitle")}</h3>
-                <p className="caption-text">{t("dressCodeDescription")}</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }
