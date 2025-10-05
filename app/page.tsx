@@ -1,9 +1,6 @@
 "use client"
-
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CountdownTimer } from "@/components/countdown-timer"
-import { Heart, MapPin, Calendar, Users } from "lucide-react"
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
 import { useEffect, useState } from "react"
@@ -111,7 +108,7 @@ export default function HomePage() {
               <div className="flex items-center justify-center gap-3 mb-6">
                 {/*<Heart className="w-5 h-5 text-primary" />*/}
                 <span className="caption-text text-primary">{t("welcomeTitle")}</span>
-                {/*<Heart className="w-5 h-5 text-primary" />*/)
+                {/*<Heart className="w-5 h-5 text-primary" />*/}
               </div>
               <div className="space-y-4 max-w-3xl mx-auto">
                 <p className="body-text text-lg leading-relaxed">{t("welcomeDescription1")}</p>
