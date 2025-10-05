@@ -101,7 +101,7 @@ export function Navigation() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="script text-2xl">
-              V & B
+              B & V
             </Link>
 
             {/* Desktop Navigation Links */}
