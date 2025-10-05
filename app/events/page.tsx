@@ -154,13 +154,12 @@ export default function EventsPage() {
           </Card>
         </div>
 
-        <Card className="mb-8 decorative-border">
+        {/*<Card className="mb-8 decorative-border">
           <CardHeader>
             <CardTitle className="caption-text text-primary text-center">{t("detailedScheduleTitle")}</CardTitle>
             <div className="bg-primary/10 border-2 border-primary rounded-lg p-4 mt-4">
               <p className="body-text text-center text-primary">{t("scheduleWarning")}</p>
             </div>
-            {/* </CHANGE> */}
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid md:grid-cols-2 gap-8">
@@ -175,10 +174,6 @@ export default function EventsPage() {
                     <span className="body-text text-primary w-20">{t("time1015")}</span>
                     <span className="caption-text">{t("ganeshPuja")}</span>
                   </div>
-                  {/*<div className="flex gap-4">
-                    <span className="body-text text-primary w-20">{t("time1100")}</span>
-                    <span className="caption-text">{t("startersServed")}</span>
-                  </div>*/}
                   <div className="flex gap-4">
                     <span className="body-text text-primary w-20">{t("time1130")}</span>
                     <span className="caption-text">{t("mainCeremony")}</span>
@@ -187,12 +182,7 @@ export default function EventsPage() {
                     <span className="body-text text-primary w-20">{t("time1400")}</span>
                     <span className="caption-text">{t("blessingPhotography")}</span>
                   </div>
-                  {/*<div className="flex gap-4">
-                    <span className="body-text text-primary w-20">{t("time1400")}</span>
-                    <span className="caption-text">{t("lunchServed")}</span>
-                  </div>*/}
                 </div>
-                {/* </CHANGE> */}
               </div>
               <div>
                 <h3 className="caption-text text-primary mb-4">{t("saturdayScheduleTitle")}</h3>
@@ -201,10 +191,6 @@ export default function EventsPage() {
                     <span className="body-text text-primary w-20">{t("time1700")}</span>
                     <span className="caption-text">{t("guestArrival")}</span>
                   </div>
-                  {/*<div className="flex gap-4">
-                    <span className="body-text text-primary w-20">{t("time1730")}</span>
-                    <span className="caption-text">{t("startersServed")}</span>
-                  </div>*/}
                   <div className="flex gap-4">
                     <span className="body-text text-primary w-20">{t("time1800")}</span>
                     <span className="caption-text">{t("coupleEntrance")}</span>
@@ -217,20 +203,15 @@ export default function EventsPage() {
                     <span className="body-text text-primary w-20">{t("time1900")}</span>
                     <span className="caption-text">{t("barOpens")}</span>
                   </div>
-                  {/*<div className="flex gap-4">
-                    <span className="body-text text-primary w-20">{t("time2000")}</span>
-                    <span className="caption-text">{t("dinnerService")}</span>
-                  </div>*/}
                   <div className="flex gap-4">
                     <span className="body-text text-primary w-20">{t("time2200")}</span>
                     <span className="caption-text">{t("danceFloor")}</span>
                   </div>
                 </div>
-                {/* </CHANGE> */}
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card>*/}
 
         <div className="text-center mt-12">
           <Button asChild size="lg">

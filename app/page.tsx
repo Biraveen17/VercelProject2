@@ -97,9 +97,9 @@ export default function HomePage() {
           {/* Names and Title */}
           <div className="text-center mb-16 space-y-6">
             <h1 className="display-text island-moments">
-              Varnie Tharmalingam
-              <br />&<br />
               Biraveen Vijayakumar
+              <br />&<br />
+              Varnie Tharmalingam
             </h1>
             <div className="script text-4xl md:text-5xl text-primary">Wedding Invitation</div>
             <p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>
@@ -109,9 +109,9 @@ export default function HomePage() {
           <div className="decorative-border rounded-2xl p-8 md:p-12 max-w-4xl mx-auto mb-16">
             <div className="text-center space-y-6">
               <div className="flex items-center justify-center gap-3 mb-6">
-                <Heart className="w-5 h-5 text-primary" />
+                {/*<Heart className="w-5 h-5 text-primary" />*/}
                 <span className="caption-text text-primary">{t("welcomeTitle")}</span>
-                <Heart className="w-5 h-5 text-primary" />
+                {/*<Heart className="w-5 h-5 text-primary" />*/)
               </div>
               <div className="space-y-4 max-w-3xl mx-auto">
                 <p className="body-text text-lg leading-relaxed">{t("welcomeDescription1")}</p>
