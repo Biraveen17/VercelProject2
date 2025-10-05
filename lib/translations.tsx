@@ -303,7 +303,7 @@ export const translations: Record<string, Translation> = {
     // Venue page
     venueDescription: "Discover the beautiful venue in Paphos, Cyprus where we'll celebrate our special day",
     venueDescription2:
-      "A stunning venue that will host both our Hindu ceremony and reception celebration. The perfect setting for our special day with beautiful facilities and scenic surroundings.",
+      "A stunning venue that will host both our Hindu ceremony and reception celebration. The perfect setting for our special day with beautiful surroundings. Plenty of parking is available on-site.",
     weddingReceptionVenue: "Wedding & Reception Venue",
     facilities: "Facilities",
     ceremonyReceptionAreas: "Ceremony and reception areas",
@@ -520,7 +520,7 @@ export const translations: Record<string, Translation> = {
     // Venue page
     venueDescription: "Oplev den smukke lokation i Paphos, Cypern, hvor vi vil fejre vores særlige dag",
     venueDescription2:
-      "En fantastisk lokation der vil vælge både vores hindu ceremoni og reception ceremoni. Det perfekte sted til vores særlige dag med smukke faciliteter og skønne omgivelser.",
+      "En fantastisk lokation der vil vælge både vores hindu ceremoni og reception ceremoni. Det perfekte sted til vores særlige dag med smukke faciliteter og skønne omgivelser. Der er god mulighed for parkering på stedet.",
     weddingReceptionVenue: "Bryllups- og Reception Lokation",
     facilities: "Faciliteter",
     ceremonyReceptionAreas: "Ceremoni- og reception områder",
@@ -737,7 +737,7 @@ export const translations: Record<string, Translation> = {
     // Venue page
     venueDescription: "பாஃபோஸ், சைப்ரஸில் உள்ள அழகான இடத்தைக் கண்டறியுங்கள், அங்கு நாங்கள் எங்கள் சிறப்பு நாளைக் கொண்டாடுவோம்",
     venueDescription2:
-      "எங்கள் இந்து சடங்கு மற்றும் வரவேற்பு கொண்டாட்டம் இரண்டையும் நடத்தும் ஒரு அற்புதமான இடம். அழகான வசதிகள் மற்றும் அழகிய சுற்றுப்புறங்களுடன் எங்கள் சிறப்பு நாளுக்கான சரியான அமைப்பு.",
+      "எங்கள் இந்து சடங்கு மற்றும் வரவேற்பு கொண்டாட்டம் இரண்டையும் நடத்தும் ஒரு அற்புதமான இடம். அழகான வசதிகள் மற்றும் அழகிய சுற்றுப்புறங்களுடன் எங்கள் சிறப்பு நாளுக்கான சரியான அமைப்பு. நிகழ்விடத்தில் போதுமான கார் நிறுத்தும் வசதி உள்ளது.",
     weddingReceptionVenue: "திருமணம் & வரவேற்பு இடம்",
     facilities: "வசதிகள்",
     ceremonyReceptionAreas: "சடங்கு மற்றும் வரவேற்பு பகுதிகள்",
@@ -955,7 +955,7 @@ export const translations: Record<string, Translation> = {
     // Venue page
     venueDescription: "Découvrez le magnifique lieu à Paphos, Chypre où nous célébrerons notre jour spécial",
     venueDescription2:
-      "Un lieu magnifique qui accueillera à la fois notre cérémonie hindoue et notre célébration de réception. Le cadre parfait pour notre jour spécial avec de belles installations et un environnement pittoresque.",
+      "Un lieu magnifique qui accueillera à la fois notre cérémonie hindoue et notre célébration de réception. Le cadre parfait pour notre jour spécial avec de belles installations et un environnement pittoresque. Un grand parking est disponible sur place.",
     weddingReceptionVenue: "Lieu de Mariage et Réception",
     facilities: "Installations",
     ceremonyReceptionAreas: "Zones de cérémonie et de réception",

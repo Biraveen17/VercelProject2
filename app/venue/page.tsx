@@ -37,7 +37,7 @@ export default function VenuePage() {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">{t("venueDescription2")}</p>
-                <div className="pt-4">
+                {/*<div className="pt-4">
                   <h4 className="font-semibold mb-2">{t("facilities")}:</h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• {t("ceremonyReceptionAreas")}</li>
@@ -47,7 +47,7 @@ export default function VenuePage() {
                     <li>• {t("fullCatering")}</li>
                     <li>• {t("danceFloor")}</li>
                   </ul>
-                </div>
+                </div>*/}
               </div>
             </div>
           </div>
