@@ -140,66 +140,57 @@ export default function EventsPage() {
         <Card className="mb-8 decorative-border">
           <CardHeader>
             <CardTitle className="caption-text text-primary text-center">{t("detailedScheduleTitle")}</CardTitle>
-            <div className="bg-primary/10 border-2 border-primary rounded-lg p-4 mt-4">
+            <div className="bg-primary/10 border-2 border-primary rounded-lg p-4 mt-4 blur-sm select-none pointer-events-none">
               <p className="body-text text-center text-primary">{t("scheduleWarning")}</p>
             </div>
           </CardHeader>
-          <CardContent className="relative space-y-4">
-            <div className="blur-md select-none pointer-events-none">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="caption-text text-primary mb-4">{t("fridayScheduleTitle")}</h3>
-                  <div className="space-y-3">
-                    <div className="flex gap-4">
-                      <span className="body-text text-primary w-20">{t("time1000")}</span>
-                      <span className="caption-text">{t("guestArrival")}</span>
-                    </div>
-                    <div className="flex gap-4">
-                      <span className="body-text text-primary w-20">{t("time1015")}</span>
-                      <span className="caption-text">{t("ganeshPuja")}</span>
-                    </div>
-                    <div className="flex gap-4">
-                      <span className="body-text text-primary w-20">{t("time1130")}</span>
-                      <span className="caption-text">{t("mainCeremony")}</span>
-                    </div>
-                    <div className="flex gap-4">
-                      <span className="body-text text-primary w-20">{t("time1400")}</span>
-                      <span className="caption-text">{t("blessingPhotography")}</span>
-                    </div>
+          <CardContent className="space-y-4 blur-sm select-none pointer-events-none">
+            <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="caption-text text-primary mb-4">{t("fridayScheduleTitle")}</h3>
+                <div className="space-y-3">
+                  <div className="flex gap-4">
+                    <span className="body-text text-primary w-20">{t("time1000")}</span>
+                    <span className="caption-text">{t("guestArrival")}</span>
                   </div>
-                </div>
-                <div>
-                  <h3 className="caption-text text-primary mb-4">{t("saturdayScheduleTitle")}</h3>
-                  <div className="space-y-3">
-                    <div className="flex gap-4">
-                      <span className="body-text text-primary w-20">{t("time1700")}</span>
-                      <span className="caption-text">{t("guestArrival")}</span>
-                    </div>
-                    <div className="flex gap-4">
-                      <span className="body-text text-primary w-20">{t("time1800")}</span>
-                      <span className="caption-text">{t("coupleEntrance")}</span>
-                    </div>
-                    <div className="flex gap-4">
-                      <span className="body-text text-primary w-20">{t("time1815")}</span>
-                      <span className="caption-text">{t("cakeCutting")}</span>
-                    </div>
-                    <div className="flex gap-4">
-                      <span className="body-text text-primary w-20">{t("time1900")}</span>
-                      <span className="caption-text">{t("barOpens")}</span>
-                    </div>
-                    <div className="flex gap-4">
-                      <span className="body-text text-primary w-20">{t("time2200")}</span>
-                      <span className="caption-text">{t("danceFloor")}</span>
-                    </div>
+                  <div className="flex gap-4">
+                    <span className="body-text text-primary w-20">{t("time1015")}</span>
+                    <span className="caption-text">{t("ganeshPuja")}</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="body-text text-primary w-20">{t("time1130")}</span>
+                    <span className="caption-text">{t("mainCeremony")}</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="body-text text-primary w-20">{t("time1400")}</span>
+                    <span className="caption-text">{t("blessingPhotography")}</span>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-background/80 backdrop-blur-sm border-2 border-primary rounded-lg px-6 py-3">
-                <p className="body-text text-primary font-semibold">
-                  {t("scheduleComingSoon") || "Schedule details coming soon"}
-                </p>
+              <div>
+                <h3 className="caption-text text-primary mb-4">{t("saturdayScheduleTitle")}</h3>
+                <div className="space-y-3">
+                  <div className="flex gap-4">
+                    <span className="body-text text-primary w-20">{t("time1700")}</span>
+                    <span className="caption-text">{t("guestArrival")}</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="body-text text-primary w-20">{t("time1800")}</span>
+                    <span className="caption-text">{t("coupleEntrance")}</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="body-text text-primary w-20">{t("time1815")}</span>
+                    <span className="caption-text">{t("cakeCutting")}</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="body-text text-primary w-20">{t("time1900")}</span>
+                    <span className="caption-text">{t("barOpens")}</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="body-text text-primary w-20">{t("time2200")}</span>
+                    <span className="caption-text">{t("danceFloor")}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
