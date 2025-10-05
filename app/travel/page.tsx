@@ -251,7 +251,7 @@ export default function TravelPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-serif font-light mb-4">{t("accommodationsTitle")}</h2>
             <p className="body-text text-muted-foreground max-w-3xl mx-auto mb-8">
-              The options below are hotels. If you're traveling with a large group, it's also worth checking{" "}
+              {" "}
               <a
                 href="https://www.airbnb.com/s/Paphos--Cyprus/homes"
                 target="_blank"
@@ -260,7 +260,7 @@ export default function TravelPage() {
               >
                 Airbnb
               </a>{" "}
-              for vacation rentals and villas.
+              can be a great option for groups or longer stays. For those who prefer hotels, we’ve listed some recommendations below. Please note that the prices shown were checked in October 2025 and may vary depending on when you book.
             </p>
             {/* </CHANGE> */}
           </div>
