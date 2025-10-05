@@ -107,6 +107,20 @@ export default function TravelPage() {
                 <div className="pt-2 border-t border-border">
                   <p className="caption-text text-primary">{t("sfoDrive")}</p>
                 </div>
+                <div className="pt-2 border-t border-border space-y-3">
+                  <div>
+                    <p className="font-semibold text-sm text-primary mb-1">Direct Flights:</p>
+                    <p className="body-text text-sm text-muted-foreground">{t("sfoDirectFlights")}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-primary mb-1">Airlines:</p>
+                    <p className="body-text text-sm text-muted-foreground">{t("sfoAirlines")}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-primary mb-1">Single Transit Options:</p>
+                    <p className="body-text text-sm text-muted-foreground">{t("sfoTransitOptions")}</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -121,6 +135,20 @@ export default function TravelPage() {
                 <p className="body-text text-sm">{t("oakDescription")}</p>
                 <div className="pt-2 border-t border-border">
                   <p className="caption-text text-primary">{t("oakDrive")}</p>
+                </div>
+                <div className="pt-2 border-t border-border space-y-3">
+                  <div>
+                    <p className="font-semibold text-sm text-primary mb-1">Direct Flights:</p>
+                    <p className="body-text text-sm text-muted-foreground">{t("oakDirectFlights")}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-primary mb-1">Airlines:</p>
+                    <p className="body-text text-sm text-muted-foreground">{t("oakAirlines")}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-primary mb-1">Single Transit Options:</p>
+                    <p className="body-text text-sm text-muted-foreground">{t("oakTransitOptions")}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

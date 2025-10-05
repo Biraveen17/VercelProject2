@@ -123,9 +123,16 @@ export interface Translation {
   sfoTitle: string
   sfoDescription: string
   sfoDrive: string
+  sfoDirectFlights: string
+  sfoAirlines: string
+  sfoTransitOptions: string
   oakTitle: string
   oakDescription: string
   oakDrive: string
+  oakDirectFlights: string
+  oakAirlines: string
+  oakTransitOptions: string
+  // </CHANGE>
   sjcTitle: string
   sjcDescription: string
   sjcDrive: string
@@ -321,9 +328,21 @@ export const translations: Record<string, Translation> = {
     sfoTitle: "Paphos International Airport (PFO)",
     sfoDescription: "The closest and most convenient airport, located just 15 minutes from Paphos city center.",
     sfoDrive: "15 minutes to Paphos",
+    sfoDirectFlights:
+      "Direct flights from: London Heathrow (LHR), London Gatwick (LGW), Manchester (MAN), Birmingham (BHX), Bristol (BRS), Edinburgh (EDI), Glasgow (GLA), Newcastle (NCL)",
+    sfoAirlines: "Airlines: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air",
+    sfoTransitOptions:
+      "Single transit options from: London Stansted, Liverpool, Leeds Bradford, Belfast, Cardiff (via Athens, Vienna, or other European hubs)",
+    // </CHANGE>
     oakTitle: "Larnaca International Airport (LCA)",
     oakDescription: "Cyprus's main international airport with more flight options from around the world.",
     oakDrive: "1 hour 30 minutes to Paphos",
+    oakDirectFlights:
+      "Direct flights from: London Heathrow (LHR), London Gatwick (LGW), London Stansted (STN), London Luton (LTN), Manchester (MAN), Birmingham (BHX), Bristol (BRS), Edinburgh (EDI), Glasgow (GLA), Newcastle (NCL), Leeds Bradford (LBA), Belfast (BFS)",
+    oakAirlines: "Airlines: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air, Aegean Airlines",
+    oakTransitOptions:
+      "Single transit options from: Most UK regional airports via Athens, Vienna, Frankfurt, Amsterdam, or Zurich",
+    // </CHANGE>
     sjcTitle: "Getting from Airport",
     sjcDescription: "Taxis, rental cars, and shuttle services are readily available at both airports.",
     sjcDrive: "Pre-book for best rates",
@@ -473,7 +492,8 @@ export const translations: Record<string, Translation> = {
     ceremonyOutdoors: "Ceremonien vil blive afholdt udendørs vejret tillader det",
     receptionIndoors: "Receptionen vil blive afholdt indendørs",
     detailedScheduleTitle: "Tidsplan",
-    scheduleWarning: "⚠️ Bemærk venligst: Programmet nedenfor er vejledende og kan ændre sig, når vi nærmer os begivenheden",
+    scheduleWarning:
+      "⚠️ Bemærk venligst: Programmet nedenfor er vejledende og kan ændre sig, når vi nærmer os begivenheden",
     fridayScheduleTitle: "Fredag, 27. marts - Ceremonidag",
     saturdayScheduleTitle: "Lørdag, 28. marts - Reception",
     time1000: "10:00",
@@ -527,9 +547,18 @@ export const translations: Record<string, Translation> = {
     sfoTitle: "Paphos International Airport (PFO)",
     sfoDescription: "Den tætteste og mest bekvemme lufthavn, beliggende kun 15 minutter fra Paphos bycentrum.",
     sfoDrive: "15 minutter til Paphos",
+    sfoDirectFlights: "Direkte fly fra: København (CPH) - sæsonbestemt",
+    sfoAirlines: "Flyselskaber: Norwegian, SAS (sæsonbestemt)",
+    sfoTransitOptions: "Enkelt transit muligheder fra: København via Athen, Wien, Frankfurt eller Amsterdam",
+    // </CHANGE>
     oakTitle: "Larnaca International Airport (LCA)",
     oakDescription: "Cyperns vigtigste internationale lufthavn med flere flymuligheder fra hele verden.",
     oakDrive: "1 time 30 minutter til Paphos",
+    oakDirectFlights: "Direkte fly fra: København (CPH)",
+    oakAirlines: "Flyselskaber: Norwegian, SAS, Ryanair, easyJet",
+    oakTransitOptions:
+      "Enkelt transit muligheder fra: København, Billund, Aalborg via Athen, Wien, Frankfurt, Amsterdam eller Zürich",
+    // </CHANGE>
     sjcTitle: "Transport fra Lufthavn",
     sjcDescription: "Taxaer, lejebiler og shuttle-tjenester er let tilgængelige på begge lufthavne.",
     sjcDrive: "Forudbestil for bedste priser",
@@ -735,9 +764,21 @@ export const translations: Record<string, Translation> = {
     sfoDescription:
       "மிக நெருக்கமான மற்றும் மிகவும் வசதியான விமான நிலையம், பாஃபோஸ் நகர மையத்திலிருந்து வெறும் 15 நிமிடங்கள் தொலைவில் அமைந்துள்ளது.",
     sfoDrive: "பாஃபோஸுக்கு 15 நிமிடங்கள்",
+    sfoDirectFlights:
+      "நேரடி விமானங்கள்: லண்டன் ஹீத்ரோ (LHR), லண்டன் கேட்விக் (LGW), மான்செஸ்டர் (MAN), பர்மிங்காம் (BHX), பிரிஸ்டல் (BRS), எடின்பர்க் (EDI), கிளாஸ்கோ (GLA), நியூகேஸில் (NCL)",
+    sfoAirlines: "விமான நிறுவனங்கள்: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air",
+    sfoTransitOptions:
+      "ஒற்றை இடமாற்ற விருப்பங்கள்: லண்டன் ஸ்டான்ஸ்டெட், லிவர்பூல், லீட்ஸ் பிராட்ஃபோர்ட், பெல்ஃபாஸ்ட், கார்டிஃப் (ஏதென்ஸ், வியன்னா அல்லது பிற ஐரோப்பிய மையங்கள் வழியாக)",
+    // </CHANGE>
     oakTitle: "லார்னாகா சர்வதேச விமான நிலையம் (LCA)",
     oakDescription: "உலகம் முழுவதிலுமிருந்து அதிக விமான விருப்பங்களுடன் சைப்ரஸின் முக்கிய சர்வதேச விமான நிலையம்.",
     oakDrive: "பாஃபோஸுக்கு 1 மணி 30 நிமிடங்கள்",
+    oakDirectFlights:
+      "நேரடி விமானங்கள்: லண்டன் ஹீத்ரோ (LHR), லண்டன் கேட்விக் (LGW), லண்டன் ஸ்டான்ஸ்டெட் (STN), லண்டன் லூட்டன் (LTN), மான்செஸ்டர் (MAN), பர்மிங்காம் (BHX), பிரிஸ்டல் (BRS), எடின்பர்க் (EDI), கிளாஸ்கோ (GLA), நியூகேஸில் (NCL), லீட்ஸ் பிராட்ஃபோர்ட் (LBA), பெல்ஃபாஸ்ட் (BFS)",
+    oakAirlines: "விமான நிறுவனங்கள்: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air, Aegean Airlines",
+    oakTransitOptions:
+      "ஒற்றை இடமாற்ற விருப்பங்கள்: பெரும்பாலான UK பிராந்திய விமான நிலையங்கள் ஏதென்ஸ், வியன்னா, ஃபிராங்க்ஃபர்ட், ஆம்ஸ்டர்டாம் அல்லது சூரிச் வழியாக",
+    // </CHANGE>
     sjcTitle: "விமான நிலையத்திலிருந்து போக்குவரத்து",
     sjcDescription: "இரண்டு விமான நிலையங்களிலும் டாக்சிகள், வாடகை கார்கள் மற்றும் ஷட்டில் சேவைகள் எளிதில் கிடைக்கின்றன.",
     sjcDrive: "சிறந்த விலைகளுக்கு முன்பதிவு செய்யுங்கள்",
@@ -887,7 +928,8 @@ export const translations: Record<string, Translation> = {
     ceremonyOutdoors: "La cérémonie aura lieu en plein air si le temps le permet",
     receptionIndoors: "La réception aura lieu à l'intérieur",
     detailedScheduleTitle: "Programme",
-    scheduleWarning: "⚠️ Veuillez noter : Le programme ci-dessous est donné à titre indicatif et peut être modifié à l'approche de l’événement",
+    scheduleWarning:
+      "⚠️ Veuillez noter : Le programme ci-dessous est donné à titre indicatif et peut être modifié à l'approche de l’événement",
     fridayScheduleTitle: "Vendredi 27 mars - Jour de la Cérémonie",
     saturdayScheduleTitle: "Samedi 28 mars - Réception",
     time1000: "10:00",
@@ -943,9 +985,20 @@ export const translations: Record<string, Translation> = {
     sfoDescription:
       "L'aéroport le plus proche et le plus pratique, situé à seulement 15 minutes du centre-ville de Paphos.",
     sfoDrive: "15 minutes jusqu'à Paphos",
+    sfoDirectFlights: "Vols directs depuis : Paris Charles de Gaulle (CDG) - saisonnier",
+    sfoAirlines: "Compagnies aériennes : Transavia, easyJet (saisonnier)",
+    sfoTransitOptions:
+      "Options avec une escale depuis : Paris CDG, Paris Orly, Lyon, Marseille, Nice, Toulouse, Bordeaux, Nantes via Athènes, Vienne, Francfort ou Amsterdam",
+    // </CHANGE>
     oakTitle: "Aéroport International de Larnaca (LCA)",
     oakDescription: "Le principal aéroport international de Chypre avec plus d'options de vols du monde entier.",
     oakDrive: "1 heure 30 minutes jusqu'à Paphos",
+    oakDirectFlights:
+      "Vols directs depuis : Paris Charles de Gaulle (CDG), Paris Orly (ORY), Lyon (LYS), Marseille (MRS), Nice (NCE), Toulouse (TLS)",
+    oakAirlines: "Compagnies aériennes : Air France, Transavia, easyJet, Ryanair, Aegean Airlines",
+    oakTransitOptions:
+      "Options avec une escale depuis : Bordeaux, Nantes, Strasbourg, Lille et autres aéroports régionaux via Athènes, Vienne, Francfort, Amsterdam ou Zurich",
+    // </CHANGE>
     sjcTitle: "Transport depuis l'Aéroport",
     sjcDescription:
       "Des taxis, des voitures de location et des services de navette sont facilement disponibles dans les deux aéroports.",
