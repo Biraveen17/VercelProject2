@@ -175,10 +175,10 @@ export default function EventsPage() {
                     <span className="body-text text-primary w-20">{t("time1015")}</span>
                     <span className="caption-text">{t("ganeshPuja")}</span>
                   </div>
-                  <div className="flex gap-4">
+                  {/*<div className="flex gap-4">
                     <span className="body-text text-primary w-20">{t("time1100")}</span>
                     <span className="caption-text">{t("startersServed")}</span>
-                  </div>
+                  </div>*/}
                   <div className="flex gap-4">
                     <span className="body-text text-primary w-20">{t("time1130")}</span>
                     <span className="caption-text">{t("mainCeremony")}</span>
@@ -187,10 +187,10 @@ export default function EventsPage() {
                     <span className="body-text text-primary w-20">{t("time1400")}</span>
                     <span className="caption-text">{t("blessingPhotography")}</span>
                   </div>
-                  <div className="flex gap-4">
+                  {/*<div className="flex gap-4">
                     <span className="body-text text-primary w-20">{t("time1400")}</span>
                     <span className="caption-text">{t("lunchServed")}</span>
-                  </div>
+                  </div>*/}
                 </div>
                 {/* </CHANGE> */}
               </div>
@@ -201,10 +201,10 @@ export default function EventsPage() {
                     <span className="body-text text-primary w-20">{t("time1700")}</span>
                     <span className="caption-text">{t("guestArrival")}</span>
                   </div>
-                  <div className="flex gap-4">
+                  {/*<div className="flex gap-4">
                     <span className="body-text text-primary w-20">{t("time1730")}</span>
                     <span className="caption-text">{t("startersServed")}</span>
-                  </div>
+                  </div>*/}
                   <div className="flex gap-4">
                     <span className="body-text text-primary w-20">{t("time1800")}</span>
                     <span className="caption-text">{t("coupleEntrance")}</span>
@@ -217,10 +217,10 @@ export default function EventsPage() {
                     <span className="body-text text-primary w-20">{t("time1900")}</span>
                     <span className="caption-text">{t("barOpens")}</span>
                   </div>
-                  <div className="flex gap-4">
+                  {/*<div className="flex gap-4">
                     <span className="body-text text-primary w-20">{t("time2000")}</span>
                     <span className="caption-text">{t("dinnerService")}</span>
-                  </div>
+                  </div>*/}
                   <div className="flex gap-4">
                     <span className="body-text text-primary w-20">{t("time2200")}</span>
                     <span className="caption-text">{t("danceFloor")}</span>
