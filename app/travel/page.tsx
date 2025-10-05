@@ -264,9 +264,7 @@ export default function TravelPage() {
                   Airbnb
                 </a>
               </Button>{" "}
-              can be a great option for groups or longer stays. For those who prefer hotels, we’ve listed some
-              recommendations below. Please note that the prices shown were checked in October 2025 and may vary
-              depending on when you book.
+              can be a great option for groups or longer stays. For those who prefer hotels, we’ve listed some recommendations below. <br/>Please note that the prices shown were checked in October 2025 and may vary depending on when you book.
             </p>
           </div>
 
