@@ -226,7 +226,7 @@
   /* Add iPad/tablet specific background handling */
   @media (min-width: 768px) and (max-width: 1024px) {
     .floral-background::before {
-      background-size: cover;
+      background-size: 100% auto;
       background-position: center top;
       background-repeat: repeat-y;
       background-attachment: scroll;
