@@ -126,7 +126,7 @@ export default function HomePage() {
                 <div className="text-center space-y-3">
                   <div className="caption-text text-primary mb-4">Reception</div>
                   <div className="body-text text-2xl font-light">March 28th 2026</div>
-                  <div className="caption-text">18:00</div>
+                  <div className="caption-text">17:00</div>
                 </div>
               </div>
             </div>
