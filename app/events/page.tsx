@@ -154,7 +154,7 @@ export default function EventsPage() {
           </Card>
         </div>
 
-        {/*<Card className="mb-8 decorative-border">
+        <Card className="mb-8 decorative-border">
           <CardHeader>
             <CardTitle className="caption-text text-primary text-center">{t("detailedScheduleTitle")}</CardTitle>
             <div className="bg-primary/10 border-2 border-primary rounded-lg p-4 mt-4">
@@ -211,7 +211,7 @@ export default function EventsPage() {
               </div>
             </div>
           </CardContent>
-        </Card>*/}
+        </Card>
 
         <div className="text-center mt-12">
           <Button asChild size="lg">
