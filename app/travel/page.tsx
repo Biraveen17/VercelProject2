@@ -164,10 +164,72 @@ export default function TravelPage() {
                 {t("transportationTitle")}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="body-text leading-relaxed text-center max-w-4xl mx-auto">
-                {t("transportationDescription")}
-              </p>
+            <CardContent className="space-y-6">
+              <div className="body-text leading-relaxed max-w-4xl mx-auto space-y-4">
+                <p className="font-semibold text-primary">
+                  We highly recommend hiring a rental car from the airport for the duration of your stay.
+                </p>
+
+                <p>
+                  There is no Uber service in Cyprus and Bolt availability is limited. Local taxi companies may be
+                  pricey for getting around daily.
+                </p>
+
+                <div className="bg-muted/30 p-4 rounded-lg space-y-2">
+                  <p className="font-semibold text-sm text-primary">Driving in Cyprus:</p>
+                  <ul className="text-sm space-y-1 list-disc list-inside">
+                    <li>Driving is relaxed and on the left side of the road</li>
+                    <li>Speed limits: 50 km/h in towns, 80 km/h on open roads, 100 km/h on highways</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <p className="font-semibold text-sm text-primary mb-2">Booking Your Rental:</p>
+                  <p className="text-sm mb-3">
+                    We recommend booking in advance to get better prices. Good comparison websites include:
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Button asChild variant="outline" size="sm" className="btn-secondary bg-transparent">
+                      <a href="https://www.rentalcars.com" target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3 mr-1" />
+                        RentalCars.com
+                      </a>
+                    </Button>
+                    <Button asChild variant="outline" size="sm" className="btn-secondary bg-transparent">
+                      <a href="https://www.booking.com/cars" target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3 mr-1" />
+                        Booking.com
+                      </a>
+                    </Button>
+                    <Button asChild variant="outline" size="sm" className="btn-secondary bg-transparent">
+                      <a href="https://www.discovercars.com" target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="w-3 h-3 mr-1" />
+                        DiscoverCars.com
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="text-sm">
+                  <p className="font-semibold text-primary mb-1">Major Rental Companies:</p>
+                  <p className="text-muted-foreground">
+                    Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget, and others
+                  </p>
+                </div>
+
+                <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg text-sm space-y-2">
+                  <p className="font-semibold text-primary">Driving License:</p>
+                  <p>
+                    UK and EU driving license holders should not need an international driving permit as Cyprus is an EU
+                    member country. However, it's best to check with the rental company directly.
+                  </p>
+                </div>
+
+                <p className="text-sm italic text-center pt-2">
+                  If you need any help with booking your rental, please reach out to us directly.
+                </p>
+              </div>
+              {/* </CHANGE> */}
             </CardContent>
           </Card>
         </section>

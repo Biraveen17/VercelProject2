@@ -108,7 +108,6 @@ export interface Translation {
   accessibleFacilities: string
   professionalSound: string
   fullCatering: string
-  danceFloor: string
   venueLocation: string
   address: string
   mapInstructions: string
@@ -132,7 +131,6 @@ export interface Translation {
   oakDirectFlights: string
   oakAirlines: string
   oakTransitOptions: string
-  // </CHANGE>
   sjcTitle: string
   sjcDescription: string
   sjcDrive: string
@@ -333,7 +331,6 @@ export const translations: Record<string, Translation> = {
     sfoAirlines: "Airlines: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air",
     sfoTransitOptions:
       "Single transit options from: London Stansted, Liverpool, Leeds Bradford, Belfast, Cardiff (via Athens, Vienna, or other European hubs)",
-    // </CHANGE>
     oakTitle: "Larnaca International Airport (LCA)",
     oakDescription: "Cyprus's main international airport with more flight options from around the world.",
     oakDrive: "1 hour 30 minutes to Paphos",
@@ -342,13 +339,12 @@ export const translations: Record<string, Translation> = {
     oakAirlines: "Airlines: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air, Aegean Airlines",
     oakTransitOptions:
       "Single transit options from: Most UK regional airports via Athens, Vienna, Frankfurt, Amsterdam, or Zurich",
-    // </CHANGE>
     sjcTitle: "Getting from Airport",
     sjcDescription: "Taxis, rental cars, and shuttle services are readily available at both airports.",
     sjcDrive: "Pre-book for best rates",
     transportationTitle: "Transportation",
     transportationDescription:
-      "We recommend renting a car for the duration of your stay, as it provides flexibility to explore Paphos and the surrounding areas. Taxis are readily available and reasonably priced. Many hotels also offer shuttle services from the airport.",
+      "We highly recommend hiring a rental car from the airport for the duration of your stay. There is no Uber service in Cyprus and Bolt availability is limited. Local taxi companies may be pricey for getting around daily. Driving in Cyprus is relaxed and on the left side of the road. Speed limits are 50 km/h in towns, 80 km/h on open roads, and 100 km/h on highways. We recommend booking your rental in advance to get better prices. Good comparison websites include RentalCars.com, Booking.com, and discovercars.com. Major international car rental companies include Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget, and others. UK and EU driving license holders should not need an international driving permit as Cyprus is an EU member country, however it's best to check with the rental company directly. If you need any help with booking your rental, please reach out to us directly.",
     accommodationsTitle: "Where to Stay",
     luxuryHotelsTitle: "Luxury Options",
     midRangeHotelsTitle: "Mid-Range Options",
@@ -550,7 +546,6 @@ export const translations: Record<string, Translation> = {
     sfoDirectFlights: "Direkte fly fra: København (CPH) - sæsonbestemt",
     sfoAirlines: "Flyselskaber: Norwegian, SAS (sæsonbestemt)",
     sfoTransitOptions: "Enkelt transit muligheder fra: København via Athen, Wien, Frankfurt eller Amsterdam",
-    // </CHANGE>
     oakTitle: "Larnaca International Airport (LCA)",
     oakDescription: "Cyperns vigtigste internationale lufthavn med flere flymuligheder fra hele verden.",
     oakDrive: "1 time 30 minutter til Paphos",
@@ -558,13 +553,12 @@ export const translations: Record<string, Translation> = {
     oakAirlines: "Flyselskaber: Norwegian, SAS, Ryanair, easyJet",
     oakTransitOptions:
       "Enkelt transit muligheder fra: København, Billund, Aalborg via Athen, Wien, Frankfurt, Amsterdam eller Zürich",
-    // </CHANGE>
     sjcTitle: "Transport fra Lufthavn",
     sjcDescription: "Taxaer, lejebiler og shuttle-tjenester er let tilgængelige på begge lufthavne.",
     sjcDrive: "Forudbestil for bedste priser",
     transportationTitle: "Transport",
     transportationDescription:
-      "Vi anbefaler at leje en bil i hele dit ophold, da det giver fleksibilitet til at udforske Paphos og de omkringliggende områder. Taxaer er let tilgængelige og rimelige i pris. Mange hoteller tilbyder også shuttle-tjenester fra lufthavnen.",
+      "Vi anbefaler stærkt at leje en bil fra lufthavnen i hele dit ophold. Der er ingen Uber-service på Cypern, og Bolt-tilgængeligheden er begrænset. Lokale taxaselskaber kan være dyre til daglig transport. Kørsel på Cypern er afslappet og på venstre side af vejen. Hastighedsgrænserne er 50 km/t i byer, 80 km/t på åbne veje og 100 km/t på motorveje. Vi anbefaler at booke din leje på forhånd for at få bedre priser. Gode sammenligningswebsteder inkluderer RentalCars.com, Booking.com og discovercars.com. Store internationale biludlejningsfirmaer inkluderer Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget og andre. Indehavere af UK og EU kørekort bør ikke have brug for et internationalt kørekort, da Cypern er et EU-medlemsland, men det er bedst at tjekke med udlejningsfirmaet direkte. Hvis du har brug for hjælp til at booke din leje, så kontakt os direkte.",
     accommodationsTitle: "Hvor skal man bo",
     luxuryHotelsTitle: "Luksus Muligheder",
     midRangeHotelsTitle: "Mellem Muligheder",
@@ -769,7 +763,6 @@ export const translations: Record<string, Translation> = {
     sfoAirlines: "விமான நிறுவனங்கள்: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air",
     sfoTransitOptions:
       "ஒற்றை இடமாற்ற விருப்பங்கள்: லண்டன் ஸ்டான்ஸ்டெட், லிவர்பூல், லீட்ஸ் பிராட்ஃபோர்ட், பெல்ஃபாஸ்ட், கார்டிஃப் (ஏதென்ஸ், வியன்னா அல்லது பிற ஐரோப்பிய மையங்கள் வழியாக)",
-    // </CHANGE>
     oakTitle: "லார்னாகா சர்வதேச விமான நிலையம் (LCA)",
     oakDescription: "உலகம் முழுவதிலுமிருந்து அதிக விமான விருப்பங்களுடன் சைப்ரஸின் முக்கிய சர்வதேச விமான நிலையம்.",
     oakDrive: "பாஃபோஸுக்கு 1 மணி 30 நிமிடங்கள்",
@@ -778,13 +771,12 @@ export const translations: Record<string, Translation> = {
     oakAirlines: "விமான நிறுவனங்கள்: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air, Aegean Airlines",
     oakTransitOptions:
       "ஒற்றை இடமாற்ற விருப்பங்கள்: பெரும்பாலான UK பிராந்திய விமான நிலையங்கள் ஏதென்ஸ், வியன்னா, ஃபிராங்க்ஃபர்ட், ஆம்ஸ்டர்டாம் அல்லது சூரிச் வழியாக",
-    // </CHANGE>
     sjcTitle: "விமான நிலையத்திலிருந்து போக்குவரத்து",
     sjcDescription: "இரண்டு விமான நிலையங்களிலும் டாக்சிகள், வாடகை கார்கள் மற்றும் ஷட்டில் சேவைகள் எளிதில் கிடைக்கின்றன.",
     sjcDrive: "சிறந்த விலைகளுக்கு முன்பதிவு செய்யுங்கள்",
     transportationTitle: "போக்குவரத்து",
     transportationDescription:
-      "உங்கள் தங்குமிடத்தின் காலத்திற்கு ஒரு காரை வாடகைக்கு எடுப்பதை நாங்கள் பரிந்துரைக்கிறோம், ஏனெனில் இது பாஃபோஸ் மற்றும் சுற்றியுள்ள பகுதிகளை ஆராய நெகிழ்வுத்தன்மையை வழங்குகிறது. டாக்சிகள் எளிதில் கிடைக்கின்றன மற்றும் நியாயமான விலையில் உள்ளன. பல ஹோட்டல்கள் விமான நிலையத்திலிருந்து ஷட்டில் சேவைகளையும் வழங்குகின்றன.",
+      "உங்கள் தங்குமிடத்தின் காலத்திற்கு விமான நிலையத்திலிருந்து ஒரு வாடகை காரை வாடகைக்கு எடுப்பதை நாங்கள் மிகவும் பரிந்துரைக்கிறோம். சைப்ரஸில் Uber சேவை இல்லை மற்றும் Bolt கிடைக்கும் தன்மை குறைவாக உள்ளது. உள்ளூர் டாக்சி நிறுவனங்கள் தினசரி சுற்றிப் பார்ப்பதற்கு விலை அதிகமாக இருக்கலாம். சைப்ரஸில் வாகனம் ஓட்டுவது நிதானமானது மற்றும் சாலையின் இடது பக்கத்தில் உள்ளது. வேக வரம்புகள் நகரங்களில் 50 km/h, திறந்த சாலைகளில் 80 km/h மற்றும் நெடுஞ்சாலைகளில் 100 km/h ஆகும். சிறந்த விலைகளைப் பெற உங்கள் வாடகையை முன்கூட்டியே முன்பதிவு செய்ய பரிந்துரைக்கிறோம். நல்ல ஒப்பீட்டு இணையதளங்களில் RentalCars.com, Booking.com மற்றும் discovercars.com ஆகியவை அடங்கும். முக்கிய சர்வதேச கார் வாடகை நிறுவனங்களில் Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget மற்றும் பிறவை அடங்கும். சைப்ரஸ் ஒரு EU உறுப்பு நாடாக இருப்பதால் UK மற்றும் EU ஓட்டுநர் உரிம வைத்திருப்பவர்களுக்கு சர்வதேச ஓட்டுநர் அனுமதி தேவையில்லை, இருப்பினும் வாடகை நிறுவனத்துடன் நேரடியாக சரிபார்ப்பது சிறந்தது. உங்கள் வாடகையை முன்பதிவு செய்வதில் உங்களுக்கு ஏதேனும் உதவி தேவைப்பட்டால், தயவுசெய்து எங்களை நேரடியாக தொடர்பு கொள்ளுங்கள்.",
     accommodationsTitle: "எங்கு தங்குவது",
     luxuryHotelsTitle: "ஆடம்பர விருப்பங்கள்",
     midRangeHotelsTitle: "நடுத்தர விருப்பங்கள்",
@@ -985,27 +977,27 @@ export const translations: Record<string, Translation> = {
     sfoDescription:
       "L'aéroport le plus proche et le plus pratique, situé à seulement 15 minutes du centre-ville de Paphos.",
     sfoDrive: "15 minutes jusqu'à Paphos",
-    sfoDirectFlights: "Vols directs depuis : Paris Charles de Gaulle (CDG) - saisonnier",
-    sfoAirlines: "Compagnies aériennes : Transavia, easyJet (saisonnier)",
+    sfoDirectFlights:
+      "Vols directs depuis : London Heathrow (LHR), London Gatwick (LGW), Manchester (MAN), Birmingham (BHX), Bristol (BRS), Edinburgh (EDI), Glasgow (GLA), Newcastle (NCL)",
+    sfoAirlines: "Compagnies aériennes : British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air",
     sfoTransitOptions:
-      "Options avec une escale depuis : Paris CDG, Paris Orly, Lyon, Marseille, Nice, Toulouse, Bordeaux, Nantes via Athènes, Vienne, Francfort ou Amsterdam",
-    // </CHANGE>
+      "Options avec une escale depuis : London Stansted, Liverpool, Leeds Bradford, Belfast, Cardiff (via Athens, Vienna, ou d'autres hubs européens)",
     oakTitle: "Aéroport International de Larnaca (LCA)",
     oakDescription: "Le principal aéroport international de Chypre avec plus d'options de vols du monde entier.",
     oakDrive: "1 heure 30 minutes jusqu'à Paphos",
     oakDirectFlights:
-      "Vols directs depuis : Paris Charles de Gaulle (CDG), Paris Orly (ORY), Lyon (LYS), Marseille (MRS), Nice (NCE), Toulouse (TLS)",
-    oakAirlines: "Compagnies aériennes : Air France, Transavia, easyJet, Ryanair, Aegean Airlines",
+      "Vols directs depuis : London Heathrow (LHR), London Gatwick (LGW), London Stansted (STN), London Luton (LTN), Manchester (MAN), Birmingham (BHX), Bristol (BRS), Edinburgh (EDI), Glasgow (GLA), Newcastle (NCL), Leeds Bradford (LBA), Belfast (BFS)",
+    oakAirlines:
+      "Compagnies aériennes : British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air, Aegean Airlines",
     oakTransitOptions:
-      "Options avec une escale depuis : Bordeaux, Nantes, Strasbourg, Lille et autres aéroports régionaux via Athènes, Vienne, Francfort, Amsterdam ou Zurich",
-    // </CHANGE>
+      "Options avec une escale depuis : La plupart des aéroports régionaux du Royaume-Uni via Athènes, Vienne, Francfort, Amsterdam ou Zurich",
     sjcTitle: "Transport depuis l'Aéroport",
     sjcDescription:
       "Des taxis, des voitures de location et des services de navette sont facilement disponibles dans les deux aéroports.",
     sjcDrive: "Réservez à l'avance pour les meilleurs tarifs",
     transportationTitle: "Transport",
     transportationDescription:
-      "Nous recommandons de louer une voiture pour la durée de votre séjour, car cela offre une flexibilité pour explorer Paphos et les environs. Les taxis sont facilement disponibles et à des prix raisonnables. De nombreux hôtels proposent également des services de navette depuis l'aéroport.",
+      "Nous recommandons vivement de louer une voiture à l'aéroport pour la durée de votre séjour. Il n'y a pas de service Uber à Chypre et la disponibilité de Bolt est limitée. Les compagnies de taxi locales peuvent être chères pour les déplacements quotidiens. La conduite à Chypre est détendue et se fait sur le côté gauche de la route. Les limitations de vitesse sont de 50 km/h en ville, 80 km/h sur les routes ouvertes et 100 km/h sur les autoroutes. Nous recommandons de réserver votre location à l'avance pour obtenir de meilleurs prix. Les bons sites de comparaison incluent RentalCars.com, Booking.com et discovercars.com. Les grandes sociétés internationales de location de voitures incluent Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget et d'autres. Les titulaires de permis de conduire britanniques et européens ne devraient pas avoir besoin d'un permis de conduire international car Chypre est un pays membre de l'UE, mais il est préférable de vérifier directement auprès de la société de location. Si vous avez besoin d'aide pour réserver votre location, n'hésitez pas à nous contacter directement.",
     accommodationsTitle: "Où Séjourner",
     luxuryHotelsTitle: "Options de Luxe",
     midRangeHotelsTitle: "Options Milieu de Gamme",
