@@ -241,7 +241,9 @@ export default function TravelPage() {
               <CardTitle className="caption-text text-primary text-center">{t("travelTipsTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="body-text leading-relaxed text-center max-w-4xl mx-auto">{t("travelTipsDescription")}</p>
+              <div className="body-text leading-relaxed text-center max-w-4xl mx-auto whitespace-pre-line">
+                {t("travelTipsDescription")}
+              </div>
             </CardContent>
           </Card>
         </section>
@@ -251,18 +253,19 @@ export default function TravelPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-serif font-light mb-4">{t("accommodationsTitle")}</h2>
             <p className="body-text text-muted-foreground max-w-3xl mx-auto mb-8">
-              {" "}
-              <a
-                href="https://www.airbnb.com/s/Paphos--Cyprus/homes"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline font-medium"
+              <Button
+                asChild
+                size="sm"
+                className="bg-[#FF5A5F] hover:bg-[#E00007] text-white font-medium px-3 py-1 h-auto inline-flex items-center"
               >
-                Airbnb
-              </a>{" "}
-              can be a great option for groups or longer stays. For those who prefer hotels, we’ve listed some recommendations below. Please note that the prices shown were checked in October 2025 and may vary depending on when you book.
+                <a href="https://www.airbnb.com/s/Paphos--Cyprus/homes" target="_blank" rel="noopener noreferrer">
+                  Airbnb
+                </a>
+              </Button>{" "}
+              can be a great option for groups or longer stays. For those who prefer hotels, we’ve listed some
+              recommendations below. Please note that the prices shown were checked in October 2025 and may vary
+              depending on when you book.
             </p>
-            {/* </CHANGE> */}
           </div>
 
           {loading ? (
