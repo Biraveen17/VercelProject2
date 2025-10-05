@@ -105,6 +105,21 @@ export default function HomePage() {
             <p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>
           </div>
 
+          {/* Welcome Message */}
+          <div className="decorative-border rounded-2xl p-8 md:p-12 max-w-4xl mx-auto mb-16">
+            <div className="text-center space-y-6">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <Heart className="w-5 h-5 text-primary" />
+                <span className="caption-text text-primary">{t("welcomeTitle")}</span>
+                <Heart className="w-5 h-5 text-primary" />
+              </div>
+              <div className="space-y-4 max-w-3xl mx-auto">
+                <p className="body-text text-lg leading-relaxed">{t("welcomeDescription1")}</p>
+                <p className="body-text text-lg leading-relaxed">{t("welcomeDescription2")}</p>
+              </div>
+            </div>
+          </div>
+
           {/* Wedding Details */}
           <div className="mb-16">
             <div className="decorative-border rounded-2xl p-8 md:p-12 max-w-4xl mx-auto">
@@ -113,7 +128,7 @@ export default function HomePage() {
                 <div className="text-center space-y-3">
                   <div className="caption-text text-primary mb-4">Wedding</div>
                   <div className="body-text text-2xl font-light">March 27th 2026</div>
-                  <div className="caption-text">9:00</div>
+                  <div className="caption-text">10:00</div>
                 </div>
 
                 {/* Vertical Divider Line for desktop */}
@@ -145,21 +160,6 @@ export default function HomePage() {
             >
               <Link href="/events">{t("viewEvents")}</Link>
             </Button>
-          </div>
-
-          {/* Welcome Message */}
-          <div className="decorative-border rounded-2xl p-8 md:p-12 max-w-4xl mx-auto mb-16">
-            <div className="text-center space-y-6">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <Heart className="w-5 h-5 text-primary" />
-                <span className="caption-text text-primary">{t("welcomeTitle")}</span>
-                <Heart className="w-5 h-5 text-primary" />
-              </div>
-              <div className="space-y-4 max-w-3xl mx-auto">
-                <p className="body-text text-lg leading-relaxed">{t("welcomeDescription1")}</p>
-                <p className="body-text text-lg leading-relaxed">{t("welcomeDescription2")}</p>
-              </div>
-            </div>
           </div>
 
           {/* Countdown */}
