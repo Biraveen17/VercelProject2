@@ -127,6 +127,23 @@ export default function TravelPage() {
           </div>
         </section>
 
+        {/* Transportation */}
+        <section className="mb-20">
+          <Card className="decorative-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 caption-text text-primary justify-center">
+                <Car className="w-6 h-6" />
+                {t("transportationTitle")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="body-text leading-relaxed text-center max-w-4xl mx-auto">
+                {t("transportationDescription")}
+              </p>
+            </CardContent>
+          </Card>
+        </section>
+
         {/* Travel Tips */}
         <section className="mb-20">
           <Card className="decorative-border">
@@ -188,7 +205,7 @@ export default function TravelPage() {
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {sortedHotels.map((hotel) => (
-                  <Card key={hotel._id || hotel.id} className="decorative-border overflow-hidden flex flex-col">
+                  <Card key={hotel._id || hotel.id} className="decorative-border overflow-hidden flex flex-col p-0">
                     <div className="relative h-48 w-full">
                       <Image
                         src={hotel.imageUrl || "/placeholder.svg"}
@@ -197,7 +214,7 @@ export default function TravelPage() {
                         className="object-cover"
                       />
                     </div>
-                    <CardHeader className="pb-3">
+                    <CardHeader className="pb-3 pt-6">
                       <CardTitle className="caption-text text-primary text-lg leading-tight">{hotel.name}</CardTitle>
                       <div className="flex items-center gap-1 mt-2">
                         {Array.from({ length: hotel.stars }).map((_, i) => (
@@ -205,7 +222,7 @@ export default function TravelPage() {
                         ))}
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-3 flex-1 flex flex-col">
+                    <CardContent className="space-y-3 flex-1 flex flex-col pb-6">
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center gap-2 text-sm">
                           <Users className="w-4 h-4 text-muted-foreground" />
@@ -235,10 +252,10 @@ export default function TravelPage() {
                             Website
                           </a>
                         </Button>
-                        <Button asChild size="sm" className="flex-1 btn-primary">
+                        <Button asChild size="sm" className="flex-1 bg-[#003580] hover:bg-[#002855] text-white">
                           <a href={hotel.bookingUrl} target="_blank" rel="noopener noreferrer">
                             <Hotel className="w-3 h-3 mr-1" />
-                            Book
+                            Booking.com
                           </a>
                         </Button>
                       </div>
