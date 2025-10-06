@@ -300,10 +300,9 @@ export default function TravelPage() {
                   Airbnb
                 </a>
               </Button>{" "}
-              can be a great option for groups or longer stays. For those who prefer hotels, we’ve listed some
-              recommendations below. <br />
-              Please note that the prices shown were checked in October 2025 and may vary depending on when you book.
+              {t("airbnbIntro")}
             </p>
+            {/* </CHANGE> */}
           </div>
 
           {loading ? (
@@ -356,6 +355,8 @@ export default function TravelPage() {
                         alt={hotel.name}
                         fill
                         className="object-cover"
+                        loading="lazy"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       />
                     </div>
                     <CardHeader className="pb-3 pt-6">

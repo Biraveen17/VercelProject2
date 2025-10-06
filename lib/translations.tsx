@@ -137,6 +137,7 @@ export interface Translation {
   transportationTitle: string
   transportationDescription: string
   accommodationsTitle: string
+  airbnbIntro: string
   luxuryHotelsTitle: string
   midRangeHotelsTitle: string
   hotel1Name: string
@@ -350,6 +351,8 @@ export const translations: Record<string, Translation> = {
     transportationDescription:
       "We highly recommend hiring a rental car from the airport for the duration of your stay. There is no Uber service in Cyprus and Bolt availability is limited. Local taxi companies may be pricey for getting around daily. Driving in Cyprus is relaxed and on the left side of the road. Speed limits are 50 km/h in towns, 80 km/h on open roads, and 100 km/h on highways. We recommend booking your rental in advance to get better prices. Good comparison websites include RentalCars.com, Booking.com, and discovercars.com. Major international car rental companies include Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget, and others. UK and EU driving license holders should not need an international driving permit as Cyprus is an EU member country, however it's best to check with the rental company directly. If you need any help with booking your rental, please reach out to us directly.",
     accommodationsTitle: "Where to Stay",
+    airbnbIntro:
+      "can be a great option for groups or longer stays. For those who prefer hotels, we've listed some recommendations below. Please note that the prices shown were checked in October 2025 and may vary depending on when you book.",
     luxuryHotelsTitle: "Luxury Options",
     midRangeHotelsTitle: "Mid-Range Options",
     hotel1Name: "Coral Beach Hotel & Resort",
@@ -555,7 +558,8 @@ export const translations: Record<string, Translation> = {
     sfoDrive: "15 minutter til Paphos",
     sfoDirectFlights: "Der er ingen direkte fly fra Danmark til denne lufthavn",
     sfoAirlines: " ",
-    sfoTransitOptions: "Enkelt transit muligheder fra: København (CPH) via London, Athen, Wien, Frankfurt, Amsterdam eller andre destinationer",
+    sfoTransitOptions:
+      "Enkelt transit muligheder fra: København (CPH) via London, Athen, Wien, Frankfurt, Amsterdam eller andre destinationer",
     oakTitle: "Larnaca International Airport (LCA)",
     oakDescription: "Cyperns vigtigste internationale lufthavn med flere flymuligheder fra hele verden.",
     oakDrive: "1 time 30 minutter til Paphos",
@@ -568,8 +572,10 @@ export const translations: Record<string, Translation> = {
     sjcDrive: "Forudbestil for bedste priser",
     transportationTitle: "Transport",
     transportationDescription:
-      "Vi anbefaler stærkt at leje en bil fra lufthavnen i hele dit ophold. Der er ingen Uber-service på Cypern, og Bolt-tilgængeligheden er begrænset. Lokale taxaselskaber kan være dyre til daglig transport. Kørsel på Cypern er afslappet og på venstre side af vejen. Hastighedsgrænserne er 50 km/t i byer, 80 km/t på åbne veje og 100 km/t på motorveje. Vi anbefaler at booke din leje på forhånd for at få bedre priser. Gode sammenligningswebsteder inkluderer RentalCars.com, Booking.com og discovercars.com. Store internationale biludlejningsfirmaer inkluderer Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget og andre. Indehavere af UK og EU kørekort bør ikke have brug for et internationalt kørekort, da Cypern er et EU-medlemsland, men det er bedst at tjekke med udlejningsfirmaet direkte. Hvis du har brug for hjælp til at booke din leje, så kontakt os direkte.",
+      "Vi anbefaler stærkt at leje en bil fra lufthavnen i hele dit ophold. Der er ingen Uber-service på Cypern, og Bolt-tilgængeligheden er begrænset. Lokale taxaselskaber kan være dyre til daglig transport. Kørsel på Cypern er afslappet og på venstre side af vejen. Hastighedsgrænserne er 50 km/t i byer, 80 km/t på åbne veje og 100 km/t på motorveje. Vi anbefaler at booke din leje på forhånd for at få bedre priser. Gode sammenligningswebsteder inkluderer RentalCars.com, Booking.com og discovercars.com. Store internationale biludlejningsfirmaer inkluderer Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget og andre. Indehavere af UK og EU kørekort har ikke brug for et internationalt kørekort (IDP), da Cypern er et EU-medlemsland, men det er bedst at tjekke med udlejningsfirmaet direkte. Hvis du har brug for hjælp til at booke din leje, så kontakt os direkte.",
     accommodationsTitle: "Hvor skal man bo",
+    airbnbIntro:
+      "kan være en god mulighed for grupper eller længere ophold. For dem der foretrækker hoteller, har vi listet nogle anbefalinger nedenfor. Bemærk venligst at de viste priser blev tjekket i oktober 2025 og kan variere afhængigt af hvornår du booker.",
     luxuryHotelsTitle: "Luksus Muligheder",
     midRangeHotelsTitle: "Mellem Muligheder",
     hotel1Name: "Coral Beach Hotel & Resort",
@@ -794,6 +800,8 @@ export const translations: Record<string, Translation> = {
     transportationDescription:
       "உங்கள் தங்குமிடத்தின் காலத்திற்கு விமான நிலையத்திலிருந்து ஒரு வாடகை காரை வாடகைக்கு எடுப்பதை நாங்கள் மிகவும் பரிந்துரைக்கிறோம். சைப்ரஸில் Uber சேவை இல்லை மற்றும் Bolt கிடைக்கும் தன்மை குறைவாக உள்ளது. உள்ளூர் டாக்சி நிறுவனங்கள் தினசரி சுற்றிப் பார்ப்பதற்கு விலை அதிகமாக இருக்கலாம். சைப்ரஸில் வாகனம் ஓட்டுவது நிதானமானது மற்றும் சாலையின் இடது பக்கத்தில் உள்ளது. வேக வரம்புகள் நகரங்களில் 50 km/h, திறந்த சாலைகளில் 80 km/h மற்றும் நெடுஞ்சாலைகளில் 100 km/h ஆகும். சிறந்த விலைகளைப் பெற உங்கள் வாடகையை முன்கூட்டியே முன்பதிவு செய்ய பரிந்துரைக்கிறோம். நல்ல ஒப்பீட்டு இணையதளங்களில் RentalCars.com, Booking.com மற்றும் discovercars.com ஆகியவை அடங்கும். முக்கிய சர்வதேச கார் வாடகை நிறுவனங்களில் Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget மற்றும் பிறவை அடங்கும். சைப்ரஸ் ஒரு EU உறுப்பு நாடாக இருப்பதால் UK மற்றும் EU ஓட்டுநர் உரிம வைத்திருப்பவர்களுக்கு சர்வதேச ஓட்டுநர் அனுமதி தேவையில்லை, இருப்பினும் வாடகை நிறுவனத்துடன் நேரடியாக சரிபார்ப்பது சிறந்தது. உங்கள் வாடகையை முன்பதிவு செய்வதில் உங்களுக்கு ஏதேனும் உதவி தேவைப்பட்டால், தயவுசெய்து எங்களை நேரடியாக தொடர்பு கொள்ளுங்கள்.",
     accommodationsTitle: "எங்கு தங்குவது",
+    airbnbIntro:
+      "குழுக்கள் அல்லது நீண்ட தங்குமிடங்களுக்கு ஒரு சிறந்த விருப்பமாக இருக்கலாம். ஹோட்டல்களை விரும்புபவர்களுக்கு, நாங்கள் கீழே சில பரிந்துரைகளை பட்டியலிட்டுள்ளோம். காட்டப்பட்டுள்ள விலைகள் அக்டோபர் 2025 இல் சரிபார்க்கப்பட்டவை என்பதையும், நீங்கள் முன்பதிவு செய்யும் நேரத்தைப் பொறுத்து மாறுபடலாம் என்பதையும் கவனத்தில் கொள்ளவும்.",
     luxuryHotelsTitle: "ஆடம்பர விருப்பங்கள்",
     midRangeHotelsTitle: "நடுத்தர விருப்பங்கள்",
     hotel1Name: "Coral Beach Hotel & Resort",
@@ -852,7 +860,7 @@ export const translations: Record<string, Translation> = {
     willYouAttend: "நீங்கள் எங்கள் திருமணத்தில் கலந்துகொள்வீர்களா?",
     yesAttending: "ஆம், நான் வருவேன்! 🎉",
     noAttending: "மன்னிக்கவும், என்னால் வர முடியாது",
-    whichEvents: "எந்த நிகழ்வுகளில் நீங்கள் கலந்துகொள்வீர்கள்?",
+    whichEvents: "எந்த நிகழ்வுகளில் நீங்கள் கலந்துகொள்வீீர்கள்?",
     ceremonyEvent: "இந்து திருமண சடங்கு",
     receptionEvent: "திருமண வரவேற்பு",
     groupMemberNames: "குழு உறுப்பினர்களின் பெயர்கள்",
@@ -1020,6 +1028,8 @@ export const translations: Record<string, Translation> = {
     transportationDescription:
       "Nous recommandons vivement de louer une voiture à l'aéroport pour la durée de votre séjour. Il n'y a pas de service Uber à Chypre et la disponibilité de Bolt est limitée. Les compagnies de taxi locales peuvent être chères pour les déplacements quotidiens. La conduite à Chypre est détendue et se fait sur le côté gauche de la route. Les limitations de vitesse sont de 50 km/h en ville, 80 km/h sur les routes ouvertes et 100 km/h sur les autoroutes. Nous recommandons de réserver votre location à l'avance pour obtenir de meilleurs prix. Les bons sites de comparaison incluent RentalCars.com, Booking.com et discovercars.com. Les grandes sociétés internationales de location de voitures incluent Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget et d'autres. Les titulaires de permis de conduire britanniques et européens ne devraient pas avoir besoin d'un permis de conduire international car Chypre est un pays membre de l'UE, mais il est préférable de vérifier directement auprès de la société de location. Si vous avez besoin d'aide pour réserver votre location, n'hésitez pas à nous contacter directement.",
     accommodationsTitle: "Où Séjourner",
+    airbnbIntro:
+      "peut être une excellente option pour les groupes ou les séjours plus longs. Pour ceux qui préfèrent les hôtels, nous avons listé quelques recommandations ci-dessous. Veuillez noter que les prix indiqués ont été vérifiés en octobre 2025 et peuvent varier en fonction de la date de votre réservation.",
     luxuryHotelsTitle: "Options de Luxe",
     midRangeHotelsTitle: "Options Milieu de Gamme",
     hotel1Name: "Coral Beach Hotel & Resort",

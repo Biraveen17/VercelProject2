@@ -28,6 +28,7 @@ interface WeddingSettings {
   enableFrench: boolean
   enableTamil: boolean
   enableAutoLanguageDetection: boolean
+  enableScheduleBlur: boolean
 }
 
 export default function SettingsPage() {
@@ -50,6 +51,7 @@ export default function SettingsPage() {
     enableFrench: true,
     enableTamil: true,
     enableAutoLanguageDetection: true,
+    enableScheduleBlur: true,
   })
 
   useEffect(() => {
@@ -402,6 +404,29 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Schedule Display Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Schedule Display Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="enableScheduleBlur"
+                  checked={settings.enableScheduleBlur}
+                  onChange={(e) => updateSetting("enableScheduleBlur", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="enableScheduleBlur">Blur schedule details on events page</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                When enabled, the schedule section on the events page will be blurred to hide details until you're ready
+                to reveal them. Disable this setting when you want guests to see the full schedule.
+              </p>
             </CardContent>
           </Card>
 

@@ -6,9 +6,26 @@ import { Calendar, Clock, MapPin, Utensils, Shirt } from "lucide-react"
 import Link from "next/link"
 import { PageTracker } from "@/components/page-tracker"
 import { useLanguage } from "@/lib/language-context"
+import { useState, useEffect } from "react"
 
 export default function EventsPage() {
   const { t } = useLanguage()
+  const [scheduleBlurred, setScheduleBlurred] = useState(true)
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await fetch("/api/settings")
+        if (response.ok) {
+          const data = await response.json()
+          setScheduleBlurred(data.enableScheduleBlur ?? true)
+        }
+      } catch (error) {
+        console.error("Error loading settings:", error)
+      }
+    }
+    loadSettings()
+  }, [])
 
   return (
     <div className="min-h-screen py-12 px-4">
@@ -144,7 +161,7 @@ export default function EventsPage() {
               <p className="body-text text-center text-primary">{t("scheduleWarning")}</p>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4 blur-sm select-none pointer-events-none">
+          <CardContent className={`space-y-4 ${scheduleBlurred ? "blur-sm select-none pointer-events-none" : ""}`}>
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <h3 className="caption-text text-primary mb-4">{t("fridayScheduleTitle")}</h3>

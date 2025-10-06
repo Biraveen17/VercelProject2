@@ -27,6 +27,7 @@ export async function GET() {
         enableFrench: true,
         enableTamil: true,
         enableAutoLanguageDetection: true,
+        enableScheduleBlur: true, // Added enableScheduleBlur setting
         lastUpdated: new Date().toISOString(),
       }
       await collection.insertOne(defaultSettings)

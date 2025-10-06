@@ -19,6 +19,7 @@ export function FlagIcon({ flag, imageUrl, alt, className = "" }: FlagIconProps)
         unoptimized={imageUrl.includes("blob.vercel-storage.com")}
         className={`inline-block ${className}`}
         style={{ objectFit: "contain" }}
+        sizes="20px"
       />
     )
   }

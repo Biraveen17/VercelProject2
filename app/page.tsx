@@ -88,6 +88,7 @@ export default function HomePage() {
                     className="w-full transition-opacity duration-1000 object-cover"
                     style={{ aspectRatio: "16 / 9" }}
                     unoptimized={getCurrentPhoto()?.includes("blob.vercel-storage.com")}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 90vw, 1200px"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>

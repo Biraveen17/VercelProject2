@@ -4,6 +4,7 @@ import { Playfair_Display, Crimson_Text, Dancing_Script, Island_Moments } from "
 import "./globals.css"
 import { Navigation } from "@/components/navigation"
 import { LanguageProvider } from "@/lib/language-context"
+import { Footer } from "@/components/footer"
 
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair",
@@ -34,7 +35,7 @@ const islandMoments = Island_Moments({
 export const metadata: Metadata = {
   title: "Varnie & Biraveen Wedding",
   description: "Join us for our Tamil Hindu wedding celebration in Cyprus, March 2026",
-    generator: 'v0.app'
+  generator: "v0.app",
 }
 
 export default function RootLayout({
@@ -51,6 +52,7 @@ export default function RootLayout({
         <LanguageProvider>
           <Navigation />
           <main>{children}</main>
+          <Footer />
         </LanguageProvider>
       </body>
     </html>
