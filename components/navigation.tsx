@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useLanguage } from "@/lib/language-context"
+import { FlagIcon } from "@/components/flag-icon"
 
 const languages = [
   { code: "en", name: "English", flag: "🇬🇧" },
   { code: "da", name: "Danish", flag: "🇩🇰" },
   { code: "fr", name: "French", flag: "🇫🇷" },
-  { code: "ta", name: "Tamil", flag: "🇱🇰" },
+  { code: "ta", name: "Tamil", flag: "🇱🇰", imageUrl: "/api/blob/TamilFlagIcon.png" },
 ]
 
 interface PageContent {
@@ -203,7 +204,12 @@ export function Navigation() {
                   onClick={() => setShowLangMenu(!showLangMenu)}
                   className="flex items-center space-x-2"
                 >
-                  <span className="text-base">{currentLanguage?.flag}</span>
+                  <FlagIcon
+                    flag={currentLanguage?.flag || ""}
+                    imageUrl={currentLanguage?.imageUrl}
+                    alt={`${currentLanguage?.name} flag`}
+                    className="text-base"
+                  />
                   <span className="hidden sm:inline">{currentLanguage?.name}</span>
                 </Button>
 
@@ -220,7 +226,7 @@ export function Navigation() {
                           language === lang.code ? "bg-muted" : ""
                         }`}
                       >
-                        <span>{lang.flag}</span>
+                        <FlagIcon flag={lang.flag} imageUrl={lang.imageUrl} alt={`${lang.name} flag`} />
                         <span>{lang.name}</span>
                       </button>
                     ))}
