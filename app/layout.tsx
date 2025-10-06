@@ -35,7 +35,7 @@ const islandMoments = Island_Moments({
 export const metadata: Metadata = {
   title: "Biraveen & Varnie Wedding",
   description: "Join us for our Tamil Hindu wedding celebration in Cyprus, March 2026",
-  generator: "v0.app",
+    generator: 'v0.app'
 }
 
 export default function RootLayout({
