@@ -104,7 +104,9 @@ export default function HomePage() {
           <div className="text-center mb-16 space-y-6">
             <h1 className="display-text island-moments">
               {t("groomFirstname")} {t("groomSurname")}
-              <br />&<br />
+            </h1>
+            <h1 className="display-text island-moments">&</h1>
+            <h1 className="display-text island-moments">
               {t("brideFirstname")} {t("brideSurname")}
             </h1>
             <div className="script text-4xl md:text-5xl text-primary">Wedding Invitation</div>
