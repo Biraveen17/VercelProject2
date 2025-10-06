@@ -108,7 +108,7 @@ export default function HomePage() {
               Varnie Tharmalingam
             </h1>
             <div className="script text-4xl md:text-5xl text-primary">Wedding Invitation</div>
-            <p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>
+            {/*<p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>*/}
           </div>
 
           {/* Welcome Message */}
