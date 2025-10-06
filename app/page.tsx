@@ -103,10 +103,10 @@ export default function HomePage() {
           {/* Names and Title */}
           <div className="text-center mb-16 space-y-6">
             <div className="leading-tight">
-              <h1 className="display-text island-moments">
+              <h1 className="display-text island-moments m-0">
                 {t("groomFirstname")}
               </h1>
-              <h2 className="display-text island-moments">
+              <h2 className="display-text island-moments m-0">
                 {t("groomSurname")}
               </h2>
             </div>
