@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
 import { useEffect, useState } from "react"
 import { PageTracker } from "@/components/page-tracker"
+import Image from "next/image"
 
 export default function HomePage() {
   const { t } = useLanguage()
@@ -13,6 +14,7 @@ export default function HomePage() {
     photo2: null,
   })
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchProposalPhotos = async () => {
@@ -36,8 +38,10 @@ export default function HomePage() {
           photo1: proposalPhoto1?.url || null,
           photo2: proposalPhoto2?.url || null,
         })
+        setIsLoading(false)
       } catch (error) {
         console.error("Error fetching proposal photos:", error)
+        setIsLoading(false)
       }
     }
 
@@ -75,17 +79,21 @@ export default function HomePage() {
             <div className="relative mx-auto mb-8 max-w-4xl">
               {proposalPhotos.photo1 || proposalPhotos.photo2 ? (
                 <div className="relative overflow-hidden rounded-2xl shadow-2xl">
-                  <img
+                  <Image
                     src={getCurrentPhoto() || "/placeholder.svg"}
                     alt="Proposal photos"
+                    width={1600}
+                    height={900}
+                    priority
                     className="w-full transition-opacity duration-1000 object-cover"
                     style={{ aspectRatio: "16 / 9" }}
+                    unoptimized={getCurrentPhoto()?.includes("blob.vercel-storage.com")}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
               ) : (
                 <div className="w-full aspect-video bg-muted/30 rounded-2xl flex items-center justify-center border border-border">
-                  <p className="caption-text">Loading photos...</p>
+                  <p className="caption-text">{isLoading ? "Loading photos..." : "No photos available"}</p>
                 </div>
               )}
             </div>

@@ -243,9 +243,45 @@ export default function TravelPage() {
               <CardTitle className="caption-text text-primary text-center">{t("travelTipsTitle")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="body-text leading-relaxed text-center max-w-4xl mx-auto whitespace-pre-line">
-                {t("travelTipsDescription")}
+              <div className="body-text leading-relaxed max-w-4xl mx-auto space-y-3">
+                <ul className="space-y-2.5 list-none">
+                  <li className="flex gap-3">
+                    <span className="text-primary mt-1 flex-shrink-0">•</span>
+                    <span>Book accommodations early as March is a popular time to visit Cyprus</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-primary mt-1 flex-shrink-0">•</span>
+                    <span>
+                      The weather in March is typically mild and pleasant with temperatures ranging from 60-70°F
+                      (15-21°C)
+                    </span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-primary mt-1 flex-shrink-0">•</span>
+                    <span>Driving is on the left-hand side of the road</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-primary mt-1 flex-shrink-0">•</span>
+                    <span>
+                      UK and EU licence holders do not need an International Driving Permit (IDP) as Cyprus is an EU
+                      member country
+                    </span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-primary mt-1 flex-shrink-0">•</span>
+                    <span>Cyprus uses the Euro (€) as currency</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-primary mt-1 flex-shrink-0">•</span>
+                    <span>English is widely spoken in tourist areas</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-primary mt-1 flex-shrink-0">•</span>
+                    <span>Remember to bring your passport and check visa requirements for Cyprus</span>
+                  </li>
+                </ul>
               </div>
+              {/* </CHANGE> */}
             </CardContent>
           </Card>
         </section>
@@ -264,7 +300,9 @@ export default function TravelPage() {
                   Airbnb
                 </a>
               </Button>{" "}
-              can be a great option for groups or longer stays. For those who prefer hotels, we’ve listed some recommendations below. <br/>Please note that the prices shown were checked in October 2025 and may vary depending on when you book.
+              can be a great option for groups or longer stays. For those who prefer hotels, we’ve listed some
+              recommendations below. <br />
+              Please note that the prices shown were checked in October 2025 and may vary depending on when you book.
             </p>
           </div>
 
