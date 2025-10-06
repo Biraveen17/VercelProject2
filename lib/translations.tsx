@@ -20,6 +20,10 @@ export interface Translation {
   logout: string
 
   // Home page
+  groomFirstname: string
+  groomSurname: string
+  brideFirstname: string
+  brideSurname: string
   homeTitle: string
   homeSubtitle: string
   homeDescription: string
@@ -225,6 +229,10 @@ export const translations: Record<string, Translation> = {
     logout: "Logout",
 
     // Home page
+    groomFirstname: "Biraveen",
+    groomSurname: "Vijayakumar",
+    brideFirstname: "Varnie",
+    brideSurname: "Tharmalingam",
     homeTitle: "Biraveen Vijayakumar & Varnie Tharmalingam",
     homeSubtitle: "Together with our families, we invite you to celebrate our Tamil Hindu wedding",
     homeDescription: "March 27-28, 2026 • Paphos, Cyprus",
@@ -238,9 +246,9 @@ export const translations: Record<string, Translation> = {
     seconds: "Seconds",
     welcomeTitle: "Welcome to Our Wedding Celebration",
     welcomeDescription1:
-      "Together with our families, we invite you to celebrate our Tamil Hindu wedding.",
+      "Together with our families, we joyfully invite you to celebrate our Tamil Hindu wedding.",
     welcomeDescription2:
-      "We are thrilled to invite you to join us as we begin our journey together as husband and wife. Our celebration will honor the beautiful traditions of Tamil Hindu culture while creating new memories in the stunning setting of Cyprus.",
+      "As we begin our journey together as husband and wife, we look forward to honouring our cherished Tamil traditions and creating new memories in the beautiful setting of Cyprus.",
     welcomeDescription3:
       "For our non-Indian guests, we've included explanations of our customs and traditions to help you feel part of our special celebration. We can't wait to share this joyous occasion with you!",
     ceremonyTitle: "Hindu Ceremony",
@@ -451,6 +459,10 @@ export const translations: Record<string, Translation> = {
     logout: "Log ud",
 
     // Home page
+    groomFirstname: "Biraveen",
+    groomSurname: "Vijayakumar",
+    brideFirstname: "Varnie",
+    brideSurname: "Tharmalingam",
     homeTitle: "Biraveen Vijayakumar & Varnie Tharmalingam",
     homeSubtitle: "Sammen med vores familier inviterer vi dig til at fejre vores Tamil Hindu bryllup",
     homeDescription: "27.-28. marts 2026 • Paphos, Cypern",
@@ -464,9 +476,9 @@ export const translations: Record<string, Translation> = {
     seconds: "Sekunder",
     welcomeTitle: "Velkommen til Vores Bryllupsfejring",
     welcomeDescription1:
-      "Sammen med vores familier inviterer vi dig til at fejre vores Tamil Hindu bryllup.",
+      "Sammen med vores familier inviterer vi dig med glæde til at fejre vores tamilske hindu-bryllup.",
     welcomeDescription2:
-      "Vi er begejstrede for at invitere dig til at være med os, når vi begynder vores rejse sammen som mand og kone. Vores fejring vil ære de smukke traditioner fra Tamil Hindu-kulturen, mens vi skaber nye minder i Cyperns fantastiske omgivelser.",
+      "Når vi begynder vores rejse sammen som ægtefolk, ser vi frem til at ære vores elskede tamilske traditioner og skabe nye minder i de smukke omgivelser på Cypern.",
     welcomeDescription3:
       "For vores ikke-indiske gæster har vi inkluderet forklaringer på vores skikke og traditioner for at hjælpe dig med at føle dig som en del af vores særlige fejring. Vi kan ikke vente med at dele denne glædelige lejlighed med dig!",
     ceremonyTitle: "Hindu Ceremoni",
@@ -677,6 +689,10 @@ export const translations: Record<string, Translation> = {
     logout: "வெளியேறு",
 
     // Home page
+    groomFirstname: "பிரவீன்",
+    groomSurname: "விஜயகுமார்",
+    brideFirstname: "வர்ணி",
+    brideSurname: "தர்மலிங்கம்",
     homeTitle: "பிரவீன் விஜயகுமார் & வர்ணி தர்மலிங்கம்",
     homeSubtitle: "எங்கள் குடும்பங்களுடன் சேர்ந்து, எங்கள் தமிழ் இந்து திருமணத்தை கொண்டாட உங்களை அழைக்கிறோம்",
     homeDescription: "மார்ச் 27-28, 2026 • பாஃபோஸ், சைப்ரஸ்",
@@ -690,9 +706,9 @@ export const translations: Record<string, Translation> = {
     seconds: "விநாடிகள்",
     welcomeTitle: "எங்கள் திருமண கொண்டாட்டத்திற்கு வரவேற்கிறோம்",
     welcomeDescription1:
-      "எங்கள் குடும்பங்களுடன் சேர்ந்து, எங்கள் தமிழ் இந்து திருமணத்தை கொண்டாட உங்களை அழைக்கிறோம்.",
+      "எங்கள் குடும்பங்களுடன் இணைந்து, எங்கள் கல்யாணத்தை கொண்டாட, மகிழ்ச்சியுடன் உங்களை அழைக்கிறோம்.",
     welcomeDescription2:
-      "கணவன் மனைவியாக எங்கள் பயணத்தைத் தொடங்கும்போது எங்களுடன் சேர உங்களை அழைப்பதில் நாங்கள் மகிழ்ச்சியடைகிறோம். எங்கள் கொண்டாட்டம் தமிழ் இந்து கலாச்சாரத்தின் அழகான பாரம்பரியங்களை மதிக்கும் அதே வேளையில் சைப்ரஸின் அற்புதமான சூழலில் புதிய நினைவுகளை உருவாக்கும்.",
+      "மணமக்கள் ஆகி எங்கள் வாழ்க்கை பயணத்தை தொடங்கும் இந்த தருணத்தில், எங்கள் மதிப்புமிக்க தமிழ் பாரம்பரியங்களை போற்றிக்கொண்டு, சைப்ரஸின் அழகிய சூழலில் புதிய நினைவுகளை உருவாக்கும் பொழுதை ஆவலுடன் எதிர்நோக்குகிறோம்.",
     welcomeDescription3:
       "எங்கள் இந்திய அல்லாத விருந்தினர்களுக்கு, எங்கள் சிறப்பு கொண்டாட்டத்தின் ஒரு பகுதியாக உணர உதவும் வகையில் எங்கள் பழக்கவழக்கங்கள் மற்றும் பாரம்பரியங்களின் விளக்கங்களை சேர்த்துள்ளோம். இந்த மகிழ்ச்சியான சந்தர்ப்பத்தை உங்களுடன் பகிர்ந்து கொள்ள நாங்கள் காத்திருக்க முடியாது!",
     ceremonyTitle: "இந்து சடங்கு",
@@ -904,6 +920,10 @@ export const translations: Record<string, Translation> = {
     logout: "Déconnexion",
 
     // Home page
+    groomFirstname: "Biraveen",
+    groomSurname: "Vijayakumar",
+    brideFirstname: "Varnie",
+    brideSurname: "Tharmalingam",
     homeTitle: "Biraveen Vijayakumar & Varnie Tharmalingam",
     homeSubtitle: "Avec nos familles, nous vous invitons à célébrer notre mariage hindou tamoul",
     homeDescription: "27-28 mars 2026 • Paphos, Chypre",
@@ -917,9 +937,9 @@ export const translations: Record<string, Translation> = {
     seconds: "Secondes",
     welcomeTitle: "Bienvenue à notre célébration de mariage",
     welcomeDescription1:
-      "Avec nos familles, nous vous invitons à célébrer notre mariage hindou tamoul.",
+      "C’est avec nos familles que nous avons la joie de vous inviter à célébrer notre mariage tamoul hindou.",
     welcomeDescription2:
-      "Nous sommes ravis de vous inviter à nous rejoindre alors que nous commençons notre voyage ensemble en tant que mari et femme. Notre célébration honorera les belles traditions de la culture hindoue tamoule tout en créant de nouveaux souvenirs dans le cadre magnifique de Chypre.",
+      "Alors que nous commençons notre voyage ensemble en tant que mari et femme, nous avons hâte d’honorer nos précieuses traditions tamoules et de créer de nouveaux souvenirs dans le cadre magnifique de Chypre.",
     welcomeDescription3:
       "Pour nos invités non-indiens, nous avons inclus des explications de nos coutumes et traditions pour vous aider à vous sentir partie prenante de notre célébration spéciale. Nous avons hâte de partager cette occasion joyeuse avec vous !",
     ceremonyTitle: "Cérémonie Hindoue",
