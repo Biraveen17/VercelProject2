@@ -121,7 +121,8 @@ export default function HomePage() {
               </div>
               <div className="space-y-4 max-w-3xl mx-auto">
                 <p className="body-text text-lg leading-relaxed">{t("welcomeDescription1")}</p>
-                {/*<p className="body-text text-lg leading-relaxed">{t("welcomeDescription2")}</p>*/}
+                <p className="body-text text-lg leading-relaxed">{t("welcomeDescription2")}</p>
+                {/*<p className="body-text text-lg leading-relaxed">{t("welcomeDescription3")}</p>*/}
               </div>
             </div>
           </div>
