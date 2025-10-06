@@ -157,7 +157,7 @@ export default function EventsPage() {
         <Card className="mb-8 decorative-border">
           <CardHeader>
             <CardTitle className="caption-text text-primary text-center">{t("detailedScheduleTitle")}</CardTitle>
-            <div className="bg-primary/10 border-2 border-primary rounded-lg p-4 mt-4 blur-sm select-none pointer-events-none">
+            <div className={`bg-primary/10 border-2 border-primary rounded-lg p-4 mt-4 ${scheduleBlurred ? "blur-sm select-none pointer-events-none" : ""}`}>
               <p className="body-text text-center text-primary">{t("scheduleWarning")}</p>
             </div>
           </CardHeader>
