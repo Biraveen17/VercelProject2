@@ -168,28 +168,21 @@ export default function TravelPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="body-text leading-relaxed max-w-4xl mx-auto space-y-4">
-                <p className="font-semibold text-primary">
-                  We recommend hiring a rental car from the airport for the duration of your stay.
-                </p>
+                <p className="font-semibold text-primary">{t("transportContent1")}</p>
 
-                <p>
-                  There is no Uber service in Cyprus, and Bolt operates on a limited basis. Local taxis are an option,
-                  though they can be relatively expensive for everyday travel.
-                </p>
+                <p>{t("transportContent2")}</p>
 
                 <div className="bg-muted/30 p-4 rounded-lg space-y-2">
-                  <p className="font-semibold text-sm text-primary">Driving in Cyprus:</p>
+                  <p className="font-semibold text-sm text-primary">{t("transportDrivingTitle")}</p>
                   <ul className="text-sm space-y-1 list-disc list-inside">
-                    <li>Driving is relaxed and on the left side of the road</li>
-                    <li>Speed limits: 50 km/h in towns, 80 km/h on open roads, 100 km/h on highways</li>
+                    <li>{t("transportDrivingBullet1")}</li>
+                    <li>{t("transportDrivingBullet2")}</li>
                   </ul>
                 </div>
 
                 <div>
-                  <p className="font-semibold text-sm text-primary mb-2">Booking Your Rental:</p>
-                  <p className="text-sm mb-3">
-                    We recommend booking in advance to get better prices. Good comparison websites include:
-                  </p>
+                  <p className="font-semibold text-sm text-primary mb-2">{t("transportBookingTitle")}</p>
+                  <p className="text-sm mb-3">{t("transportBookingText")}</p>
                   <div className="flex flex-wrap gap-3">
                     <Button asChild variant="outline" size="sm" className="btn-secondary bg-transparent">
                       <a href="https://www.rentalcars.com" target="_blank" rel="noopener noreferrer">
@@ -213,23 +206,16 @@ export default function TravelPage() {
                 </div>
 
                 <div className="text-sm">
-                  <p className="font-semibold text-primary mb-1">Major Rental Companies:</p>
-                  <p className="text-muted-foreground">
-                    Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget, and others
-                  </p>
+                  <p className="font-semibold text-primary mb-1">{t("transportCompaniesTitle")}</p>
+                  <p className="text-muted-foreground">{t("transportCompaniesText")}</p>
                 </div>
 
                 <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg text-sm space-y-2">
-                  <p className="font-semibold text-primary">Driving License:</p>
-                  <p>
-                    UK and EU driving license holders should not need an international driving permit as Cyprus is an EU
-                    member country. However, it's best to check with the rental company directly.
-                  </p>
+                  <p className="font-semibold text-primary">{t("transportLicenseTitle")}</p>
+                  <p>{t("transportLicenseText")}</p>
                 </div>
 
-                <p className="text-sm italic text-center pt-2">
-                  If you need any help with booking your rental, please reach out to us directly.
-                </p>
+                <p className="text-sm italic text-center pt-2">{t("transportHelpText")}</p>
               </div>
               {/* </CHANGE> */}
             </CardContent>
@@ -247,37 +233,31 @@ export default function TravelPage() {
                 <ul className="space-y-2.5 list-none">
                   <li className="flex gap-3">
                     <span className="text-primary mt-1 flex-shrink-0">•</span>
-                    <span>Book accommodations early as March is a popular time to visit Cyprus</span>
+                    <span>{t("travelTip1")}</span>
                   </li>
                   <li className="flex gap-3">
                     <span className="text-primary mt-1 flex-shrink-0">•</span>
-                    <span>
-                      The weather in March is typically mild and pleasant with temperatures ranging from 60-70°F
-                      (15-21°C)
-                    </span>
+                    <span>{t("travelTip2")}</span>
                   </li>
                   <li className="flex gap-3">
                     <span className="text-primary mt-1 flex-shrink-0">•</span>
-                    <span>Driving is on the left-hand side of the road</span>
+                    <span>{t("travelTip3")}</span>
                   </li>
                   <li className="flex gap-3">
                     <span className="text-primary mt-1 flex-shrink-0">•</span>
-                    <span>
-                      UK and EU licence holders do not need an International Driving Permit (IDP) as Cyprus is an EU
-                      member country
-                    </span>
+                    <span>{t("travelTip4")}</span>
                   </li>
                   <li className="flex gap-3">
                     <span className="text-primary mt-1 flex-shrink-0">•</span>
-                    <span>Cyprus uses the Euro (€) as currency</span>
+                    <span>{t("travelTip5")}</span>
                   </li>
                   <li className="flex gap-3">
                     <span className="text-primary mt-1 flex-shrink-0">•</span>
-                    <span>English is widely spoken in tourist areas</span>
+                    <span>{t("travelTip6")}</span>
                   </li>
                   <li className="flex gap-3">
                     <span className="text-primary mt-1 flex-shrink-0">•</span>
-                    <span>Remember to bring your passport and check visa requirements for Cyprus</span>
+                    <span>{t("travelTip7")}</span>
                   </li>
                 </ul>
               </div>
@@ -321,28 +301,28 @@ export default function TravelPage() {
                   onClick={() => setSortBy("name")}
                   className={sortBy === "name" ? "btn-primary" : "btn-secondary bg-transparent"}
                 >
-                  Sort by Name
+                  {t("sortByName")}
                 </Button>
                 <Button
                   variant={sortBy === "stars" ? "default" : "outline"}
                   onClick={() => setSortBy("stars")}
                   className={sortBy === "stars" ? "btn-primary" : "btn-secondary bg-transparent"}
                 >
-                  Sort by Star Rating
+                  {t("sortByStarRating")}
                 </Button>
                 <Button
                   variant={sortBy === "distance" ? "default" : "outline"}
                   onClick={() => setSortBy("distance")}
                   className={sortBy === "distance" ? "btn-primary" : "btn-secondary bg-transparent"}
                 >
-                  Sort by Distance
+                  {t("sortByDistance")}
                 </Button>
                 <Button
                   variant={sortBy === "price" ? "default" : "outline"}
                   onClick={() => setSortBy("price")}
                   className={sortBy === "price" ? "btn-primary" : "btn-secondary bg-transparent"}
                 >
-                  Sort by Price
+                  {t("sortByPrice")}
                 </Button>
               </div>
 

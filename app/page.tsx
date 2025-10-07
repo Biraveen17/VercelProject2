@@ -102,11 +102,19 @@ export default function HomePage() {
 
           {/* Names and Title */}
           <div className="text-center mb-16 space-y-6">
-            <h1 className="display-text island-moments">{t("brideFirstname")}</h1>
-            <h1 className="display-text island-moments">{t("brideSurname")}</h1>
+            <div className="space-y-0">
+              <h1 className="display-text island-moments">{t("groomFirstname")}</h1>
+              <h2 className="text-2xl md:text-3xl font-light island-moments text-primary/80 -mt-2">
+                {t("groomSurname")}
+              </h2>
+            </div>
             <h1 className="display-text island-moments">&</h1>
-            <h1 className="display-text island-moments">{t("brideFirstname")}</h1>
-            <h1 className="display-text island-moments">{t("brideSurname")}</h1>
+            <div className="space-y-0">
+              <h1 className="display-text island-moments">{t("brideFirstname")}</h1>
+              <h2 className="text-2xl md:text-3xl font-light island-moments text-primary/80 -mt-2">
+                {t("brideSurname")}
+              </h2>
+            </div>
             <div className="script text-4xl md:text-5xl text-primary">Wedding Invitation</div>
             {/*<p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>*/}
           </div>

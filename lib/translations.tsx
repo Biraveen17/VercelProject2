@@ -38,6 +38,7 @@ export interface Translation {
   welcomeTitle: string
   welcomeDescription1: string
   welcomeDescription2: string
+  welcomeDescription3: string
   ceremonyTitle: string
   ceremonyDate: string
   ceremonyTime: string
@@ -179,6 +180,33 @@ export interface Translation {
   questionsDescription: string
   viewWebsite: string
 
+  // Travel page - NEW CONTENT
+  transportContent1: string
+  transportContent2: string
+  transportDrivingTitle: string
+  transportDrivingBullet1: string
+  transportDrivingBullet2: string
+  transportBookingTitle: string
+  transportBookingText: string
+  transportCompaniesTitle: string
+  transportCompaniesText: string
+  transportLicenseTitle: string
+  transportLicenseText: string
+  transportHelpText: string
+
+  travelTip1: string
+  travelTip2: string
+  travelTip3: string
+  travelTip4: string
+  travelTip5: string
+  travelTip6: string
+  travelTip7: string
+
+  sortByName: string
+  sortByStarRating: string
+  sortByDistance: string
+  sortByPrice: string
+
   // RSVP
   rsvpTitle: string
   rsvpSubtitle: string
@@ -245,8 +273,7 @@ export const translations: Record<string, Translation> = {
     minutes: "Minutes",
     seconds: "Seconds",
     welcomeTitle: "Welcome to Our Wedding Celebration",
-    welcomeDescription1:
-      "Together with our families, we joyfully invite you to celebrate our Tamil Hindu wedding.",
+    welcomeDescription1: "Together with our families, we joyfully invite you to celebrate our Tamil Hindu wedding.",
     welcomeDescription2:
       "As we begin our journey together as husband and wife, we look forward to honouring our cherished Tamil traditions and creating new memories in the beautiful setting of Cyprus.",
     welcomeDescription3:
@@ -409,6 +436,36 @@ export const translations: Record<string, Translation> = {
     questionsDescription:
       "If you have any questions about travel arrangements, accommodations, or things to do in the area, please don't hesitate to reach out through your RSVP.",
     viewWebsite: "View Website",
+
+    // Travel page - NEW CONTENT
+    transportContent1: "We recommend hiring a rental car from the airport for the duration of your stay.",
+    transportContent2:
+      "There is no Uber service in Cyprus, and Bolt operates on a limited basis. Local taxis are an option, though they can be relatively expensive for everyday travel.",
+    transportDrivingTitle: "Driving in Cyprus:",
+    transportDrivingBullet1: "Driving is relaxed and on the left side of the road",
+    transportDrivingBullet2: "Speed limits: 50 km/h in towns, 80 km/h on open roads, 100 km/h on highways",
+    transportBookingTitle: "Booking Your Rental:",
+    transportBookingText: "We recommend booking in advance to get better prices. Good comparison websites include:",
+    transportCompaniesTitle: "Major Rental Companies:",
+    transportCompaniesText: "Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget, and others",
+    transportLicenseTitle: "Driving License:",
+    transportLicenseText:
+      "UK and EU driving license holders should not need an international driving permit as Cyprus is an EU member country. However, it's best to check with the rental company directly.",
+    transportHelpText: "If you need any help with booking your rental, please reach out to us directly.",
+
+    travelTip1: "Book accommodations early as March is a popular time to visit Cyprus",
+    travelTip2: "The weather in March is typically mild and pleasant with temperatures ranging from 60-70°F (15-21°C)",
+    travelTip3: "Driving is on the left-hand side of the road",
+    travelTip4:
+      "UK and EU licence holders do not need an International Driving Permit (IDP) as Cyprus is an EU member country",
+    travelTip5: "Cyprus uses the Euro (€) as currency",
+    travelTip6: "English is widely spoken in tourist areas",
+    travelTip7: "Remember to bring your passport and check visa requirements for Cyprus",
+
+    sortByName: "Sort by Name",
+    sortByStarRating: "Sort by Star Rating",
+    sortByDistance: "Sort by Distance",
+    sortByPrice: "Sort by Price",
 
     // RSVP
     rsvpTitle: "RSVP",
@@ -640,6 +697,37 @@ export const translations: Record<string, Translation> = {
       "Hvis du har spørgsmål om rejsearrangementer, indkvartering eller ting at lave i området, så tøv ikke med at kontakte os gennem din RSVP.",
     viewWebsite: "Se Hjemmeside",
 
+    // Travel page - NEW CONTENT
+    transportContent1: "Vi anbefaler stærkt at leje en bil fra lufthavnen i hele dit ophold.",
+    transportContent2:
+      "Der er ingen Uber-service på Cypern, og Bolt-tilgængeligheden er begrænset. Lokale taxaer er en mulighed, selvom de kan være relativt dyre til daglig transport.",
+    transportDrivingTitle: "Kørsel på Cypern:",
+    transportDrivingBullet1: "Kørsel er afslappet og på venstre side af vejen",
+    transportDrivingBullet2: "Hastighedsgrænserne: 50 km/t i byer, 80 km/t på åbne veje, 100 km/t på motorveje",
+    transportBookingTitle: "Booking af din leje:",
+    transportBookingText:
+      "Vi anbefaler at booke på forhånd for at få bedre priser. Gode sammenligningswebsteder inkluderer:",
+    transportCompaniesTitle: "Store udlejningsfirmaer:",
+    transportCompaniesText: "Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget og andre",
+    transportLicenseTitle: "Kørekort:",
+    transportLicenseText:
+      "Indehavere af UK og EU kørekort har ikke brug for et internationalt kørekort, da Cypern er et EU-medlemsland. Det er dog bedst at tjekke med udlejningsfirmaet direkte.",
+    transportHelpText: "Hvis du har brug for hjælp til at booke din leje, så kontakt os direkte.",
+
+    travelTip1: "Book indkvartering tidligt, da marts er en populær tid at besøge Cypern",
+    travelTip2: "Vejret i marts er typisk mildt og behageligt med temperaturer fra 15-21°C",
+    travelTip3: "Kørsel er på venstre side af vejen",
+    travelTip4:
+      "Indehavere af UK og EU kørekort har ikke brug for et internationalt kørekort (IDP), da Cypern er et EU-medlemsland",
+    travelTip5: "Cypern bruger Euro (€) som valuta",
+    travelTip6: "Engelsk tales bredt i turistområder",
+    travelTip7: "Husk at medbringe dit pas og tjek visumkrav for Cypern",
+
+    sortByName: "Sorter efter navn",
+    sortByStarRating: "Sorter efter stjernebedømmelse",
+    sortByDistance: "Sorter efter afstand",
+    sortByPrice: "Sorter efter pris",
+
     // RSVP
     rsvpTitle: "RSVP",
     rsvpSubtitle: "Lad os venligst vide, om du vil være med til vores særlige fejring",
@@ -705,8 +793,7 @@ export const translations: Record<string, Translation> = {
     minutes: "நிமிடங்கள்",
     seconds: "விநாடிகள்",
     welcomeTitle: "எங்கள் திருமண கொண்டாட்டத்திற்கு வரவேற்கிறோம்",
-    welcomeDescription1:
-      "எங்கள் குடும்பங்களுடன் இணைந்து, எங்கள் கல்யாணத்தை கொண்டாட, மகிழ்ச்சியுடன் உங்களை அழைக்கிறோம்.",
+    welcomeDescription1: "எங்கள் குடும்பங்களுடன் இணைந்து, எங்கள் கல்யாணத்தை கொண்டாட, மகிழ்ச்சியுடன் உங்களை அழைக்கிறோம்.",
     welcomeDescription2:
       "மணமக்கள் ஆகி எங்கள் வாழ்க்கை பயணத்தை தொடங்கும் இந்த தருணத்தில், எங்கள் மதிப்புமிக்க தமிழ் பாரம்பரியங்களை போற்றிக்கொண்டு, சைப்ரஸின் அழகிய சூழலில் புதிய நினைவுகளை உருவாக்கும் பொழுதை ஆவலுடன் எதிர்நோக்குகிறோம்.",
     welcomeDescription3:
@@ -870,6 +957,38 @@ export const translations: Record<string, Translation> = {
     questionsDescription:
       "பயண ஏற்பாடுகள், தங்குமிடம் அல்லது பகுதியில் செய்ய வேண்டிய விஷயங்கள் பற்றி உங்களுக்கு ஏதேனும் கேள்விகள் இருந்தால், உங்கள் RSVP மூலம் தொடர்பு கொள்ள தயங்க வேண்டாம்.",
     viewWebsite: "இணையதளத்தைப் பார்க்கவும்",
+
+    // Travel page - NEW CONTENT
+    transportContent1:
+      "உங்கள் தங்குமிடத்தின் காலத்திற்கு விமான நிலையத்திலிருந்து ஒரு வாடகை காரை வாடகைக்கு எடுப்பதை நாங்கள் மிகவும் பரிந்துரைக்கிறோம்.",
+    transportContent2:
+      "சைப்ரஸில் Uber சேவை இல்லை, மற்றும் Bolt குறைந்த அளவில் செயல்படுகிறது. உள்ளூர் டாக்சிகள் ஒரு விருப்பமாக இருந்தாலும், அவை தினசரி பயணத்திற்கு ஒப்பீட்டளவில் விலை அதிகமாக இருக்கலாம்.",
+    transportDrivingTitle: "சைப்ரஸில் வாகனம் ஓட்டுதல்:",
+    transportDrivingBullet1: "வாகனம் ஓட்டுவது நிதானமானது மற்றும் சாலையின் இடது பக்கத்தில் உள்ளது",
+    transportDrivingBullet2: "வேக வரம்புகள்: நகரங்களில் 50 km/h, திறந்த சாலைகளில் 80 km/h, நெடுஞ்சாலைகளில் 100 km/h",
+    transportBookingTitle: "உங்கள் வாடகையை முன்பதிவு செய்தல்:",
+    transportBookingText: "சிறந்த விலைகளைப் பெற முன்கூட்டியே முன்பதிவு செய்ய பரிந்துரைக்கிறோம். நல்ல ஒப்பீட்டு இணையதளங்கள்:",
+    transportCompaniesTitle: "முக்கிய வாடகை நிறுவனங்கள்:",
+    transportCompaniesText: "Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget மற்றும் பிறவை",
+    transportLicenseTitle: "ஓட்டுநர் உரிமம்:",
+    transportLicenseText:
+      "சைப்ரஸ் ஒரு EU உறுப்பு நாடாக இருப்பதால் UK மற்றும் EU ஓட்டுநர் உரிம வைத்திருப்பவர்களுக்கு சர்வதேச ஓட்டுநர் அனுமதி தேவையில்லை. இருப்பினும், வாடகை நிறுவனத்துடன் நேரடியாக சரிபார்ப்பது சிறந்தது.",
+    transportHelpText:
+      "உங்கள் வாடகையை முன்பதிவு செய்வதில் உங்களுக்கு ஏதேனும் உதவி தேவைப்பட்டால், தயவுசெய்து எங்களை நேரடியாக தொடர்பு கொள்ளுங்கள்.",
+
+    travelTip1: "மார்ச் சைப்ரஸைப் பார்வையிட பிரபலமான நேரமாக இருப்பதால் தங்குமிடத்தை முன்கூட்டியே முன்பதிவு செய்யுங்கள்",
+    travelTip2: "மார்ச் வானிலை பொதுவாக 15-21°C வெப்பநிலை வரம்புடன் மிதமானதாகவும் இனிமையானதாகவும் இருக்கும்",
+    travelTip3: "வாகனம் ஓட்டுவது சாலையின் இடது பக்கத்தில் உள்ளது",
+    travelTip4:
+      "சைப்ரஸ் ஒரு EU உறுப்பு நாடாக இருப்பதால் UK மற்றும் EU உரிம வைத்திருப்பவர்களுக்கு சர்வதேச ஓட்டுநர் அனுமதி (IDP) தேவையில்லை",
+    travelTip5: "சைப்ரஸ் யூரோ (€) ஐ நாணயமாகப் பயன்படுத்துகிறது",
+    travelTip6: "சுற்றுலா பகுதிகளில் ஆங்கிலம் பரவலாகப் பேசப்படுகிறது",
+    travelTip7: "உங்கள் பாஸ்போர்ட்டைக் கொண்டு வர நினைவில் கொள்ளுங்கள் மற்றும் சைப்ரஸுக்கான விசா தேவைகளைச் சரிபார்க்கவும்",
+
+    sortByName: "பெயர் வாரியாக வரிசைப்படுத்து",
+    sortByStarRating: "நட்சத்திர மதிப்பீடு வாரியாக வரிசைப்படுத்து",
+    sortByDistance: "தூரம் வாரியாக வரிசைப்படுத்து",
+    sortByPrice: "விலை வாரியாக வரிசைப்படுத்து",
 
     // RSVP
     rsvpTitle: "பதில்",
@@ -1108,6 +1227,39 @@ export const translations: Record<string, Translation> = {
     questionsDescription:
       "Si vous avez des questions sur les arrangements de voyage, l'hébergement ou les choses à faire dans la région, n'hésitez pas à nous contacter via votre RSVP.",
     viewWebsite: "Voir le Site Web",
+
+    // Travel page - NEW CONTENT
+    transportContent1: "Nous recommandons vivement de louer une voiture à l'aéroport pour la durée de votre séjour.",
+    transportContent2:
+      "Il n'y a pas de service Uber à Chypre et la disponibilité de Bolt est limitée. Les taxis locaux sont une option, bien qu'ils puissent être relativement chers pour les déplacements quotidiens.",
+    transportDrivingTitle: "Conduire à Chypre :",
+    transportDrivingBullet1: "La conduite est détendue et se fait sur le côté gauche de la route",
+    transportDrivingBullet2:
+      "Limitations de vitesse : 50 km/h en ville, 80 km/h sur les routes ouvertes, 100 km/h sur les autoroutes",
+    transportBookingTitle: "Réserver votre location :",
+    transportBookingText:
+      "Nous recommandons de réserver à l'avance pour obtenir de meilleurs prix. Les bons sites de comparaison incluent :",
+    transportCompaniesTitle: "Grandes sociétés de location :",
+    transportCompaniesText: "Enterprise, Alamo, Sixt, Hertz, Avis, Europcar, Budget et d'autres",
+    transportLicenseTitle: "Permis de conduire :",
+    transportLicenseText:
+      "Les titulaires de permis de conduire britanniques et européens ne devraient pas avoir besoin d'un permis de conduire international car Chypre est un pays membre de l'UE. Cependant, il est préférable de vérifier directement auprès de la société de location.",
+    transportHelpText:
+      "Si vous avez besoin d'aide pour réserver votre location, n'hésitez pas à nous contacter directement.",
+
+    travelTip1: "Réservez l'hébergement tôt car mars est une période populaire pour visiter Chypre",
+    travelTip2: "Le temps en mars est généralement doux et agréable avec des températures allant de 15 à 21°C",
+    travelTip3: "La conduite se fait sur le côté gauche de la route",
+    travelTip4:
+      "Les titulaires de permis britanniques et européens n'ont pas besoin d'un permis de conduire international (PCI) car Chypre est un pays membre de l'UE",
+    travelTip5: "Chypre utilise l'Euro (€) comme monnaie",
+    travelTip6: "L'anglais est largement parlé dans les zones touristiques",
+    travelTip7: "N'oubliez pas d'apporter votre passeport et de vérifier les exigences de visa pour Chypre",
+
+    sortByName: "Trier par nom",
+    sortByStarRating: "Trier par étoiles",
+    sortByDistance: "Trier par distance",
+    sortByPrice: "Trier par prix",
 
     // RSVP
     rsvpTitle: "RSVP",
