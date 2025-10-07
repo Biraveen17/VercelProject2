@@ -233,10 +233,11 @@
     }
   }
 
-  /* Add fixed background only on larger screens (desktop) */
+  /* Add laptop/desktop specific background with different image */
   @media (min-width: 1025px) {
     .floral-background::before {
       position: fixed;
+      background-image: url("/wedding-floral-background_laptop.jpg");
       background-attachment: fixed;
       background-size: cover;
       background-position: center;
