@@ -110,8 +110,8 @@ export default function HomePage() {
             </div>
             <h1 className="display-text island-moments">&</h1>
             <div className="space-y-0">
-              <h1 className="font-light island-moments uppercase">{t("brideFirstname")}</h1>
-              <h2 className="text-2xl md:text-3xl font-light island-moments text-primary/80 -mt-2 uppercase">
+              <h1 className="font-light cormorant uppercase">{t("brideFirstname")}</h1>
+              <h2 className="text-2xl md:text-3xl font-light cormorant text-primary/80 -mt-2 uppercase">
                 {t("brideSurname")}
               </h2>
             </div>
