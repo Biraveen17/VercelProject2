@@ -103,8 +103,8 @@ export default function HomePage() {
           {/* Names and Title */}
           <div className="text-center mb-16 space-y-6">
             <div className="space-y-0">
-              <h1 className="font-light island-moments uppercase">{t("groomFirstname")}</h1>
-              <h2 className="text-2xl md:text-3xl font-light island-moments text-primary/80 -mt-2 uppercase">
+              <h1 className="font-light cormorant">{t("groomFirstname")}</h1>
+              <h2 className="text-2xl md:text-3xl font-light cormorant text-primary/80 -mt-2">
                 {t("groomSurname")}
               </h2>
             </div>
