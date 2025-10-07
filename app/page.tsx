@@ -103,36 +103,24 @@ export default function HomePage() {
           {/* Names and Title */}
           <div className="text-center mb-16 space-y-6">
             <div className="space-y-0">
-              <h1 className="text-6xl md:text-8xl font-light cormorant-names uppercase">{t("groomFirstname")}</h1>
-              <h2 className="text-2xl md:text-3xl font-light cormorant-names text-primary/80 -mt-2 uppercase">
+              <h1 className="text-5xl md:text-6xl font-extralight cormorant-names uppercase tracking-widest text-primary/80">
+                {t("groomFirstname")}
+              </h1>
+              <h2 className="text-2xl md:text-3xl font-extralight cormorant-names text-primary/80 -mt-2 uppercase tracking-wider">
                 {t("groomSurname")}
               </h2>
             </div>
             <h1 className="display-text island-moments">&</h1>
             <div className="space-y-0">
-              <h1 className="text-6xl md:text-8xl font-light cormorant-names uppercase">{t("brideFirstname")}</h1>
-              <h2 className="text-2xl md:text-3xl font-light cormorant-names text-primary/80 -mt-2 uppercase">
+              <h1 className="text-5xl md:text-6xl font-extralight cormorant-names uppercase tracking-widest text-primary/80">
+                {t("brideFirstname")}
+              </h1>
+              <h2 className="text-2xl md:text-3xl font-extralight cormorant-names text-primary/80 -mt-2 uppercase tracking-wider">
                 {t("brideSurname")}
               </h2>
             </div>
             <div className="script text-4xl md:text-5xl text-primary">Wedding Invitation</div>
             {/*<p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>*/}
-          </div>
-
-          {/* Welcome Message */}
-          <div className="decorative-border rounded-2xl p-8 md:p-12 max-w-4xl mx-auto mb-16">
-            <div className="text-center space-y-6">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                {/*<Heart className="w-5 h-5 text-primary" />*/}
-                <span className="caption-text text-primary">{t("welcomeTitle")}</span>
-                {/*<Heart className="w-5 h-5 text-primary" />*/}
-              </div>
-              <div className="space-y-4 max-w-3xl mx-auto">
-                <p className="body-text text-lg leading-relaxed">{t("welcomeDescription1")}</p>
-                <p className="body-text text-lg leading-relaxed">{t("welcomeDescription2")}</p>
-                {/*<p className="body-text text-lg leading-relaxed">{t("welcomeDescription3")}</p>*/}
-              </div>
-            </div>
           </div>
 
           {/* Wedding Details */}

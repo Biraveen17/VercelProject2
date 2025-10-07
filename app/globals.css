@@ -171,7 +171,7 @@
   /* Cormorant SC font class for elegant names */
   .cormorant-names {
     font-family: var(--font-cormorant-sc);
-    font-weight: 300;
+    font-weight: 100;
     @apply text-primary;
   }
 
