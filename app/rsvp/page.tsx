@@ -106,6 +106,17 @@ export default function RSVPPage() {
     }
   }
 
+  const handleAttendanceSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (isAttending === "yes") {
+      // If attending, go to guest count selection
+      setStep(3)
+    } else {
+      // If not attending, skip to final form
+      setStep(4)
+    }
+  }
+
   const handleGuestCountSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (attendingGuestCount < 1 || attendingGuestCount > (searchResult?.guests?.length || 0)) {
@@ -113,7 +124,7 @@ export default function RSVPPage() {
       return
     }
     setError("")
-    setStep(3)
+    setStep(4)
   }
 
   const handleRSVPSubmit = async (e: React.FormEvent) => {
@@ -302,6 +313,76 @@ export default function RSVPPage() {
                 </p>
               </div>
 
+              <form onSubmit={handleAttendanceSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium mb-3">{t("willYouAttend")}</label>
+                  <div className="space-y-2">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="attending"
+                        value="yes"
+                        checked={isAttending === "yes"}
+                        onChange={(e) => setIsAttending(e.target.value)}
+                        className="mr-2"
+                        required
+                      />
+                      {t("yesAttending")}
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="attending"
+                        value="no"
+                        checked={isAttending === "no"}
+                        onChange={(e) => setIsAttending(e.target.value)}
+                        className="mr-2"
+                        required
+                      />
+                      {t("noAttending")}
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStep(1)
+                      setSearchResult(null)
+                      setIsAttending("")
+                      setError("")
+                    }}
+                    className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-md hover:bg-secondary/80 transition-colors"
+                  >
+                    {t("back")}
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors"
+                  >
+                    {t("continue")}
+                  </button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
+        {step === 3 && searchResult?.type === "group" && searchResult.guests && isAttending === "yes" && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold mb-2">
+                  {t("welcomeGuest", {
+                    name: searchResult.group?.name,
+                  })}
+                </h2>
+                <p className="text-muted-foreground mb-4">
+                  {t("groupTotalGuests", { size: searchResult.guests.length })}
+                </p>
+              </div>
+
               <form onSubmit={handleGuestCountSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="guestCount" className="block text-sm font-medium mb-3">
@@ -332,8 +413,7 @@ export default function RSVPPage() {
                   <button
                     type="button"
                     onClick={() => {
-                      setStep(1)
-                      setSearchResult(null)
+                      setStep(2)
                       setAttendingGuestCount(0)
                       setError("")
                     }}
@@ -354,7 +434,7 @@ export default function RSVPPage() {
           </Card>
         )}
 
-        {((step === 2 && searchResult?.type === "individual") || (step === 3 && searchResult?.type === "group")) &&
+        {((step === 2 && searchResult?.type === "individual") || (step === 4 && searchResult?.type === "group")) &&
           searchResult && (
             <Card>
               <CardContent className="p-6">
@@ -372,35 +452,37 @@ export default function RSVPPage() {
                 </div>
 
                 <form onSubmit={handleRSVPSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-3">{t("willYouAttend")}</label>
-                    <div className="space-y-2">
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="attending"
-                          value="yes"
-                          checked={isAttending === "yes"}
-                          onChange={(e) => setIsAttending(e.target.value)}
-                          className="mr-2"
-                          required
-                        />
-                        {t("yesAttending")}
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="attending"
-                          value="no"
-                          checked={isAttending === "no"}
-                          onChange={(e) => setIsAttending(e.target.value)}
-                          className="mr-2"
-                          required
-                        />
-                        {t("noAttending")}
-                      </label>
+                  {searchResult.type === "individual" && (
+                    <div>
+                      <label className="block text-sm font-medium mb-3">{t("willYouAttend")}</label>
+                      <div className="space-y-2">
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="attending"
+                            value="yes"
+                            checked={isAttending === "yes"}
+                            onChange={(e) => setIsAttending(e.target.value)}
+                            className="mr-2"
+                            required
+                          />
+                          {t("yesAttending")}
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="attending"
+                            value="no"
+                            checked={isAttending === "no"}
+                            onChange={(e) => setIsAttending(e.target.value)}
+                            className="mr-2"
+                            required
+                          />
+                          {t("noAttending")}
+                        </label>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {isAttending === "yes" && (
                     <>
@@ -467,7 +549,6 @@ export default function RSVPPage() {
                                         ? t("memberNamePlaceholder", { number: index + 1 })
                                         : guest.name
                                     }
-                                    readOnly={guest.guestType === "defined"}
                                   />
                                 </div>
                                 <div className="flex items-center gap-4 pl-[68px]">
@@ -592,15 +673,11 @@ export default function RSVPPage() {
                       type="button"
                       onClick={() => {
                         if (searchResult.type === "group") {
-                          setStep(2)
+                          setStep(isAttending === "yes" ? 3 : 2)
                         } else {
                           setStep(1)
                           setSearchResult(null)
                         }
-                        setIsAttending("")
-                        setEvents([])
-                        setDietaryRequirements("")
-                        setQuestions("")
                         setError("")
                       }}
                       className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-md hover:bg-secondary/80 transition-colors"
