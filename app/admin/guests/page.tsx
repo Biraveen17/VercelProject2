@@ -95,7 +95,7 @@ export default function GuestManagementPage() {
     lockStatus: "",
     createdDate: "",
     lastUpdatedDate: "",
-    removed: "no", // Default filter for removed to "no"
+    removed: "all", // Changed default from "no" to "all" to show removed guests by default
   })
 
   const loadData = async () => {
@@ -144,8 +144,9 @@ export default function GuestManagementPage() {
     const ungrouped: Guest[] = []
 
     const filteredGuests = guests.filter((guest) => {
-      if (guest.removed && filters.removed !== "yes") return false // Hide removed guests by default
-      if (!guest.removed && filters.removed === "yes") return false // Show only removed guests if filter is "yes"
+      if (filters.removed === "yes" && !guest.removed) return false // Show only removed guests
+      if (filters.removed === "no" && guest.removed) return false // Hide removed guests
+      // If filters.removed === "all", show both removed and non-removed guests
 
       if (filters.name && !guest.name.toLowerCase().includes(filters.name.toLowerCase())) return false
       if (filters.type && filters.type !== "all" && guest.guestType !== filters.type) return false
