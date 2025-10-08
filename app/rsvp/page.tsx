@@ -112,7 +112,7 @@ export default function RSVPPage() {
     if (isAttending === "yes") {
       setStep(3)
     } else {
-      setStep(5)
+      setStep(4)
     }
   }
 
@@ -123,13 +123,17 @@ export default function RSVPPage() {
       return
     }
     setError("")
-    setStep(4)
+    const totalGuests = searchResult?.guests?.length || 0
+    if (attendingGuestCount < totalGuests) {
+      setStep(5) // Go directly to guest details
+    } else {
+      setStep(4) // Show quick submit option
+    }
   }
 
   const handleQuickSubmit = async () => {
     const totalGuests = searchResult?.guests?.length || 0
 
-    // Only allow quick submit if all guests are attending
     if (attendingGuestCount !== totalGuests) {
       setError("You must enter guest details when not all guests are attending")
       return
@@ -160,7 +164,7 @@ export default function RSVPPage() {
       const response = await fetch("/api/guests/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.JSON.stringify(requestBody),
+        body: JSON.stringify(requestBody),
       })
 
       const data = await response.json()
@@ -181,7 +185,11 @@ export default function RSVPPage() {
   }
 
   const getGuestSuggestions = (guestId: string, inputValue: string) => {
-    if (!searchResult?.guests || !inputValue.trim()) return []
+    if (!searchResult?.guests) return []
+
+    if (!inputValue || !inputValue.trim()) {
+      return searchResult.guests.map((g) => g.name).filter((name) => name && name.trim())
+    }
 
     const normalizedInput = inputValue.toLowerCase().trim()
     return searchResult.guests.filter((g) => g.name.toLowerCase().includes(normalizedInput)).map((g) => g.name)
@@ -293,7 +301,6 @@ export default function RSVPPage() {
       }
 
       setSuccess(true)
-      // setStep(3) // This was incorrect, success state handles redirection
     } catch (error) {
       console.error("Error submitting RSVP:", error)
       setError("An error occurred while submitting. Please try again.")
@@ -370,7 +377,6 @@ export default function RSVPPage() {
           </Card>
         )}
 
-        {/* Step 2: Attendance question for groups */}
         {step === 2 && searchResult?.type === "group" && searchResult.guests && (
           <Card>
             <CardContent className="p-6">
@@ -437,7 +443,6 @@ export default function RSVPPage() {
           </Card>
         )}
 
-        {/* Step 3: Guest count selection */}
         {step === 3 && searchResult?.type === "group" && searchResult.guests && isAttending === "yes" && (
           <Card>
             <CardContent className="p-6">
@@ -510,22 +515,14 @@ export default function RSVPPage() {
               </div>
 
               <div className="space-y-4">
-                {attendingGuestCount < (searchResult.guests?.length || 0) && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-                    <p className="text-sm text-amber-800">{t("guestDetailsRequired")}</p>
-                  </div>
-                )}
-
                 <div className="grid gap-4">
-                  {attendingGuestCount === (searchResult.guests?.length || 0) && (
-                    <button
-                      onClick={handleQuickSubmit}
-                      disabled={isLoading}
-                      className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                    >
-                      {isLoading ? "Submitting..." : t("submitWithoutDetails")}
-                    </button>
-                  )}
+                  <button
+                    onClick={handleQuickSubmit}
+                    disabled={isLoading}
+                    className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    {isLoading ? "Submitting..." : t("submitWithoutDetails")}
+                  </button>
 
                   <button
                     onClick={() => setStep(5)}
@@ -551,7 +548,6 @@ export default function RSVPPage() {
           </Card>
         )}
 
-        {/* Step 5: Full RSVP form (individual or group with details) */}
         {((step === 2 && searchResult?.type === "individual") || (step === 5 && searchResult?.type === "group")) &&
           searchResult && (
             <Card>
@@ -675,7 +671,7 @@ export default function RSVPPage() {
                                       placeholder={guest.name || t("memberNamePlaceholder", { number: index + 1 })}
                                       required
                                     />
-                                    {showSuggestions[guest._id] && guestNames[guest._id] && (
+                                    {showSuggestions[guest._id] && (
                                       <div className="absolute z-10 w-full mt-1 bg-background border border-input rounded-md shadow-lg max-h-40 overflow-y-auto">
                                         {getGuestSuggestions(guest._id, guestNames[guest._id]).map(
                                           (suggestion, idx) => (
@@ -745,11 +741,11 @@ export default function RSVPPage() {
                               onChange={(e) => {
                                 setGuestChildStatus({
                                   ...guestChildStatus,
-                                  [searchResult.guest!._id]: e.target.checked,
+                                  [searchResult.guest._id]: e.target.checked,
                                 })
                                 if (!e.target.checked) {
                                   const newAgeGroups = { ...guestAgeGroups }
-                                  delete newAgeGroups[searchResult.guest!._id]
+                                  delete newAgeGroups[searchResult.guest._id]
                                   setGuestAgeGroups(newAgeGroups)
                                 }
                               }}
@@ -767,7 +763,7 @@ export default function RSVPPage() {
                                 onChange={(e) => {
                                   setGuestAgeGroups({
                                     ...guestAgeGroups,
-                                    [searchResult.guest!._id]: e.target.value,
+                                    [searchResult.guest._id]: e.target.value,
                                   })
                                 }}
                                 className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
