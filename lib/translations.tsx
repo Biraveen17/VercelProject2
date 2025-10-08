@@ -210,20 +210,53 @@ export interface Translation {
   // RSVP
   rsvpTitle: string
   rsvpSubtitle: string
+  enterYourName: string // New field
   enterName: string
   namePlaceholder: string
+  findMyInvitation: string // New field
   findGuest: string
+  searching: string // New field
   welcomeGuest: string
   groupBooking: string
+  groupSize: string // New field
+  guests: string // New field
   groupTotalGuests: string
   howManyAttending: string
   selectGuestCount: string
+  numberOfGuests: string // New field
+  selectNumber: string // New field
+  guest: string // New field
   guestCountPlaceholder: string
+  continue: string // New field
   continueToDetails: string
+  confirmAttendance: string // New field
+  attending: string // New field
   submitWithoutDetails: string
   enterGuestDetails: string
   guestDetailsRequired: string
   selectFromGroup: string
+  willYouAttend: string
+  yesAttending: string
+  noAttending: string
+  whichEvents: string
+  ceremonyEvent: string
+  receptionEvent: string
+  groupMemberNames: string
+  memberNamePlaceholder: string
+  dietaryRequirements: string
+  dietaryPlaceholder: string
+  questionsComments: string
+  questionsPlaceholder: string
+  submitRSVP: string
+  submitting: string // New field
+  confirmRemoval: string // New field
+  confirmRemovalMessage: string // New field
+  confirmRemovalList: string // New field
+  confirmSubmit: string // New field
+  thankYouTitle: string
+  thankYouAttending: string
+  thankYouNotAttending: string
+  backToHome: string
 }
 
 export const translations: Record<string, Translation> = {
@@ -462,16 +495,27 @@ export const translations: Record<string, Translation> = {
     // RSVP
     rsvpTitle: "RSVP",
     rsvpSubtitle: "Please let us know if you'll be joining us for our special celebration",
+    enterYourName: "Enter Your Name",
     enterName: "Enter Your Name",
     namePlaceholder: "Enter your full name as it appears on the invitation",
+    findMyInvitation: "Find My Invitation",
     findGuest: "Find Guest",
+    searching: "Searching...",
     welcomeGuest: "Welcome, {name}!",
     groupBooking: "Group RSVP for up to {size} people",
+    groupSize: "Group size",
+    guests: "guests",
     groupTotalGuests: "Your group has {size} guests in total",
     howManyAttending: "How many guests from your group will be attending?",
     selectGuestCount: "Select number of guests",
+    numberOfGuests: "Number of Guests",
+    selectNumber: "Select number",
+    guest: "guest",
     guestCountPlaceholder: "Choose number of attending guests",
+    continue: "Continue",
     continueToDetails: "Continue to Guest Details",
+    confirmAttendance: "Confirm Attendance",
+    attending: "attending",
     submitWithoutDetails: "Submit RSVP without Details",
     enterGuestDetails: "Enter Guest Details",
     guestDetailsRequired: "Guest details are required for this group size.",
@@ -489,6 +533,11 @@ export const translations: Record<string, Translation> = {
     questionsComments: "Questions or Comments",
     questionsPlaceholder: "Do you have any questions about the wedding, travel, or accommodation? We're here to help!",
     submitRSVP: "Submit RSVP",
+    submitting: "Submitting...",
+    confirmRemoval: "Confirm Guest Removal",
+    confirmRemovalMessage: "The following guests will be marked as removed from your group:",
+    confirmRemovalList: "Are you sure you want to continue?",
+    confirmSubmit: "Yes, Submit RSVP",
     thankYouTitle: "Thank You!",
     thankYouAttending: "Your RSVP has been received. We're excited to celebrate with you!",
     thankYouNotAttending: "Your RSVP has been received. We're sorry to hear you can't make it!",
@@ -732,16 +781,27 @@ export const translations: Record<string, Translation> = {
     // RSVP
     rsvpTitle: "RSVP",
     rsvpSubtitle: "Lad os venligst vide, om du vil være med til vores særlige fejring",
+    enterYourName: "Indtast dit navn",
     enterName: "Indtast Dit Navn",
     namePlaceholder: "Indtast dit fulde navn, som det står på invitationen",
+    findMyInvitation: "Find Min Invitation",
     findGuest: "Find Gæst",
+    searching: "Søger...",
     welcomeGuest: "Velkommen, {name}!",
     groupBooking: "Gruppetilmelding til op til {size} personer",
+    groupSize: "Gruppestørrelse",
+    guests: "gæster",
     groupTotalGuests: "Din gruppe har {size} gæster i alt",
     howManyAttending: "Hvor mange gæster fra din gruppe vil deltage?",
     selectGuestCount: "Vælg antal gæster",
+    numberOfGuests: "Antal Gæster",
+    selectNumber: "Vælg nummer",
+    guest: "gæst",
     guestCountPlaceholder: "Vælg antal deltagende gæster",
+    continue: "Fortsæt",
     continueToDetails: "Fortsæt til gæstedetaljer",
+    confirmAttendance: "Bekræft Deltagelse",
+    attending: "deltager",
     submitWithoutDetails: "Send RSVP uden detaljer",
     enterGuestDetails: "Indtast gæstedetaljer",
     guestDetailsRequired: "Gæstedetaljer er påkrævet for denne gruppestørrelse.",
@@ -759,6 +819,11 @@ export const translations: Record<string, Translation> = {
     questionsComments: "Spørgsmål eller Kommentarer",
     questionsPlaceholder: "Har du spørgsmål om brylluppet, rejse eller indkvartering? Vi er her for at hjælpe!",
     submitRSVP: "Send RSVP",
+    submitting: "Sender...",
+    confirmRemoval: "Bekræft Fjernelse af Gæst",
+    confirmRemovalMessage: "Følgende gæster vil blive markeret som fjernet fra din gruppe:",
+    confirmRemovalList: "Er du sikker på, at du vil fortsætte?",
+    confirmSubmit: "Ja, Send RSVP",
     thankYouTitle: "Tak!",
     thankYouAttending: "Dit RSVP er modtaget. Vi glæder os til at fejre med dig!",
     thankYouNotAttending: "Dit RSVP er modtaget. Vi er kede af at høre, at du ikke kan komme!",
@@ -965,7 +1030,7 @@ export const translations: Record<string, Translation> = {
       "• மார்ச் சைப்ரஸைப் பார்வையிட பிரபலமான நேரமாக இருப்பதால் தங்குமிடத்தை முன்கூட்டியே முன்பதிவு செய்யுங்கள்\n• மார்ச் வானிலை பொதுவாக 15-21°C வெப்பநிலை வரம்புடன் மிதமானதாகவும் இனிமையானதாகவும் இருக்கும்\n• வாகனம் ஓட்டுவது சாலையின் இடது பக்கத்தில் உள்ளது\n• சைப்ரஸ் ஒரு EU உறுப்பு நாடாக இருப்பதால் UK மற்றும் EU உரிம வைத்திருப்பவர்களுக்கு சர்வதேச ஓட்டுநர் அனுமதி (IDP) தேவையில்லை\n• சைப்ரஸ் யூரோ (€) ஐ நாணயமாகப் பயன்படுத்துகிறது\n• சுற்றுலா பகுதிகளில் ஆங்கிலம் பரவலாகப் பேசப்படுகிறது\n• உங்கள் பாஸ்போர்ட்டைக் கொண்டு வர நினைவில் கொள்ளுங்கள் மற்றும் சைப்ரஸுக்கான விசா தேவைகளைச் சரிபார்க்கவும்",
     questionsTitle: "பயணம் பற்றி கேள்விகள்?",
     questionsDescription:
-      "பயண ஏற்பாடுகள், தங்குமிடம் அல்லது பகுதியில் செய்ய வேண்டிய விஷயங்கள் பற்றி உங்களுக்கு ஏதேனும் கேள்விகள் இருந்தால், உங்கள் RSVP மூலம் தொடர்பு கொள்ள தயங்க வேண்டாம்.",
+      "பயண ஏற்பாடுகள், தங்குமிடம் அல்லது பகுதியில் செய்ய வேண்டியவை பற்றி உங்களுக்கு ஏதேனும் கேள்விகள் இருந்தால், உங்கள் RSVP மூலம் தொடர்பு கொள்ள தயங்க வேண்டாம்.",
     viewWebsite: "இணையதளத்தைப் பார்க்கவும்",
 
     // Travel page - NEW CONTENT
@@ -1003,16 +1068,27 @@ export const translations: Record<string, Translation> = {
     // RSVP
     rsvpTitle: "பதில்",
     rsvpSubtitle: "எங்கள் சிறப்பு கொண்டாட்டத்தில் நீங்கள் சேருவீர்களா என்பதை எங்களுக்குத் தெரியப்படுத்துங்கள்",
+    enterYourName: "உங்கள் பெயரை உள்ளிடவும்",
     enterName: "உங்கள் பெயரை உள்ளிடுங்கள்",
     namePlaceholder: "அழைப்பிதழில் உள்ளது போல் உங்கள் முழு பெயரை உள்ளிடுங்கள்",
+    findMyInvitation: "எனது அழைப்பிதழைக் கண்டறியவும்",
     findGuest: "விருந்தினரைக் கண்டறியுங்கள்",
+    searching: "தேடுகிறது...",
     welcomeGuest: "வரவேற்கிறோம், {name}!",
     groupBooking: "குழு வருகை உறுதிப்படுத்தல் {size} பேர் வரை",
+    groupSize: "குழு அளவு",
+    guests: "விருந்தினர்கள்",
     groupTotalGuests: "உங்கள் குழுவில் மொத்தம் {size} விருந்தினர்கள் உள்ளனர்",
     howManyAttending: "உங்கள் குழுவிலிருந்து எத்தனை விருந்தினர்கள் கலந்துகொள்வார்கள்?",
     selectGuestCount: "விருந்தினர்களின் எண்ணிக்கையைத் தேர்ந்தெடுக்கவும்",
+    numberOfGuests: "விருந்தினர்களின் எண்ணிக்கை",
+    selectNumber: "எண்ணிக்கையைத் தேர்ந்தெடுக்கவும்",
+    guest: "விருந்தினர்",
     guestCountPlaceholder: "கலந்துகொள்ளும் விருந்தினர்களின் எண்ணிக்கையைத் தேர்வுசெய்யவும்",
+    continue: "தொடரவும்",
     continueToDetails: "விருந்தினர் விவரங்களுக்குத் தொடரவும்",
+    confirmAttendance: "வருகையை உறுதிப்படுத்தவும்",
+    attending: "கலந்துகொள்கிறார்",
     submitWithoutDetails: "விவரங்கள் இல்லாமல் RSVP ஐ சமர்ப்பிக்கவும்",
     enterGuestDetails: "விருந்தினர் விவரங்களை உள்ளிடவும்",
     guestDetailsRequired: "இந்த குழு அளவிற்கு விருந்தினர் விவரங்கள் தேவை.",
@@ -1030,6 +1106,11 @@ export const translations: Record<string, Translation> = {
     questionsComments: "கேள்விகள் அல்லது கருத்துக்கள்",
     questionsPlaceholder: "திருமணம், பயணம் அல்லது தங்குமிடம் பற்றி உங்களுக்கு ஏதேனும் கேள்விகள் உள்ளதா? நாங்கள் உதவ இங்கே இருக்கிறோம்!",
     submitRSVP: "பதில் சமர்ப்பி",
+    submitting: "சமர்ப்பிக்கிறது...",
+    confirmRemoval: "விருந்தினர் நீக்கத்தை உறுதிப்படுத்தவும்",
+    confirmRemovalMessage: "பின்வரும் விருந்தினர்கள் உங்கள் குழுவிலிருந்து நீக்கப்பட்டதாகக் குறிக்கப்படுவார்கள்:",
+    confirmRemovalList: "தொடர விரும்புகிறீர்களா?",
+    confirmSubmit: "ஆம், RSVP ஐ சமர்ப்பி",
     thankYouTitle: "நன்றி!",
     thankYouAttending: "உங்கள் பதில் பெறப்பட்டது. உங்களுடன் கொண்டாட நாங்கள் மகிழ்ச்சியடைகிறோம்!",
     thankYouNotAttending: "உங்கள் பதில் பெறப்பட்டது. நீங்கள் வர முடியாது என்று கேட்டு வருந்துகிறோம்!",
@@ -1283,16 +1364,27 @@ export const translations: Record<string, Translation> = {
     // RSVP
     rsvpTitle: "RSVP",
     rsvpSubtitle: "Veuillez nous faire savoir si vous nous rejoindrez pour notre célébration spéciale",
+    enterYourName: "Entrez Votre Nom",
     enterName: "Entrez Votre Nom",
     namePlaceholder: "Entrez votre nom complet tel qu'il apparaît sur l'invitation",
+    findMyInvitation: "Trouver Mon Invitation",
     findGuest: "Trouver l'Invité",
+    searching: "Recherche en cours...",
     welcomeGuest: "Bienvenue, {name} !",
     groupBooking: "Réponse groupée pour jusqu'à {size} personnes",
+    groupSize: "Taille du groupe",
+    guests: "invités",
     groupTotalGuests: "Votre groupe compte {size} invités au total",
     howManyAttending: "Combien d'invités de votre groupe assisteront?",
     selectGuestCount: "Sélectionner le nombre d'invités",
+    numberOfGuests: "Nombre d'invités",
+    selectNumber: "Sélectionner le nombre",
+    guest: "invité",
     guestCountPlaceholder: "Choisir le nombre d'invités présents",
+    continue: "Continuer",
     continueToDetails: "Continuer vers les détails des invités",
+    confirmAttendance: "Confirmer la Participation",
+    attending: "participant",
     submitWithoutDetails: "Soumettre RSVP sans détails",
     enterGuestDetails: "Entrer les détails des invités",
     guestDetailsRequired: "Les détails des invités sont requis pour cette taille de groupe.",
@@ -1312,6 +1404,11 @@ export const translations: Record<string, Translation> = {
     questionsPlaceholder:
       "Avez-vous des questions sur le mariage, le voyage ou l'hébergement ? Nous sommes là pour vous aider !",
     submitRSVP: "Soumettre RSVP",
+    submitting: "Soumission en cours...",
+    confirmRemoval: "Confirmer la Suppression de l'Invité",
+    confirmRemovalMessage: "Les invités suivants seront marqués comme supprimés de votre groupe :",
+    confirmRemovalList: "Êtes-vous sûr de vouloir continuer ?",
+    confirmSubmit: "Oui, Soumettre RSVP",
     thankYouTitle: "Merci !",
     thankYouAttending: "Votre RSVP a été reçu. Nous sommes excités de célébrer avec vous !",
     thankYouNotAttending: "Votre RSVP a été reçu. Nous sommes désolés d'apprendre que vous ne pouvez pas venir !",

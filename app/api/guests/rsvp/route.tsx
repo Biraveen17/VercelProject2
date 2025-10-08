@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
       console.log("[v0] Attending guests:", attendingGuestNames)
       console.log("[v0] Removed guests:", removedGuestNames)
 
-      // Mark removed guests with removed flag
       for (const originalGuest of originalGuests) {
         const originalName = originalGuest.name.toLowerCase().trim()
         if (removedGuestNames.includes(originalName)) {
@@ -33,6 +32,7 @@ export async function POST(request: NextRequest) {
             {
               $set: {
                 removed: true,
+                lockStatus: "locked",
                 lastUpdated: new Date().toISOString(),
               },
             },
@@ -50,7 +50,6 @@ export async function POST(request: NextRequest) {
         )
 
         if (matchingOriginalGuest) {
-          // Update existing guest
           console.log("[v0] Updating existing guest:", attendingName)
           const updateData: any = {
             rsvpStatus: isAttending ? "attending" : "not-attending",
@@ -59,7 +58,8 @@ export async function POST(request: NextRequest) {
             questions: questions || "",
             isChild: attendingGuest.isChild || false,
             ageGroup: attendingGuest.isChild && attendingGuest.ageGroup ? attendingGuest.ageGroup : undefined,
-            removed: false, // Ensure removed flag is false for attending guests
+            removed: false,
+            lockStatus: "locked",
             lastUpdated: new Date().toISOString(),
           }
 
@@ -106,6 +106,7 @@ export async function POST(request: NextRequest) {
             dietaryRequirements: isAttending ? dietaryRequirements : "",
             questions: questions || "",
             removed: false,
+            lockStatus: "locked",
             createdAt: new Date().toISOString(),
             lastUpdated: new Date().toISOString(),
           }
@@ -144,6 +145,7 @@ export async function POST(request: NextRequest) {
             questions: questions || "",
             isChild: isChild || false,
             ageGroup: isChild && ageGroup ? ageGroup : undefined,
+            lockStatus: "locked",
             lastUpdated: timestamp,
           },
         },

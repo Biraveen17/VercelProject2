@@ -5,6 +5,16 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useLanguage } from "@/lib/language-context"
 import { PageTracker } from "@/components/page-tracker"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface Guest {
   _id: string
@@ -48,6 +58,8 @@ export default function RSVPPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [showRemovalConfirmation, setShowRemovalConfirmation] = useState(false)
+  const [guestsToRemove, setGuestsToRemove] = useState<string[]>([])
 
   const handleGuestSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -148,6 +160,33 @@ export default function RSVPPage() {
       }
     }
 
+    if (searchResult?.type === "group" && searchResult.guests) {
+      const attendingGuests = Array.from({ length: attendingGuestCount }).map((_, index) => {
+        const tempId = `temp-${index}`
+        return {
+          name: guestNames[tempId] || "",
+          isChild: guestChildStatus[tempId] || false,
+          ageGroup: guestChildStatus[tempId] && guestAgeGroups[tempId] ? guestAgeGroups[tempId] : undefined,
+        }
+      })
+
+      const originalGuestNames = searchResult.guests.map((g) => g.name.toLowerCase().trim())
+      const attendingGuestNames = attendingGuests.map((g) => g.name.toLowerCase().trim())
+      const removedNames = searchResult.guests
+        .filter((g) => !attendingGuestNames.includes(g.name.toLowerCase().trim()))
+        .map((g) => g.name)
+
+      if (removedNames.length > 0) {
+        setGuestsToRemove(removedNames)
+        setShowRemovalConfirmation(true)
+        return
+      }
+    }
+
+    await submitRSVP()
+  }
+
+  const submitRSVP = async () => {
     setIsLoading(true)
 
     try {
@@ -244,6 +283,37 @@ export default function RSVPPage() {
   return (
     <div className="min-h-screen py-12">
       <PageTracker pageName="rsvp" />
+
+      <AlertDialog open={showRemovalConfirmation} onOpenChange={setShowRemovalConfirmation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("confirmRemoval")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("confirmRemovalMessage")}
+              <ul className="mt-2 list-disc list-inside">
+                {guestsToRemove.map((name, index) => (
+                  <li key={index} className="font-medium">
+                    {name}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2">{t("confirmRemovalList")}</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowRemovalConfirmation(false)
+                submitRSVP()
+              }}
+            >
+              {t("confirmSubmit")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="max-w-2xl mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="display-text mb-6">{t("rsvpTitle")}</h1>
