@@ -101,10 +101,10 @@ export default function HomePage() {
           </div>
 
           {/* Names and Title */}
-          <div className="text-center mb-16 space-y-6">
+          <div className="text-center mb-32 space-y-6">
             <div className="space-y-0">
-              <h1 className="text-5xl md:text-8xl font-normal cormorant uppercase" style={{ letterSpacing: '0.2em' }}>{t("groomFirstname")}</h1>
-              <h2 className="text-2xl md:text-5xl font-normal cormorant text-primary/80 -mt-2 uppercase" style={{ letterSpacing: '0.1em' }}>
+              <h1 className="text-5xl md:text-8xl font-light cormorant uppercase" style={{ letterSpacing: '0.2em' }}>{t("groomFirstname")}</h1>
+              <h2 className="text-2xl md:text-5xl font-light cormorant text-primary/80 -mt-2 uppercase" style={{ letterSpacing: '0.1em' }}>
                 {t("groomSurname")}
               </h2>
             </div>

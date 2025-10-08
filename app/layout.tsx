@@ -34,7 +34,7 @@ const islandMoments = Island_Moments({
 
 const cormorant = Cormorant({
   variable: "--font-cormorant",
-  weight: ['400'],
+  weight: ['300'],
   subsets: ['latin'],
   display: 'swap',
 });
