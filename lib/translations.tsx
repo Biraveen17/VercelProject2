@@ -215,23 +215,11 @@ export interface Translation {
   findGuest: string
   welcomeGuest: string
   groupBooking: string
-  willYouAttend: string
-  yesAttending: string
-  noAttending: string
-  whichEvents: string
-  ceremonyEvent: string
-  receptionEvent: string
-  groupMemberNames: string
-  memberNamePlaceholder: string
-  dietaryRequirements: string
-  dietaryPlaceholder: string
-  questionsComments: string
-  questionsPlaceholder: string
-  submitRSVP: string
-  thankYouTitle: string
-  thankYouAttending: string
-  thankYouNotAttending: string
-  backToHome: string
+  groupTotalGuests: string
+  howManyAttending: string
+  selectGuestCount: string
+  guestCountPlaceholder: string
+  continueToDetails: string
 }
 
 export const translations: Record<string, Translation> = {
@@ -440,7 +428,7 @@ export const translations: Record<string, Translation> = {
     // Travel page - NEW CONTENT
     transportContent1: "We recommend hiring a rental car from the airport for the duration of your stay.",
     transportContent2:
-      "There is no Uber service in Cyprus, and Bolt operates on a limited basis. Local taxis are an option, though they can be relatively expensive for everyday travel.",
+      "There is no Uber service in Cyprus, and Bolt operates on a limited basis. Local taxi companies may be pricey for getting around daily.",
     transportDrivingTitle: "Driving in Cyprus:",
     transportDrivingBullet1: "Driving is relaxed and on the left side of the road",
     transportDrivingBullet2: "Speed limits: 50 km/h in towns, 80 km/h on open roads, 100 km/h on highways",
@@ -475,6 +463,11 @@ export const translations: Record<string, Translation> = {
     findGuest: "Find Guest",
     welcomeGuest: "Welcome, {name}!",
     groupBooking: "Group RSVP for up to {size} people",
+    groupTotalGuests: "Your group has {size} guests in total",
+    howManyAttending: "How many guests from your group will be attending?",
+    selectGuestCount: "Select number of guests",
+    guestCountPlaceholder: "Choose number of attending guests",
+    continueToDetails: "Continue to Guest Details",
     willYouAttend: "Will you be attending our wedding?",
     yesAttending: "Yes, I'll be there! 🎉",
     noAttending: "Sorry, I can't make it",
@@ -736,6 +729,11 @@ export const translations: Record<string, Translation> = {
     findGuest: "Find Gæst",
     welcomeGuest: "Velkommen, {name}!",
     groupBooking: "Gruppetilmelding til op til {size} personer",
+    groupTotalGuests: "Din gruppe har {size} gæster i alt",
+    howManyAttending: "Hvor mange gæster fra din gruppe vil deltage?",
+    selectGuestCount: "Vælg antal gæster",
+    guestCountPlaceholder: "Vælg antal deltagende gæster",
+    continueToDetails: "Fortsæt til gæstedetaljer",
     willYouAttend: "Vil du deltage i vores bryllup?",
     yesAttending: "Ja, jeg kommer! 🎉",
     noAttending: "Beklager, jeg kan ikke komme",
@@ -998,6 +996,11 @@ export const translations: Record<string, Translation> = {
     findGuest: "விருந்தினரைக் கண்டறியுங்கள்",
     welcomeGuest: "வரவேற்கிறோம், {name}!",
     groupBooking: "{size} பேர் வரையிலான குழு வருகை உறுதிப்படுத்தல்",
+    groupTotalGuests: "உங்கள் குழுவில் மொத்தம் {size} விருந்தினர்கள் உள்ளனர்",
+    howManyAttending: "உங்கள் குழுவிலிருந்து எத்தனை விருந்தினர்கள் கலந்துகொள்வார்கள்?",
+    selectGuestCount: "விருந்தினர்களின் எண்ணிக்கையைத் தேர்ந்தெடுக்கவும்",
+    guestCountPlaceholder: "கலந்துகொள்ளும் விருந்தினர்களின் எண்ணிக்கையைத் தேர்வுசெய்யவும்",
+    continueToDetails: "விருந்தினர் விவரங்களுக்குத் தொடரவும்",
     willYouAttend: "நீங்கள் எங்கள் திருமணத்தில் கலந்துகொள்வீர்களா?",
     yesAttending: "ஆம், நான் வருவேன்! 🎉",
     noAttending: "மன்னிக்கவும், என்னால் வர முடியாது",
@@ -1269,6 +1272,11 @@ export const translations: Record<string, Translation> = {
     findGuest: "Trouver l'Invité",
     welcomeGuest: "Bienvenue, {name} !",
     groupBooking: "Réponse groupée pour jusqu'à {size} personnes",
+    groupTotalGuests: "Votre groupe compte {size} invités au total",
+    howManyAttending: "Combien d'invités de votre groupe assisteront?",
+    selectGuestCount: "Sélectionner le nombre d'invités",
+    guestCountPlaceholder: "Choisir le nombre d'invités présents",
+    continueToDetails: "Continuer vers les détails des invités",
     willYouAttend: "Assisterez-vous à notre mariage ?",
     yesAttending: "Oui, je serai là ! 🎉",
     noAttending: "Désolé, je ne peux pas venir",
