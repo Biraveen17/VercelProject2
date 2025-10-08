@@ -80,7 +80,7 @@ export default function RSVPPage() {
         const initialChildStatus: { [key: string]: boolean } = {}
         const initialAgeGroups: { [key: string]: string } = {}
         data.guests.forEach((guest: Guest) => {
-          initialNames[guest._id] = guest.guestType === "tbc" ? "" : guest.name
+          initialNames[guest._id] = ""
           initialChildStatus[guest._id] = guest.isChild
           initialAgeGroups[guest._id] = guest.ageGroup || ""
         })
@@ -107,94 +107,6 @@ export default function RSVPPage() {
     }
   }
 
-  const handleAttendanceSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (isAttending === "yes") {
-      setStep(3)
-    } else {
-      setStep(4)
-    }
-  }
-
-  const handleGuestCountSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (attendingGuestCount < 1 || attendingGuestCount > (searchResult?.guests?.length || 0)) {
-      setError(`Please select a number between 1 and ${searchResult?.guests?.length}`)
-      return
-    }
-    setError("")
-    const totalGuests = searchResult?.guests?.length || 0
-    if (attendingGuestCount < totalGuests) {
-      setStep(5) // Go directly to guest details
-    } else {
-      setStep(4) // Show quick submit option
-    }
-  }
-
-  const handleQuickSubmit = async () => {
-    const totalGuests = searchResult?.guests?.length || 0
-
-    if (attendingGuestCount !== totalGuests) {
-      setError("You must enter guest details when not all guests are attending")
-      return
-    }
-
-    setIsLoading(true)
-    setError("")
-
-    try {
-      const guests = searchResult?.guests?.map((guest) => ({
-        _id: guest._id,
-        name: guest.name,
-        guestType: guest.guestType,
-        isChild: guest.isChild,
-        ageGroup: guest.ageGroup,
-      }))
-
-      const requestBody = {
-        type: "group",
-        groupId: searchResult?.group?._id,
-        isAttending: true,
-        events: events.length > 0 ? events : ["wedding", "reception"],
-        dietaryRequirements: "",
-        questions: questions,
-        guests: guests,
-      }
-
-      const response = await fetch("/api/guests/rsvp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error || "Failed to submit RSVP")
-        setIsLoading(false)
-        return
-      }
-
-      setSuccess(true)
-    } catch (error) {
-      console.error("Error submitting RSVP:", error)
-      setError("An error occurred while submitting. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const getGuestSuggestions = (guestId: string, inputValue: string) => {
-    if (!searchResult?.guests) return []
-
-    if (!inputValue || !inputValue.trim()) {
-      return searchResult.guests.map((g) => g.name).filter((name) => name && name.trim())
-    }
-
-    const normalizedInput = inputValue.toLowerCase().trim()
-    return searchResult.guests.filter((g) => g.name.toLowerCase().includes(normalizedInput)).map((g) => g.name)
-  }
-
   const handleRSVPSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -205,18 +117,24 @@ export default function RSVPPage() {
     }
 
     if (searchResult?.type === "group" && searchResult.guests) {
-      const attendingGuests = searchResult.guests.slice(0, attendingGuestCount)
-      const emptyNames = attendingGuests.filter((g) => !guestNames[g._id] || !guestNames[g._id].trim())
+      const attendingGuests = Array.from({ length: attendingGuestCount }).map((_, index) => {
+        const tempId = `temp-${index}`
+        return {
+          name: guestNames[tempId] || "",
+          isChild: guestChildStatus[tempId] || false,
+          ageGroup: guestChildStatus[tempId] && guestAgeGroups[tempId] ? guestAgeGroups[tempId] : undefined,
+        }
+      })
+
+      const emptyNames = attendingGuests.filter((g) => !g.name || !g.name.trim())
 
       if (emptyNames.length > 0) {
         setError("Please enter names for all attending guests")
         return
       }
-    }
 
-    if (searchResult?.type === "group" && searchResult.guests) {
-      for (const guest of searchResult.guests) {
-        if (guestChildStatus[guest._id] && !guestAgeGroups[guest._id]) {
+      for (const guest of attendingGuests) {
+        if (guest.isChild && !guest.ageGroup) {
           setError("Please select an age group for all children.")
           return
         }
@@ -230,35 +148,20 @@ export default function RSVPPage() {
       }
     }
 
-    if (searchResult?.type === "group" && searchResult.guests) {
-      const totalGuests = searchResult.guests.length
-      const guestsWithEmptyNames = searchResult.guests.filter((g) => {
-        const name = guestNames[g._id]
-        return !name || name.trim() === ""
-      })
-
-      if (guestsWithEmptyNames.length > 0) {
-        const confirmMessage = `${guestsWithEmptyNames.length} guest${guestsWithEmptyNames.length !== 1 ? "s" : ""} with empty names will be permanently deleted from your group. Do you want to continue?`
-
-        if (!window.confirm(confirmMessage)) {
-          return
-        }
-      }
-    }
-
     setIsLoading(true)
 
     try {
       let requestBody: any
 
       if (searchResult?.type === "group") {
-        const attendingGuests = searchResult.guests?.slice(0, attendingGuestCount).map((guest) => ({
-          _id: guest._id,
-          name: guestNames[guest._id] || guest.name,
-          guestType: guest.guestType,
-          isChild: guestChildStatus[guest._id] || false,
-          ageGroup: guestChildStatus[guest._id] && guestAgeGroups[guest._id] ? guestAgeGroups[guest._id] : undefined,
-        }))
+        const attendingGuests = Array.from({ length: attendingGuestCount }).map((_, index) => {
+          const tempId = `temp-${index}`
+          return {
+            name: guestNames[tempId] || "",
+            isChild: guestChildStatus[tempId] || false,
+            ageGroup: guestChildStatus[tempId] && guestAgeGroups[tempId] ? guestAgeGroups[tempId] : undefined,
+          }
+        })
 
         requestBody = {
           type: "group",
@@ -267,7 +170,8 @@ export default function RSVPPage() {
           events: isAttending === "yes" ? events : [],
           dietaryRequirements: isAttending === "yes" ? dietaryRequirements : "",
           questions: questions,
-          guests: attendingGuests,
+          attendingGuests: attendingGuests,
+          originalGuests: searchResult.guests,
           totalGroupSize: searchResult.guests?.length || 0,
         }
       } else {
@@ -344,209 +248,6 @@ export default function RSVPPage() {
           <h1 className="display-text mb-6">{t("rsvpTitle")}</h1>
           <p className="text-lg text-muted-foreground">{t("rsvpSubtitle")}</p>
         </div>
-
-        {step === 1 && (
-          <Card>
-            <CardContent className="p-6">
-              <form onSubmit={handleGuestSearch} className="space-y-4">
-                <div>
-                  <label htmlFor="guestName" className="block text-sm font-medium mb-2">
-                    {t("enterName")}
-                  </label>
-                  <input
-                    type="text"
-                    id="guestName"
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
-                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
-                    placeholder={t("namePlaceholder")}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                {error && <p className="text-destructive text-sm">{error}</p>}
-                <button
-                  type="submit"
-                  className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Searching..." : t("findGuest")}
-                </button>
-              </form>
-            </CardContent>
-          </Card>
-        )}
-
-        {step === 2 && searchResult?.type === "group" && searchResult.guests && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">{t("welcomeGuest", { name: searchResult.group?.name })}</h2>
-                <p className="text-muted-foreground mb-4">
-                  {t("groupTotalGuests", { size: searchResult.guests.length })}
-                </p>
-              </div>
-
-              <form onSubmit={handleAttendanceSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium mb-3">{t("willYouAttend")}</label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="attending"
-                        value="yes"
-                        checked={isAttending === "yes"}
-                        onChange={(e) => setIsAttending(e.target.value)}
-                        className="mr-2"
-                        required
-                      />
-                      {t("yesAttending")}
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="attending"
-                        value="no"
-                        checked={isAttending === "no"}
-                        onChange={(e) => setIsAttending(e.target.value)}
-                        className="mr-2"
-                        required
-                      />
-                      {t("noAttending")}
-                    </label>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStep(1)
-                      setSearchResult(null)
-                      setIsAttending("")
-                      setError("")
-                    }}
-                    className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-md hover:bg-secondary/80 transition-colors"
-                  >
-                    {t("back")}
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors"
-                  >
-                    {t("continue")}
-                  </button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        )}
-
-        {step === 3 && searchResult?.type === "group" && searchResult.guests && isAttending === "yes" && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">{t("welcomeGuest", { name: searchResult.group?.name })}</h2>
-                <p className="text-muted-foreground mb-4">
-                  {t("groupTotalGuests", { size: searchResult.guests.length })}
-                </p>
-              </div>
-
-              <form onSubmit={handleGuestCountSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="guestCount" className="block text-sm font-medium mb-3">
-                    {t("howManyAttending")}
-                  </label>
-                  <select
-                    id="guestCount"
-                    value={attendingGuestCount}
-                    onChange={(e) => {
-                      setAttendingGuestCount(Number(e.target.value))
-                      setError("")
-                    }}
-                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
-                    required
-                  >
-                    <option value="0">{t("guestCountPlaceholder")}</option>
-                    {Array.from({ length: searchResult.guests.length }, (_, i) => i + 1).map((num) => (
-                      <option key={num} value={num}>
-                        {num} {num === 1 ? "guest" : "guests"}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {error && <p className="text-destructive text-sm">{error}</p>}
-
-                <div className="flex gap-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStep(2)
-                      setAttendingGuestCount(0)
-                      setError("")
-                    }}
-                    className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-md hover:bg-secondary/80 transition-colors"
-                  >
-                    {t("back")}
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                    disabled={attendingGuestCount === 0}
-                  >
-                    {t("continue")}
-                  </button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        )}
-
-        {step === 4 && searchResult?.type === "group" && searchResult.guests && (
-          <Card>
-            <CardContent className="p-6">
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">{t("welcomeGuest", { name: searchResult.group?.name })}</h2>
-                <p className="text-muted-foreground mb-4">
-                  {attendingGuestCount} {attendingGuestCount === 1 ? "guest" : "guests"} attending
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="grid gap-4">
-                  <button
-                    onClick={handleQuickSubmit}
-                    disabled={isLoading}
-                    className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  >
-                    {isLoading ? "Submitting..." : t("submitWithoutDetails")}
-                  </button>
-
-                  <button
-                    onClick={() => setStep(5)}
-                    className="w-full bg-secondary text-secondary-foreground py-3 px-4 rounded-md hover:bg-secondary/80 transition-colors"
-                  >
-                    {t("enterGuestDetails")}
-                  </button>
-                </div>
-
-                {error && <p className="text-destructive text-sm mt-4">{error}</p>}
-
-                <button
-                  onClick={() => {
-                    setStep(3)
-                    setError("")
-                  }}
-                  className="w-full mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  ← {t("back")}
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {((step === 2 && searchResult?.type === "individual") || (step === 5 && searchResult?.type === "group")) &&
           searchResult && (
@@ -646,87 +347,90 @@ export default function RSVPPage() {
                           <label className="block text-sm font-medium mb-3">{t("groupMemberNames")}</label>
                           <p className="text-sm text-muted-foreground mb-3">{t("selectFromGroup")}</p>
                           <div className="space-y-3">
-                            {searchResult.guests.slice(0, attendingGuestCount).map((guest, index) => (
-                              <div key={guest._id} className="bg-muted/30 border border-muted rounded-lg p-3 space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-muted-foreground min-w-[60px]">
-                                    Guest {index + 1}
-                                  </span>
-                                  <div className="flex-1 relative">
-                                    <input
-                                      type="text"
-                                      value={guestNames[guest._id] || ""}
-                                      onChange={(e) => {
-                                        setGuestNames({ ...guestNames, [guest._id]: e.target.value })
-                                        setShowSuggestions({ ...showSuggestions, [guest._id]: true })
-                                      }}
-                                      onFocus={() => setShowSuggestions({ ...showSuggestions, [guest._id]: true })}
-                                      onBlur={() =>
-                                        setTimeout(
-                                          () => setShowSuggestions({ ...showSuggestions, [guest._id]: false }),
-                                          200,
-                                        )
-                                      }
-                                      className="w-full px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm"
-                                      placeholder={guest.name || t("memberNamePlaceholder", { number: index + 1 })}
-                                      required
-                                    />
-                                    {showSuggestions[guest._id] && (
-                                      <div className="absolute z-10 w-full mt-1 bg-background border border-input rounded-md shadow-lg max-h-40 overflow-y-auto">
-                                        {getGuestSuggestions(guest._id, guestNames[guest._id]).map(
-                                          (suggestion, idx) => (
-                                            <button
-                                              key={idx}
-                                              type="button"
-                                              onClick={() => {
-                                                setGuestNames({ ...guestNames, [guest._id]: suggestion })
-                                                setShowSuggestions({ ...showSuggestions, [guest._id]: false })
-                                              }}
-                                              className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
-                                            >
-                                              {suggestion}
-                                            </button>
-                                          ),
-                                        )}
-                                      </div>
+                            {Array.from({ length: attendingGuestCount }).map((_, index) => {
+                              const tempId = `temp-${index}`
+                              return (
+                                <div key={tempId} className="bg-muted/30 border border-muted rounded-lg p-3 space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-muted-foreground min-w-[60px]">
+                                      Guest {index + 1}
+                                    </span>
+                                    <div className="flex-1 relative">
+                                      <input
+                                        type="text"
+                                        value={guestNames[tempId] || ""}
+                                        onChange={(e) => {
+                                          setGuestNames({ ...guestNames, [tempId]: e.target.value })
+                                          setShowSuggestions({ ...showSuggestions, [tempId]: true })
+                                        }}
+                                        onFocus={() => setShowSuggestions({ ...showSuggestions, [tempId]: true })}
+                                        onBlur={() =>
+                                          setTimeout(
+                                            () => setShowSuggestions({ ...showSuggestions, [tempId]: false }),
+                                            200,
+                                          )
+                                        }
+                                        className="w-full px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm"
+                                        placeholder={t("memberNamePlaceholder", { number: index + 1 })}
+                                        required
+                                      />
+                                      {showSuggestions[tempId] && searchResult.guests && (
+                                        <div className="absolute z-10 w-full mt-1 bg-background border border-input rounded-md shadow-lg max-h-40 overflow-y-auto">
+                                          {searchResult.guests
+                                            .filter((g) => g.name && g.name.trim())
+                                            .map((guest, idx) => (
+                                              <button
+                                                key={idx}
+                                                type="button"
+                                                onClick={() => {
+                                                  setGuestNames({ ...guestNames, [tempId]: guest.name })
+                                                  setShowSuggestions({ ...showSuggestions, [tempId]: false })
+                                                }}
+                                                className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
+                                              >
+                                                {guest.name}
+                                              </button>
+                                            ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-4 pl-[68px]">
+                                    <label className="flex items-center gap-2 text-sm">
+                                      <input
+                                        type="checkbox"
+                                        checked={guestChildStatus[tempId] || false}
+                                        onChange={(e) => {
+                                          setGuestChildStatus({ ...guestChildStatus, [tempId]: e.target.checked })
+                                          if (!e.target.checked) {
+                                            const newAgeGroups = { ...guestAgeGroups }
+                                            delete newAgeGroups[tempId]
+                                            setGuestAgeGroups(newAgeGroups)
+                                          }
+                                        }}
+                                        className="rounded"
+                                      />
+                                      <span className="text-muted-foreground">Child</span>
+                                    </label>
+                                    {guestChildStatus[tempId] && (
+                                      <select
+                                        value={guestAgeGroups[tempId] || ""}
+                                        onChange={(e) => {
+                                          setGuestAgeGroups({ ...guestAgeGroups, [tempId]: e.target.value })
+                                        }}
+                                        className="flex-1 px-2 py-1 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm"
+                                        required
+                                      >
+                                        <option value="">Age group *</option>
+                                        <option value="under-4">Under 4 years</option>
+                                        <option value="4-12">4-12 years</option>
+                                        <option value="over-12">Over 12 years</option>
+                                      </select>
                                     )}
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-4 pl-[68px]">
-                                  <label className="flex items-center gap-2 text-sm">
-                                    <input
-                                      type="checkbox"
-                                      checked={guestChildStatus[guest._id] || false}
-                                      onChange={(e) => {
-                                        setGuestChildStatus({ ...guestChildStatus, [guest._id]: e.target.checked })
-                                        if (!e.target.checked) {
-                                          const newAgeGroups = { ...guestAgeGroups }
-                                          delete newAgeGroups[guest._id]
-                                          setGuestAgeGroups(newAgeGroups)
-                                        }
-                                      }}
-                                      className="rounded"
-                                    />
-                                    <span className="text-muted-foreground">Child</span>
-                                  </label>
-                                  {guestChildStatus[guest._id] && (
-                                    <select
-                                      value={guestAgeGroups[guest._id] || ""}
-                                      onChange={(e) => {
-                                        setGuestAgeGroups({ ...guestAgeGroups, [guest._id]: e.target.value })
-                                      }}
-                                      className="flex-1 px-2 py-1 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm"
-                                      required
-                                    >
-                                      <option value="">Age group *</option>
-                                      <option value="under-4">Under 4 years</option>
-                                      <option value="4-12">4-12 years</option>
-                                      <option value="over-12">Over 12 years</option>
-                                    </select>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
+                              )
+                            })}
                           </div>
                         </div>
                       )}
