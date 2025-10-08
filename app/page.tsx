@@ -115,9 +115,10 @@ export default function HomePage() {
                 {t("brideSurname")}
               </h2>
             </div>
-            <div className="script text-4xl md:text-5xl text-primary">Wedding Invitation</div>
-            {/*<p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>*/}
           </div>
+
+          <div className="script text-4xl md:text-5xl text-primary">Wedding Invitation</div>
+            {/*<p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>*/}
 
           {/* Welcome Message */}
           <div className="decorative-border rounded-2xl p-8 md:p-12 max-w-4xl mx-auto mb-16">
