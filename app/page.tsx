@@ -117,7 +117,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="script text-center  text-4xl md:text-5xl mb-16 text-primary">Wedding Invitation</div>
+          <div className="script text-center text-4xl md:text-5xl mb-16 text-primary">Wedding Invitation</div>
             {/*<p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>*/}
 
           {/* Welcome Message */}
