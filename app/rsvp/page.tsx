@@ -243,11 +243,263 @@ export default function RSVPPage() {
 
   return (
     <div className="min-h-screen py-12">
+      <PageTracker pageName="rsvp" />
       <div className="max-w-2xl mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="display-text mb-6">{t("rsvpTitle")}</h1>
           <p className="text-lg text-muted-foreground">{t("rsvpSubtitle")}</p>
         </div>
+
+        {/* Step 1 - Guest search form */}
+        {step === 1 && (
+          <Card>
+            <CardContent className="p-6">
+              <form onSubmit={handleGuestSearch} className="space-y-4">
+                <div>
+                  <label htmlFor="guestName" className="block text-sm font-medium mb-2">
+                    {t("enterYourName")}
+                  </label>
+                  <input
+                    type="text"
+                    id="guestName"
+                    value={guestName}
+                    onChange={(e) => setGuestName(e.target.value)}
+                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                    placeholder={t("namePlaceholder")}
+                    required
+                  />
+                </div>
+                {error && <p className="text-destructive text-sm">{error}</p>}
+                <button
+                  type="submit"
+                  className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  disabled={isLoading}
+                >
+                  {isLoading ? t("searching") : t("findMyInvitation")}
+                </button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Step 2 for group attendance question */}
+        {step === 2 && searchResult?.type === "group" && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold mb-2">{t("welcomeGuest", { name: searchResult.group?.name })}</h2>
+                <p className="text-muted-foreground">
+                  {t("groupSize")}: {searchResult.guests?.length || 0} {t("guests")}
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium mb-3">{t("willYouAttend")}</label>
+                  <div className="space-y-2">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="attending"
+                        value="yes"
+                        checked={isAttending === "yes"}
+                        onChange={(e) => setIsAttending(e.target.value)}
+                        className="mr-2"
+                      />
+                      {t("yesAttending")}
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="attending"
+                        value="no"
+                        checked={isAttending === "no"}
+                        onChange={(e) => setIsAttending(e.target.value)}
+                        className="mr-2"
+                      />
+                      {t("noAttending")}
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStep(1)
+                      setSearchResult(null)
+                      setIsAttending("")
+                    }}
+                    className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-md hover:bg-secondary/80 transition-colors"
+                  >
+                    {t("back")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isAttending === "yes") {
+                        setStep(3)
+                      } else if (isAttending === "no") {
+                        setStep(5)
+                      }
+                    }}
+                    className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    disabled={!isAttending}
+                  >
+                    {t("continue")}
+                  </button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Step 3 for group guest count selection */}
+        {step === 3 && searchResult?.type === "group" && searchResult.guests && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold mb-2">{t("howManyAttending")}</h2>
+                <p className="text-muted-foreground">
+                  {t("selectGuestCount")} (max {searchResult.guests.length})
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label htmlFor="guestCount" className="block text-sm font-medium mb-2">
+                    {t("numberOfGuests")}
+                  </label>
+                  <select
+                    id="guestCount"
+                    value={attendingGuestCount}
+                    onChange={(e) => setAttendingGuestCount(Number(e.target.value))}
+                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                  >
+                    <option value={0}>{t("selectNumber")}</option>
+                    {Array.from({ length: searchResult.guests.length }, (_, i) => i + 1).map((num) => (
+                      <option key={num} value={num}>
+                        {num} {num === 1 ? t("guest") : t("guests")}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStep(2)
+                      setAttendingGuestCount(0)
+                    }}
+                    className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-md hover:bg-secondary/80 transition-colors"
+                  >
+                    {t("back")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (attendingGuestCount === searchResult.guests?.length) {
+                        setStep(4)
+                      } else {
+                        setStep(5)
+                      }
+                    }}
+                    className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    disabled={attendingGuestCount === 0}
+                  >
+                    {t("continue")}
+                  </button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Step 4 for quick submit option */}
+        {step === 4 && searchResult?.type === "group" && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold mb-2">{t("confirmAttendance")}</h2>
+                <p className="text-muted-foreground">
+                  {attendingGuestCount} {attendingGuestCount === 1 ? t("guest") : t("guests")} {t("attending")}
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setIsLoading(true)
+                    setError("")
+
+                    try {
+                      const requestBody = {
+                        type: "group",
+                        groupId: searchResult.group?._id,
+                        isAttending: true,
+                        events: ["wedding", "reception"],
+                        dietaryRequirements: "",
+                        questions: "",
+                        attendingGuests: searchResult.guests?.map((g) => ({
+                          name: g.name,
+                          isChild: g.isChild,
+                          ageGroup: g.ageGroup,
+                        })),
+                        originalGuests: searchResult.guests,
+                        totalGroupSize: searchResult.guests?.length || 0,
+                      }
+
+                      const response = await fetch("/api/guests/rsvp", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(requestBody),
+                      })
+
+                      const data = await response.json()
+
+                      if (!response.ok) {
+                        setError(data.error || "Failed to submit RSVP")
+                        setIsLoading(false)
+                        return
+                      }
+
+                      setSuccess(true)
+                    } catch (error) {
+                      console.error("Error submitting RSVP:", error)
+                      setError("An error occurred while submitting. Please try again.")
+                    } finally {
+                      setIsLoading(false)
+                    }
+                  }}
+                  className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  disabled={isLoading}
+                >
+                  {isLoading ? t("submitting") : t("submitWithoutDetails")}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setStep(5)}
+                  className="w-full bg-secondary text-secondary-foreground py-3 px-4 rounded-md hover:bg-secondary/80 transition-colors"
+                >
+                  {t("enterGuestDetails")}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setStep(3)}
+                  className="w-full bg-muted text-muted-foreground py-2 px-4 rounded-md hover:bg-muted/80 transition-colors text-sm"
+                >
+                  {t("back")}
+                </button>
+              </div>
+
+              {error && <p className="text-destructive text-sm mt-4">{error}</p>}
+            </CardContent>
+          </Card>
+        )}
 
         {((step === 2 && searchResult?.type === "individual") || (step === 5 && searchResult?.type === "group")) &&
           searchResult && (
