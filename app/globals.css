@@ -243,16 +243,12 @@
   /* Add laptop/desktop specific background with different image */
   @media (min-width: 1025px) {
     .floral-background::before {
-      /*position: fixed;*/
+      position: fixed;
       background-image: url("/wedding-floral-background_laptop.jpg");
-      /*background-attachment: fixed;*/
-      /*background-size: cover;*/
-      /*background-position: center;*/
-      /*background-repeat: no-repeat;*/
-      background-size: 100% auto;
-      background-position: center top;
-      background-repeat: repeat-y;
-      background-attachment: scroll;
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
   }
 
