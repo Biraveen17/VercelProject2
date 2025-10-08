@@ -44,6 +44,7 @@ export default function RSVPPage() {
   const [guestNames, setGuestNames] = useState<{ [key: string]: string }>({})
   const [guestChildStatus, setGuestChildStatus] = useState<{ [key: string]: boolean }>({})
   const [guestAgeGroups, setGuestAgeGroups] = useState<{ [key: string]: string }>({})
+  const [showSuggestions, setShowSuggestions] = useState<{ [key: string]: boolean }>({})
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -109,11 +110,9 @@ export default function RSVPPage() {
   const handleAttendanceSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (isAttending === "yes") {
-      // If attending, go to guest count selection
       setStep(3)
     } else {
-      // If not attending, skip to final form
-      setStep(4)
+      setStep(5)
     }
   }
 
@@ -127,6 +126,67 @@ export default function RSVPPage() {
     setStep(4)
   }
 
+  const handleQuickSubmit = async () => {
+    const totalGuests = searchResult?.guests?.length || 0
+
+    // Only allow quick submit if all guests are attending
+    if (attendingGuestCount !== totalGuests) {
+      setError("You must enter guest details when not all guests are attending")
+      return
+    }
+
+    setIsLoading(true)
+    setError("")
+
+    try {
+      const guests = searchResult?.guests?.map((guest) => ({
+        _id: guest._id,
+        name: guest.name,
+        guestType: guest.guestType,
+        isChild: guest.isChild,
+        ageGroup: guest.ageGroup,
+      }))
+
+      const requestBody = {
+        type: "group",
+        groupId: searchResult?.group?._id,
+        isAttending: true,
+        events: events.length > 0 ? events : ["wedding", "reception"],
+        dietaryRequirements: "",
+        questions: questions,
+        guests: guests,
+      }
+
+      const response = await fetch("/api/guests/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.JSON.stringify(requestBody),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || "Failed to submit RSVP")
+        setIsLoading(false)
+        return
+      }
+
+      setSuccess(true)
+    } catch (error) {
+      console.error("Error submitting RSVP:", error)
+      setError("An error occurred while submitting. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const getGuestSuggestions = (guestId: string, inputValue: string) => {
+    if (!searchResult?.guests || !inputValue.trim()) return []
+
+    const normalizedInput = inputValue.toLowerCase().trim()
+    return searchResult.guests.filter((g) => g.name.toLowerCase().includes(normalizedInput)).map((g) => g.name)
+  }
+
   const handleRSVPSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -134,6 +194,16 @@ export default function RSVPPage() {
     if (isAttending === "yes" && events.length === 0) {
       setError("Please select at least one event (wedding or reception) to attend.")
       return
+    }
+
+    if (searchResult?.type === "group" && searchResult.guests) {
+      const attendingGuests = searchResult.guests.slice(0, attendingGuestCount)
+      const emptyNames = attendingGuests.filter((g) => !guestNames[g._id] || !guestNames[g._id].trim())
+
+      if (emptyNames.length > 0) {
+        setError("Please enter names for all attending guests")
+        return
+      }
     }
 
     if (searchResult?.type === "group" && searchResult.guests) {
@@ -174,9 +244,9 @@ export default function RSVPPage() {
       let requestBody: any
 
       if (searchResult?.type === "group") {
-        const guests = searchResult.guests?.map((guest) => ({
+        const attendingGuests = searchResult.guests?.slice(0, attendingGuestCount).map((guest) => ({
           _id: guest._id,
-          name: guestNames[guest._id] || "",
+          name: guestNames[guest._id] || guest.name,
           guestType: guest.guestType,
           isChild: guestChildStatus[guest._id] || false,
           ageGroup: guestChildStatus[guest._id] && guestAgeGroups[guest._id] ? guestAgeGroups[guest._id] : undefined,
@@ -189,7 +259,8 @@ export default function RSVPPage() {
           events: isAttending === "yes" ? events : [],
           dietaryRequirements: isAttending === "yes" ? dietaryRequirements : "",
           questions: questions,
-          guests: guests,
+          guests: attendingGuests,
+          totalGroupSize: searchResult.guests?.length || 0,
         }
       } else {
         requestBody = {
@@ -222,7 +293,7 @@ export default function RSVPPage() {
       }
 
       setSuccess(true)
-      setStep(3)
+      // setStep(3) // This was incorrect, success state handles redirection
     } catch (error) {
       console.error("Error submitting RSVP:", error)
       setError("An error occurred while submitting. Please try again.")
@@ -299,15 +370,12 @@ export default function RSVPPage() {
           </Card>
         )}
 
+        {/* Step 2: Attendance question for groups */}
         {step === 2 && searchResult?.type === "group" && searchResult.guests && (
           <Card>
             <CardContent className="p-6">
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">
-                  {t("welcomeGuest", {
-                    name: searchResult.group?.name,
-                  })}
-                </h2>
+                <h2 className="text-xl font-semibold mb-2">{t("welcomeGuest", { name: searchResult.group?.name })}</h2>
                 <p className="text-muted-foreground mb-4">
                   {t("groupTotalGuests", { size: searchResult.guests.length })}
                 </p>
@@ -369,15 +437,12 @@ export default function RSVPPage() {
           </Card>
         )}
 
+        {/* Step 3: Guest count selection */}
         {step === 3 && searchResult?.type === "group" && searchResult.guests && isAttending === "yes" && (
           <Card>
             <CardContent className="p-6">
               <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">
-                  {t("welcomeGuest", {
-                    name: searchResult.group?.name,
-                  })}
-                </h2>
+                <h2 className="text-xl font-semibold mb-2">{t("welcomeGuest", { name: searchResult.group?.name })}</h2>
                 <p className="text-muted-foreground mb-4">
                   {t("groupTotalGuests", { size: searchResult.guests.length })}
                 </p>
@@ -426,7 +491,7 @@ export default function RSVPPage() {
                     className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
                     disabled={attendingGuestCount === 0}
                   >
-                    {t("continueToDetails")}
+                    {t("continue")}
                   </button>
                 </div>
               </form>
@@ -434,7 +499,60 @@ export default function RSVPPage() {
           </Card>
         )}
 
-        {((step === 2 && searchResult?.type === "individual") || (step === 4 && searchResult?.type === "group")) &&
+        {step === 4 && searchResult?.type === "group" && searchResult.guests && (
+          <Card>
+            <CardContent className="p-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold mb-2">{t("welcomeGuest", { name: searchResult.group?.name })}</h2>
+                <p className="text-muted-foreground mb-4">
+                  {attendingGuestCount} {attendingGuestCount === 1 ? "guest" : "guests"} attending
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {attendingGuestCount < (searchResult.guests?.length || 0) && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                    <p className="text-sm text-amber-800">{t("guestDetailsRequired")}</p>
+                  </div>
+                )}
+
+                <div className="grid gap-4">
+                  {attendingGuestCount === (searchResult.guests?.length || 0) && (
+                    <button
+                      onClick={handleQuickSubmit}
+                      disabled={isLoading}
+                      className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    >
+                      {isLoading ? "Submitting..." : t("submitWithoutDetails")}
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => setStep(5)}
+                    className="w-full bg-secondary text-secondary-foreground py-3 px-4 rounded-md hover:bg-secondary/80 transition-colors"
+                  >
+                    {t("enterGuestDetails")}
+                  </button>
+                </div>
+
+                {error && <p className="text-destructive text-sm mt-4">{error}</p>}
+
+                <button
+                  onClick={() => {
+                    setStep(3)
+                    setError("")
+                  }}
+                  className="w-full mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  ← {t("back")}
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Step 5: Full RSVP form (individual or group with details) */}
+        {((step === 2 && searchResult?.type === "individual") || (step === 5 && searchResult?.type === "group")) &&
           searchResult && (
             <Card>
               <CardContent className="p-6">
@@ -530,6 +648,7 @@ export default function RSVPPage() {
                       {searchResult.type === "group" && searchResult.guests && searchResult.guests.length > 0 && (
                         <div>
                           <label className="block text-sm font-medium mb-3">{t("groupMemberNames")}</label>
+                          <p className="text-sm text-muted-foreground mb-3">{t("selectFromGroup")}</p>
                           <div className="space-y-3">
                             {searchResult.guests.slice(0, attendingGuestCount).map((guest, index) => (
                               <div key={guest._id} className="bg-muted/30 border border-muted rounded-lg p-3 space-y-2">
@@ -537,19 +656,45 @@ export default function RSVPPage() {
                                   <span className="text-sm font-medium text-muted-foreground min-w-[60px]">
                                     Guest {index + 1}
                                   </span>
-                                  <input
-                                    type="text"
-                                    value={guestNames[guest._id] || ""}
-                                    onChange={(e) => {
-                                      setGuestNames({ ...guestNames, [guest._id]: e.target.value })
-                                    }}
-                                    className="flex-1 px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm"
-                                    placeholder={
-                                      guest.guestType === "tbc"
-                                        ? t("memberNamePlaceholder", { number: index + 1 })
-                                        : guest.name
-                                    }
-                                  />
+                                  <div className="flex-1 relative">
+                                    <input
+                                      type="text"
+                                      value={guestNames[guest._id] || ""}
+                                      onChange={(e) => {
+                                        setGuestNames({ ...guestNames, [guest._id]: e.target.value })
+                                        setShowSuggestions({ ...showSuggestions, [guest._id]: true })
+                                      }}
+                                      onFocus={() => setShowSuggestions({ ...showSuggestions, [guest._id]: true })}
+                                      onBlur={() =>
+                                        setTimeout(
+                                          () => setShowSuggestions({ ...showSuggestions, [guest._id]: false }),
+                                          200,
+                                        )
+                                      }
+                                      className="w-full px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm"
+                                      placeholder={guest.name || t("memberNamePlaceholder", { number: index + 1 })}
+                                      required
+                                    />
+                                    {showSuggestions[guest._id] && guestNames[guest._id] && (
+                                      <div className="absolute z-10 w-full mt-1 bg-background border border-input rounded-md shadow-lg max-h-40 overflow-y-auto">
+                                        {getGuestSuggestions(guest._id, guestNames[guest._id]).map(
+                                          (suggestion, idx) => (
+                                            <button
+                                              key={idx}
+                                              type="button"
+                                              onClick={() => {
+                                                setGuestNames({ ...guestNames, [guest._id]: suggestion })
+                                                setShowSuggestions({ ...showSuggestions, [guest._id]: false })
+                                              }}
+                                              className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
+                                            >
+                                              {suggestion}
+                                            </button>
+                                          ),
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                                 <div className="flex items-center gap-4 pl-[68px]">
                                   <label className="flex items-center gap-2 text-sm">
@@ -673,7 +818,7 @@ export default function RSVPPage() {
                       type="button"
                       onClick={() => {
                         if (searchResult.type === "group") {
-                          setStep(isAttending === "yes" ? 3 : 2)
+                          setStep(isAttending === "yes" ? 4 : 2)
                         } else {
                           setStep(1)
                           setSearchResult(null)

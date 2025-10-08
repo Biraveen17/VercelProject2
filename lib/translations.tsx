@@ -220,6 +220,10 @@ export interface Translation {
   selectGuestCount: string
   guestCountPlaceholder: string
   continueToDetails: string
+  submitWithoutDetails: string
+  enterGuestDetails: string
+  guestDetailsRequired: string
+  selectFromGroup: string
 }
 
 export const translations: Record<string, Translation> = {
@@ -468,6 +472,10 @@ export const translations: Record<string, Translation> = {
     selectGuestCount: "Select number of guests",
     guestCountPlaceholder: "Choose number of attending guests",
     continueToDetails: "Continue to Guest Details",
+    submitWithoutDetails: "Submit RSVP without Details",
+    enterGuestDetails: "Enter Guest Details",
+    guestDetailsRequired: "Guest details are required for this group size.",
+    selectFromGroup: "Select from your group",
     willYouAttend: "Will you be attending our wedding?",
     yesAttending: "Yes, I'll be there! 🎉",
     noAttending: "Sorry, I can't make it",
@@ -734,6 +742,10 @@ export const translations: Record<string, Translation> = {
     selectGuestCount: "Vælg antal gæster",
     guestCountPlaceholder: "Vælg antal deltagende gæster",
     continueToDetails: "Fortsæt til gæstedetaljer",
+    submitWithoutDetails: "Send RSVP uden detaljer",
+    enterGuestDetails: "Indtast gæstedetaljer",
+    guestDetailsRequired: "Gæstedetaljer er påkrævet for denne gruppestørrelse.",
+    selectFromGroup: "Vælg fra din gruppe",
     willYouAttend: "Vil du deltage i vores bryllup?",
     yesAttending: "Ja, jeg kommer! 🎉",
     noAttending: "Beklager, jeg kan ikke komme",
@@ -995,16 +1007,20 @@ export const translations: Record<string, Translation> = {
     namePlaceholder: "அழைப்பிதழில் உள்ளது போல் உங்கள் முழு பெயரை உள்ளிடுங்கள்",
     findGuest: "விருந்தினரைக் கண்டறியுங்கள்",
     welcomeGuest: "வரவேற்கிறோம், {name}!",
-    groupBooking: "{size} பேர் வரையிலான குழு வருகை உறுதிப்படுத்தல்",
+    groupBooking: "குழு வருகை உறுதிப்படுத்தல் {size} பேர் வரை",
     groupTotalGuests: "உங்கள் குழுவில் மொத்தம் {size} விருந்தினர்கள் உள்ளனர்",
     howManyAttending: "உங்கள் குழுவிலிருந்து எத்தனை விருந்தினர்கள் கலந்துகொள்வார்கள்?",
     selectGuestCount: "விருந்தினர்களின் எண்ணிக்கையைத் தேர்ந்தெடுக்கவும்",
     guestCountPlaceholder: "கலந்துகொள்ளும் விருந்தினர்களின் எண்ணிக்கையைத் தேர்வுசெய்யவும்",
     continueToDetails: "விருந்தினர் விவரங்களுக்குத் தொடரவும்",
+    submitWithoutDetails: "விவரங்கள் இல்லாமல் RSVP ஐ சமர்ப்பிக்கவும்",
+    enterGuestDetails: "விருந்தினர் விவரங்களை உள்ளிடவும்",
+    guestDetailsRequired: "இந்த குழு அளவிற்கு விருந்தினர் விவரங்கள் தேவை.",
+    selectFromGroup: "உங்கள் குழுவிலிருந்து தேர்ந்தெடுக்கவும்",
     willYouAttend: "நீங்கள் எங்கள் திருமணத்தில் கலந்துகொள்வீர்களா?",
     yesAttending: "ஆம், நான் வருவேன்! 🎉",
     noAttending: "மன்னிக்கவும், என்னால் வர முடியாது",
-    whichEvents: "எந்த நிகழ்வுகளில் நீங்கள் கலந்துகொள்வீீர்கள்?",
+    whichEvents: "எந்த நிகழ்வுகளில் நீங்கள் கலந்துகொள்வீர்கள்?",
     ceremonyEvent: "இந்து திருமண சடங்கு",
     receptionEvent: "திருமண வரவேற்பு",
     groupMemberNames: "குழு உறுப்பினர்களின் பெயர்கள்",
@@ -1277,6 +1293,10 @@ export const translations: Record<string, Translation> = {
     selectGuestCount: "Sélectionner le nombre d'invités",
     guestCountPlaceholder: "Choisir le nombre d'invités présents",
     continueToDetails: "Continuer vers les détails des invités",
+    submitWithoutDetails: "Soumettre RSVP sans détails",
+    enterGuestDetails: "Entrer les détails des invités",
+    guestDetailsRequired: "Les détails des invités sont requis pour cette taille de groupe.",
+    selectFromGroup: "Sélectionner dans votre groupe",
     willYouAttend: "Assisterez-vous à notre mariage ?",
     yesAttending: "Oui, je serai là ! 🎉",
     noAttending: "Désolé, je ne peux pas venir",
