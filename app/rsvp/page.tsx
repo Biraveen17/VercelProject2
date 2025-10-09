@@ -5,7 +5,7 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useLanguage } from "@/lib/language-context"
 import { PageTracker } from "@/components/page-tracker"
-import { Check } from "lucide-react"
+import { Check, X } from "lucide-react"
 
 interface Guest {
   _id: string
@@ -49,6 +49,9 @@ export default function RSVPPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [originalGuestNames, setOriginalGuestNames] = useState<{ [key: string]: string }>({})
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [removedGuests, setRemovedGuests] = useState<string[]>([])
 
   const handleGuestSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -70,12 +73,14 @@ export default function RSVPPage() {
 
         // Initialize guest data
         const initialNames: { [key: string]: string } = {}
+        const initialOriginalNames: { [key: string]: string } = {}
         const initialChildStatus: { [key: string]: boolean } = {}
         const initialAgeGroups: { [key: string]: string } = {}
         const initialEvents: { [key: string]: ("wedding" | "reception" | "not-attending")[] } = {}
 
         activeGuests.forEach((guest: Guest) => {
           initialNames[guest._id] = guest.name || ""
+          initialOriginalNames[guest._id] = guest.name || ""
           initialChildStatus[guest._id] = guest.isChild
           initialAgeGroups[guest._id] = guest.ageGroup || ""
 
@@ -88,6 +93,7 @@ export default function RSVPPage() {
         })
 
         setGuestNames(initialNames)
+        setOriginalGuestNames(initialOriginalNames)
         setGuestChildStatus(initialChildStatus)
         setGuestAgeGroups(initialAgeGroups)
         setGuestEvents(initialEvents)
@@ -102,6 +108,7 @@ export default function RSVPPage() {
         setGuestChildStatus({ [guest._id]: guest.isChild })
         setGuestAgeGroups({ [guest._id]: guest.ageGroup || "" })
         setGuestNames({ [guest._id]: guest.name })
+        setOriginalGuestNames({ [guest._id]: guest.name })
 
         // Set initial event selection
         if (guest.rsvpStatus === "not-attending") {
@@ -122,10 +129,72 @@ export default function RSVPPage() {
     }
   }
 
+  const handleDeleteGuest = async (guestId: string) => {
+    if (!confirm(t("confirmDeleteMessage"))) {
+      return
+    }
+
+    try {
+      // Update guest creation status to "Removed"
+      const response = await fetch(`/api/guests/${guestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ creationStatus: "Removed" }),
+      })
+
+      if (!response.ok) {
+        setError("Failed to delete guest")
+        return
+      }
+
+      // Remove guest from local state
+      if (searchResult?.type === "group" && searchResult.guests) {
+        const updatedGuests = searchResult.guests.filter((g) => g._id !== guestId)
+        setSearchResult({ ...searchResult, guests: updatedGuests })
+
+        // Clean up state for deleted guest
+        const newGuestNames = { ...guestNames }
+        const newGuestEvents = { ...guestEvents }
+        const newGuestChildStatus = { ...guestChildStatus }
+        const newGuestAgeGroups = { ...guestAgeGroups }
+        delete newGuestNames[guestId]
+        delete newGuestEvents[guestId]
+        delete newGuestChildStatus[guestId]
+        delete newGuestAgeGroups[guestId]
+        setGuestNames(newGuestNames)
+        setGuestEvents(newGuestEvents)
+        setGuestChildStatus(newGuestChildStatus)
+        setGuestAgeGroups(newGuestAgeGroups)
+      }
+    } catch (error) {
+      console.error("Error deleting guest:", error)
+      setError("An error occurred while deleting guest")
+    }
+  }
+
   const handleRSVPSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
+    const changedGuests: string[] = []
+    if (searchResult?.type === "group" && searchResult.guests) {
+      for (const guest of searchResult.guests) {
+        const currentName = guestNames[guest._id] || ""
+        const originalName = originalGuestNames[guest._id] || ""
+        if (currentName !== originalName && originalName) {
+          changedGuests.push(originalName)
+        }
+      }
+    }
+
+    // Show confirmation if there are name changes
+    if (changedGuests.length > 0 && !showConfirmation) {
+      setRemovedGuests(changedGuests)
+      setShowConfirmation(true)
+      return
+    }
+
+    // Validate attendance selection
     if (searchResult?.type === "group" && searchResult.guests) {
       for (const guest of searchResult.guests) {
         if (!guestEvents[guest._id] || guestEvents[guest._id].length === 0) {
@@ -164,6 +233,7 @@ export default function RSVPPage() {
         const guestsData = searchResult.guests?.map((guest) => ({
           _id: guest._id,
           name: guestNames[guest._id] || guest.name,
+          originalName: originalGuestNames[guest._id],
           isChild: guestChildStatus[guest._id] || false,
           ageGroup: guestChildStatus[guest._id] && guestAgeGroups[guest._id] ? guestAgeGroups[guest._id] : undefined,
           events: guestEvents[guest._id] || [],
@@ -216,6 +286,7 @@ export default function RSVPPage() {
       setError("An error occurred while submitting. Please try again.")
     } finally {
       setIsLoading(false)
+      setShowConfirmation(false)
     }
   }
 
@@ -287,8 +358,41 @@ export default function RSVPPage() {
           </Card>
         )}
 
+        {showConfirmation && (
+          <Card className="mb-6 border-destructive">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-4 text-destructive">{t("confirmRemoval")}</h3>
+              <p className="mb-4">{t("confirmRemovalMessage")}</p>
+              <ul className="list-disc list-inside mb-6 space-y-1">
+                {removedGuests.map((name, index) => (
+                  <li key={index} className="text-muted-foreground">
+                    {name}
+                  </li>
+                ))}
+              </ul>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowConfirmation(false)
+                    setRemovedGuests([])
+                  }}
+                  className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-md hover:bg-secondary/80 transition-colors"
+                >
+                  {t("cancel")}
+                </button>
+                <button
+                  onClick={handleRSVPSubmit}
+                  className="flex-1 bg-destructive text-destructive-foreground py-2 px-4 rounded-md hover:bg-destructive/90 transition-colors"
+                >
+                  {t("confirmSubmit")}
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Step 2 - Guest details form with inline event selection */}
-        {step === 2 && searchResult && (
+        {step === 2 && searchResult && !showConfirmation && (
           <Card>
             <CardContent className="p-6">
               <div className="mb-6">
@@ -312,10 +416,21 @@ export default function RSVPPage() {
                         return (
                           <div
                             key={guest._id}
-                            className={`border rounded-lg p-4 space-y-3 ${
+                            className={`border rounded-lg p-4 space-y-3 relative ${
                               isLocked ? "bg-muted/20 border-muted" : "bg-muted/30 border-muted"
                             }`}
                           >
+                            {!isLocked && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteGuest(guest._id)}
+                                className="absolute top-2 right-2 p-1.5 rounded-md hover:bg-destructive/10 text-destructive transition-colors"
+                                title={t("deleteGuest")}
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
+
                             <div className="flex items-center gap-2 mb-3">
                               <span className="text-sm font-medium text-muted-foreground min-w-[60px]">
                                 Guest {index + 1}
@@ -415,76 +530,77 @@ export default function RSVPPage() {
                               </label>
                             </div>
 
-                            {/* Name and child status - only show if not "can't make it" */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-muted-foreground min-w-[60px]">Name</span>
+                              <input
+                                type="text"
+                                value={guestNames[guest._id] || ""}
+                                onChange={(e) => {
+                                  if (!isLocked) {
+                                    setGuestNames({ ...guestNames, [guest._id]: e.target.value })
+                                  }
+                                }}
+                                disabled={isLocked}
+                                className={`flex-1 px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
+                                  isLocked
+                                    ? "bg-muted/70 cursor-not-allowed opacity-80 text-muted-foreground"
+                                    : "bg-background"
+                                }`}
+                                placeholder={t("memberNamePlaceholder", { number: index + 1 })}
+                                required
+                                readOnly={isLocked}
+                              />
+                            </div>
+
+                            {/* Only show child status if not "can't make it" */}
                             {!isNotAttending && (
-                              <>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-muted-foreground min-w-[60px]">Name</span>
+                              <div className="flex items-center gap-4 pl-[68px]">
+                                <label className="flex items-center gap-2 text-sm">
                                   <input
-                                    type="text"
-                                    value={guestNames[guest._id] || ""}
+                                    type="checkbox"
+                                    checked={guestChildStatus[guest._id] || false}
                                     onChange={(e) => {
                                       if (!isLocked) {
-                                        setGuestNames({ ...guestNames, [guest._id]: e.target.value })
+                                        setGuestChildStatus({
+                                          ...guestChildStatus,
+                                          [guest._id]: e.target.checked,
+                                        })
+                                        if (!e.target.checked) {
+                                          const newAgeGroups = { ...guestAgeGroups }
+                                          delete newAgeGroups[guest._id]
+                                          setGuestAgeGroups(newAgeGroups)
+                                        }
                                       }
                                     }}
                                     disabled={isLocked}
-                                    className={`flex-1 px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
-                                      isLocked
-                                        ? "bg-muted/70 cursor-not-allowed opacity-80 text-muted-foreground"
-                                        : "bg-background"
-                                    }`}
-                                    placeholder={t("memberNamePlaceholder", { number: index + 1 })}
-                                    required
-                                    readOnly={isLocked}
+                                    className="rounded"
                                   />
-                                </div>
-                                <div className="flex items-center gap-4 pl-[68px]">
-                                  <label className="flex items-center gap-2 text-sm">
-                                    <input
-                                      type="checkbox"
-                                      checked={guestChildStatus[guest._id] || false}
-                                      onChange={(e) => {
-                                        if (!isLocked) {
-                                          setGuestChildStatus({
-                                            ...guestChildStatus,
-                                            [guest._id]: e.target.checked,
-                                          })
-                                          if (!e.target.checked) {
-                                            const newAgeGroups = { ...guestAgeGroups }
-                                            delete newAgeGroups[guest._id]
-                                            setGuestAgeGroups(newAgeGroups)
-                                          }
-                                        }
-                                      }}
-                                      disabled={isLocked}
-                                      className="rounded"
-                                    />
-                                    <span className="text-muted-foreground">Child</span>
-                                  </label>
-                                  {guestChildStatus[guest._id] && (
-                                    <select
-                                      value={guestAgeGroups[guest._id] || ""}
-                                      onChange={(e) => {
-                                        if (!isLocked) {
-                                          setGuestAgeGroups({ ...guestAgeGroups, [guest._id]: e.target.value })
-                                        }
-                                      }}
-                                      disabled={isLocked}
-                                      className={`flex-1 px-2 py-1 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
-                                        isLocked ? "bg-muted/70 cursor-not-allowed opacity-80" : "bg-background"
-                                      }`}
-                                      required
-                                    >
-                                      <option value="">Age group *</option>
-                                      <option value="under-4">Under 4 years</option>
-                                      <option value="4-12">4-12 years</option>
-                                      <option value="over-12">Over 12 years</option>
-                                    </select>
-                                  )}
-                                </div>
-                              </>
+                                  <span className="text-muted-foreground">Child</span>
+                                </label>
+                                {guestChildStatus[guest._id] && (
+                                  <select
+                                    value={guestAgeGroups[guest._id] || ""}
+                                    onChange={(e) => {
+                                      if (!isLocked) {
+                                        setGuestAgeGroups({ ...guestAgeGroups, [guest._id]: e.target.value })
+                                      }
+                                    }}
+                                    disabled={isLocked}
+                                    className={`flex-1 px-2 py-1 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
+                                      isLocked ? "bg-muted/70 cursor-not-allowed opacity-80" : "bg-background"
+                                    }`}
+                                    required
+                                  >
+                                    <option value="">Age group *</option>
+                                    <option value="under-4">Under 4 years</option>
+                                    <option value="4-12">4-12 years</option>
+                                    <option value="over-12">Over 12 years</option>
+                                  </select>
+                                )}
+                              </div>
                             )}
+
+                            {/* Removed plusOne checkbox for groups */}
                           </div>
                         )
                       })}
@@ -656,6 +772,7 @@ export default function RSVPPage() {
                           </div>
                         )}
 
+                        {/* Removed plusOne checkbox for individual */}
                         <div>
                           <label htmlFor="dietary" className="block text-sm font-medium mb-2">
                             {t("dietaryRequirements")}

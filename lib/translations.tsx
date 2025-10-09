@@ -262,6 +262,9 @@ export interface Translation {
   attendingWedding: string
   attendingReception: string
   sorryCannotMakeIt: string
+  deleteGuest: string
+  confirmDelete: string
+  confirmDeleteMessage: string
 }
 
 export const translations: Record<string, Translation> = {
@@ -552,6 +555,9 @@ export const translations: Record<string, Translation> = {
     attendingWedding: "Attending Wedding",
     attendingReception: "Attending Reception",
     sorryCannotMakeIt: "Sorry, can't make it",
+    deleteGuest: "Delete Guest",
+    confirmDelete: "Confirm Deletion",
+    confirmDeleteMessage: "Are you sure you want to remove this guest from the RSVP?",
   },
 
   da: {
@@ -843,6 +849,9 @@ export const translations: Record<string, Translation> = {
     attendingWedding: "Deltager i Bryllup",
     attendingReception: "Deltager i Reception",
     sorryCannotMakeIt: "Beklager, kan ikke komme",
+    deleteGuest: "Slet Gæst",
+    confirmDelete: "Bekræft Sletning",
+    confirmDeleteMessage: "Er du sikker på, at du vil fjerne denne gæst fra RSVP'en?",
   },
 
   ta: {
@@ -1135,6 +1144,9 @@ export const translations: Record<string, Translation> = {
     attendingWedding: "திருமணத்தில் கலந்துகொள்கிறேன்",
     attendingReception: "வரவேற்பில் கலந்துகொள்கிறேன்",
     sorryCannotMakeIt: "மன்னிக்கவும், என்னால் வர முடியாது",
+    deleteGuest: "விருந்தினரை நீக்கு",
+    confirmDelete: "நீக்குதலை உறுதிப்படுத்து",
+    confirmDeleteMessage: "இந்த விருந்தினரை RSVP இலிருந்து நீக்க விரும்புகிறீர்களா?",
   },
 
   fr: {
@@ -1438,6 +1450,9 @@ export const translations: Record<string, Translation> = {
     attendingWedding: "Assiste au Mariage",
     attendingReception: "Assiste à la Réception",
     sorryCannotMakeIt: "Désolé, je ne peux pas venir",
+    deleteGuest: "Supprimer l'Invité",
+    confirmDelete: "Confirmer la Suppression",
+    confirmDeleteMessage: "Êtes-vous sûr de vouloir retirer cet invité du RSVP ?",
   },
 }
 
