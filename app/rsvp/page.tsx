@@ -30,6 +30,7 @@ interface Guest {
   questions?: string
   ageGroup?: string
   lockStatus?: "locked" | "unlocked"
+  creationStatus?: "Invited" | "Removed" // Added for potential filtering
 }
 
 interface Group {
@@ -77,10 +78,17 @@ export default function RSVPPage() {
         return
       }
 
-      setSearchResult(data)
-
       if (data.type === "individual" && data.guest) {
         const guest = data.guest
+
+        // If individual guest is locked, don't allow RSVP
+        if (guest.lockStatus === "locked") {
+          setError("This guest has already completed their RSVP and cannot make changes.")
+          setIsLoading(false)
+          return
+        }
+
+        setSearchResult(data)
         setIsAttending(guest.rsvpStatus === "attending" ? "yes" : guest.rsvpStatus === "not-attending" ? "no" : "")
         setEvents(guest.events || [])
         setDietaryRequirements(guest.dietaryRequirements || "")
@@ -89,19 +97,34 @@ export default function RSVPPage() {
         setGuestAgeGroups({ [guest._id]: guest.ageGroup || "" })
         setStep(2)
       } else if (data.type === "group" && data.guests) {
+        // Check if all guests in group are locked
+        const allLocked = data.guests.every((g: Guest) => g.lockStatus === "locked")
+
+        if (allLocked) {
+          setError("All guests in this group have already completed their RSVP and cannot make changes.")
+          setIsLoading(false)
+          return
+        }
+
+        // Filter out guests with "Removed" creation status
+        const activeGuests = data.guests.filter((g: Guest) => g.creationStatus !== "Removed")
+
         const initialNames: { [key: string]: string } = {}
         const initialChildStatus: { [key: string]: boolean } = {}
         const initialAgeGroups: { [key: string]: string } = {}
-        data.guests.forEach((guest: Guest) => {
-          initialNames[guest._id] = ""
+
+        activeGuests.forEach((guest: Guest) => {
+          initialNames[guest._id] = guest.name || ""
           initialChildStatus[guest._id] = guest.isChild
           initialAgeGroups[guest._id] = guest.ageGroup || ""
         })
+
         setGuestNames(initialNames)
         setGuestChildStatus(initialChildStatus)
         setGuestAgeGroups(initialAgeGroups)
+        setSearchResult({ ...data, guests: activeGuests })
 
-        const firstGuest = data.guests[0]
+        const firstGuest = activeGuests[0]
         if (firstGuest) {
           setIsAttending(
             firstGuest.rsvpStatus === "attending" ? "yes" : firstGuest.rsvpStatus === "not-attending" ? "no" : "",
@@ -110,6 +133,16 @@ export default function RSVPPage() {
           setDietaryRequirements(firstGuest.dietaryRequirements || "")
           setQuestions(firstGuest.questions || "")
         }
+
+        // Check if there are any unlocked guests
+        const hasUnlockedGuests = activeGuests.some((g: Guest) => g.lockStatus !== "locked")
+
+        if (!hasUnlockedGuests) {
+          setError("All guests in this group have already completed their RSVP and cannot make changes.")
+          setIsLoading(false)
+          return
+        }
+
         setStep(2)
       }
     } catch (error) {
@@ -144,6 +177,16 @@ export default function RSVPPage() {
       if (emptyNames.length > 0) {
         setError("Please enter names for all attending guests")
         return
+      }
+
+      const nameCount: { [key: string]: number } = {}
+      for (const guest of attendingGuests) {
+        const normalizedName = guest.name.toLowerCase().trim()
+        nameCount[normalizedName] = (nameCount[normalizedName] || 0) + 1
+        if (nameCount[normalizedName] > 1) {
+          setError(`Duplicate name detected: "${guest.name}". Each guest must have a unique name.`)
+          return
+        }
       }
 
       for (const guest of attendingGuests) {
@@ -572,6 +615,7 @@ export default function RSVPPage() {
           </Card>
         )}
 
+        {/* Step 5 - Guest details form */}
         {((step === 2 && searchResult?.type === "individual") || (step === 5 && searchResult?.type === "group")) &&
           searchResult && (
             <Card>
@@ -672,6 +716,9 @@ export default function RSVPPage() {
                           <div className="space-y-3">
                             {Array.from({ length: attendingGuestCount }).map((_, index) => {
                               const tempId = `temp-${index}`
+                              const correspondingGuest = searchResult.guests?.[index]
+                              const isLocked = correspondingGuest?.lockStatus === "locked"
+
                               return (
                                 <div key={tempId} className="bg-muted/30 border border-muted rounded-lg p-3 space-y-2">
                                   <div className="flex items-center gap-2">
@@ -693,14 +740,14 @@ export default function RSVPPage() {
                                             200,
                                           )
                                         }
-                                        disabled={
-                                          searchResult.guests && searchResult.guests[index]?.lockStatus === "locked"
-                                        }
-                                        className="w-full px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                        disabled={isLocked}
+                                        className={`w-full px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
+                                          isLocked ? "bg-muted/50 cursor-not-allowed opacity-70" : "bg-background"
+                                        }`}
                                         placeholder={t("memberNamePlaceholder", { number: index + 1 })}
                                         required
                                       />
-                                      {showSuggestions[tempId] && searchResult.guests && (
+                                      {showSuggestions[tempId] && searchResult.guests && !isLocked && (
                                         <div className="absolute z-10 w-full mt-1 bg-background border border-input rounded-md shadow-lg max-h-40 overflow-y-auto">
                                           {searchResult.guests
                                             .filter((g) => g.name && g.name.trim())
@@ -734,6 +781,7 @@ export default function RSVPPage() {
                                             setGuestAgeGroups(newAgeGroups)
                                           }
                                         }}
+                                        disabled={isLocked}
                                         className="rounded"
                                       />
                                       <span className="text-muted-foreground">Child</span>
@@ -744,7 +792,8 @@ export default function RSVPPage() {
                                         onChange={(e) => {
                                           setGuestAgeGroups({ ...guestAgeGroups, [tempId]: e.target.value })
                                         }}
-                                        className="flex-1 px-2 py-1 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm"
+                                        disabled={isLocked}
+                                        className="flex-1 px-2 py-1 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm disabled:opacity-70 disabled:cursor-not-allowed"
                                         required
                                       >
                                         <option value="">Age group *</option>

@@ -1010,7 +1010,7 @@ export default function GuestManagementPage() {
                                     key={event}
                                     className="inline-block px-2 py-1 text-xs rounded-full bg-primary/10 text-primary"
                                   >
-                                    {event === "ceremony" ? "Wedding" : "Reception"}
+                                    {event === "ceremony" ? "Wedding" : event === "reception" ? "Reception" : event}
                                   </span>
                                 ))}
                               </div>
@@ -1060,7 +1060,14 @@ export default function GuestManagementPage() {
                                     body: JSON.stringify({ creationStatus: value }),
                                   })
                                   if (response.ok) {
-                                    await loadData()
+                                    // Update local state immediately for better UX
+                                    setGuests(
+                                      guests.map((g) =>
+                                        (g._id || g.id) === (guest._id || guest.id)
+                                          ? { ...g, creationStatus: value, lastUpdated: new Date().toISOString() }
+                                          : g,
+                                      ),
+                                    )
                                   }
                                 } catch (error) {
                                   console.error("Error updating creation status:", error)
@@ -1191,7 +1198,7 @@ export default function GuestManagementPage() {
                                     key={event}
                                     className="inline-block px-2 py-1 text-xs rounded-full bg-primary/10 text-primary"
                                   >
-                                    {event === "ceremony" ? "Wedding" : "Reception"}
+                                    {event === "ceremony" ? "Wedding" : event === "reception" ? "Reception" : event}
                                   </span>
                                 ))}
                               </div>

@@ -13,6 +13,20 @@ export async function POST(request: NextRequest) {
     if (body.type === "group") {
       const { groupId, isAttending, events, dietaryRequirements, questions, attendingGuests, originalGuests } = body
 
+      const nameCount: { [key: string]: number } = {}
+      for (const guest of attendingGuests) {
+        const normalizedName = guest.name.toLowerCase().trim()
+        nameCount[normalizedName] = (nameCount[normalizedName] || 0) + 1
+        if (nameCount[normalizedName] > 1) {
+          return NextResponse.json(
+            {
+              error: `Duplicate name detected: "${guest.name}". Each guest must have a unique name.`,
+            },
+            { status: 400 },
+          )
+        }
+      }
+
       const originalGuestNames = originalGuests.map((g: any) => g.name.toLowerCase().trim())
       const attendingGuestNames = attendingGuests.map((g: any) => g.name.toLowerCase().trim())
 
