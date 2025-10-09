@@ -49,7 +49,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       }
     }
 
-    const isOnlyLockStatusUpdate = body.lockStatus !== undefined && Object.keys(body).length === 1
+    const isOnlyStatusUpdate =
+      (body.lockStatus !== undefined || body.creationStatus !== undefined) && Object.keys(body).length === 1
 
     const updateData: any = {}
 
@@ -65,8 +66,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (body.dietaryRequirements !== undefined) updateData.dietaryRequirements = body.dietaryRequirements
     if (body.questions !== undefined) updateData.questions = body.questions
     if (body.lockStatus !== undefined) updateData.lockStatus = body.lockStatus
+    if (body.creationStatus !== undefined) updateData.creationStatus = body.creationStatus
 
-    if (!isOnlyLockStatusUpdate) {
+    if (!isOnlyStatusUpdate) {
       updateData.lastUpdated = new Date().toISOString()
     }
 
@@ -102,6 +104,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
           dietaryRequirements: body.dietaryRequirements || "",
           questions: body.questions || "",
           lockStatus: body.lockStatus || "unlocked",
+          creationStatus: body.creationStatus || "active", // Added creationStatus
           lastUpdated: new Date().toISOString(),
         },
       },

@@ -229,8 +229,7 @@ export default function GuestManagementPage() {
       "Has Dietary Requirements",
       "Created",
       "Last Updated",
-      "Group Name", // Added Group Name column header
-      "Removed", // Add Removed header
+      "Group Name",
     ]
 
     const rows = guests.map((guest) => {
@@ -250,8 +249,7 @@ export default function GuestManagementPage() {
         guest.dietaryRequirements ? "Yes" : "No",
         new Date(guest.createdAt).toLocaleString(),
         new Date(guest.lastUpdated).toLocaleString(),
-        groupName, // Include group name in the row
-        guest.removed ? "Yes" : "No", // Add Removed status
+        groupName,
       ]
     })
 

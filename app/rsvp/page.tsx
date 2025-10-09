@@ -105,7 +105,6 @@ export default function RSVPPage() {
         setGuestNames(initialNames)
         setGuestChildStatus(initialChildStatus)
         setGuestAgeGroups(initialAgeGroups)
-        setAttendingGuestCount(activeGuests.length) // Set the attending count
         setSearchResult({ ...data, guests: activeGuests })
 
         const firstGuest = activeGuests[0]
@@ -118,8 +117,7 @@ export default function RSVPPage() {
           setQuestions(firstGuest.questions || "")
         }
 
-        // Skip attendance question and go directly to guest details if group has mixed lock status
-        setStep(5)
+        setStep(2)
       } else if (data.type === "individual" && data.guest) {
         const guest = data.guest
 
