@@ -6,6 +6,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useLanguage } from "@/lib/language-context"
 import { PageTracker } from "@/components/page-tracker"
 import { Check, X } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 
 interface Guest {
   _id: string
@@ -50,6 +59,9 @@ export default function RSVPPage() {
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [guestToDelete, setGuestToDelete] = useState<string | null>(null)
+
   const handleGuestSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -68,7 +80,6 @@ export default function RSVPPage() {
       if (data.type === "group" && data.guests) {
         const activeGuests = data.guests.filter((g: Guest) => g.creationStatus !== "Removed")
 
-        // Initialize guest data
         const initialNames: { [key: string]: string } = {}
         const initialChildStatus: { [key: string]: boolean } = {}
         const initialAgeGroups: { [key: string]: string } = {}
@@ -79,7 +90,6 @@ export default function RSVPPage() {
           initialChildStatus[guest._id] = guest.isChild
           initialAgeGroups[guest._id] = guest.ageGroup || ""
 
-          // Set initial event selection based on current RSVP status
           if (guest.rsvpStatus === "not-attending") {
             initialEvents[guest._id] = ["not-attending"]
           } else {
@@ -103,7 +113,6 @@ export default function RSVPPage() {
         setGuestAgeGroups({ [guest._id]: guest.ageGroup || "" })
         setGuestNames({ [guest._id]: guest.name })
 
-        // Set initial event selection
         if (guest.rsvpStatus === "not-attending") {
           setGuestEvents({ [guest._id]: ["not-attending"] })
         } else {
@@ -140,7 +149,6 @@ export default function RSVPPage() {
       }
     }
 
-    // Validate child age groups
     if (searchResult?.type === "group" && searchResult.guests) {
       for (const guest of searchResult.guests) {
         if (guestChildStatus[guest._id] && !guestAgeGroups[guest._id]) {
@@ -220,15 +228,14 @@ export default function RSVPPage() {
   }
 
   const handleDeleteGuest = async (guestId: string) => {
-    if (!confirm(`${t("deleteGuest")}?`)) {
-      return
-    }
-
     try {
       const response = await fetch(`/api/guests/${guestId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ creationStatus: "Removed" }),
+        body: JSON.stringify({
+          creationStatus: "Removed",
+          lockStatus: "locked",
+        }),
       })
 
       if (!response.ok) {
@@ -236,12 +243,10 @@ export default function RSVPPage() {
         return
       }
 
-      // Remove the guest from local state
       if (searchResult?.type === "group" && searchResult.guests) {
         const updatedGuests = searchResult.guests.filter((g) => g._id !== guestId)
         setSearchResult({ ...searchResult, guests: updatedGuests })
 
-        // Clean up state for the deleted guest
         const newGuestNames = { ...guestNames }
         const newGuestChildStatus = { ...guestChildStatus }
         const newGuestAgeGroups = { ...guestAgeGroups }
@@ -257,10 +262,18 @@ export default function RSVPPage() {
         setGuestAgeGroups(newGuestAgeGroups)
         setGuestEvents(newGuestEvents)
       }
+
+      setDeleteDialogOpen(false)
+      setGuestToDelete(null)
     } catch (error) {
       console.error("Error deleting guest:", error)
       setError("An error occurred while deleting the guest")
     }
+  }
+
+  const openDeleteDialog = (guestId: string) => {
+    setGuestToDelete(guestId)
+    setDeleteDialogOpen(true)
   }
 
   if (success) {
@@ -299,7 +312,6 @@ export default function RSVPPage() {
           <p className="text-lg text-muted-foreground">{t("rsvpSubtitle")}</p>
         </div>
 
-        {/* Step 1 - Guest search form */}
         {step === 1 && (
           <Card>
             <CardContent className="p-6">
@@ -331,7 +343,6 @@ export default function RSVPPage() {
           </Card>
         )}
 
-        {/* Step 2 - Guest details form with inline event selection */}
         {step === 2 && searchResult && (
           <Card>
             <CardContent className="p-6">
@@ -363,7 +374,7 @@ export default function RSVPPage() {
                             {!isLocked && (
                               <button
                                 type="button"
-                                onClick={() => handleDeleteGuest(guest._id)}
+                                onClick={() => openDeleteDialog(guest._id)}
                                 className="absolute top-3 right-3 p-1 rounded-full hover:bg-destructive/10 text-destructive transition-colors"
                                 title={t("deleteGuest")}
                               >
@@ -788,6 +799,38 @@ export default function RSVPPage() {
           </Card>
         )}
       </div>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{t("confirmDeleteGuest")}</DialogTitle>
+            <DialogDescription className="pt-4">{t("confirmDeleteMessage")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setDeleteDialogOpen(false)
+                setGuestToDelete(null)
+              }}
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                if (guestToDelete) {
+                  handleDeleteGuest(guestToDelete)
+                }
+              }}
+            >
+              {t("confirmDelete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

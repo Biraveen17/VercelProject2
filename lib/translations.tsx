@@ -263,6 +263,9 @@ export interface Translation {
   attendingReception: string
   sorryCannotMakeIt: string
   deleteGuest: string // Adding delete guest translation
+  confirmDeleteGuest: string
+  confirmDeleteMessage: string
+  confirmDelete: string
 }
 
 export const translations: Record<string, Translation> = {
@@ -554,6 +557,10 @@ export const translations: Record<string, Translation> = {
     attendingReception: "Attending Reception",
     sorryCannotMakeIt: "Sorry, can't make it",
     deleteGuest: "Delete Guest", // Adding delete guest translation
+    confirmDeleteGuest: "Confirm Delete Guest",
+    confirmDeleteMessage:
+      "Are you sure you want to delete this guest? This action will mark them as removed and they will no longer appear in the guest list.",
+    confirmDelete: "Yes, Delete Guest",
   },
 
   da: {
@@ -846,6 +853,10 @@ export const translations: Record<string, Translation> = {
     attendingReception: "Deltager i Reception",
     sorryCannotMakeIt: "Beklager, kan ikke komme",
     deleteGuest: "Slet Gæst", // Adding delete guest translation
+    confirmDeleteGuest: "Bekræft Slet Gæst",
+    confirmDeleteMessage:
+      "Er du sikker på, at du vil slette denne gæst? Denne handling vil markere dem som fjernet, og de vil ikke længere vises på gæstelisten.",
+    confirmDelete: "Ja, Slet Gæst",
   },
 
   ta: {
@@ -968,7 +979,7 @@ export const translations: Record<string, Translation> = {
     fullCatering: "முழு உணவு வசதிகள்",
     venueLocation: "இடத்தின் இருப்பிடம்",
     address: "முகவரி",
-    mapInstructions: "வரைபடத்தை ஆராய கிளிக் செய்து இழுக்கவும். காட்சியை பெரிதாக்க முழுத்திரை பொத்தானைப் பயன்படுத்தவும்.",
+    mapInstructions: "கிளிக் செய்து இழுத்து வரைபடத்தை ஆராயவும். காட்சியை பெரிதாக்க முழுத்திரை பொத்தானைப் பயன்படுத்தவும்.",
     viewTravelInfo: "பயண தகவலைப் பார்க்கவும்",
 
     // Travel page
@@ -1139,6 +1150,10 @@ export const translations: Record<string, Translation> = {
     attendingReception: "வரவேற்பில் கலந்துகொள்கிறேன்",
     sorryCannotMakeIt: "மன்னிக்கவும், என்னால் வர முடியாது",
     deleteGuest: "விருந்தினரை நீக்கு", // Adding delete guest translation
+    confirmDeleteGuest: "விருந்தினரை நீக்குவதை உறுதிப்படுத்தவும்",
+    confirmDeleteMessage:
+      "இந்த விருந்தினரை நீக்க விரும்புகிறீர்களா? இந்த செயல் அவர்களை நீக்கப்பட்டதாகக் குறிக்கும் மற்றும் அவர்கள் இனி விருந்தினர் பட்டியலில் தோன்ற மாட்டார்கள்.",
+    confirmDelete: "ஆம், விருந்தினரை நீக்கு",
   },
 
   fr: {
@@ -1443,6 +1458,10 @@ export const translations: Record<string, Translation> = {
     attendingReception: "Assiste à la Réception",
     sorryCannotMakeIt: "Désolé, je ne peux pas venir",
     deleteGuest: "Supprimer l'Invité", // Adding delete guest translation
+    confirmDeleteGuest: "Confirmer la Suppression de l'Invité",
+    confirmDeleteMessage:
+      "Êtes-vous sûr de vouloir supprimer cet invité ? Cette action le marquera comme supprimé et il n'apparaîtra plus dans la liste des invités.",
+    confirmDelete: "Oui, Supprimer l'Invité",
   },
 }
 
