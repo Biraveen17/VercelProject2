@@ -481,29 +481,30 @@ export default function RSVPPage() {
                               </label>
                             </div>
 
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-muted-foreground min-w-[60px]">Name</span>
+                              <input
+                                type="text"
+                                value={guestNames[guest._id] || ""}
+                                onChange={(e) => {
+                                  if (!isLocked) {
+                                    setGuestNames({ ...guestNames, [guest._id]: e.target.value })
+                                  }
+                                }}
+                                disabled={isLocked}
+                                className={`flex-1 px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
+                                  isLocked
+                                    ? "bg-muted/70 cursor-not-allowed opacity-80 text-muted-foreground"
+                                    : "bg-background"
+                                }`}
+                                placeholder={t("memberNamePlaceholder", { number: index + 1 })}
+                                required
+                                readOnly={isLocked}
+                              />
+                            </div>
+
                             {!isNotAttending && (
                               <>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-muted-foreground min-w-[60px]">Name</span>
-                                  <input
-                                    type="text"
-                                    value={guestNames[guest._id] || ""}
-                                    onChange={(e) => {
-                                      if (!isLocked) {
-                                        setGuestNames({ ...guestNames, [guest._id]: e.target.value })
-                                      }
-                                    }}
-                                    disabled={isLocked}
-                                    className={`flex-1 px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
-                                      isLocked
-                                        ? "bg-muted/70 cursor-not-allowed opacity-80 text-muted-foreground"
-                                        : "bg-background"
-                                    }`}
-                                    placeholder={t("memberNamePlaceholder", { number: index + 1 })}
-                                    required
-                                    readOnly={isLocked}
-                                  />
-                                </div>
                                 <div className="flex items-center gap-4 pl-[68px]">
                                   <label className="flex items-center gap-2 text-sm">
                                     <input
@@ -672,6 +673,26 @@ export default function RSVPPage() {
                           <span className="text-sm font-medium">{t("sorryCannotMakeIt")}</span>
                         </label>
                       </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-muted-foreground min-w-[60px]">Name</span>
+                      <input
+                        type="text"
+                        value={guestNames[searchResult.guest._id] || ""}
+                        onChange={(e) => {
+                          setGuestNames({ ...guestNames, [searchResult.guest._id]: e.target.value })
+                        }}
+                        disabled={searchResult.guest.lockStatus === "locked"}
+                        className={`flex-1 px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
+                          searchResult.guest.lockStatus === "locked"
+                            ? "bg-muted/70 cursor-not-allowed opacity-80 text-muted-foreground"
+                            : "bg-background"
+                        }`}
+                        placeholder={t("memberNamePlaceholder", { number: 1 })}
+                        required
+                        readOnly={searchResult.guest.lockStatus === "locked"}
+                      />
                     </div>
 
                     {!guestEvents[searchResult.guest._id]?.includes("not-attending") && (
