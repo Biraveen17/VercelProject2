@@ -97,22 +97,18 @@ export default function RSVPPage() {
         const unlockedGuests = activeGuests.filter((g: Guest) => g.lockStatus !== "locked")
 
         if (lockedGuests.length > 0 && unlockedGuests.length > 0) {
-          // Mixed lock status - show locked guest info and go directly to guest details
-          setLockedGuestsInfo(lockedGuests)
-          setAttendingGuestCount(unlockedGuests.length)
+          setAttendingGuestCount(activeGuests.length) // Set to total count including locked
 
           const initialNames: { [key: string]: string } = {}
           const initialChildStatus: { [key: string]: boolean } = {}
           const initialAgeGroups: { [key: string]: string } = {}
-          const initialGuestAttendance: { [key: string]: string } = {} // Initialize for guest attendance
+          const initialGuestAttendance: { [key: string]: string } = {}
 
-          unlockedGuests.forEach((guest: Guest, index: number) => {
-            const tempId = `temp-${index}`
-            initialNames[tempId] = guest.name || ""
-            initialChildStatus[tempId] = guest.isChild
-            initialAgeGroups[tempId] = guest.ageGroup || ""
-            // Pre-fill attendance based on current rsvpStatus
-            initialGuestAttendance[tempId] =
+          activeGuests.forEach((guest: Guest) => {
+            initialNames[guest._id] = guest.name || ""
+            initialChildStatus[guest._id] = guest.isChild
+            initialAgeGroups[guest._id] = guest.ageGroup || ""
+            initialGuestAttendance[guest._id] =
               guest.rsvpStatus === "attending"
                 ? "attending"
                 : guest.rsvpStatus === "not-attending"
@@ -123,10 +119,11 @@ export default function RSVPPage() {
           setGuestNames(initialNames)
           setGuestChildStatus(initialChildStatus)
           setGuestAgeGroups(initialAgeGroups)
-          setGuestAttendance(initialGuestAttendance) // Set initial guest attendance
-          setSearchResult({ ...data, guests: unlockedGuests })
-          setIsAttending("yes") // Default to 'yes' to proceed to guest details
-          setStep(5) // Go directly to guest details
+          setGuestAttendance(initialGuestAttendance)
+          setSearchResult({ ...data, guests: activeGuests }) // Include all guests
+          setLockedGuestsInfo([]) // Clear locked guests info since we're showing them inline
+          setIsAttending("yes")
+          setStep(5)
         } else {
           // All unlocked - normal flow
           const initialNames: { [key: string]: string } = {}
@@ -727,29 +724,10 @@ export default function RSVPPage() {
                   </h2>
                   {searchResult.type === "group" && attendingGuestCount > 0 && (
                     <p className="text-muted-foreground">
-                      {attendingGuestCount} {attendingGuestCount === 1 ? "guest" : "guests"} attending
+                      {attendingGuestCount} {attendingGuestCount === 1 ? "guest" : "guests"} in group
                     </p>
                   )}
                 </div>
-
-                {lockedGuestsInfo.length > 0 && (
-                  <div className="mb-6 p-4 bg-muted/50 rounded-lg border border-muted">
-                    <h3 className="font-semibold mb-2">Guests who have already RSVP'd:</h3>
-                    <ul className="space-y-1">
-                      {lockedGuestsInfo.map((guest) => (
-                        <li key={guest._id} className="text-sm">
-                          <span className="font-medium">{guest.name}</span> -{" "}
-                          <span className={guest.rsvpStatus === "attending" ? "text-green-600" : "text-red-600"}>
-                            {guest.rsvpStatus === "attending" ? "Attending" : "Not Attending"}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      You can only update RSVP for the remaining guests below.
-                    </p>
-                  </div>
-                )}
 
                 <form onSubmit={handleRSVPSubmit} className="space-y-6">
                   {searchResult.type === "individual" && (
@@ -830,54 +808,74 @@ export default function RSVPPage() {
                       {searchResult.type === "group" && searchResult.guests && searchResult.guests.length > 0 && (
                         <div>
                           <label className="block text-sm font-medium mb-3">{t("groupMemberNames")}</label>
-                          <p className="text-sm text-muted-foreground mb-3">{t("selectFromGroup")}</p>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            Locked guests have already completed their RSVP and cannot be edited.
+                          </p>
                           <div className="space-y-3">
-                            {Array.from({ length: attendingGuestCount }).map((_, index) => {
-                              const tempId = `temp-${index}`
-                              const correspondingGuest = searchResult.guests?.[index]
-                              const isLocked = correspondingGuest?.lockStatus === "locked"
+                            {searchResult.guests.map((guest, index) => {
+                              const isLocked = guest.lockStatus === "locked"
 
                               return (
-                                <div key={tempId} className="bg-muted/30 border border-muted rounded-lg p-3 space-y-3">
+                                <div
+                                  key={guest._id}
+                                  className={`border rounded-lg p-3 space-y-3 ${
+                                    isLocked ? "bg-muted/20 border-muted" : "bg-muted/30 border-muted"
+                                  }`}
+                                >
                                   <div className="flex items-center gap-2">
                                     <span className="text-sm font-medium text-muted-foreground min-w-[60px]">
                                       Guest {index + 1}
                                     </span>
                                     <div className="flex-1 flex gap-2">
-                                      <label className="flex items-center gap-1 text-sm">
-                                        <input
-                                          type="radio"
-                                          name={`attendance-${tempId}`}
-                                          value="attending"
-                                          checked={guestAttendance[tempId] === "attending"}
-                                          onChange={(e) => {
-                                            setGuestAttendance({ ...guestAttendance, [tempId]: e.target.value })
-                                            setError("")
-                                          }}
-                                          className="mr-1"
-                                          required
-                                        />
-                                        <span className="text-green-600">Attending</span>
-                                      </label>
-                                      <label className="flex items-center gap-1 text-sm">
-                                        <input
-                                          type="radio"
-                                          name={`attendance-${tempId}`}
-                                          value="not-attending"
-                                          checked={guestAttendance[tempId] === "not-attending"}
-                                          onChange={(e) => {
-                                            setGuestAttendance({ ...guestAttendance, [tempId]: e.target.value })
-                                            setError("")
-                                          }}
-                                          className="mr-1"
-                                          required
-                                        />
-                                        <span className="text-red-600">Not Attending</span>
-                                      </label>
+                                      {isLocked ? (
+                                        <div className="flex items-center gap-2 text-sm">
+                                          <span
+                                            className={
+                                              guest.rsvpStatus === "attending" ? "text-green-600" : "text-red-600"
+                                            }
+                                          >
+                                            {guest.rsvpStatus === "attending" ? "✓ Attending" : "✗ Not Attending"}
+                                          </span>
+                                          <span className="text-muted-foreground text-xs">(Locked)</span>
+                                        </div>
+                                      ) : (
+                                        <>
+                                          <label className="flex items-center gap-1 text-sm">
+                                            <input
+                                              type="radio"
+                                              name={`attendance-${guest._id}`}
+                                              value="attending"
+                                              checked={guestAttendance[guest._id] === "attending"}
+                                              onChange={(e) => {
+                                                setGuestAttendance({ ...guestAttendance, [guest._id]: e.target.value })
+                                                setError("")
+                                              }}
+                                              className="mr-1"
+                                              required
+                                            />
+                                            <span className="text-green-600">Attending</span>
+                                          </label>
+                                          <label className="flex items-center gap-1 text-sm">
+                                            <input
+                                              type="radio"
+                                              name={`attendance-${guest._id}`}
+                                              value="not-attending"
+                                              checked={guestAttendance[guest._id] === "not-attending"}
+                                              onChange={(e) => {
+                                                setGuestAttendance({ ...guestAttendance, [guest._id]: e.target.value })
+                                                setError("")
+                                              }}
+                                              className="mr-1"
+                                              required
+                                            />
+                                            <span className="text-red-600">Not Attending</span>
+                                          </label>
+                                        </>
+                                      )}
                                     </div>
                                   </div>
 
-                                  {guestAttendance[tempId] === "attending" && (
+                                  {(isLocked || guestAttendance[guest._id] === "attending") && (
                                     <>
                                       <div className="flex items-center gap-2">
                                         <span className="text-sm font-medium text-muted-foreground min-w-[60px]">
@@ -886,40 +884,54 @@ export default function RSVPPage() {
                                         <div className="flex-1 relative">
                                           <input
                                             type="text"
-                                            value={guestNames[tempId] || ""}
+                                            value={guestNames[guest._id] || ""}
                                             onChange={(e) => {
-                                              setGuestNames({ ...guestNames, [tempId]: e.target.value })
-                                              setShowSuggestions({ ...showSuggestions, [tempId]: true })
+                                              if (!isLocked) {
+                                                setGuestNames({ ...guestNames, [guest._id]: e.target.value })
+                                                setShowSuggestions({ ...showSuggestions, [guest._id]: true })
+                                              }
                                             }}
-                                            onFocus={() => setShowSuggestions({ ...showSuggestions, [tempId]: true })}
+                                            onFocus={() => {
+                                              if (!isLocked) {
+                                                setShowSuggestions({ ...showSuggestions, [guest._id]: true })
+                                              }
+                                            }}
                                             onBlur={() =>
                                               setTimeout(
-                                                () => setShowSuggestions({ ...showSuggestions, [tempId]: false }),
+                                                () => setShowSuggestions({ ...showSuggestions, [guest._id]: false }),
                                                 200,
                                               )
                                             }
                                             disabled={isLocked}
                                             className={`w-full px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
-                                              isLocked ? "bg-muted/50 cursor-not-allowed opacity-70" : "bg-background"
+                                              isLocked
+                                                ? "bg-muted/70 cursor-not-allowed opacity-80 text-muted-foreground"
+                                                : "bg-background"
                                             }`}
-                                            placeholder={t("memberNamePlaceholder", { number: index + 1 })}
-                                            required
+                                            placeholder={
+                                              isLocked ? "" : t("memberNamePlaceholder", { number: index + 1 })
+                                            }
+                                            required={!isLocked}
+                                            readOnly={isLocked}
                                           />
-                                          {showSuggestions[tempId] && searchResult.guests && !isLocked && (
+                                          {showSuggestions[guest._id] && searchResult.guests && !isLocked && (
                                             <div className="absolute z-10 w-full mt-1 bg-background border border-input rounded-md shadow-lg max-h-40 overflow-y-auto">
                                               {searchResult.guests
                                                 .filter((g) => g.name && g.name.trim())
-                                                .map((guest, idx) => (
+                                                .map((suggestionGuest, idx) => (
                                                   <button
                                                     key={idx}
                                                     type="button"
                                                     onClick={() => {
-                                                      setGuestNames({ ...guestNames, [tempId]: guest.name })
-                                                      setShowSuggestions({ ...showSuggestions, [tempId]: false })
+                                                      setGuestNames({
+                                                        ...guestNames,
+                                                        [guest._id]: suggestionGuest.name,
+                                                      })
+                                                      setShowSuggestions({ ...showSuggestions, [guest._id]: false })
                                                     }}
                                                     className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
                                                   >
-                                                    {guest.name}
+                                                    {suggestionGuest.name}
                                                   </button>
                                                 ))}
                                             </div>
@@ -930,13 +942,18 @@ export default function RSVPPage() {
                                         <label className="flex items-center gap-2 text-sm">
                                           <input
                                             type="checkbox"
-                                            checked={guestChildStatus[tempId] || false}
+                                            checked={guestChildStatus[guest._id] || false}
                                             onChange={(e) => {
-                                              setGuestChildStatus({ ...guestChildStatus, [tempId]: e.target.checked })
-                                              if (!e.target.checked) {
-                                                const newAgeGroups = { ...guestAgeGroups }
-                                                delete newAgeGroups[tempId]
-                                                setGuestAgeGroups(newAgeGroups)
+                                              if (!isLocked) {
+                                                setGuestChildStatus({
+                                                  ...guestChildStatus,
+                                                  [guest._id]: e.target.checked,
+                                                })
+                                                if (!e.target.checked) {
+                                                  const newAgeGroups = { ...guestAgeGroups }
+                                                  delete newAgeGroups[guest._id]
+                                                  setGuestAgeGroups(newAgeGroups)
+                                                }
                                               }
                                             }}
                                             disabled={isLocked}
@@ -944,15 +961,19 @@ export default function RSVPPage() {
                                           />
                                           <span className="text-muted-foreground">Child</span>
                                         </label>
-                                        {guestChildStatus[tempId] && (
+                                        {guestChildStatus[guest._id] && (
                                           <select
-                                            value={guestAgeGroups[tempId] || ""}
+                                            value={guestAgeGroups[guest._id] || ""}
                                             onChange={(e) => {
-                                              setGuestAgeGroups({ ...guestAgeGroups, [tempId]: e.target.value })
+                                              if (!isLocked) {
+                                                setGuestAgeGroups({ ...guestAgeGroups, [guest._id]: e.target.value })
+                                              }
                                             }}
                                             disabled={isLocked}
-                                            className="flex-1 px-2 py-1 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm disabled:opacity-70 disabled:cursor-not-allowed"
-                                            required
+                                            className={`flex-1 px-2 py-1 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
+                                              isLocked ? "bg-muted/70 cursor-not-allowed opacity-80" : "bg-background"
+                                            }`}
+                                            required={!isLocked}
                                           >
                                             <option value="">Age group *</option>
                                             <option value="under-4">Under 4 years</option>
