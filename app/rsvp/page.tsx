@@ -78,37 +78,20 @@ export default function RSVPPage() {
         return
       }
 
-      if (data.type === "individual" && data.guest) {
-        const guest = data.guest
-
-        if (guest.lockStatus === "locked") {
-          setError("This guest has already completed their RSVP and cannot make changes.")
-          setIsLoading(false)
-          return
-        }
-
-        setSearchResult(data)
-        setIsAttending(guest.rsvpStatus === "attending" ? "yes" : guest.rsvpStatus === "not-attending" ? "no" : "")
-        setEvents(guest.events || [])
-        setDietaryRequirements(guest.dietaryRequirements || "")
-        setQuestions(guest.questions || "")
-        setGuestChildStatus({ [guest._id]: guest.isChild })
-        setGuestAgeGroups({ [guest._id]: guest.ageGroup || "" })
-        setStep(2)
-      } else if (data.type === "group" && data.guests) {
-        const searchedGuest = data.guests.find(
-          (g: Guest) => g.name.toLowerCase().trim() === guestName.toLowerCase().trim(),
-        )
-
-        if (searchedGuest && searchedGuest.lockStatus === "locked") {
-          setError("This guest has already completed their RSVP and cannot make changes.")
-          setIsLoading(false)
-          return
-        }
-
+      if (data.type === "group" && data.guests) {
         // Filter out guests with "Removed" creation status
         const activeGuests = data.guests.filter((g: Guest) => g.creationStatus !== "Removed")
 
+        // Check if ANY guest in the group has unlocked status
+        const hasUnlockedGuests = activeGuests.some((g: Guest) => g.lockStatus !== "locked")
+
+        if (!hasUnlockedGuests) {
+          setError("All guests in this group have already completed their RSVP and cannot make changes.")
+          setIsLoading(false)
+          return
+        }
+
+        // Initialize guest data
         const initialNames: { [key: string]: string } = {}
         const initialChildStatus: { [key: string]: boolean } = {}
         const initialAgeGroups: { [key: string]: string } = {}
@@ -134,15 +117,25 @@ export default function RSVPPage() {
           setQuestions(firstGuest.questions || "")
         }
 
-        // Check if there are any unlocked guests
-        const hasUnlockedGuests = activeGuests.some((g: Guest) => g.lockStatus !== "locked")
+        // Skip attendance question and go directly to guest details if group has mixed lock status
+        setStep(5)
+      } else if (data.type === "individual" && data.guest) {
+        const guest = data.guest
 
-        if (!hasUnlockedGuests) {
-          setError("All guests in this group have already completed their RSVP and cannot make changes.")
+        // Check if this specific guest is locked
+        if (guest.lockStatus === "locked") {
+          setError("This guest has already completed their RSVP and cannot make changes.")
           setIsLoading(false)
           return
         }
 
+        setSearchResult(data)
+        setIsAttending(guest.rsvpStatus === "attending" ? "yes" : guest.rsvpStatus === "not-attending" ? "no" : "")
+        setEvents(guest.events || [])
+        setDietaryRequirements(guest.dietaryRequirements || "")
+        setQuestions(guest.questions || "")
+        setGuestChildStatus({ [guest._id]: guest.isChild })
+        setGuestAgeGroups({ [guest._id]: guest.ageGroup || "" })
         setStep(2)
       }
     } catch (error) {

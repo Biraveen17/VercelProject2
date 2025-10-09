@@ -37,7 +37,7 @@ export function Navigation() {
   const [showLangMenu, setShowLangMenu] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [pageConfig, setPageConfig] = useState<ContentData | null>(null)
-  const [gallerySettings, setGallerySettings] = useState({ visible: true, accessible: true })
+  const [gallerySettings, setGallerySettings] = useState({ visible: false, accessible: true })
   const [availableLanguages, setAvailableLanguages] = useState(languages)
   const [autoLanguageDetected, setAutoLanguageDetected] = useState(false)
 
@@ -142,9 +142,13 @@ export function Navigation() {
       { href: "/events", label: t("events"), key: "events" },
       { href: "/venue", label: t("venue"), key: "venue" },
       { href: "/travel", label: t("travel"), key: "travel" },
-      ...(gallerySettings.visible ? [{ href: "/gallery", label: t("gallery"), key: "gallery" }] : []),
       { href: "/rsvp", label: t("rsvp"), key: "rsvp" },
     ]
+
+    // Only add gallery if settings say it's visible
+    if (gallerySettings.visible) {
+      baseNavItems.splice(4, 0, { href: "/gallery", label: t("gallery"), key: "gallery" })
+    }
 
     return baseNavItems
       .filter((item) => {
