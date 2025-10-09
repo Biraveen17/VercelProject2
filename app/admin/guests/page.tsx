@@ -1248,7 +1248,14 @@ export default function GuestManagementPage() {
                                     body: JSON.stringify({ creationStatus: value }),
                                   })
                                   if (response.ok) {
-                                    await loadData()
+                                    // Update local state immediately for better UX
+                                    setGuests(
+                                      guests.map((g) =>
+                                        (g._id || g.id) === (member._id || member.id)
+                                          ? { ...g, creationStatus: value, lastUpdated: new Date().toISOString() }
+                                          : g,
+                                      ),
+                                    )
                                   }
                                 } catch (error) {
                                   console.error("Error updating creation status:", error)

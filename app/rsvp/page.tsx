@@ -81,7 +81,6 @@ export default function RSVPPage() {
       if (data.type === "individual" && data.guest) {
         const guest = data.guest
 
-        // If individual guest is locked, don't allow RSVP
         if (guest.lockStatus === "locked") {
           setError("This guest has already completed their RSVP and cannot make changes.")
           setIsLoading(false)
@@ -97,11 +96,12 @@ export default function RSVPPage() {
         setGuestAgeGroups({ [guest._id]: guest.ageGroup || "" })
         setStep(2)
       } else if (data.type === "group" && data.guests) {
-        // Check if all guests in group are locked
-        const allLocked = data.guests.every((g: Guest) => g.lockStatus === "locked")
+        const searchedGuest = data.guests.find(
+          (g: Guest) => g.name.toLowerCase().trim() === guestName.toLowerCase().trim(),
+        )
 
-        if (allLocked) {
-          setError("All guests in this group have already completed their RSVP and cannot make changes.")
+        if (searchedGuest && searchedGuest.lockStatus === "locked") {
+          setError("This guest has already completed their RSVP and cannot make changes.")
           setIsLoading(false)
           return
         }
@@ -541,56 +541,87 @@ export default function RSVPPage() {
                 </p>
               </div>
 
-              <div className="space-y-4">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    setIsLoading(true)
-                    setError("")
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  setIsLoading(true)
+                  setError("")
 
-                    try {
-                      const requestBody = {
-                        type: "group",
-                        groupId: searchResult.group?._id,
-                        isAttending: true,
-                        events: ["wedding", "reception"],
-                        dietaryRequirements: "",
-                        questions: "",
-                        attendingGuests: searchResult.guests?.map((g) => ({
-                          name: g.name,
-                          isChild: g.isChild,
-                          ageGroup: g.ageGroup,
-                        })),
-                        originalGuests: searchResult.guests,
-                        totalGroupSize: searchResult.guests?.length || 0,
-                      }
-
-                      const response = await fetch("/api/guests/rsvp", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(requestBody),
-                      })
-
-                      const data = await response.json()
-
-                      if (!response.ok) {
-                        setError(data.error || "Failed to submit RSVP")
-                        setIsLoading(false)
-                        return
-                      }
-
-                      setSuccess(true)
-                    } catch (error) {
-                      console.error("Error submitting RSVP:", error)
-                      setError("An error occurred while submitting. Please try again.")
-                    } finally {
-                      setIsLoading(false)
+                  try {
+                    const requestBody = {
+                      type: "group",
+                      groupId: searchResult.group?._id,
+                      isAttending: true,
+                      events: ["wedding", "reception"],
+                      dietaryRequirements: dietaryRequirements,
+                      questions: questions,
+                      attendingGuests: searchResult.guests?.map((g) => ({
+                        name: g.name,
+                        isChild: g.isChild,
+                        ageGroup: g.ageGroup,
+                      })),
+                      originalGuests: searchResult.guests,
+                      totalGroupSize: searchResult.guests?.length || 0,
                     }
-                  }}
+
+                    const response = await fetch("/api/guests/rsvp", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(requestBody),
+                    })
+
+                    const data = await response.json()
+
+                    if (!response.ok) {
+                      setError(data.error || "Failed to submit RSVP")
+                      setIsLoading(false)
+                      return
+                    }
+
+                    setSuccess(true)
+                  } catch (error) {
+                    console.error("Error submitting RSVP:", error)
+                    setError("An error occurred while submitting. Please try again.")
+                  } finally {
+                    setIsLoading(false)
+                  }
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label htmlFor="quickDietary" className="block text-sm font-medium mb-2">
+                    {t("dietaryRequirements")}
+                  </label>
+                  <textarea
+                    id="quickDietary"
+                    value={dietaryRequirements}
+                    onChange={(e) => setDietaryRequirements(e.target.value)}
+                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                    rows={3}
+                    placeholder={t("dietaryPlaceholder")}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="quickQuestions" className="block text-sm font-medium mb-2">
+                    {t("questionsComments")}
+                  </label>
+                  <textarea
+                    id="quickQuestions"
+                    value={questions}
+                    onChange={(e) => setQuestions(e.target.value)}
+                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                    rows={3}
+                    placeholder={t("questionsPlaceholder")}
+                  />
+                </div>
+
+                <button
+                  type="submit"
                   className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
                   disabled={isLoading}
                 >
-                  {isLoading ? t("submitting") : t("submitWithoutDetails")}
+                  {isLoading ? t("submitting") : t("submitRSVP")}
                 </button>
 
                 <button
@@ -608,7 +639,7 @@ export default function RSVPPage() {
                 >
                   {t("back")}
                 </button>
-              </div>
+              </form>
 
               {error && <p className="text-destructive text-sm mt-4">{error}</p>}
             </CardContent>

@@ -142,15 +142,12 @@ export function Navigation() {
       { href: "/events", label: t("events"), key: "events" },
       { href: "/venue", label: t("venue"), key: "venue" },
       { href: "/travel", label: t("travel"), key: "travel" },
-      { href: "/gallery", label: t("gallery"), key: "gallery" },
+      ...(gallerySettings.visible ? [{ href: "/gallery", label: t("gallery"), key: "gallery" }] : []),
       { href: "/rsvp", label: t("rsvp"), key: "rsvp" },
     ]
 
     return baseNavItems
       .filter((item) => {
-        if (item.key === "gallery" && !gallerySettings.visible) {
-          return false
-        }
         if (item.key === "rsvp") return true
         if (!pageConfig) return true
         const pageData = pageConfig[item.key as keyof ContentData]
