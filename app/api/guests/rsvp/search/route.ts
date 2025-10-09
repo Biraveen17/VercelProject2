@@ -40,8 +40,10 @@ export async function GET(request: NextRequest) {
 
         const groupGuests = await guestsCollection.find({ groupId: guest.groupId }).toArray()
 
-        const hasLockedGuest = groupGuests.some((g) => g.lockStatus === "locked")
-        if (hasLockedGuest) {
+        const activeGuests = groupGuests.filter((g) => g.creationStatus !== "Removed")
+        const allLocked = activeGuests.every((g) => g.lockStatus === "locked")
+
+        if (allLocked) {
           return NextResponse.json(
             {
               error:
@@ -71,8 +73,10 @@ export async function GET(request: NextRequest) {
     if (group) {
       const groupGuests = await guestsCollection.find({ groupId: group._id.toString() }).toArray()
 
-      const hasLockedGuest = groupGuests.some((g) => g.lockStatus === "locked")
-      if (hasLockedGuest) {
+      const activeGuests = groupGuests.filter((g) => g.creationStatus !== "Removed")
+      const allLocked = activeGuests.every((g) => g.lockStatus === "locked")
+
+      if (allLocked) {
         return NextResponse.json(
           {
             error:
