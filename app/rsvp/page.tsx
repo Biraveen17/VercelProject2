@@ -91,20 +91,21 @@ export default function RSVPPage() {
           return
         }
 
-        // Initialize guest data
         const initialNames: { [key: string]: string } = {}
         const initialChildStatus: { [key: string]: boolean } = {}
         const initialAgeGroups: { [key: string]: string } = {}
 
-        activeGuests.forEach((guest: Guest) => {
-          initialNames[guest._id] = guest.name || ""
-          initialChildStatus[guest._id] = guest.isChild
-          initialAgeGroups[guest._id] = guest.ageGroup || ""
+        activeGuests.forEach((guest: Guest, index: number) => {
+          const tempId = `temp-${index}`
+          initialNames[tempId] = guest.name || ""
+          initialChildStatus[tempId] = guest.isChild
+          initialAgeGroups[tempId] = guest.ageGroup || ""
         })
 
         setGuestNames(initialNames)
         setGuestChildStatus(initialChildStatus)
         setGuestAgeGroups(initialAgeGroups)
+        setAttendingGuestCount(activeGuests.length) // Set the attending count
         setSearchResult({ ...data, guests: activeGuests })
 
         const firstGuest = activeGuests[0]
