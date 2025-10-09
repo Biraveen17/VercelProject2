@@ -257,6 +257,11 @@ export interface Translation {
   thankYouAttending: string
   thankYouNotAttending: string
   backToHome: string
+
+  // RSVP - NEW CONTENT
+  attendingWedding: string
+  attendingReception: string
+  sorryCannotMakeIt: string
 }
 
 export const translations: Record<string, Translation> = {
@@ -542,6 +547,11 @@ export const translations: Record<string, Translation> = {
     thankYouAttending: "Your RSVP has been received. We're excited to celebrate with you!",
     thankYouNotAttending: "Your RSVP has been received. We're sorry to hear you can't make it!",
     backToHome: "Back to Home",
+
+    // RSVP - NEW CONTENT
+    attendingWedding: "Attending Wedding",
+    attendingReception: "Attending Reception",
+    sorryCannotMakeIt: "Sorry, can't make it",
   },
 
   da: {
@@ -720,7 +730,7 @@ export const translations: Record<string, Translation> = {
       "Udforsk gamle romerske villaer med fantastiske mosaikker, Odeon amfiteatret og andre historiske skatte fra Cyperns rige fortid.",
     activity2Title: "Kongernes Grave",
     activity2Description:
-      "Besøg dette imponerende UNESCO Verdensarvssted med underjordiske grave hugget ud af fast klippe fra det 4. århundrede f.Kr.",
+      "Besøg detteImponerende UNESCO Verdensarvssted med underjordiske grave hugget ud af fast klippe fra det 4. århundrede f.Kr.",
     activity3Title: "Afrodites Klippe",
     activity3Description:
       "Se det legendariske fødested for Afrodite, den græske kærlighedsgudinde. Et fantastisk kystlandskab perfekt til fotos.",
@@ -828,6 +838,11 @@ export const translations: Record<string, Translation> = {
     thankYouAttending: "Dit RSVP er modtaget. Vi glæder os til at fejre med dig!",
     thankYouNotAttending: "Dit RSVP er modtaget. Vi er kede af at høre, at du ikke kan komme!",
     backToHome: "Tilbage til Hjem",
+
+    // RSVP - NEW CONTENT
+    attendingWedding: "Deltager i Bryllup",
+    attendingReception: "Deltager i Reception",
+    sorryCannotMakeIt: "Beklager, kan ikke komme",
   },
 
   ta: {
@@ -1115,6 +1130,11 @@ export const translations: Record<string, Translation> = {
     thankYouAttending: "உங்கள் பதில் பெறப்பட்டது. உங்களுடன் கொண்டாட நாங்கள் மகிழ்ச்சியடைகிறோம்!",
     thankYouNotAttending: "உங்கள் பதில் பெறப்பட்டது. நீங்கள் வர முடியாது என்று கேட்டு வருந்துகிறோம்!",
     backToHome: "முகப்புக்கு திரும்பு",
+
+    // RSVP - NEW CONTENT
+    attendingWedding: "திருமணத்தில் கலந்துகொள்கிறேன்",
+    attendingReception: "வரவேற்பில் கலந்துகொள்கிறேன்",
+    sorryCannotMakeIt: "மன்னிக்கவும், என்னால் வர முடியாது",
   },
 
   fr: {
@@ -1413,6 +1433,11 @@ export const translations: Record<string, Translation> = {
     thankYouAttending: "Votre RSVP a été reçu. Nous sommes excités de célébrer avec vous !",
     thankYouNotAttending: "Votre RSVP a été reçu. Nous sommes désolés d'apprendre que vous ne pouvez pas venir !",
     backToHome: "Retour à l'Accueil",
+
+    // RSVP - NEW CONTENT
+    attendingWedding: "Assiste au Mariage",
+    attendingReception: "Assiste à la Réception",
+    sorryCannotMakeIt: "Désolé, je ne peux pas venir",
   },
 }
 

@@ -11,180 +11,54 @@ export async function POST(request: NextRequest) {
     const rsvpSubmissionsCollection = await getRsvpSubmissionsCollection()
 
     if (body.type === "group") {
-      const { groupId, isAttending, events, dietaryRequirements, questions, attendingGuests, originalGuests } = body
+      const { groupId, guests, dietaryRequirements, questions } = body
 
-      const nameCount: { [key: string]: number } = {}
-      for (const guest of attendingGuests) {
-        const normalizedName = guest.name.toLowerCase().trim()
-        nameCount[normalizedName] = (nameCount[normalizedName] || 0) + 1
-        if (nameCount[normalizedName] > 1) {
-          return NextResponse.json(
-            {
-              error: `Duplicate name detected: "${guest.name}". Each guest must have a unique name.`,
-            },
-            { status: 400 },
-          )
-        }
-      }
+      for (const guestData of guests) {
+        const events = guestData.events || []
+        const isNotAttending = events.includes("not-attending")
+        const rsvpStatus = isNotAttending ? "not-attending" : "attending"
+        const actualEvents = isNotAttending ? [] : events.filter((e: string) => e !== "not-attending")
 
-      if (!isAttending) {
-        for (const originalGuest of originalGuests) {
-          await collection.updateOne(
-            { _id: new ObjectId(originalGuest._id) },
-            {
-              $set: {
-                rsvpStatus: "not-attending",
-                events: [],
-                dietaryRequirements: "",
-                questions: questions || "",
-                lockStatus: "locked",
-                lastUpdated: new Date().toISOString(),
-              },
-            },
-          )
-
-          const submissionData = {
-            guestId: originalGuest._id,
-            guestName: originalGuest.name,
-            rsvpStatus: "not-attending",
-            events: [],
-            timestamp: new Date().toISOString(),
-          }
-
-          await rsvpSubmissionsCollection.insertOne(submissionData)
+        const updateData: any = {
+          name: guestData.name,
+          rsvpStatus: rsvpStatus,
+          events: actualEvents,
+          dietaryRequirements: isNotAttending ? "" : dietaryRequirements || "",
+          questions: questions || "",
+          isChild: guestData.isChild || false,
+          ageGroup: guestData.isChild && guestData.ageGroup ? guestData.ageGroup : undefined,
+          lockStatus: "locked",
+          lastUpdated: new Date().toISOString(),
         }
 
-        return NextResponse.json({ success: true })
-      }
+        await collection.updateOne({ _id: new ObjectId(guestData._id) }, { $set: updateData })
 
-      const originalGuestNames = originalGuests.map((g: any) => g.name.toLowerCase().trim())
-      const attendingGuestNames = attendingGuests.map((g: any) => g.name.toLowerCase().trim())
-
-      // Find which original guests are not in the attending list
-      const removedGuestNames = originalGuestNames.filter((name: string) => !attendingGuestNames.includes(name))
-
-      console.log("[v0] Original guests:", originalGuestNames)
-      console.log("[v0] Attending guests:", attendingGuestNames)
-      console.log("[v0] Removed guests:", removedGuestNames)
-
-      for (const originalGuest of originalGuests) {
-        const originalName = originalGuest.name.toLowerCase().trim()
-        if (removedGuestNames.includes(originalName)) {
-          console.log("[v0] Marking guest as removed:", originalGuest.name)
-          await collection.updateOne(
-            { _id: new ObjectId(originalGuest._id) },
-            {
-              $set: {
-                creationStatus: "Removed",
-                lockStatus: "locked",
-                lastUpdated: new Date().toISOString(),
-              },
-            },
-          )
+        const submissionData = {
+          guestId: guestData._id,
+          guestName: guestData.name,
+          rsvpStatus: rsvpStatus,
+          events: actualEvents,
+          timestamp: updateData.lastUpdated,
         }
+
+        await rsvpSubmissionsCollection.insertOne(submissionData)
       }
 
-      // Process attending guests
-      for (const attendingGuest of attendingGuests) {
-        const attendingName = attendingGuest.name.trim()
-
-        // Check if this name matches an original guest
-        const matchingOriginalGuest = originalGuests.find(
-          (og: any) => og.name.toLowerCase().trim() === attendingName.toLowerCase(),
-        )
-
-        if (matchingOriginalGuest) {
-          console.log("[v0] Updating existing guest:", attendingName)
-          const updateData: any = {
-            rsvpStatus: "attending",
-            events: events,
-            dietaryRequirements: dietaryRequirements,
-            questions: questions || "",
-            isChild: attendingGuest.isChild || false,
-            ageGroup: attendingGuest.isChild && attendingGuest.ageGroup ? attendingGuest.ageGroup : undefined,
-            creationStatus: "Original", // Keep as Original
-            lockStatus: "locked",
-            lastUpdated: new Date().toISOString(),
-          }
-
-          await collection.updateOne({ _id: new ObjectId(matchingOriginalGuest._id) }, { $set: updateData })
-
-          const submissionData = {
-            guestId: matchingOriginalGuest._id,
-            guestName: attendingName,
-            rsvpStatus: updateData.rsvpStatus,
-            events: updateData.events,
-            timestamp: updateData.lastUpdated,
-          }
-
-          await rsvpSubmissionsCollection.insertOne(submissionData)
-        } else {
-          console.log("[v0] Creating new guest:", attendingName)
-
-          // Check for duplicates across all guests
-          const allGuests = await collection.find({}).toArray()
-          const duplicateGuest = allGuests.find((g) => g.name?.toLowerCase() === attendingName.toLowerCase())
-
-          if (duplicateGuest) {
-            return NextResponse.json(
-              {
-                error: `A guest with the name "${attendingName}" already exists. Please modify the name slightly to make it unique.`,
-              },
-              { status: 400 },
-            )
-          }
-
-          // Get side from first original guest
-          const side = originalGuests[0]?.side || "bride"
-
-          const newGuestData = {
-            name: attendingName,
-            guestType: "defined",
-            isChild: attendingGuest.isChild || false,
-            ageGroup: attendingGuest.isChild && attendingGuest.ageGroup ? attendingGuest.ageGroup : undefined,
-            side: side,
-            groupId: groupId,
-            rsvpStatus: "attending",
-            events: events,
-            dietaryRequirements: dietaryRequirements,
-            questions: questions || "",
-            creationStatus: "New", // Mark as New guest
-            lockStatus: "locked",
-            createdAt: new Date().toISOString(),
-            lastUpdated: new Date().toISOString(),
-          }
-
-          const insertResult = await collection.insertOne(newGuestData)
-
-          const submissionData = {
-            guestId: insertResult.insertedId.toString(),
-            guestName: attendingName,
-            rsvpStatus: newGuestData.rsvpStatus,
-            events: newGuestData.events,
-            timestamp: newGuestData.lastUpdated,
-          }
-
-          await rsvpSubmissionsCollection.insertOne(submissionData)
-        }
-      }
-
-      console.log("[v0] RSVP submission complete")
       return NextResponse.json({ success: true })
     }
 
     if (body.type === "individual") {
-      const { guestId, isAttending, events, dietaryRequirements, questions, isChild, ageGroup } = body
+      const { guestId, events, rsvpStatus, dietaryRequirements, questions, isChild, ageGroup } = body
 
-      const guest = await collection.findOne({ _id: new ObjectId(guestId) })
       const timestamp = new Date().toISOString()
 
       await collection.updateOne(
         { _id: new ObjectId(guestId) },
         {
           $set: {
-            rsvpStatus: isAttending ? "attending" : "not-attending",
-            events: isAttending ? events : [],
-            dietaryRequirements: isAttending ? dietaryRequirements : "",
+            rsvpStatus: rsvpStatus,
+            events: events || [],
+            dietaryRequirements: rsvpStatus === "attending" ? dietaryRequirements || "" : "",
             questions: questions || "",
             isChild: isChild || false,
             ageGroup: isChild && ageGroup ? ageGroup : undefined,
@@ -194,11 +68,13 @@ export async function POST(request: NextRequest) {
         },
       )
 
+      const guest = await collection.findOne({ _id: new ObjectId(guestId) })
+
       const submissionData = {
         guestId: guestId,
         guestName: guest?.name || "Unknown",
-        rsvpStatus: isAttending ? "attending" : "not-attending",
-        events: isAttending ? events : [],
+        rsvpStatus: rsvpStatus,
+        events: events || [],
         timestamp: timestamp,
       }
 
