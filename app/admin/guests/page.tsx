@@ -40,7 +40,7 @@ interface Guest {
   createdAt: string
   lastUpdated: string
   lockStatus?: "locked" | "unlocked"
-  removed?: boolean // Add removed flag
+  creationStatus?: "Original" | "New" | "Removed"
 }
 
 export default function GuestManagementPage() {
@@ -144,9 +144,9 @@ export default function GuestManagementPage() {
     const ungrouped: Guest[] = []
 
     const filteredGuests = guests.filter((guest) => {
-      if (filters.removed === "yes" && !guest.removed) return false // Show only removed guests
-      if (filters.removed === "no" && guest.removed) return false // Hide removed guests
-      // If filters.removed === "all", show both removed and non-removed guests
+      if (filters.removed === "yes" && guest.creationStatus !== "Removed") return false
+      if (filters.removed === "no" && guest.creationStatus === "Removed") return false
+      // If filters.removed === "all", show all guests regardless of creation status
 
       if (filters.name && !guest.name.toLowerCase().includes(filters.name.toLowerCase())) return false
       if (filters.type && filters.type !== "all" && guest.guestType !== filters.type) return false
@@ -322,7 +322,7 @@ export default function GuestManagementPage() {
         rsvpStatus: "pending" as const,
         events: [] as ("ceremony" | "reception")[],
         lockStatus: "unlocked" as const, // Default lock status to unlocked
-        removed: false, // Set removed to false for new guests
+        creationStatus: "Original" as const,
       }
 
       const response = await fetch("/api/guests", {
@@ -507,78 +507,108 @@ export default function GuestManagementPage() {
     return null
   }
 
-  const totalGuests = guests.filter((g) => !g.removed).length
-  const brideGuests = guests.filter((g) => g.side === "bride" && !g.removed).length
-  const groomGuests = guests.filter((g) => g.side === "groom" && !g.removed).length
+  const totalGuests = guests.filter((g) => g.creationStatus !== "Removed").length
+  const brideGuests = guests.filter((g) => g.side === "bride" && g.creationStatus !== "Removed").length
+  const groomGuests = guests.filter((g) => g.side === "groom" && g.creationStatus !== "Removed").length
 
-  const adults = guests.filter((g) => !g.isChild && !g.removed).length
-  const children = guests.filter((g) => g.isChild && !g.removed).length
-  const childrenUnder4 = guests.filter((g) => g.isChild && g.ageGroup === "under-4" && !g.removed).length
-  const children4to12 = guests.filter((g) => g.isChild && g.ageGroup === "4-12" && !g.removed).length
-  const childrenOver12 = guests.filter((g) => g.isChild && g.ageGroup === "over-12" && !g.removed).length
+  const adults = guests.filter((g) => !g.isChild && g.creationStatus !== "Removed").length
+  const children = guests.filter((g) => g.isChild && g.creationStatus !== "Removed").length
+  const childrenUnder4 = guests.filter(
+    (g) => g.isChild && g.ageGroup === "under-4" && g.creationStatus !== "Removed",
+  ).length
+  const children4to12 = guests.filter(
+    (g) => g.isChild && g.ageGroup === "4-12" && g.creationStatus !== "Removed",
+  ).length
+  const childrenOver12 = guests.filter(
+    (g) => g.isChild && g.ageGroup === "over-12" && g.creationStatus !== "Removed",
+  ).length
 
-  const tbcGuests = guests.filter((g) => g.guestType === "tbc" && !g.removed).length
-  const tbcBride = guests.filter((g) => g.guestType === "tbc" && g.side === "bride" && !g.removed).length
-  const tbcGroom = guests.filter((g) => g.guestType === "tbc" && g.side === "groom" && !g.removed).length
-  const tbcAdults = guests.filter((g) => g.guestType === "tbc" && !g.isChild && !g.removed).length
-  const tbcChildren = guests.filter((g) => g.guestType === "tbc" && g.isChild && !g.removed).length
+  const tbcGuests = guests.filter((g) => g.guestType === "tbc" && g.creationStatus !== "Removed").length
+  const tbcBride = guests.filter(
+    (g) => g.guestType === "tbc" && g.side === "bride" && g.creationStatus !== "Removed",
+  ).length
+  const tbcGroom = guests.filter(
+    (g) => g.guestType === "tbc" && g.side === "groom" && g.creationStatus !== "Removed",
+  ).length
+  const tbcAdults = guests.filter((g) => g.guestType === "tbc" && !g.isChild && g.creationStatus !== "Removed").length
+  const tbcChildren = guests.filter((g) => g.guestType === "tbc" && g.isChild && g.creationStatus !== "Removed").length
   const tbcChildrenUnder4 = guests.filter(
-    (g) => g.guestType === "tbc" && g.isChild && g.ageGroup === "under-4" && !g.removed,
+    (g) => g.guestType === "tbc" && g.isChild && g.ageGroup === "under-4" && g.creationStatus !== "Removed",
   ).length
   const tbcChildren4to12 = guests.filter(
-    (g) => g.guestType === "tbc" && g.isChild && g.ageGroup === "4-12" && !g.removed,
+    (g) => g.guestType === "tbc" && g.isChild && g.ageGroup === "4-12" && g.creationStatus !== "Removed",
   ).length
   const tbcChildrenOver12 = guests.filter(
-    (g) => g.guestType === "tbc" && g.isChild && g.ageGroup === "over-12" && !g.removed,
+    (g) => g.guestType === "tbc" && g.isChild && g.ageGroup === "over-12" && g.creationStatus !== "Removed",
   ).length
 
-  const attending = guests.filter((g) => g.rsvpStatus === "attending" && !g.removed).length
-  const attendingBride = guests.filter((g) => g.rsvpStatus === "attending" && g.side === "bride" && !g.removed).length
-  const attendingGroom = guests.filter((g) => g.rsvpStatus === "attending" && g.side === "groom" && !g.removed).length
-  const attendingAdults = guests.filter((g) => g.rsvpStatus === "attending" && !g.isChild && !g.removed).length
-  const attendingChildren = guests.filter((g) => g.rsvpStatus === "attending" && g.isChild && !g.removed).length
+  const attending = guests.filter((g) => g.rsvpStatus === "attending" && g.creationStatus !== "Removed").length
+  const attendingBride = guests.filter(
+    (g) => g.rsvpStatus === "attending" && g.side === "bride" && g.creationStatus !== "Removed",
+  ).length
+  const attendingGroom = guests.filter(
+    (g) => g.rsvpStatus === "attending" && g.side === "groom" && g.creationStatus !== "Removed",
+  ).length
+  const attendingAdults = guests.filter(
+    (g) => g.rsvpStatus === "attending" && !g.isChild && g.creationStatus !== "Removed",
+  ).length
+  const attendingChildren = guests.filter(
+    (g) => g.rsvpStatus === "attending" && g.isChild && g.creationStatus !== "Removed",
+  ).length
   const attendingChildrenUnder4 = guests.filter(
-    (g) => g.rsvpStatus === "attending" && g.isChild && g.ageGroup === "under-4" && !g.removed,
+    (g) => g.rsvpStatus === "attending" && g.isChild && g.ageGroup === "under-4" && g.creationStatus !== "Removed",
   ).length
   const attendingChildren4to12 = guests.filter(
-    (g) => g.rsvpStatus === "attending" && g.isChild && g.ageGroup === "4-12" && !g.removed,
+    (g) => g.rsvpStatus === "attending" && g.isChild && g.ageGroup === "4-12" && g.creationStatus !== "Removed",
   ).length
   const attendingChildrenOver12 = guests.filter(
-    (g) => g.rsvpStatus === "attending" && g.isChild && g.ageGroup === "over-12" && !g.removed,
+    (g) => g.rsvpStatus === "attending" && g.isChild && g.ageGroup === "over-12" && g.creationStatus !== "Removed",
   ).length
 
-  const notAttending = guests.filter((g) => g.rsvpStatus === "not-attending" && !g.removed).length
+  const notAttending = guests.filter((g) => g.rsvpStatus === "not-attending" && g.creationStatus !== "Removed").length
   const notAttendingBride = guests.filter(
-    (g) => g.rsvpStatus === "not-attending" && g.side === "bride" && !g.removed,
+    (g) => g.rsvpStatus === "not-attending" && g.side === "bride" && g.creationStatus !== "Removed",
   ).length
   const notAttendingGroom = guests.filter(
-    (g) => g.rsvpStatus === "not-attending" && g.side === "groom" && !g.removed,
+    (g) => g.rsvpStatus === "not-attending" && g.side === "groom" && g.creationStatus !== "Removed",
   ).length
-  const notAttendingAdults = guests.filter((g) => g.rsvpStatus === "not-attending" && !g.isChild && !g.removed).length
-  const notAttendingChildren = guests.filter((g) => g.rsvpStatus === "not-attending" && g.isChild && !g.removed).length
+  const notAttendingAdults = guests.filter(
+    (g) => g.rsvpStatus === "not-attending" && !g.isChild && g.creationStatus !== "Removed",
+  ).length
+  const notAttendingChildren = guests.filter(
+    (g) => g.rsvpStatus === "not-attending" && g.isChild && g.creationStatus !== "Removed",
+  ).length
   const notAttendingChildrenUnder4 = guests.filter(
-    (g) => g.rsvpStatus === "not-attending" && g.isChild && g.ageGroup === "under-4" && !g.removed,
+    (g) => g.rsvpStatus === "not-attending" && g.isChild && g.ageGroup === "under-4" && g.creationStatus !== "Removed",
   ).length
   const notAttendingChildren4to12 = guests.filter(
-    (g) => g.rsvpStatus === "not-attending" && g.isChild && g.ageGroup === "4-12" && !g.removed,
+    (g) => g.rsvpStatus === "not-attending" && g.isChild && g.ageGroup === "4-12" && g.creationStatus !== "Removed",
   ).length
   const notAttendingChildrenOver12 = guests.filter(
-    (g) => g.rsvpStatus === "not-attending" && g.isChild && g.ageGroup === "over-12" && !g.removed,
+    (g) => g.rsvpStatus === "not-attending" && g.isChild && g.ageGroup === "over-12" && g.creationStatus !== "Removed",
   ).length
 
-  const pending = guests.filter((g) => g.rsvpStatus === "pending" && !g.removed).length
-  const pendingBride = guests.filter((g) => g.rsvpStatus === "pending" && g.side === "bride" && !g.removed).length
-  const pendingGroom = guests.filter((g) => g.rsvpStatus === "pending" && g.side === "groom" && !g.removed).length
-  const pendingAdults = guests.filter((g) => g.rsvpStatus === "pending" && !g.isChild && !g.removed).length
-  const pendingChildren = guests.filter((g) => g.rsvpStatus === "pending" && g.isChild && !g.removed).length
+  const pending = guests.filter((g) => g.rsvpStatus === "pending" && g.creationStatus !== "Removed").length
+  const pendingBride = guests.filter(
+    (g) => g.rsvpStatus === "pending" && g.side === "bride" && g.creationStatus !== "Removed",
+  ).length
+  const pendingGroom = guests.filter(
+    (g) => g.rsvpStatus === "pending" && g.side === "groom" && g.creationStatus !== "Removed",
+  ).length
+  const pendingAdults = guests.filter(
+    (g) => g.rsvpStatus === "pending" && !g.isChild && g.creationStatus !== "Removed",
+  ).length
+  const pendingChildren = guests.filter(
+    (g) => g.rsvpStatus === "pending" && g.isChild && g.creationStatus !== "Removed",
+  ).length
   const pendingChildrenUnder4 = guests.filter(
-    (g) => g.rsvpStatus === "pending" && g.isChild && g.ageGroup === "under-4" && !g.removed,
+    (g) => g.rsvpStatus === "pending" && g.isChild && g.ageGroup === "under-4" && g.creationStatus !== "Removed",
   ).length
   const pendingChildren4to12 = guests.filter(
-    (g) => g.rsvpStatus === "pending" && g.isChild && g.ageGroup === "4-12" && !g.removed,
+    (g) => g.rsvpStatus === "pending" && g.isChild && g.ageGroup === "4-12" && g.creationStatus !== "Removed",
   ).length
   const pendingChildrenOver12 = guests.filter(
-    (g) => g.rsvpStatus === "pending" && g.isChild && g.ageGroup === "over-12" && !g.removed,
+    (g) => g.rsvpStatus === "pending" && g.isChild && g.ageGroup === "over-12" && g.creationStatus !== "Removed",
   ).length
 
   return (
@@ -902,7 +932,7 @@ export default function GuestManagementPage() {
                     </th>
                     <th className="p-4 text-left">
                       <div className="flex flex-col gap-2">
-                        <span>Removed</span>
+                        <span>Creation Status</span>
                         <Select
                           value={filters.removed || "all"}
                           onValueChange={(value) => setFilters({ ...filters, removed: value })}
@@ -912,8 +942,9 @@ export default function GuestManagementPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="yes">Yes</SelectItem>
-                            <SelectItem value="no">No</SelectItem>
+                            <SelectItem value="Original">Original</SelectItem>
+                            <SelectItem value="New">New</SelectItem>
+                            <SelectItem value="Removed">Removed</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -927,7 +958,7 @@ export default function GuestManagementPage() {
                     <>
                       <tr className="bg-blue-100 dark:bg-blue-900/20">
                         {/* Adjusted colspan for new columns */}
-                        <td colSpan={13} className="p-3 font-semibold text-blue-800 dark:text-blue-200">
+                        <td colSpan={14} className="p-3 font-semibold text-blue-800 dark:text-blue-200">
                           Individual Guests ({groupedGuests.ungrouped.length})
                         </td>
                       </tr>
@@ -939,7 +970,9 @@ export default function GuestManagementPage() {
                               <span className="text-xs text-blue-600 font-semibold">(TBC)</span>
                             )}
                             {guest.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
-                            {guest.removed && <span className="text-xs text-red-600 font-semibold">(Removed)</span>}
+                            {guest.creationStatus === "Removed" && (
+                              <span className="text-xs text-red-600 font-semibold">(Removed)</span>
+                            )}
                           </td>
                           <td className="p-4">{guest.guestType === "defined" ? "Defined" : "TBC"}</td>
                           <td className="p-4">{guest.side === "bride" ? "Bride" : "Groom"}</td>
@@ -1005,8 +1038,8 @@ export default function GuestManagementPage() {
                               onClick={() => handleToggleLock(guest)}
                               className={
                                 guest.lockStatus === "locked"
-                                  ? "text-green-600 hover:text-green-700"
-                                  : "text-red-600 hover:text-red-700"
+                                  ? "text-red-600 hover:text-red-700"
+                                  : "text-green-600 hover:text-green-700"
                               }
                             >
                               {guest.lockStatus === "locked" ? (
@@ -1017,25 +1050,32 @@ export default function GuestManagementPage() {
                             </Button>
                           </td>
                           <td className="p-4">
-                            {guest.removed ? (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleRemoveGuest(guest)}
-                                className="text-yellow-600 hover:text-yellow-700"
-                              >
-                                <Unlock className="w-4 h-4" />
-                              </Button>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleRemoveGuest(guest)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
+                            <Select
+                              value={guest.creationStatus || "Original"}
+                              onValueChange={async (value: "Original" | "New" | "Removed") => {
+                                try {
+                                  const response = await fetch(`/api/guests/${guest._id || guest.id}`, {
+                                    method: "PATCH",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ creationStatus: value }),
+                                  })
+                                  if (response.ok) {
+                                    await loadData()
+                                  }
+                                } catch (error) {
+                                  console.error("Error updating creation status:", error)
+                                }
+                              }}
+                            >
+                              <SelectTrigger className="h-8 w-24">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Original">Original</SelectItem>
+                                <SelectItem value="New">New</SelectItem>
+                                <SelectItem value="Removed">Removed</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </td>
                           <td className="p-4">
                             <div className="flex gap-2">
@@ -1070,9 +1110,9 @@ export default function GuestManagementPage() {
                         <td className="p-3 text-red-800 dark:text-red-200">Group ({members.length})</td>
                         <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3 text-red-800 dark:text-red-200" colSpan={3}>
-                          -
-                        </td>
+                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3 text-red-800 dark:text-red-200">-</td>
                         <td className="p-3 text-red-800 dark:text-red-200">-</td>
@@ -1111,7 +1151,9 @@ export default function GuestManagementPage() {
                               <span className="text-xs text-blue-600 font-semibold">(TBC)</span>
                             )}
                             {member.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
-                            {member.removed && <span className="text-xs text-red-600 font-semibold">(Removed)</span>}
+                            {member.creationStatus === "Removed" && (
+                              <span className="text-xs text-red-600 font-semibold">(Removed)</span>
+                            )}
                           </td>
                           <td className="p-4">{member.guestType === "defined" ? "Defined" : "TBC"}</td>
                           <td className="p-4">{member.side === "bride" ? "Bride" : "Groom"}</td>
@@ -1177,8 +1219,8 @@ export default function GuestManagementPage() {
                               onClick={() => handleToggleLock(member)}
                               className={
                                 member.lockStatus === "locked"
-                                  ? "text-green-600 hover:text-green-700"
-                                  : "text-red-600 hover:text-red-700"
+                                  ? "text-red-600 hover:text-red-700"
+                                  : "text-green-600 hover:text-green-700"
                               }
                             >
                               {member.lockStatus === "locked" ? (
@@ -1189,25 +1231,32 @@ export default function GuestManagementPage() {
                             </Button>
                           </td>
                           <td className="p-4">
-                            {member.removed ? (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleRemoveGuest(member)}
-                                className="text-yellow-600 hover:text-yellow-700"
-                              >
-                                <Unlock className="w-4 h-4" />
-                              </Button>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleRemoveGuest(member)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
+                            <Select
+                              value={member.creationStatus || "Original"}
+                              onValueChange={async (value: "Original" | "New" | "Removed") => {
+                                try {
+                                  const response = await fetch(`/api/guests/${member._id || member.id}`, {
+                                    method: "PATCH",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ creationStatus: value }),
+                                  })
+                                  if (response.ok) {
+                                    await loadData()
+                                  }
+                                } catch (error) {
+                                  console.error("Error updating creation status:", error)
+                                }
+                              }}
+                            >
+                              <SelectTrigger className="h-8 w-24">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Original">Original</SelectItem>
+                                <SelectItem value="New">New</SelectItem>
+                                <SelectItem value="Removed">Removed</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </td>
                           <td className="p-4">
                             <div className="flex gap-2">
@@ -1551,7 +1600,7 @@ export default function GuestManagementPage() {
                         dietaryRequirements: editingGuest.dietaryRequirements,
                         questions: editingGuest.questions,
                         lockStatus: editingGuest.lockStatus,
-                        removed: editingGuest.removed, // Include removed status in update
+                        creationStatus: editingGuest.creationStatus, // Include creation status in update
                       }),
                     })
 

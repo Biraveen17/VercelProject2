@@ -29,6 +29,7 @@ interface Guest {
   dietaryRequirements?: string
   questions?: string
   ageGroup?: string
+  lockStatus?: "locked" | "unlocked"
 }
 
 interface Group {
@@ -692,7 +693,10 @@ export default function RSVPPage() {
                                             200,
                                           )
                                         }
-                                        className="w-full px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm"
+                                        disabled={
+                                          searchResult.guests && searchResult.guests[index]?.lockStatus === "locked"
+                                        }
+                                        className="w-full px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                         placeholder={t("memberNamePlaceholder", { number: index + 1 })}
                                         required
                                       />
@@ -840,7 +844,11 @@ export default function RSVPPage() {
                       type="button"
                       onClick={() => {
                         if (searchResult.type === "group") {
-                          setStep(isAttending === "yes" ? 4 : 2)
+                          if (attendingGuestCount < (searchResult.guests?.length || 0)) {
+                            setStep(3) // Go back to guest count selection
+                          } else {
+                            setStep(4) // Go back to quick submit option
+                          }
                         } else {
                           setStep(1)
                           setSearchResult(null)

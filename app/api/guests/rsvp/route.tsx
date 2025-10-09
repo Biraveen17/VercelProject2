@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
             { _id: new ObjectId(originalGuest._id) },
             {
               $set: {
-                removed: true,
+                creationStatus: "Removed",
                 lockStatus: "locked",
                 lastUpdated: new Date().toISOString(),
               },
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
             questions: questions || "",
             isChild: attendingGuest.isChild || false,
             ageGroup: attendingGuest.isChild && attendingGuest.ageGroup ? attendingGuest.ageGroup : undefined,
-            removed: false,
+            creationStatus: "Original", // Keep as Original
             lockStatus: "locked",
             lastUpdated: new Date().toISOString(),
           }
@@ -75,7 +75,6 @@ export async function POST(request: NextRequest) {
 
           await rsvpSubmissionsCollection.insertOne(submissionData)
         } else {
-          // Create new guest (name doesn't match any original guest)
           console.log("[v0] Creating new guest:", attendingName)
 
           // Check for duplicates across all guests
@@ -105,7 +104,7 @@ export async function POST(request: NextRequest) {
             events: isAttending ? events : [],
             dietaryRequirements: isAttending ? dietaryRequirements : "",
             questions: questions || "",
-            removed: false,
+            creationStatus: "New", // Mark as New guest
             lockStatus: "locked",
             createdAt: new Date().toISOString(),
             lastUpdated: new Date().toISOString(),
