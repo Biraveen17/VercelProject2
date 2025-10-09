@@ -62,6 +62,7 @@ export default function RSVPPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showRemovalConfirmation, setShowRemovalConfirmation] = useState(false)
   const [guestsToRemove, setGuestsToRemove] = useState<string[]>([])
+  const [lockedGuestsInfo, setLockedGuestsInfo] = useState<Guest[]>([])
 
   const handleGuestSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -91,33 +92,61 @@ export default function RSVPPage() {
           return
         }
 
-        const initialNames: { [key: string]: string } = {}
-        const initialChildStatus: { [key: string]: boolean } = {}
-        const initialAgeGroups: { [key: string]: string } = {}
+        const lockedGuests = activeGuests.filter((g: Guest) => g.lockStatus === "locked")
+        const unlockedGuests = activeGuests.filter((g: Guest) => g.lockStatus !== "locked")
 
-        activeGuests.forEach((guest: Guest, index: number) => {
-          const tempId = `temp-${index}`
-          initialNames[tempId] = guest.name || ""
-          initialChildStatus[tempId] = guest.isChild
-          initialAgeGroups[tempId] = guest.ageGroup || ""
-        })
+        if (lockedGuests.length > 0 && unlockedGuests.length > 0) {
+          // Mixed lock status - show locked guest info and go directly to guest details
+          setLockedGuestsInfo(lockedGuests)
+          setAttendingGuestCount(unlockedGuests.length)
 
-        setGuestNames(initialNames)
-        setGuestChildStatus(initialChildStatus)
-        setGuestAgeGroups(initialAgeGroups)
-        setSearchResult({ ...data, guests: activeGuests })
+          const initialNames: { [key: string]: string } = {}
+          const initialChildStatus: { [key: string]: boolean } = {}
+          const initialAgeGroups: { [key: string]: string } = {}
 
-        const firstGuest = activeGuests[0]
-        if (firstGuest) {
-          setIsAttending(
-            firstGuest.rsvpStatus === "attending" ? "yes" : firstGuest.rsvpStatus === "not-attending" ? "no" : "",
-          )
-          setEvents(firstGuest.events || [])
-          setDietaryRequirements(firstGuest.dietaryRequirements || "")
-          setQuestions(firstGuest.questions || "")
+          unlockedGuests.forEach((guest: Guest, index: number) => {
+            const tempId = `temp-${index}`
+            initialNames[tempId] = guest.name || ""
+            initialChildStatus[tempId] = guest.isChild
+            initialAgeGroups[tempId] = guest.ageGroup || ""
+          })
+
+          setGuestNames(initialNames)
+          setGuestChildStatus(initialChildStatus)
+          setGuestAgeGroups(initialAgeGroups)
+          setSearchResult({ ...data, guests: unlockedGuests })
+          setIsAttending("yes")
+          setStep(5) // Go directly to guest details
+        } else {
+          // All unlocked - normal flow
+          const initialNames: { [key: string]: string } = {}
+          const initialChildStatus: { [key: string]: boolean } = {}
+          const initialAgeGroups: { [key: string]: string } = {}
+
+          activeGuests.forEach((guest: Guest, index: number) => {
+            const tempId = `temp-${index}`
+            initialNames[tempId] = guest.name || ""
+            initialChildStatus[tempId] = guest.isChild
+            initialAgeGroups[tempId] = guest.ageGroup || ""
+          })
+
+          setGuestNames(initialNames)
+          setGuestChildStatus(initialChildStatus)
+          setGuestAgeGroups(initialAgeGroups)
+          setSearchResult({ ...data, guests: activeGuests })
+
+          const firstGuest = activeGuests[0]
+          if (firstGuest) {
+            setIsAttending(
+              firstGuest.rsvpStatus === "attending" ? "yes" : firstGuest.rsvpStatus === "not-attending" ? "no" : "",
+            )
+            setEvents(firstGuest.events || [])
+            setDietaryRequirements(firstGuest.dietaryRequirements || "")
+            setQuestions(firstGuest.questions || "")
+          }
+
+          setStep(2)
         }
-
-        setStep(2)
       } else if (data.type === "individual" && data.guest) {
         const guest = data.guest
 
@@ -655,6 +684,25 @@ export default function RSVPPage() {
                     </p>
                   )}
                 </div>
+
+                {lockedGuestsInfo.length > 0 && (
+                  <div className="mb-6 p-4 bg-muted/50 rounded-lg border border-muted">
+                    <h3 className="font-semibold mb-2">Guests who have already RSVP'd:</h3>
+                    <ul className="space-y-1">
+                      {lockedGuestsInfo.map((guest) => (
+                        <li key={guest._id} className="text-sm">
+                          <span className="font-medium">{guest.name}</span> -{" "}
+                          <span className={guest.rsvpStatus === "attending" ? "text-green-600" : "text-red-600"}>
+                            {guest.rsvpStatus === "attending" ? "Attending" : "Not Attending"}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      You can only update RSVP for the remaining guests below.
+                    </p>
+                  </div>
+                )}
 
                 <form onSubmit={handleRSVPSubmit} className="space-y-6">
                   {searchResult.type === "individual" && (

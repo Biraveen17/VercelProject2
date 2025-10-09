@@ -27,6 +27,36 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      if (!isAttending) {
+        for (const originalGuest of originalGuests) {
+          await collection.updateOne(
+            { _id: new ObjectId(originalGuest._id) },
+            {
+              $set: {
+                rsvpStatus: "not-attending",
+                events: [],
+                dietaryRequirements: "",
+                questions: questions || "",
+                lockStatus: "locked",
+                lastUpdated: new Date().toISOString(),
+              },
+            },
+          )
+
+          const submissionData = {
+            guestId: originalGuest._id,
+            guestName: originalGuest.name,
+            rsvpStatus: "not-attending",
+            events: [],
+            timestamp: new Date().toISOString(),
+          }
+
+          await rsvpSubmissionsCollection.insertOne(submissionData)
+        }
+
+        return NextResponse.json({ success: true })
+      }
+
       const originalGuestNames = originalGuests.map((g: any) => g.name.toLowerCase().trim())
       const attendingGuestNames = attendingGuests.map((g: any) => g.name.toLowerCase().trim())
 
@@ -66,9 +96,9 @@ export async function POST(request: NextRequest) {
         if (matchingOriginalGuest) {
           console.log("[v0] Updating existing guest:", attendingName)
           const updateData: any = {
-            rsvpStatus: isAttending ? "attending" : "not-attending",
-            events: isAttending ? events : [],
-            dietaryRequirements: isAttending ? dietaryRequirements : "",
+            rsvpStatus: "attending",
+            events: events,
+            dietaryRequirements: dietaryRequirements,
             questions: questions || "",
             isChild: attendingGuest.isChild || false,
             ageGroup: attendingGuest.isChild && attendingGuest.ageGroup ? attendingGuest.ageGroup : undefined,
@@ -114,9 +144,9 @@ export async function POST(request: NextRequest) {
             ageGroup: attendingGuest.isChild && attendingGuest.ageGroup ? attendingGuest.ageGroup : undefined,
             side: side,
             groupId: groupId,
-            rsvpStatus: isAttending ? "attending" : "not-attending",
-            events: isAttending ? events : [],
-            dietaryRequirements: isAttending ? dietaryRequirements : "",
+            rsvpStatus: "attending",
+            events: events,
+            dietaryRequirements: dietaryRequirements,
             questions: questions || "",
             creationStatus: "New", // Mark as New guest
             lockStatus: "locked",

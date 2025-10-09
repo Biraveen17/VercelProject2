@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
 
     const guest = await guestsCollection.findOne({
       name: { $regex: new RegExp(`^${normalizedName}$`, "i") },
+      creationStatus: { $ne: "Removed" }, // Exclude removed guests
     })
 
     if (guest) {
@@ -38,10 +39,14 @@ export async function GET(request: NextRequest) {
           return NextResponse.json({ error: "Group not found" }, { status: 404 })
         }
 
-        const groupGuests = await guestsCollection.find({ groupId: guest.groupId }).toArray()
+        const groupGuests = await guestsCollection
+          .find({
+            groupId: guest.groupId,
+            creationStatus: { $ne: "Removed" },
+          })
+          .toArray()
 
-        const activeGuests = groupGuests.filter((g) => g.creationStatus !== "Removed")
-        const allLocked = activeGuests.every((g) => g.lockStatus === "locked")
+        const allLocked = groupGuests.every((g) => g.lockStatus === "locked")
 
         if (allLocked) {
           return NextResponse.json(
@@ -71,10 +76,14 @@ export async function GET(request: NextRequest) {
     })
 
     if (group) {
-      const groupGuests = await guestsCollection.find({ groupId: group._id.toString() }).toArray()
+      const groupGuests = await guestsCollection
+        .find({
+          groupId: group._id.toString(),
+          creationStatus: { $ne: "Removed" },
+        })
+        .toArray()
 
-      const activeGuests = groupGuests.filter((g) => g.creationStatus !== "Removed")
-      const allLocked = activeGuests.every((g) => g.lockStatus === "locked")
+      const allLocked = groupGuests.every((g) => g.lockStatus === "locked")
 
       if (allLocked) {
         return NextResponse.json(

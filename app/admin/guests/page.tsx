@@ -10,7 +10,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
 import { logout } from "@/lib/auth"
-import { Plus, Edit, Trash2, LogOut, ArrowLeft, Users, Download, Lock, Unlock } from "lucide-react"
+import {
+  Plus,
+  Edit,
+  Trash2,
+  LogOut,
+  ArrowLeft,
+  Users,
+  Download,
+  Lock,
+  Unlock,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { checkAuthentication } from "@/lib/auth"
@@ -97,6 +109,8 @@ export default function GuestManagementPage() {
     lastUpdatedDate: "",
     removed: "all", // Changed default from "no" to "all" to show removed guests by default
   })
+
+  const [collapsedGroups, setCollapsedGroups] = useState<{ [key: string]: boolean }>({})
 
   const loadData = async () => {
     try {
@@ -1111,177 +1125,47 @@ export default function GuestManagementPage() {
                   )}
 
                   {/* Groups */}
-                  {Object.entries(groupedGuests.groups).map(([groupId, { group, members }]) => (
-                    <React.Fragment key={groupId}>
-                      <tr className="bg-red-100 dark:bg-red-900/20">
-                        <td className="p-3 font-semibold text-red-800 dark:text-red-200">GROUP: {group.name}</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">Group ({members.length})</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3 text-red-800 dark:text-red-200">-</td>
-                        <td className="p-3">
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setEditingGroup(group)
-                                setGroupFormData({ name: group.name })
-                              }}
-                              className="hover:text-primary"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDeleteGroup(group)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                      {members.map((member) => (
-                        <tr key={member.id} className="border-b hover:bg-muted/50">
-                          <td className="p-4 pl-8">
-                            {member.name}{" "}
-                            {member.guestType === "tbc" && (
-                              <span className="text-xs text-blue-600 font-semibold">(TBC)</span>
-                            )}
-                            {member.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
-                            {member.creationStatus === "Removed" && (
-                              <span className="text-xs text-red-600 font-semibold">(Removed)</span>
-                            )}
-                            {member.creationStatus === "New" && (
-                              <span className="text-xs text-blue-600 font-semibold">(New)</span>
-                            )}
+                  {Object.entries(groupedGuests.groups).map(([groupId, { group, members }]) => {
+                    const isCollapsed = collapsedGroups[groupId]
+
+                    return (
+                      <React.Fragment key={groupId}>
+                        <tr
+                          className="bg-red-100 dark:bg-red-900/20 cursor-pointer hover:bg-red-200 dark:hover:bg-red-900/30"
+                          onClick={() => {
+                            setCollapsedGroups({
+                              ...collapsedGroups,
+                              [groupId]: !isCollapsed,
+                            })
+                          }}
+                        >
+                          <td className="p-3 font-semibold text-red-800 dark:text-red-200">
+                            <div className="flex items-center gap-2">
+                              {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                              GROUP: {group.name}
+                            </div>
                           </td>
-                          <td className="p-4">{member.guestType === "defined" ? "Defined" : "TBC"}</td>
-                          <td className="p-4">{member.side === "bride" ? "Bride" : "Groom"}</td>
-                          <td className="p-4">
-                            {member.isChild && member.ageGroup
-                              ? member.ageGroup === "under-4"
-                                ? "<4"
-                                : member.ageGroup === "4-12"
-                                  ? "4-12"
-                                  : ">12"
-                              : "-"}
-                          </td>
-                          <td className="p-4">
-                            <span
-                              className={
-                                member.rsvpStatus === "attending"
-                                  ? "text-green-600 font-medium"
-                                  : member.rsvpStatus === "not-attending"
-                                    ? "text-red-600 font-medium"
-                                    : "text-orange-600 font-medium"
-                              }
-                            >
-                              {member.rsvpStatus === "attending"
-                                ? "Attending"
-                                : member.rsvpStatus === "not-attending"
-                                  ? "Not attending"
-                                  : "Pending"}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            {member.events.length > 0 ? (
-                              <div className="flex gap-1 flex-wrap">
-                                {member.events.map((event) => (
-                                  <span
-                                    key={event}
-                                    className="inline-block px-2 py-1 text-xs rounded-full bg-primary/10 text-primary"
-                                  >
-                                    {event === "ceremony" ? "Wedding" : event === "reception" ? "Reception" : event}
-                                  </span>
-                                ))}
-                              </div>
-                            ) : (
-                              "-"
-                            )}
-                          </td>
-                          <td className="p-4">{member.notes ? "Yes" : "No"}</td>
-                          <td className="p-4">{member.questions ? "Yes" : "No"}</td>
-                          <td className="p-4">{member.dietaryRequirements ? "Yes" : "No"}</td>
-                          <td className="p-4 text-xs">
-                            {new Date(member.lastUpdated).toLocaleString("en-US", {
-                              timeZone: "UTC",
-                            })}
-                          </td>
-                          <td className="p-4 text-xs">
-                            {new Date(member.createdAt).toLocaleString("en-US", {
-                              timeZone: "UTC",
-                            })}
-                          </td>
-                          <td className="p-4">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleToggleLock(member)}
-                              className={
-                                member.lockStatus === "locked"
-                                  ? "text-red-600 hover:text-red-700"
-                                  : "text-green-600 hover:text-green-700"
-                              }
-                            >
-                              {member.lockStatus === "locked" ? (
-                                <Lock className="w-4 h-4" />
-                              ) : (
-                                <Unlock className="w-4 h-4" />
-                              )}
-                            </Button>
-                          </td>
-                          <td className="p-4">
-                            <Select
-                              value={member.creationStatus || "Original"}
-                              onValueChange={async (value: "Original" | "New" | "Removed") => {
-                                try {
-                                  const response = await fetch(`/api/guests/${member._id || member.id}`, {
-                                    method: "PATCH",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ creationStatus: value }),
-                                  })
-                                  if (response.ok) {
-                                    // Update local state immediately for better UX
-                                    setGuests(
-                                      guests.map((g) =>
-                                        (g._id || g.id) === (member._id || member.id)
-                                          ? { ...g, creationStatus: value, lastUpdated: new Date().toISOString() }
-                                          : g,
-                                      ),
-                                    )
-                                  }
-                                } catch (error) {
-                                  console.error("Error updating creation status:", error)
-                                }
-                              }}
-                            >
-                              <SelectTrigger className="h-8 w-24">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Original">Original</SelectItem>
-                                <SelectItem value="New">New</SelectItem>
-                                <SelectItem value="Removed">Removed</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </td>
-                          <td className="p-4">
+                          <td className="p-3 text-red-800 dark:text-red-200">Group ({members.length})</td>
+                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                          <td className="p-3 text-red-800 dark:text-red-200">-</td>
+                          <td className="p-3" onClick={(e) => e.stopPropagation()}>
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => setEditingGuest(member)}
+                                onClick={() => {
+                                  setEditingGroup(group)
+                                  setGroupFormData({ name: group.name })
+                                }}
                                 className="hover:text-primary"
                               >
                                 <Edit className="w-4 h-4" />
@@ -1289,7 +1173,7 @@ export default function GuestManagementPage() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleDeleteGuest(member.id as string)}
+                                onClick={() => handleDeleteGroup(group)}
                                 className="text-destructive hover:text-destructive"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -1297,9 +1181,157 @@ export default function GuestManagementPage() {
                             </div>
                           </td>
                         </tr>
-                      ))}
-                    </React.Fragment>
-                  ))}
+                        {!isCollapsed &&
+                          members.map((member) => (
+                            <tr key={member.id} className="border-b hover:bg-muted/50">
+                              <td className="p-4 pl-8">
+                                {member.name}{" "}
+                                {member.guestType === "tbc" && (
+                                  <span className="text-xs text-blue-600 font-semibold">(TBC)</span>
+                                )}
+                                {member.isChild && <span className="text-xs text-muted-foreground">(Child)</span>}
+                                {member.creationStatus === "Removed" && (
+                                  <span className="text-xs text-red-600 font-semibold">(Removed)</span>
+                                )}
+                                {member.creationStatus === "New" && (
+                                  <span className="text-xs text-blue-600 font-semibold">(New)</span>
+                                )}
+                              </td>
+                              <td className="p-4">{member.guestType === "defined" ? "Defined" : "TBC"}</td>
+                              <td className="p-4">{member.side === "bride" ? "Bride" : "Groom"}</td>
+                              <td className="p-4">
+                                {member.isChild && member.ageGroup
+                                  ? member.ageGroup === "under-4"
+                                    ? "<4"
+                                    : member.ageGroup === "4-12"
+                                      ? "4-12"
+                                      : ">12"
+                                  : "-"}
+                              </td>
+                              <td className="p-4">
+                                <span
+                                  className={
+                                    member.rsvpStatus === "attending"
+                                      ? "text-green-600 font-medium"
+                                      : member.rsvpStatus === "not-attending"
+                                        ? "text-red-600 font-medium"
+                                        : "text-orange-600 font-medium"
+                                  }
+                                >
+                                  {member.rsvpStatus === "attending"
+                                    ? "Attending"
+                                    : member.rsvpStatus === "not-attending"
+                                      ? "Not attending"
+                                      : "Pending"}
+                                </span>
+                              </td>
+                              <td className="p-4">
+                                {member.events.length > 0 ? (
+                                  <div className="flex gap-1 flex-wrap">
+                                    {member.events.map((event) => (
+                                      <span
+                                        key={event}
+                                        className="inline-block px-2 py-1 text-xs rounded-full bg-primary/10 text-primary"
+                                      >
+                                        {event === "ceremony" ? "Wedding" : event === "reception" ? "Reception" : event}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
+                              </td>
+                              <td className="p-4">{member.notes ? "Yes" : "No"}</td>
+                              <td className="p-4">{member.questions ? "Yes" : "No"}</td>
+                              <td className="p-4">{member.dietaryRequirements ? "Yes" : "No"}</td>
+                              <td className="p-4 text-xs">
+                                {new Date(member.lastUpdated).toLocaleString("en-US", {
+                                  timeZone: "UTC",
+                                })}
+                              </td>
+                              <td className="p-4 text-xs">
+                                {new Date(member.createdAt).toLocaleString("en-US", {
+                                  timeZone: "UTC",
+                                })}
+                              </td>
+                              <td className="p-4">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleToggleLock(member)}
+                                  className={
+                                    member.lockStatus === "locked"
+                                      ? "text-red-600 hover:text-red-700"
+                                      : "text-green-600 hover:text-green-700"
+                                  }
+                                >
+                                  {member.lockStatus === "locked" ? (
+                                    <Lock className="w-4 h-4" />
+                                  ) : (
+                                    <Unlock className="w-4 h-4" />
+                                  )}
+                                </Button>
+                              </td>
+                              <td className="p-4">
+                                <Select
+                                  value={member.creationStatus || "Original"}
+                                  onValueChange={async (value: "Original" | "New" | "Removed") => {
+                                    try {
+                                      const response = await fetch(`/api/guests/${member._id || member.id}`, {
+                                        method: "PATCH",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ creationStatus: value }),
+                                      })
+                                      if (response.ok) {
+                                        // Update local state immediately for better UX
+                                        setGuests(
+                                          guests.map((g) =>
+                                            (g._id || g.id) === (member._id || member.id)
+                                              ? { ...g, creationStatus: value, lastUpdated: new Date().toISOString() }
+                                              : g,
+                                          ),
+                                        )
+                                      }
+                                    } catch (error) {
+                                      console.error("Error updating creation status:", error)
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="h-8 w-24">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Original">Original</SelectItem>
+                                    <SelectItem value="New">New</SelectItem>
+                                    <SelectItem value="Removed">Removed</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </td>
+                              <td className="p-4">
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setEditingGuest(member)}
+                                    className="hover:text-primary"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleDeleteGuest(member.id as string)}
+                                    className="text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                      </React.Fragment>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
