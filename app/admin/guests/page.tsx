@@ -1162,6 +1162,9 @@ export default function GuestManagementPage() {
                             {member.creationStatus === "Removed" && (
                               <span className="text-xs text-red-600 font-semibold">(Removed)</span>
                             )}
+                            {member.creationStatus === "New" && (
+                              <span className="text-xs text-blue-600 font-semibold">(New)</span>
+                            )}
                           </td>
                           <td className="p-4">{member.guestType === "defined" ? "Defined" : "TBC"}</td>
                           <td className="p-4">{member.side === "bride" ? "Bride" : "Groom"}</td>
