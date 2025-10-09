@@ -5,7 +5,7 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { useLanguage } from "@/lib/language-context"
 import { PageTracker } from "@/components/page-tracker"
-import { Check } from "lucide-react"
+import { Check, X } from "lucide-react"
 
 interface Guest {
   _id: string
@@ -219,6 +219,50 @@ export default function RSVPPage() {
     }
   }
 
+  const handleDeleteGuest = async (guestId: string) => {
+    if (!confirm(`${t("deleteGuest")}?`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/guests/${guestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ creationStatus: "Removed" }),
+      })
+
+      if (!response.ok) {
+        setError("Failed to delete guest")
+        return
+      }
+
+      // Remove the guest from local state
+      if (searchResult?.type === "group" && searchResult.guests) {
+        const updatedGuests = searchResult.guests.filter((g) => g._id !== guestId)
+        setSearchResult({ ...searchResult, guests: updatedGuests })
+
+        // Clean up state for the deleted guest
+        const newGuestNames = { ...guestNames }
+        const newGuestChildStatus = { ...guestChildStatus }
+        const newGuestAgeGroups = { ...guestAgeGroups }
+        const newGuestEvents = { ...guestEvents }
+
+        delete newGuestNames[guestId]
+        delete newGuestChildStatus[guestId]
+        delete newGuestAgeGroups[guestId]
+        delete newGuestEvents[guestId]
+
+        setGuestNames(newGuestNames)
+        setGuestChildStatus(newGuestChildStatus)
+        setGuestAgeGroups(newGuestAgeGroups)
+        setGuestEvents(newGuestEvents)
+      }
+    } catch (error) {
+      console.error("Error deleting guest:", error)
+      setError("An error occurred while deleting the guest")
+    }
+  }
+
   if (success) {
     return (
       <div className="min-h-screen py-12 flex items-center justify-center">
@@ -312,10 +356,21 @@ export default function RSVPPage() {
                         return (
                           <div
                             key={guest._id}
-                            className={`border rounded-lg p-4 space-y-3 ${
+                            className={`border rounded-lg p-4 space-y-3 relative ${
                               isLocked ? "bg-muted/20 border-muted" : "bg-muted/30 border-muted"
                             }`}
                           >
+                            {!isLocked && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteGuest(guest._id)}
+                                className="absolute top-3 right-3 p-1 rounded-full hover:bg-destructive/10 text-destructive transition-colors"
+                                title={t("deleteGuest")}
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
+
                             <div className="flex items-center gap-2 mb-3">
                               <span className="text-sm font-medium text-muted-foreground min-w-[60px]">
                                 Guest {index + 1}
@@ -415,7 +470,6 @@ export default function RSVPPage() {
                               </label>
                             </div>
 
-                            {/* Name and child status - only show if not "can't make it" */}
                             {!isNotAttending && (
                               <>
                                 <div className="flex items-center gap-2">
@@ -609,7 +663,6 @@ export default function RSVPPage() {
                       </div>
                     </div>
 
-                    {/* Only show name and child status if not "can't make it" */}
                     {!guestEvents[searchResult.guest._id]?.includes("not-attending") && (
                       <>
                         <div className="flex items-center space-x-2">
@@ -674,7 +727,6 @@ export default function RSVPPage() {
                   </div>
                 )}
 
-                {/* Dietary requirements for groups - only if at least one guest is attending */}
                 {searchResult.type === "group" &&
                   searchResult.guests?.some(
                     (g) => !guestEvents[g._id]?.includes("not-attending") && guestEvents[g._id]?.length > 0,

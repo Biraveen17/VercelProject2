@@ -262,6 +262,7 @@ export interface Translation {
   attendingWedding: string
   attendingReception: string
   sorryCannotMakeIt: string
+  deleteGuest: string // Adding delete guest translation
 }
 
 export const translations: Record<string, Translation> = {
@@ -552,6 +553,7 @@ export const translations: Record<string, Translation> = {
     attendingWedding: "Attending Wedding",
     attendingReception: "Attending Reception",
     sorryCannotMakeIt: "Sorry, can't make it",
+    deleteGuest: "Delete Guest", // Adding delete guest translation
   },
 
   da: {
@@ -843,6 +845,7 @@ export const translations: Record<string, Translation> = {
     attendingWedding: "Deltager i Bryllup",
     attendingReception: "Deltager i Reception",
     sorryCannotMakeIt: "Beklager, kan ikke komme",
+    deleteGuest: "Slet Gæst", // Adding delete guest translation
   },
 
   ta: {
@@ -1135,6 +1138,7 @@ export const translations: Record<string, Translation> = {
     attendingWedding: "திருமணத்தில் கலந்துகொள்கிறேன்",
     attendingReception: "வரவேற்பில் கலந்துகொள்கிறேன்",
     sorryCannotMakeIt: "மன்னிக்கவும், என்னால் வர முடியாது",
+    deleteGuest: "விருந்தினரை நீக்கு", // Adding delete guest translation
   },
 
   fr: {
@@ -1438,6 +1442,7 @@ export const translations: Record<string, Translation> = {
     attendingWedding: "Assiste au Mariage",
     attendingReception: "Assiste à la Réception",
     sorryCannotMakeIt: "Désolé, je ne peux pas venir",
+    deleteGuest: "Supprimer l'Invité", // Adding delete guest translation
   },
 }
 
