@@ -912,6 +912,18 @@ export default function FlightsPage() {
           </div>
         </div>
 
+        <div className="my-16 flex items-center justify-center">
+          <div className="flex items-center gap-4 w-full max-w-md">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-primary/30"></div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-full border border-primary/20">
+              <Plane className="w-5 h-5 text-primary rotate-180" />
+              <span className="text-xl font-medium text-primary">Flights to Cyprus</span>
+              <Plane className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-l from-transparent via-primary/30 to-primary/30"></div>
+          </div>
+        </div>
+
         <FlightTable
           flights={sortedOutgoingFlights}
           tableRef={outgoingTableRef}
@@ -944,7 +956,7 @@ export default function FlightsPage() {
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-primary/30"></div>
             <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-full border border-primary/20">
               <Plane className="w-5 h-5 text-primary rotate-180" />
-              <span className="text-sm font-medium text-primary">Return Flights</span>
+              <span className="text-xl font-medium text-primary">Flights from Cyrprus</span>
               <Plane className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 h-px bg-gradient-to-l from-transparent via-primary/30 to-primary/30"></div>
