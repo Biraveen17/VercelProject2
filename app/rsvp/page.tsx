@@ -368,7 +368,7 @@ export default function RSVPPage() {
                           <div
                             key={guest._id}
                             className={`border rounded-lg p-4 space-y-3 relative ${
-                              isLocked ? "bg-muted/20 border-muted" : "bg-muted/30 border-muted"
+                              isLocked ? "bg-amber-50 border-amber-300 border-2" : "bg-card border-border"
                             }`}
                           >
                             {!isLocked && (
@@ -387,7 +387,9 @@ export default function RSVPPage() {
                                 Guest {index + 1}
                               </span>
                               {isLocked && (
-                                <span className="text-xs text-muted-foreground">(Locked - Already RSVP'd)</span>
+                                <span className="text-xs font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded">
+                                  🔒 Locked - Already RSVP'd
+                                </span>
                               )}
                             </div>
 
@@ -492,10 +494,10 @@ export default function RSVPPage() {
                                   }
                                 }}
                                 disabled={isLocked}
-                                className={`flex-1 px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
+                                className={`flex-1 px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
                                   isLocked
-                                    ? "bg-muted/70 cursor-not-allowed opacity-80 text-muted-foreground"
-                                    : "bg-background"
+                                    ? "bg-amber-100 border-amber-300 cursor-not-allowed opacity-90 text-foreground"
+                                    : "bg-white border-input shadow-sm"
                                 }`}
                                 placeholder={t("memberNamePlaceholder", { number: index + 1 })}
                                 required
@@ -537,8 +539,10 @@ export default function RSVPPage() {
                                         }
                                       }}
                                       disabled={isLocked}
-                                      className={`flex-1 px-2 py-1 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
-                                        isLocked ? "bg-muted/70 cursor-not-allowed opacity-80" : "bg-background"
+                                      className={`flex-1 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
+                                        isLocked
+                                          ? "bg-amber-100 border-amber-300 cursor-not-allowed opacity-90"
+                                          : "bg-white border-input shadow-sm"
                                       }`}
                                       required
                                     >
@@ -684,10 +688,10 @@ export default function RSVPPage() {
                           setGuestNames({ ...guestNames, [searchResult.guest._id]: e.target.value })
                         }}
                         disabled={searchResult.guest.lockStatus === "locked"}
-                        className={`flex-1 px-3 py-1.5 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
+                        className={`flex-1 px-3 py-1.5 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm ${
                           searchResult.guest.lockStatus === "locked"
-                            ? "bg-muted/70 cursor-not-allowed opacity-80 text-muted-foreground"
-                            : "bg-background"
+                            ? "bg-amber-100 border-amber-300 cursor-not-allowed opacity-90 text-foreground"
+                            : "bg-white border-input shadow-sm"
                         }`}
                         placeholder={t("memberNamePlaceholder", { number: 1 })}
                         required
@@ -730,7 +734,7 @@ export default function RSVPPage() {
                                   [searchResult.guest._id]: e.target.value,
                                 })
                               }}
-                              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white shadow-sm"
                               required
                             >
                               <option value="">Select age group *</option>
@@ -749,7 +753,7 @@ export default function RSVPPage() {
                             id="dietary"
                             value={dietaryRequirements}
                             onChange={(e) => setDietaryRequirements(e.target.value)}
-                            className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                            className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white shadow-sm"
                             rows={3}
                             placeholder={t("dietaryPlaceholder")}
                           />
@@ -771,7 +775,7 @@ export default function RSVPPage() {
                         id="dietary"
                         value={dietaryRequirements}
                         onChange={(e) => setDietaryRequirements(e.target.value)}
-                        className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                        className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white shadow-sm"
                         rows={3}
                         placeholder={t("dietaryPlaceholder")}
                       />
@@ -786,7 +790,7 @@ export default function RSVPPage() {
                     id="questions"
                     value={questions}
                     onChange={(e) => setQuestions(e.target.value)}
-                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-input"
+                    className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white shadow-sm"
                     rows={3}
                     placeholder={t("questionsPlaceholder")}
                   />

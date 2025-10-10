@@ -29,6 +29,7 @@ interface ContentData {
   venue: PageContent
   gallery: PageContent
   travel: PageContent
+  flights: PageContent
 }
 
 export function Navigation() {
@@ -38,6 +39,7 @@ export function Navigation() {
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [pageConfig, setPageConfig] = useState<ContentData | null>(null)
   const [gallerySettings, setGallerySettings] = useState({ visible: false, accessible: true })
+  const [flightsSettings, setFlightsSettings] = useState({ visible: false, accessible: true })
   const [availableLanguages, setAvailableLanguages] = useState(languages)
   const [autoLanguageDetected, setAutoLanguageDetected] = useState(false)
 
@@ -48,6 +50,7 @@ export function Navigation() {
     }
 
     fetchGallerySettings()
+    fetchFlightsSettings()
     fetchLanguageSettings()
     detectAndSetLanguage()
   }, [])
@@ -64,6 +67,21 @@ export function Navigation() {
       }
     } catch (error) {
       console.error("Error fetching gallery settings:", error)
+    }
+  }
+
+  const fetchFlightsSettings = async () => {
+    try {
+      const response = await fetch("/api/settings")
+      if (response.ok) {
+        const data = await response.json()
+        setFlightsSettings({
+          visible: data.flightsVisible ?? true,
+          accessible: data.flightsAccessible ?? true,
+        })
+      }
+    } catch (error) {
+      console.error("Error fetching flights settings:", error)
     }
   }
 
@@ -148,6 +166,11 @@ export function Navigation() {
     // Only add gallery if settings say it's visible
     if (gallerySettings.visible) {
       baseNavItems.splice(4, 0, { href: "/gallery", label: t("gallery"), key: "gallery" })
+    }
+
+    // Only add flights if settings say it's visible
+    if (flightsSettings.visible) {
+      baseNavItems.splice(4, 0, { href: "/flights", label: t("flights"), key: "flights" })
     }
 
     return baseNavItems

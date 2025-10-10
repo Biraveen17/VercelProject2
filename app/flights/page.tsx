@@ -6,19 +6,59 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plane, Clock, Calendar } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
-import type { Flight } from "@/lib/database"
+import { useRouter } from "next/navigation"
+
+interface Flight {
+  _id?: string
+  id?: string
+  airline: string
+  flightNumber: string
+  departureAirport: string
+  departureAirportName: string
+  arrivalAirport: string
+  arrivalAirportName: string
+  departureDate: string
+  departureTime: string
+  arrivalDate: string
+  arrivalTime: string
+  notes?: string
+  createdAt: string
+  lastUpdated: string
+}
 
 export default function FlightsPage() {
   const { t } = useLanguage()
+  const router = useRouter()
   const [flights, setFlights] = useState<Flight[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [departureFilter, setDepartureFilter] = useState("all")
   const [arrivalFilter, setArrivalFilter] = useState("all")
   const [loading, setLoading] = useState(true)
+  const [accessible, setAccessible] = useState(true)
 
   useEffect(() => {
-    fetchFlights()
+    checkAccessibility()
   }, [])
+
+  const checkAccessibility = async () => {
+    try {
+      const response = await fetch("/api/settings")
+      if (response.ok) {
+        const settings = await response.json()
+        if (settings.flightsAccessible === false) {
+          router.push("/")
+          return
+        }
+        setAccessible(true)
+        fetchFlights()
+      } else {
+        fetchFlights()
+      }
+    } catch (error) {
+      console.error("Error checking accessibility:", error)
+      fetchFlights()
+    }
+  }
 
   const fetchFlights = async () => {
     try {
@@ -51,10 +91,14 @@ export default function FlightsPage() {
     return matchesSearch && matchesDeparture && matchesArrival
   })
 
+  if (!accessible) {
+    return null
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">{t("loading")}</p>
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     )
   }
@@ -63,15 +107,17 @@ export default function FlightsPage() {
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="script text-5xl sm:text-6xl mb-4">{t("flightsTitle")}</h1>
-          <p className="text-xl text-muted-foreground mb-2">{t("flightsSubtitle")}</p>
-          <p className="text-muted-foreground max-w-3xl mx-auto">{t("flightsDescription")}</p>
+          <h1 className="script text-5xl sm:text-6xl mb-4">{t("flights")}</h1>
+          <p className="text-xl text-muted-foreground mb-2">Flight Information</p>
+          <p className="text-muted-foreground max-w-3xl mx-auto">
+            Browse available flights to help plan your journey to our wedding
+          </p>
         </div>
 
         {/* Filters */}
         <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
           <Input
-            placeholder={t("searchFlights")}
+            placeholder="Search flights..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full"
@@ -79,10 +125,10 @@ export default function FlightsPage() {
 
           <Select value={departureFilter} onValueChange={setDepartureFilter}>
             <SelectTrigger>
-              <SelectValue placeholder={t("filterByDeparture")} />
+              <SelectValue placeholder="Filter by departure" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t("allAirports")}</SelectItem>
+              <SelectItem value="all">All Airports</SelectItem>
               {uniqueDepartureAirports.map((airport) => (
                 <SelectItem key={airport} value={airport}>
                   {airport}
@@ -93,10 +139,10 @@ export default function FlightsPage() {
 
           <Select value={arrivalFilter} onValueChange={setArrivalFilter}>
             <SelectTrigger>
-              <SelectValue placeholder={t("filterByArrival")} />
+              <SelectValue placeholder="Filter by arrival" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t("allAirports")}</SelectItem>
+              <SelectItem value="all">All Airports</SelectItem>
               {uniqueArrivalAirports.map((airport) => (
                 <SelectItem key={airport} value={airport}>
                   {airport}
@@ -111,13 +157,13 @@ export default function FlightsPage() {
           <Card>
             <CardContent className="py-12 text-center">
               <Plane className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground">{t("noFlightsFound")}</p>
+              <p className="text-muted-foreground">No flights found matching your criteria</p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredFlights.map((flight) => (
-              <Card key={flight.id} className="hover:shadow-lg transition-shadow">
+              <Card key={flight._id || flight.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>{flight.airline}</span>
@@ -133,7 +179,7 @@ export default function FlightsPage() {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">{t("departureAirport")}</p>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">Departure</p>
                       <p className="font-semibold">{flight.departureAirportName}</p>
                       <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />
@@ -146,7 +192,7 @@ export default function FlightsPage() {
                     </div>
 
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">{t("arrivalAirport")}</p>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">Arrival</p>
                       <p className="font-semibold">{flight.arrivalAirportName}</p>
                       <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />

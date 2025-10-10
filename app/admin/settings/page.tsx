@@ -29,6 +29,8 @@ interface WeddingSettings {
   enableTamil: boolean
   enableAutoLanguageDetection: boolean
   enableScheduleBlur: boolean
+  flightsVisible: boolean
+  flightsAccessible: boolean
 }
 
 export default function SettingsPage() {
@@ -52,6 +54,8 @@ export default function SettingsPage() {
     enableTamil: true,
     enableAutoLanguageDetection: true,
     enableScheduleBlur: true,
+    flightsVisible: true,
+    flightsAccessible: true,
   })
 
   useEffect(() => {
@@ -319,6 +323,51 @@ export default function SettingsPage() {
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                   <p className="text-sm text-yellow-800">
                     ⚠️ Warning: Gallery is visible in navigation but not accessible. Consider hiding it from navigation
+                    as well.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Flight Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Flight Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="flightsVisible"
+                  checked={settings.flightsVisible}
+                  onChange={(e) => updateSetting("flightsVisible", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="flightsVisible">Show flights in navigation</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                When enabled, the flights link will be visible in the navigation bar
+              </p>
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="flightsAccessible"
+                  checked={settings.flightsAccessible}
+                  onChange={(e) => updateSetting("flightsAccessible", e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <Label htmlFor="flightsAccessible">Allow flights page access</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                When disabled, the flights page will redirect to the homepage even if accessed directly
+              </p>
+
+              {!settings.flightsAccessible && settings.flightsVisible && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800">
+                    ⚠️ Warning: Flights is visible in navigation but not accessible. Consider hiding it from navigation
                     as well.
                   </p>
                 </div>

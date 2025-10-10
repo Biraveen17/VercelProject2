@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { isAuthenticated, login, logout, getCurrentUser } from "@/lib/auth"
-import { Users, DollarSign, Calendar, Settings, LogOut, BarChart } from "lucide-react"
+import { Users, DollarSign, Calendar, Settings, LogOut, BarChart, Plane } from "lucide-react"
 import Link from "next/link"
 
 interface Guest {
@@ -233,7 +233,7 @@ export default function AdminPage() {
         )}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
             <Link href="/admin/guests">
               <CardContent className="p-6 text-center">
@@ -303,6 +303,16 @@ export default function AdminPage() {
                 </div>
                 <h3 className="font-semibold mb-2">Hotels Management</h3>
                 <p className="text-sm text-muted-foreground">Manage hotel listings and details</p>
+              </CardContent>
+            </Link>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <Link href="/admin/flights">
+              <CardContent className="p-6 text-center">
+                <Plane className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Flight Management</h3>
+                <p className="text-sm text-muted-foreground">Manage flight information and schedules</p>
               </CardContent>
             </Link>
           </Card>
