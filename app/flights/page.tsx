@@ -575,12 +575,11 @@ export default function FlightsPage() {
 
     return (
       <div className="mb-12">
-        <h2 className="text-3xl font-bold text-center mb-6 text-primary">{title}</h2>
         <Card className="shadow-lg p-0">
           <CardContent className="p-0">
             <div className="relative">
               {showScrollIndicator && (
-                <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white via-white/95 to-transparent pointer-events-none z-20 flex items-center justify-end pr-4">
+                <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-primary/10 to-transparent pointer-events-none z-20 flex items-center justify-end pr-2">
                   <div className="bg-primary text-primary-foreground rounded-full p-1.5 shadow-xl border-2 border-white animate-bounce">
                     <ChevronRight className="w-4 h-4" />
                   </div>
@@ -907,7 +906,7 @@ export default function FlightsPage() {
           <div className="inline-block px-6 py-3 bg-amber-50 border border-amber-200 rounded-lg shadow-sm max-w-3xl">
             <p className="text-sm text-amber-900 text-center">
               <strong>Note:</strong> The flight details below were checked in October 2025 and may vary depending on
-              when you book. Please verify current prices and availability with the airlines.
+              when you book.
             </p>
           </div>
         </div>
@@ -956,7 +955,7 @@ export default function FlightsPage() {
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-primary/30"></div>
             <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-full border border-primary/20">
               <Plane className="w-5 h-5 text-primary rotate-180" />
-              <span className="text-xl font-medium text-primary">Flights from Cyrprus</span>
+              <span className="text-xl font-medium text-primary">Flights from Cyrpus</span>
               <Plane className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 h-px bg-gradient-to-l from-transparent via-primary/30 to-primary/30"></div>
