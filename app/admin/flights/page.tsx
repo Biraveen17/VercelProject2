@@ -270,6 +270,112 @@ export default function FlightsManagementPage() {
     setAirlineIconMappings(airlineIconMappings.filter((m) => m.airline !== airline))
   }
 
+  const handleExportCSV = () => {
+    const headers = [
+      "Airline",
+      "Departure Airport",
+      "Departure Airport Name",
+      "Arrival Airport",
+      "Arrival Airport Name",
+      "Departure Date",
+      "Departure Time",
+      "Arrival Date",
+      "Arrival Time",
+      "Cost Cabin Bag",
+      "Cost Checked Bag",
+      "Cost Ticket Alone",
+      "Notes",
+      "Enabled",
+    ]
+
+    const rows = flights.map((flight) => [
+      flight.airline,
+      flight.departureAirport,
+      flight.departureAirportName,
+      flight.arrivalAirport,
+      flight.arrivalAirportName,
+      flight.departureDate,
+      flight.departureTime,
+      flight.arrivalDate,
+      flight.arrivalTime,
+      flight.costCabinBag,
+      flight.costCheckedBag,
+      flight.costTicketAlone,
+      flight.notes || "",
+      flight.enabled ? "true" : "false",
+    ])
+
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n")
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", `flights_export_${new Date().toISOString().split("T")[0]}.csv`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      try {
+        const text = e.target?.result as string
+        const lines = text.split("\n").filter((line) => line.trim())
+        const headers = lines[0].split(",").map((h) => h.replace(/"/g, "").trim())
+
+        // Parse CSV rows
+        const newFlights = lines.slice(1).map((line) => {
+          const values = line.split(",").map((v) => v.replace(/"/g, "").trim())
+          return {
+            airline: values[0],
+            departureAirport: values[1],
+            departureAirportName: values[2],
+            arrivalAirport: values[3],
+            arrivalAirportName: values[4],
+            departureDate: values[5],
+            departureTime: values[6],
+            arrivalDate: values[7],
+            arrivalTime: values[8],
+            costCabinBag: Number.parseFloat(values[9]) || 0,
+            costCheckedBag: Number.parseFloat(values[10]) || 0,
+            costTicketAlone: Number.parseFloat(values[11]) || 0,
+            notes: values[12] || "",
+            enabled: values[13] === "true",
+          }
+        })
+
+        // Delete all existing flights
+        for (const flight of flights) {
+          await fetch(`/api/flights/${flight._id || flight.id}`, { method: "DELETE" })
+        }
+
+        // Create new flights from CSV
+        for (const flight of newFlights) {
+          await fetch("/api/flights", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(flight),
+          })
+        }
+
+        // Reload flights
+        await loadFlights()
+        alert(`Successfully imported ${newFlights.length} flights`)
+      } catch (error) {
+        console.error("Error importing CSV:", error)
+        alert("Error importing CSV file. Please check the format and try again.")
+      }
+    }
+    reader.readAsText(file)
+    event.target.value = "" // Reset input
+  }
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
   }
@@ -326,6 +432,15 @@ export default function FlightsManagementPage() {
             <Plus className="w-4 h-4 mr-2" />
             Add Flight
           </Button>
+          <Button onClick={handleExportCSV} variant="outline">
+            Export to CSV
+          </Button>
+          <Button variant="outline" asChild>
+            <label className="cursor-pointer">
+              Import from CSV
+              <input type="file" accept=".csv" onChange={handleImportCSV} className="hidden" />
+            </label>
+          </Button>
         </div>
 
         <Card className="mb-8">
@@ -362,6 +477,7 @@ export default function FlightsManagementPage() {
                             <img
                               src={
                                 airlineIconMappings.find((m) => m.airline === flight.airline)?.iconUrl ||
+                                "/placeholder.svg" ||
                                 "/placeholder.svg"
                               }
                               alt={flight.airline}
@@ -620,13 +736,25 @@ export default function FlightsManagementPage() {
 
               <div>
                 <Label htmlFor="airline">Airline *</Label>
-                <Input
+                <select
                   id="airline"
                   value={formData.airline}
                   onChange={(e) => setFormData({ ...formData, airline: e.target.value })}
-                  placeholder="e.g., British Airways"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   required
-                />
+                >
+                  <option value="">Select an airline</option>
+                  {airlineIconMappings.map((mapping) => (
+                    <option key={mapping.airline} value={mapping.airline}>
+                      {mapping.airline}
+                    </option>
+                  ))}
+                </select>
+                {airlineIconMappings.length === 0 && (
+                  <p className="text-sm text-amber-600 mt-1">
+                    No airlines configured. Add airlines in the Airline Icon Mappings section below.
+                  </p>
+                )}
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">

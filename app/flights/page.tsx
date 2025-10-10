@@ -4,10 +4,11 @@ import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, X } from "lucide-react"
+import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import { useRouter } from "next/navigation"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Flight {
   _id?: string
@@ -64,9 +65,20 @@ export default function FlightsPage() {
   const [toAirportFilters, setToAirportFilters] = useState<string[]>([])
   const [airlineFilters, setAirlineFilters] = useState<string[]>([])
 
+  // Pagination state
+  const [itemsPerPage, setItemsPerPage] = useState<number | "all">(10)
+  const [currentPage, setCurrentPage] = useState(1)
+
   useEffect(() => {
     checkAccessibility()
   }, [])
+
+  useEffect(() => {
+    if (flights.length > 0 && sortField === null) {
+      setSortField("date")
+      setSortDirection("asc")
+    }
+  }, [flights])
 
   const checkAccessibility = async () => {
     try {
@@ -157,72 +169,46 @@ export default function FlightsPage() {
 
   // Sorting logic
   const sortedFlights = useMemo(() => {
-    if (!sortField || !sortDirection) return filteredFlights
-
     return [...filteredFlights].sort((a, b) => {
-      let aValue: any
-      let bValue: any
+      // Primary sort: Date (ascending)
+      const dateA = new Date(a.departureDate).getTime()
+      const dateB = new Date(b.departureDate).getTime()
+      if (dateA !== dateB) return dateA - dateB
 
-      switch (sortField) {
-        case "date":
-          aValue = new Date(a.departureDate).getTime()
-          bValue = new Date(b.departureDate).getTime()
-          break
-        case "day":
-          aValue = getDayOfWeek(a.departureDate)
-          bValue = getDayOfWeek(b.departureDate)
-          break
-        case "takeOffTime":
-          aValue = a.departureTime
-          bValue = b.departureTime
-          break
-        case "landingTime":
-          aValue = a.arrivalTime
-          bValue = b.arrivalTime
-          break
-        case "fromAirport":
-          aValue = a.departureAirport
-          bValue = b.departureAirport
-          break
-        case "toAirport":
-          aValue = a.arrivalAirport
-          bValue = b.arrivalAirport
-          break
-        case "airline":
-          aValue = a.airline
-          bValue = b.airline
-          break
-        case "costCabinBag":
-          aValue = a.costCabinBag
-          bValue = b.costCabinBag
-          break
-        case "costCheckedBag":
-          aValue = a.costCheckedBag
-          bValue = b.costCheckedBag
-          break
-        case "costTicketAlone":
-          aValue = a.costTicketAlone
-          bValue = b.costTicketAlone
-          break
-        case "costTicketCabin":
-          aValue = getTicketPlusCabin(a)
-          bValue = getTicketPlusCabin(b)
-          break
-        case "costTicketChecked":
-          aValue = getTicketPlusChecked(a)
-          bValue = getTicketPlusChecked(b)
-          break
-        case "costTicketBoth":
-          aValue = getTicketPlusBoth(a)
-          bValue = getTicketPlusBoth(b)
-          break
+      // Secondary sort: Take Off Time (ascending)
+      if (a.departureTime !== b.departureTime) {
+        return a.departureTime.localeCompare(b.departureTime)
       }
 
-      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1
-      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1
-      return 0
+      // Tertiary sort: From Airport (ascending)
+      if (a.departureAirport !== b.departureAirport) {
+        return a.departureAirport.localeCompare(b.departureAirport)
+      }
+
+      // Quaternary sort: To Airport (ascending)
+      return a.arrivalAirport.localeCompare(b.arrivalAirport)
     })
-  }, [filteredFlights, sortField, sortDirection])
+  }, [filteredFlights])
+
+  // Pagination logic
+  const paginatedFlights = useMemo(() => {
+    if (itemsPerPage === "all") {
+      return sortedFlights
+    }
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    return sortedFlights.slice(startIndex, endIndex)
+  }, [sortedFlights, itemsPerPage, currentPage])
+
+  const totalPages = useMemo(() => {
+    if (itemsPerPage === "all") return 1
+    return Math.ceil(sortedFlights.length / itemsPerPage)
+  }, [sortedFlights.length, itemsPerPage])
+
+  // Reset to page 1 when filters or items per page change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [dateFilters, dayFilters, fromAirportFilters, toAirportFilters, airlineFilters, itemsPerPage])
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -358,6 +344,43 @@ export default function FlightsPage() {
             )}
           </div>
         )}
+
+        {/* Note about flight details */}
+        <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <p className="text-sm text-amber-900">
+            <strong>Note:</strong> The flight details below were checked in October 2025 and may vary depending on when
+            you book. Please verify current prices and availability with the airlines.
+          </p>
+        </div>
+
+        {/* Pagination Selector */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Show:</span>
+            <Select
+              value={itemsPerPage.toString()}
+              onValueChange={(value) => setItemsPerPage(value === "all" ? "all" : Number.parseInt(value))}
+            >
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 per page</SelectItem>
+                <SelectItem value="all">All flights</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {itemsPerPage === "all" ? (
+              <>Showing all {sortedFlights.length} flights</>
+            ) : (
+              <>
+                Showing {(currentPage - 1) * itemsPerPage + 1}-
+                {Math.min(currentPage * itemsPerPage, sortedFlights.length)} of {sortedFlights.length} flights
+              </>
+            )}
+          </div>
+        </div>
 
         {/* Excel-style Table */}
         <Card>
@@ -521,14 +544,14 @@ export default function FlightsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedFlights.length === 0 ? (
+                  {paginatedFlights.length === 0 ? (
                     <tr>
                       <td colSpan={13} className="p-12 text-center text-muted-foreground">
                         No flights found matching your criteria
                       </td>
                     </tr>
                   ) : (
-                    sortedFlights.map((flight, index) => (
+                    paginatedFlights.map((flight, index) => (
                       <tr
                         key={flight._id || flight.id}
                         className={`border-b hover:bg-muted/30 transition-colors ${
@@ -571,9 +594,30 @@ export default function FlightsPage() {
           </CardContent>
         </Card>
 
-        {sortedFlights.length > 0 && (
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            Showing {sortedFlights.length} of {flights.length} flights
+        {/* Pagination Controls */}
+        {itemsPerPage !== "all" && totalPages > 1 && (
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </Button>
+            <span className="text-sm text-muted-foreground px-4">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
           </div>
         )}
       </div>
