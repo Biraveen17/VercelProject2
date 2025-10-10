@@ -972,7 +972,7 @@ export default function FlightsPage() {
             <div className="bg-primary text-primary-foreground px-6 py-4 rounded-lg shadow-2xl border-2 border-primary-foreground/20 flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <span className="font-medium">Scroll right in the tables to see the Total Cost column</span>
-                <ChevronRight className="w-50 h-50 animate-pulse" />
+                <ChevronRight className="w-40 h-40 animate-pulse" />
               </div>
               <button
                 onClick={() => setShowCalculatorNotification(false)}
@@ -1108,7 +1108,7 @@ export default function FlightsPage() {
                         min="0"
                         value={numCheckedBags}
                         onChange={(e) => setNumCheckedBags(e.target.value)}
-                        placeholder="..."
+                        placeholder=""
                         className="w-32 text-center text-lg font-semibold border-2 border-gray-300 bg-background"
                       />
                     </div>
