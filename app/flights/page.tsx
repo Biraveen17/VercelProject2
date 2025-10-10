@@ -575,7 +575,7 @@ export default function FlightsPage() {
 
     return (
       <div className="mb-12">
-        <Card className="shadow-lg p-0">
+        <Card className="shadow-lg p-0 rounded-lg overflow-x-hidden">
           <CardContent className="p-0">
             <div className="relative">
               {showScrollIndicator && (
@@ -587,7 +587,7 @@ export default function FlightsPage() {
               )}
 
               <div ref={tableRef} className="overflow-x-auto max-w-full">
-                <table className="w-full border-collapse min-h-[250px]">
+                <table className="w-full border-collapse">
                   <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
                     <tr className="border-b-2 border-border">
                       <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
@@ -785,7 +785,7 @@ export default function FlightsPage() {
                                 <img
                                   src={getAirlineIcon(flight.airline) || "/placeholder.svg"}
                                   alt={flight.airline}
-                                  className="h-8 w-8 object-contain cursor-help"
+                                  className="h-8 w-16 object-contain cursor-help"
                                   onError={(e) => {
                                     e.currentTarget.style.display = "none"
                                     const parent = e.currentTarget.parentElement
@@ -794,7 +794,7 @@ export default function FlightsPage() {
                                     }
                                   }}
                                 />
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30">
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30 whitespace-nowrap">
                                   {flight.airline}
                                   <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
                                 </div>
