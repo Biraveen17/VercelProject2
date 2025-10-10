@@ -51,6 +51,7 @@ type SortField =
   | "costTicketCabin"
   | "costTicketChecked"
   | "costTicketBoth"
+  | "totalCost" // Added totalCost sort field for calculator mode
 type SortDirection = "asc" | "desc" | null
 
 const CYPRUS_AIRPORT_CODES = ["LCA", "PFO", "ECN"]
@@ -357,6 +358,13 @@ export default function FlightsPage() {
         case "costTicketBoth":
           compareResult = getTicketPlusBoth(a) - getTicketPlusBoth(b)
           break
+        case "totalCost":
+          const totalA =
+            a.costTicketAlone * numGuests + a.costCabinBag * numCabinBags + a.costCheckedBag * numCheckedBags
+          const totalB =
+            b.costTicketAlone * numGuests + b.costCabinBag * numCabinBags + b.costCheckedBag * numCheckedBags
+          compareResult = totalA - totalB
+          break
       }
 
       return compareResult * direction
@@ -402,7 +410,7 @@ export default function FlightsPage() {
         hasScrolledToEnd: outgoingHasScrolledToEnd,
       })
 
-      if (scrollLeft > 100 && !outgoingHasScrolledToEnd) {
+      if (scrollLeft > 100) {
         console.log("[v0] Setting outgoingHasScrolledToEnd to true")
         setOutgoingHasScrolledToEnd(true)
       }
@@ -411,7 +419,7 @@ export default function FlightsPage() {
     handleScroll()
     outgoingContainer.addEventListener("scroll", handleScroll)
     return () => outgoingContainer.removeEventListener("scroll", handleScroll)
-  }, [sortedOutgoingFlights, outgoingHasScrolledToEnd])
+  }, [sortedOutgoingFlights])
 
   useEffect(() => {
     const returnContainer = returnTableRef.current
@@ -429,7 +437,7 @@ export default function FlightsPage() {
         hasScrolledToEnd: returnHasScrolledToEnd,
       })
 
-      if (scrollLeft > 100 && !returnHasScrolledToEnd) {
+      if (scrollLeft > 100) {
         console.log("[v0] Setting returnHasScrolledToEnd to true")
         setReturnHasScrolledToEnd(true)
       }
@@ -438,7 +446,7 @@ export default function FlightsPage() {
     handleScroll()
     returnContainer.addEventListener("scroll", handleScroll)
     return () => returnContainer.removeEventListener("scroll", handleScroll)
-  }, [sortedReturnFlights, returnHasScrolledToEnd])
+  }, [sortedReturnFlights])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -792,10 +800,16 @@ export default function FlightsPage() {
                         </>
                       ) : (
                         <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-primary/10">
-                          <div className="flex items-center justify-end">
-                            <Calculator className="w-4 h-4 mr-2" />
-                            Total Cost
-                          </div>
+                          <button
+                            onClick={() => handleSort("totalCost")}
+                            className="flex items-center justify-end hover:text-primary ml-auto w-full"
+                          >
+                            <div className="flex items-center">
+                              <Calculator className="w-4 h-4 mr-2" />
+                              <span>Total Cost</span>
+                              <SortIcon field="totalCost" />
+                            </div>
+                          </button>
                           <div className="text-xs font-normal text-muted-foreground mt-1">
                             {numGuests} guest{numGuests !== 1 ? "s" : ""}, {numCabinBags} cabin, {numCheckedBags}{" "}
                             checked
