@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -53,6 +53,9 @@ export default function FlightsPage() {
   const [flights, setFlights] = useState<Flight[]>([])
   const [loading, setLoading] = useState(true)
   const [accessible, setAccessible] = useState(true)
+
+  const tableContainerRef = useRef<HTMLDivElement>(null)
+  const [showScrollIndicator, setShowScrollIndicator] = useState(true)
 
   // Sorting state
   const [sortField, setSortField] = useState<SortField | null>(null)
@@ -210,6 +213,23 @@ export default function FlightsPage() {
     setCurrentPage(1)
   }, [dateFilters, dayFilters, fromAirportFilters, toAirportFilters, airlineFilters, itemsPerPage])
 
+  useEffect(() => {
+    const container = tableContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = container
+      const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 10
+      setShowScrollIndicator(!isAtEnd)
+    }
+
+    // Check initial state
+    handleScroll()
+
+    container.addEventListener("scroll", handleScroll)
+    return () => container.removeEventListener("scroll", handleScroll)
+  }, [paginatedFlights])
+
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       if (sortDirection === "asc") {
@@ -254,7 +274,7 @@ export default function FlightsPage() {
     return (
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-6 px-2">
+          <Button type="button" variant="ghost" size="sm" className="h-6 px-2">
             <ChevronDown className="w-3 h-3" />
             {selectedValues.length > 0 && (
               <span className="ml-1 text-xs bg-primary text-primary-foreground rounded-full px-1.5">
@@ -345,9 +365,8 @@ export default function FlightsPage() {
           </div>
         )}
 
-        {/* Note about flight details */}
-        <div className="mb-4 flex justify-center">
-          <div className="inline-block p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div className="mb-6 flex justify-center">
+          <div className="inline-block px-6 py-3 bg-amber-50 border border-amber-200 rounded-lg shadow-sm">
             <p className="text-sm text-amber-900 text-center">
               <strong>Note:</strong> The flight details below were checked in October 2025 and may vary depending on
               when you book. Please verify current prices and availability with the airlines.
@@ -384,15 +403,18 @@ export default function FlightsPage() {
           </div>
         </div>
 
-        {/* Excel-style Table */}
-        <Card className="p-0">
+        <Card className="overflow-hidden shadow-lg">
           <CardContent className="p-0">
             <div className="relative">
-              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background/80 to-transparent pointer-events-none z-20 flex items-center justify-center">
-                <div className="text-muted-foreground animate-pulse">→</div>
-              </div>
+              {showScrollIndicator && (
+                <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-primary/20 via-primary/10 to-transparent pointer-events-none z-20 flex items-center justify-end pr-2">
+                  <div className="bg-primary text-primary-foreground rounded-full p-1.5 shadow-lg animate-bounce">
+                    <ChevronRight className="w-4 h-4" />
+                  </div>
+                </div>
+              )}
 
-              <div className="overflow-x-auto">
+              <div ref={tableContainerRef} className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
                     <tr className="border-b-2 border-border">

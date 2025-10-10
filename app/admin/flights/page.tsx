@@ -248,13 +248,19 @@ export default function FlightsManagementPage() {
   }
 
   const handleAddAirportMapping = () => {
-    if (newAirportCode.trim() && newAirportName.trim()) {
-      const code = newAirportCode.trim().toUpperCase()
+    const code = newAirportCode.trim().toUpperCase()
+    const name = newAirportName.trim()
+
+    if (code && name) {
       if (!airportMappings.find((m) => m.code === code)) {
-        setAirportMappings([...airportMappings, { code, name: newAirportName.trim() }])
+        setAirportMappings([...airportMappings, { code, name }])
         setNewAirportCode("")
         setNewAirportName("")
+      } else {
+        alert(`Airport code ${code} already exists`)
       }
+    } else {
+      alert("Please enter both airport code and name")
     }
   }
 
@@ -263,15 +269,19 @@ export default function FlightsManagementPage() {
   }
 
   const handleAddAirlineIconMapping = () => {
-    if (newAirlineName.trim() && newAirlineIconUrl.trim()) {
-      if (!airlineIconMappings.find((m) => m.airline === newAirlineName.trim())) {
-        setAirlineIconMappings([
-          ...airlineIconMappings,
-          { airline: newAirlineName.trim(), iconUrl: newAirlineIconUrl.trim() },
-        ])
+    const airline = newAirlineName.trim()
+    const iconUrl = newAirlineIconUrl.trim()
+
+    if (airline && iconUrl) {
+      if (!airlineIconMappings.find((m) => m.airline === airline)) {
+        setAirlineIconMappings([...airlineIconMappings, { airline, iconUrl }])
         setNewAirlineName("")
         setNewAirlineIconUrl("")
+      } else {
+        alert(`Airline ${airline} already exists`)
       }
+    } else {
+      alert("Please enter both airline name and icon URL")
     }
   }
 
@@ -486,6 +496,7 @@ export default function FlightsManagementPage() {
                             <img
                               src={
                                 airlineIconMappings.find((m) => m.airline === flight.airline)?.iconUrl ||
+                                "/placeholder.svg" ||
                                 "/placeholder.svg" ||
                                 "/placeholder.svg" ||
                                 "/placeholder.svg"
