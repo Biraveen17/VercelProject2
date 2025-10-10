@@ -6,7 +6,7 @@ import { useState, useEffect, useMemo, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, X, ChevronLeft, ChevronRight, Plane } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import { useRouter } from "next/navigation"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -359,8 +359,6 @@ export default function FlightsPage() {
     onSelectionChange: (values: string[]) => void
     label: string
   }) => {
-    const [open, setOpen] = useState(false)
-
     const toggleValue = (value: string) => {
       if (selectedValues.includes(value)) {
         onSelectionChange(selectedValues.filter((v) => v !== value))
@@ -372,18 +370,9 @@ export default function FlightsPage() {
     const clearAll = () => onSelectionChange([])
 
     return (
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover>
         <PopoverTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-6 px-2"
-            onClick={(e) => {
-              e.stopPropagation()
-              setOpen(!open)
-            }}
-          >
+          <Button type="button" variant="ghost" size="sm" className="h-6 px-2">
             <ChevronDown className="w-3 h-3" />
             {selectedValues.length > 0 && (
               <span className="ml-1 text-xs bg-primary text-primary-foreground rounded-full px-1.5">
@@ -433,11 +422,11 @@ export default function FlightsPage() {
   }) => (
     <div className="mb-12">
       <h2 className="text-3xl font-bold text-center mb-6 text-primary">{title}</h2>
-      <Card className="overflow-hidden shadow-lg">
+      <Card className="overflow-hidden shadow-lg p-0">
         <CardContent className="p-0">
           <div className="relative">
             {showScrollIndicator && (
-              <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white via-white/90 to-transparent pointer-events-none z-20 flex items-center justify-end pr-3 border-l-2 border-primary/20">
+              <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white via-white/90 to-transparent pointer-events-none z-20 flex items-center justify-end pr-3">
                 <div className="bg-primary text-primary-foreground rounded-full p-2 shadow-xl border-2 border-white animate-bounce">
                   <ChevronRight className="w-6 h-6" />
                 </div>
@@ -630,19 +619,24 @@ export default function FlightsPage() {
                           <div className="text-xs text-muted-foreground">{flight.arrivalAirportName}</div>
                         </td>
                         <td className="p-3 text-sm">
-                          <div className="flex items-center gap-2">
-                            {getAirlineIcon(flight.airline) && (
+                          {getAirlineIcon(flight.airline) ? (
+                            <div className="group relative inline-block">
                               <img
                                 src={getAirlineIcon(flight.airline) || "/placeholder.svg"}
                                 alt={flight.airline}
-                                className="h-6 w-6 object-contain"
+                                className="h-8 w-8 object-contain cursor-help"
                                 onError={(e) => {
                                   e.currentTarget.style.display = "none"
                                 }}
                               />
-                            )}
-                            <span className="font-medium">{flight.airline}</span>
-                          </div>
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30">
+                                {flight.airline}
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="font-medium text-sm">{flight.airline}</span>
+                          )}
                         </td>
                         <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCabinBag)}</td>
                         <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCheckedBag)}</td>
@@ -693,7 +687,6 @@ export default function FlightsPage() {
           </p>
         </div>
 
-        {/* Active Filters Display */}
         {(dateFilters.length > 0 ||
           dayFilters.length > 0 ||
           fromAirportFilters.length > 0 ||
@@ -769,7 +762,6 @@ export default function FlightsPage() {
           title="Outgoing Flights"
         />
 
-        {/* Pagination Controls for Outgoing */}
         {outgoingItemsPerPage !== "all" && outgoingTotalPages > 1 && (
           <div className="mb-12 flex items-center justify-center gap-2">
             <Button
@@ -795,6 +787,18 @@ export default function FlightsPage() {
             </Button>
           </div>
         )}
+
+        <div className="my-16 flex items-center justify-center">
+          <div className="flex items-center gap-4 w-full max-w-md">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-primary/30"></div>
+            <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-full border border-primary/20">
+              <Plane className="w-5 h-5 text-primary rotate-180" />
+              <span className="text-sm font-medium text-primary">Return Flights</span>
+              <Plane className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1 h-px bg-gradient-to-l from-transparent via-primary/30 to-primary/30"></div>
+          </div>
+        </div>
 
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -832,7 +836,6 @@ export default function FlightsPage() {
           title="Return Flights"
         />
 
-        {/* Pagination Controls for Return */}
         {returnItemsPerPage !== "all" && returnTotalPages > 1 && (
           <div className="mt-4 flex items-center justify-center gap-2">
             <Button
