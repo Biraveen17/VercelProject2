@@ -403,13 +403,13 @@ export default function FlightsPage() {
           </div>
         </div>
 
-        <Card className="overflow-hidden shadow-lg">
+        <Card className="overflow-hidden shadow-lg p-0">
           <CardContent className="p-0">
             <div className="relative">
               {showScrollIndicator && (
-                <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-primary/20 via-primary/10 to-transparent pointer-events-none z-20 flex items-center justify-end pr-2">
-                  <div className="bg-primary text-primary-foreground rounded-full p-1.5 shadow-lg animate-bounce">
-                    <ChevronRight className="w-4 h-4" />
+                <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none z-20 flex items-center justify-end pr-2 border-l border-border/30">
+                  <div className="bg-primary text-primary-foreground rounded-full p-1.5 shadow-lg border-2 border-white animate-bounce">
+                    <ChevronRight className="w-5 h-5" />
                   </div>
                 </div>
               )}

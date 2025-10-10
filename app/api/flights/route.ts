@@ -28,9 +28,18 @@ export async function POST(request: NextRequest) {
       departureTime: body.departureTime,
       arrivalDate: body.arrivalDate,
       arrivalTime: body.arrivalTime,
-      costCabinBag: body.costCabinBag || 0,
-      costCheckedBag: body.costCheckedBag || 0,
-      costTicketAlone: body.costTicketAlone || 0,
+      costCabinBag:
+        body.costCabinBag === "" || body.costCabinBag === null || body.costCabinBag === undefined
+          ? 0
+          : Number(body.costCabinBag),
+      costCheckedBag:
+        body.costCheckedBag === "" || body.costCheckedBag === null || body.costCheckedBag === undefined
+          ? 0
+          : Number(body.costCheckedBag),
+      costTicketAlone:
+        body.costTicketAlone === "" || body.costTicketAlone === null || body.costTicketAlone === undefined
+          ? 0
+          : Number(body.costTicketAlone),
       notes: body.notes || "",
       enabled: body.enabled !== undefined ? body.enabled : true,
       lastUpdated: new Date().toISOString(),

@@ -62,12 +62,7 @@ export default function FlightsManagementPage() {
     flightInfo: "",
   })
 
-  const [airportMappings, setAirportMappings] = useState<AirportMapping[]>([
-    { code: "LHR", name: "London Heathrow" },
-    { code: "LGW", name: "London Gatwick" },
-    { code: "PFO", name: "Paphos International" },
-    { code: "LCA", name: "Larnaca International" },
-  ])
+  const [airportMappings, setAirportMappings] = useState<AirportMapping[]>([])
   const [newAirportCode, setNewAirportCode] = useState("")
   const [newAirportName, setNewAirportName] = useState("")
 
@@ -83,9 +78,9 @@ export default function FlightsManagementPage() {
     departureTime: "",
     arrivalDate: "",
     arrivalTime: "",
-    costCabinBag: 0,
-    costCheckedBag: 0,
-    costTicketAlone: 0,
+    costCabinBag: "",
+    costCheckedBag: "",
+    costTicketAlone: "",
     notes: "",
     enabled: true,
   })
@@ -115,6 +110,30 @@ export default function FlightsManagementPage() {
     return mapping ? mapping.name : ""
   }
 
+  const loadAirportMappings = async () => {
+    try {
+      const response = await fetch("/api/airport-mappings")
+      if (response.ok) {
+        const data = await response.json()
+        setAirportMappings(data)
+      }
+    } catch (error) {
+      console.error("Error loading airport mappings:", error)
+    }
+  }
+
+  const loadAirlineMappings = async () => {
+    try {
+      const response = await fetch("/api/airline-mappings")
+      if (response.ok) {
+        const data = await response.json()
+        setAirlineIconMappings(data)
+      }
+    } catch (error) {
+      console.error("Error loading airline mappings:", error)
+    }
+  }
+
   const loadFlights = async () => {
     try {
       const response = await fetch("/api/flights")
@@ -139,6 +158,8 @@ export default function FlightsManagementPage() {
       setAuthenticated(isAuth)
       if (isAuth) {
         loadFlights()
+        loadAirportMappings()
+        loadAirlineMappings()
       } else {
         setLoading(false)
       }
@@ -162,11 +183,19 @@ export default function FlightsManagementPage() {
       const departureAirportName = getAirportName(formData.departureAirport)
       const arrivalAirportName = getAirportName(formData.arrivalAirport)
 
+      // Convert numeric cost fields to numbers, handling empty strings
+      const numericFormData = {
+        ...formData,
+        costCabinBag: formData.costCabinBag ? Number.parseFloat(formData.costCabinBag) : 0,
+        costCheckedBag: formData.costCheckedBag ? Number.parseFloat(formData.costCheckedBag) : 0,
+        costTicketAlone: formData.costTicketAlone ? Number.parseFloat(formData.costTicketAlone) : 0,
+      }
+
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
+          ...numericFormData,
           departureAirportName,
           arrivalAirportName,
         }),
@@ -184,9 +213,9 @@ export default function FlightsManagementPage() {
           departureTime: "",
           arrivalDate: "",
           arrivalTime: "",
-          costCabinBag: 0,
-          costCheckedBag: 0,
-          costTicketAlone: 0,
+          costCabinBag: "",
+          costCheckedBag: "",
+          costTicketAlone: "",
           notes: "",
           enabled: true,
         })
@@ -210,9 +239,9 @@ export default function FlightsManagementPage() {
       departureTime: flight.departureTime,
       arrivalDate: formatDateToYYYYMMDD(flight.arrivalDate),
       arrivalTime: flight.arrivalTime,
-      costCabinBag: flight.costCabinBag || 0,
-      costCheckedBag: flight.costCheckedBag || 0,
-      costTicketAlone: flight.costTicketAlone || 0,
+      costCabinBag: flight.costCabinBag ? flight.costCabinBag.toString() : "",
+      costCheckedBag: flight.costCheckedBag ? flight.costCheckedBag.toString() : "",
+      costTicketAlone: flight.costTicketAlone ? flight.costTicketAlone.toString() : "",
       notes: flight.notes || "",
       enabled: flight.enabled !== undefined ? flight.enabled : true,
     })
@@ -247,15 +276,30 @@ export default function FlightsManagementPage() {
     }
   }
 
-  const handleAddAirportMapping = () => {
+  const handleAddAirportMapping = async () => {
     const code = newAirportCode.trim().toUpperCase()
     const name = newAirportName.trim()
 
     if (code && name) {
       if (!airportMappings.find((m) => m.code === code)) {
-        setAirportMappings([...airportMappings, { code, name }])
-        setNewAirportCode("")
-        setNewAirportName("")
+        try {
+          const response = await fetch("/api/airport-mappings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code, name }),
+          })
+
+          if (response.ok) {
+            await loadAirportMappings()
+            setNewAirportCode("")
+            setNewAirportName("")
+          } else {
+            alert("Failed to add airport mapping")
+          }
+        } catch (error) {
+          console.error("Error adding airport mapping:", error)
+          alert("Error adding airport mapping")
+        }
       } else {
         alert(`Airport code ${code} already exists`)
       }
@@ -264,19 +308,47 @@ export default function FlightsManagementPage() {
     }
   }
 
-  const handleRemoveAirportMapping = (code: string) => {
-    setAirportMappings(airportMappings.filter((m) => m.code !== code))
+  const handleRemoveAirportMapping = async (code: string) => {
+    try {
+      const response = await fetch(`/api/airport-mappings?code=${code}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        await loadAirportMappings()
+      } else {
+        alert("Failed to delete airport mapping")
+      }
+    } catch (error) {
+      console.error("Error deleting airport mapping:", error)
+      alert("Error deleting airport mapping")
+    }
   }
 
-  const handleAddAirlineIconMapping = () => {
+  const handleAddAirlineIconMapping = async () => {
     const airline = newAirlineName.trim()
     const iconUrl = newAirlineIconUrl.trim()
 
     if (airline && iconUrl) {
       if (!airlineIconMappings.find((m) => m.airline === airline)) {
-        setAirlineIconMappings([...airlineIconMappings, { airline, iconUrl }])
-        setNewAirlineName("")
-        setNewAirlineIconUrl("")
+        try {
+          const response = await fetch("/api/airline-mappings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ airline, iconUrl }),
+          })
+
+          if (response.ok) {
+            await loadAirlineMappings()
+            setNewAirlineName("")
+            setNewAirlineIconUrl("")
+          } else {
+            alert("Failed to add airline mapping")
+          }
+        } catch (error) {
+          console.error("Error adding airline mapping:", error)
+          alert("Error adding airline mapping")
+        }
       } else {
         alert(`Airline ${airline} already exists`)
       }
@@ -285,8 +357,21 @@ export default function FlightsManagementPage() {
     }
   }
 
-  const handleRemoveAirlineIconMapping = (airline: string) => {
-    setAirlineIconMappings(airlineIconMappings.filter((m) => m.airline !== airline))
+  const handleRemoveAirlineIconMapping = async (airline: string) => {
+    try {
+      const response = await fetch(`/api/airline-mappings?airline=${encodeURIComponent(airline)}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        await loadAirlineMappings()
+      } else {
+        alert("Failed to delete airline mapping")
+      }
+    } catch (error) {
+      console.error("Error deleting airline mapping:", error)
+      alert("Error deleting airline mapping")
+    }
   }
 
   const handleExportCSV = () => {
@@ -496,8 +581,6 @@ export default function FlightsManagementPage() {
                             <img
                               src={
                                 airlineIconMappings.find((m) => m.airline === flight.airline)?.iconUrl ||
-                                "/placeholder.svg" ||
-                                "/placeholder.svg" ||
                                 "/placeholder.svg" ||
                                 "/placeholder.svg"
                               }
@@ -724,9 +807,9 @@ export default function FlightsManagementPage() {
                 departureTime: "",
                 arrivalDate: "",
                 arrivalTime: "",
-                costCabinBag: 0,
-                costCheckedBag: 0,
-                costTicketAlone: 0,
+                costCabinBag: "",
+                costCheckedBag: "",
+                costTicketAlone: "",
                 notes: "",
                 enabled: true,
               })
@@ -780,34 +863,46 @@ export default function FlightsManagementPage() {
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="departureAirport">Departure Airport Code *</Label>
-                  <Input
+                  <Label htmlFor="departureAirport">Departure Airport *</Label>
+                  <select
                     id="departureAirport"
                     value={formData.departureAirport}
-                    onChange={(e) => setFormData({ ...formData, departureAirport: e.target.value.toUpperCase() })}
-                    placeholder="e.g., LHR"
-                    maxLength={3}
+                    onChange={(e) => setFormData({ ...formData, departureAirport: e.target.value })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     required
-                  />
-                  {formData.departureAirport && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {getAirportName(formData.departureAirport) || "No mapping found"}
+                  >
+                    <option value="">Select departure airport</option>
+                    {airportMappings.map((mapping) => (
+                      <option key={mapping.code} value={mapping.code}>
+                        {mapping.code} - {mapping.name}
+                      </option>
+                    ))}
+                  </select>
+                  {airportMappings.length === 0 && (
+                    <p className="text-sm text-amber-600 mt-1">
+                      No airports configured. Add airports in the Airport Code Mappings section below.
                     </p>
                   )}
                 </div>
                 <div>
-                  <Label htmlFor="arrivalAirport">Arrival Airport Code *</Label>
-                  <Input
+                  <Label htmlFor="arrivalAirport">Arrival Airport *</Label>
+                  <select
                     id="arrivalAirport"
                     value={formData.arrivalAirport}
-                    onChange={(e) => setFormData({ ...formData, arrivalAirport: e.target.value.toUpperCase() })}
-                    placeholder="e.g., PFO"
-                    maxLength={3}
+                    onChange={(e) => setFormData({ ...formData, arrivalAirport: e.target.value })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     required
-                  />
-                  {formData.arrivalAirport && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {getAirportName(formData.arrivalAirport) || "No mapping found"}
+                  >
+                    <option value="">Select arrival airport</option>
+                    {airportMappings.map((mapping) => (
+                      <option key={mapping.code} value={mapping.code}>
+                        {mapping.code} - {mapping.name}
+                      </option>
+                    ))}
+                  </select>
+                  {airportMappings.length === 0 && (
+                    <p className="text-sm text-amber-600 mt-1">
+                      No airports configured. Add airports in the Airport Code Mappings section below.
                     </p>
                   )}
                 </div>
@@ -868,9 +963,8 @@ export default function FlightsManagementPage() {
                     min="0"
                     step="0.01"
                     value={formData.costTicketAlone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, costTicketAlone: Number.parseFloat(e.target.value) || 0 })
-                    }
+                    onChange={(e) => setFormData({ ...formData, costTicketAlone: e.target.value })}
+                    placeholder="0.00"
                   />
                 </div>
                 <div>
@@ -881,7 +975,8 @@ export default function FlightsManagementPage() {
                     min="0"
                     step="0.01"
                     value={formData.costCabinBag}
-                    onChange={(e) => setFormData({ ...formData, costCabinBag: Number.parseFloat(e.target.value) || 0 })}
+                    onChange={(e) => setFormData({ ...formData, costCabinBag: e.target.value })}
+                    placeholder="0.00"
                   />
                 </div>
                 <div>
@@ -892,9 +987,8 @@ export default function FlightsManagementPage() {
                     min="0"
                     step="0.01"
                     value={formData.costCheckedBag}
-                    onChange={(e) =>
-                      setFormData({ ...formData, costCheckedBag: Number.parseFloat(e.target.value) || 0 })
-                    }
+                    onChange={(e) => setFormData({ ...formData, costCheckedBag: e.target.value })}
+                    placeholder="0.00"
                   />
                 </div>
               </div>

@@ -89,4 +89,14 @@ export async function getFlightsCollection(): Promise<Collection> {
   return db.collection("flights")
 }
 
+export async function getAirportMappingsCollection(): Promise<Collection> {
+  const db = await getDatabase()
+  return db.collection("airportMappings")
+}
+
+export async function getAirlineMappingsCollection(): Promise<Collection> {
+  const db = await getDatabase()
+  return db.collection("airlineMappings")
+}
+
 export default clientPromise
