@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, X, ChevronLeft, ChevronRight, Plane } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import { useRouter } from "next/navigation"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Flight {
@@ -370,8 +370,8 @@ export default function FlightsPage() {
     const clearAll = () => onSelectionChange([])
 
     return (
-      <Popover>
-        <PopoverTrigger asChild>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button type="button" variant="ghost" size="sm" className="h-6 px-2">
             <ChevronDown className="w-3 h-3" />
             {selectedValues.length > 0 && (
@@ -380,8 +380,8 @@ export default function FlightsPage() {
               </span>
             )}
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-64 p-3" align="start">
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-64 p-3" align="start">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium">{label}</span>
             {selectedValues.length > 0 && (
@@ -404,8 +404,8 @@ export default function FlightsPage() {
               </div>
             ))}
           </div>
-        </PopoverContent>
-      </Popover>
+        </DropdownMenuContent>
+      </DropdownMenu>
     )
   }
 
@@ -608,8 +608,8 @@ export default function FlightsPage() {
                       >
                         <td className="p-3 text-sm whitespace-nowrap">{formatDate(flight.departureDate)}</td>
                         <td className="p-3 text-sm whitespace-nowrap">{getDayOfWeek(flight.departureDate)}</td>
-                        <td className="p-3 text-sm whitespace-nowrap font-mono">{flight.departureTime}</td>
-                        <td className="p-3 text-sm whitespace-nowrap font-mono">{flight.arrivalTime}</td>
+                        <td className="p-3 text-sm font-mono">{flight.departureTime}</td>
+                        <td className="p-3 text-sm font-mono">{flight.arrivalTime}</td>
                         <td className="p-3 text-sm">
                           <div className="font-semibold">{flight.departureAirport}</div>
                           <div className="text-xs text-muted-foreground">{flight.departureAirportName}</div>
@@ -627,6 +627,10 @@ export default function FlightsPage() {
                                 className="h-8 w-8 object-contain cursor-help"
                                 onError={(e) => {
                                   e.currentTarget.style.display = "none"
+                                  const parent = e.currentTarget.parentElement
+                                  if (parent) {
+                                    parent.innerHTML = `<span class="font-medium text-sm">${flight.airline}</span>`
+                                  }
                                 }}
                               />
                               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30">
