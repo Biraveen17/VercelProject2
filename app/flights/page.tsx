@@ -1087,7 +1087,7 @@ export default function FlightsPage() {
                         min="1"
                         value={numGuests}
                         onChange={(e) => setNumGuests(e.target.value)}
-                        placeholder="1"
+                        placeholder=""
                         className="w-32 text-center text-lg font-semibold border-2 border-gray-300 bg-background"
                       />
                     </div>
@@ -1098,7 +1098,7 @@ export default function FlightsPage() {
                         min="0"
                         value={numCabinBags}
                         onChange={(e) => setNumCabinBags(e.target.value)}
-                        placeholder="0"
+                        placeholder=""
                         className="w-32 text-center text-lg font-semibold border-2 border-gray-300 bg-background"
                       />
                     </div>
@@ -1106,7 +1106,7 @@ export default function FlightsPage() {
                       <label className="text-sm font-medium">Checked Bags</label>
                       <Input
                         type="number"
-                        min="0"
+                        min=""
                         value={numCheckedBags}
                         onChange={(e) => setNumCheckedBags(e.target.value)}
                         placeholder="0"
