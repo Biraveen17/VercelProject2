@@ -226,7 +226,7 @@ export function Navigation() {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowLangMenu(!showLangMenu)}
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 sm:justify-start justify-center"
                 >
                   <FlagIcon
                     flag={currentLanguage?.flag || ""}

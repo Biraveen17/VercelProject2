@@ -1087,8 +1087,8 @@ export default function FlightsPage() {
                         min="1"
                         value={numGuests}
                         onChange={(e) => setNumGuests(e.target.value)}
-                        placeholder=""
-                        className="w-32 text-center text-lg font-semibold border-2 border-input bg-background"
+                        placeholder="1"
+                        className="w-32 text-center text-lg font-semibold border-2 border-gray-300 bg-background"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
@@ -1098,8 +1098,8 @@ export default function FlightsPage() {
                         min="0"
                         value={numCabinBags}
                         onChange={(e) => setNumCabinBags(e.target.value)}
-                        placeholder=""
-                        className="w-32 text-center text-lg font-semibold border-2 border-input bg-background"
+                        placeholder="0"
+                        className="w-32 text-center text-lg font-semibold border-2 border-gray-300 bg-background"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
@@ -1109,8 +1109,8 @@ export default function FlightsPage() {
                         min="0"
                         value={numCheckedBags}
                         onChange={(e) => setNumCheckedBags(e.target.value)}
-                        placeholder=""
-                        className="w-32 text-center text-lg font-semibold border-2 border-input bg-background"
+                        placeholder="0"
+                        className="w-32 text-center text-lg font-semibold border-2 border-gray-300 bg-background"
                       />
                     </div>
                   </div>
