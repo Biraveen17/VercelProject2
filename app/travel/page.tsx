@@ -299,28 +299,28 @@ export default function TravelPage() {
                 <Button
                   variant={sortBy === "name" ? "default" : "outline"}
                   onClick={() => setSortBy("name")}
-                  className={sortBy === "name" ? "btn-primary" : "btn-secondary bg-transparent"}
+                  className={sortBy === "name" ? "btn-primary" : "btn-secondary"}
                 >
                   {t("sortByName")}
                 </Button>
                 <Button
                   variant={sortBy === "stars" ? "default" : "outline"}
                   onClick={() => setSortBy("stars")}
-                  className={sortBy === "stars" ? "btn-primary" : "btn-secondary bg-transparent"}
+                  className={sortBy === "stars" ? "btn-primary" : "btn-secondary"}
                 >
                   {t("sortByStarRating")}
                 </Button>
                 <Button
                   variant={sortBy === "distance" ? "default" : "outline"}
                   onClick={() => setSortBy("distance")}
-                  className={sortBy === "distance" ? "btn-primary" : "btn-secondary bg-transparent"}
+                  className={sortBy === "distance" ? "btn-primary" : "btn-secondary"}
                 >
                   {t("sortByDistance")}
                 </Button>
                 <Button
                   variant={sortBy === "price" ? "default" : "outline"}
                   onClick={() => setSortBy("price")}
-                  className={sortBy === "price" ? "btn-primary" : "btn-secondary bg-transparent"}
+                  className={sortBy === "price" ? "btn-primary" : "btn-secondary"}
                 >
                   {t("sortByPrice")}
                 </Button>

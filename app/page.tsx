@@ -103,22 +103,38 @@ export default function HomePage() {
           {/* Names and Title */}
           <div className="text-center mb-16 space-y-6">
             <div className="space-y-0">
-              <h1 className="text-5xl md:text-8xl font-normal md:font-light cormorant uppercase" style={{ letterSpacing: '0.2em' }}>{t("groomFirstname")}</h1>
-              <h2 className="text-2xl md:text-5xl font-normal md:font-light cormorant text-primary/80 -mt-2 uppercase" style={{ letterSpacing: '0.1em' }}>
+              <h1
+                className="text-5xl md:text-8xl font-normal md:font-light cormorant uppercase"
+                style={{ letterSpacing: "0.2em" }}
+              >
+                {t("groomFirstname")}
+              </h1>
+              <h2
+                className="text-2xl md:text-5xl font-normal md:font-light cormorant text-primary/80 -mt-2 uppercase"
+                style={{ letterSpacing: "0.1em" }}
+              >
                 {t("groomSurname")}
               </h2>
             </div>
             <h1 className="display-text island-moments">&</h1>
             <div className="space-y-0">
-              <h1 className="text-5xl md:text-8xl font-normal md:font-light cormorant uppercase" style={{ letterSpacing: '0.2em' }}>{t("brideFirstname")}</h1>
-              <h2 className="text-2xl md:text-5xl font-normal md:font-light cormorant text-primary/80 -mt-2 uppercase" style={{ letterSpacing: '0.1em' }}>
+              <h1
+                className="text-5xl md:text-8xl font-normal md:font-light cormorant uppercase"
+                style={{ letterSpacing: "0.2em" }}
+              >
+                {t("brideFirstname")}
+              </h1>
+              <h2
+                className="text-2xl md:text-5xl font-normal md:font-light cormorant text-primary/80 -mt-2 uppercase"
+                style={{ letterSpacing: "0.1em" }}
+              >
                 {t("brideSurname")}
               </h2>
             </div>
           </div>
 
           <div className="script text-center text-4xl md:text-5xl mb-16 text-primary">Wedding Invitation</div>
-            {/*<p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>*/}
+          {/*<p className="subtitle-text max-w-2xl mx-auto">{t("homeSubtitle")}</p>*/}
 
           {/* Welcome Message */}
           <div className="decorative-border rounded-2xl p-8 md:p-12 max-w-4xl mx-auto mb-16">

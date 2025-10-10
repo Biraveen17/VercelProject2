@@ -392,10 +392,10 @@ export default function FlightsPage() {
 
     const handleScroll = () => {
       const { scrollLeft, scrollWidth, clientWidth } = outgoingContainer
-      const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 10
+      const scrollableWidth = scrollWidth - clientWidth
+      const hasScrolledHalfway = scrollLeft > scrollableWidth * 0.5
 
-      // Once user has scrolled to the end, keep it hidden permanently
-      if (isAtEnd && !outgoingHasScrolledToEnd) {
+      if (hasScrolledHalfway && !outgoingHasScrolledToEnd) {
         setOutgoingHasScrolledToEnd(true)
       }
     }
@@ -411,10 +411,10 @@ export default function FlightsPage() {
 
     const handleScroll = () => {
       const { scrollLeft, scrollWidth, clientWidth } = returnContainer
-      const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 10
+      const scrollableWidth = scrollWidth - clientWidth
+      const hasScrolledHalfway = scrollLeft > scrollableWidth * 0.5
 
-      // Once user has scrolled to the end, keep it hidden permanently
-      if (isAtEnd && !returnHasScrolledToEnd) {
+      if (hasScrolledHalfway && !returnHasScrolledToEnd) {
         setReturnHasScrolledToEnd(true)
       }
     }
@@ -1010,7 +1010,7 @@ export default function FlightsPage() {
                         min="1"
                         value={numGuests}
                         onChange={(e) => setNumGuests(Math.max(1, Number.parseInt(e.target.value) || 1))}
-                        className="w-32 text-center text-lg font-semibold"
+                        className="w-32 text-center text-lg font-semibold border-2 border-primary/30 bg-background"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
@@ -1020,7 +1020,7 @@ export default function FlightsPage() {
                         min="0"
                         value={numCabinBags}
                         onChange={(e) => setNumCabinBags(Math.max(0, Number.parseInt(e.target.value) || 0))}
-                        className="w-32 text-center text-lg font-semibold"
+                        className="w-32 text-center text-lg font-semibold border-2 border-primary/30 bg-background"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
@@ -1030,7 +1030,7 @@ export default function FlightsPage() {
                         min="0"
                         value={numCheckedBags}
                         onChange={(e) => setNumCheckedBags(Math.max(0, Number.parseInt(e.target.value) || 0))}
-                        className="w-32 text-center text-lg font-semibold"
+                        className="w-32 text-center text-lg font-semibold border-2 border-primary/30 bg-background"
                       />
                     </div>
                   </div>
@@ -1057,30 +1057,15 @@ export default function FlightsPage() {
                       {numCheckedBags !== 1 ? "s" : ""}
                     </p>
                   </div>
-                  <div className="flex gap-4 justify-center">
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={() => setIsCalculatorActive(false)}
-                      className="text-lg px-8"
-                    >
-                      <X className="w-5 h-5 mr-2" />
-                      Show Individual Costs
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={() => {
-                        setIsCalculatorActive(false)
-                        setNumGuests(1)
-                        setNumCabinBags(0)
-                        setNumCheckedBags(0)
-                      }}
-                      className="text-lg px-8"
-                    >
-                      Reset Calculator
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => setIsCalculatorActive(false)}
+                    className="text-lg px-8"
+                  >
+                    <X className="w-5 h-5 mr-2" />
+                    Show Individual Costs
+                  </Button>
                 </div>
               )}
             </CardContent>
