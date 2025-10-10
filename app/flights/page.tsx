@@ -474,13 +474,7 @@ export default function FlightsPage() {
         </Button>
 
         {isOpen && (
-          <div
-            className="fixed bg-white rounded-md shadow-lg border border-gray-200 p-3 z-[100] w-64"
-            style={{
-              top: `${(filterDropdownRef.current?.getBoundingClientRect().bottom || 0) + 4}px`,
-              left: `${filterDropdownRef.current?.getBoundingClientRect().left || 0}px`,
-            }}
-          >
+          <div className="absolute left-0 top-full mt-1 bg-white rounded-md shadow-lg border border-gray-200 p-3 z-[100] w-64">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">{label}</span>
               {selectedValues.length > 0 && (
