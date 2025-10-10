@@ -656,8 +656,7 @@ export default function FlightsPage() {
                 <table className="w-full border-collapse">
                   <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
                     <tr className="border-b-2 border-border">
-                      {/* ... existing date, day, time, airport, airline columns ... */}
-                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap rounded-tl-lg">
                         <div className="flex items-center">
                           <button onClick={() => handleSort("date")} className="flex items-center hover:text-primary">
                             Date
@@ -810,7 +809,7 @@ export default function FlightsPage() {
                               <SortIcon field="costTicketChecked" />
                             </button>
                           </th>
-                          <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-amber-50">
+                          <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-amber-50 rounded-tr-lg">
                             <button
                               onClick={() => handleSort("costTicketBoth")}
                               className="flex items-center justify-end hover:text-primary ml-auto"
@@ -821,7 +820,7 @@ export default function FlightsPage() {
                           </th>
                         </>
                       ) : (
-                        <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-primary/10">
+                        <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-primary/10 rounded-tr-lg">
                           <button
                             onClick={() => handleSort("totalCost")}
                             className="flex items-center justify-end hover:text-primary ml-auto w-full"
