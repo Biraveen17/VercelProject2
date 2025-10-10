@@ -77,6 +77,9 @@ export default function FlightsPage() {
   const [outgoingHasScrolledToEnd, setOutgoingHasScrolledToEnd] = useState(false)
   const [returnHasScrolledToEnd, setReturnHasScrolledToEnd] = useState(false)
 
+  const outgoingScrollPositionRef = useRef<number>(0)
+  const returnScrollPositionRef = useRef<number>(0)
+
   const [outgoingSortField, setOutgoingSortField] = useState<SortField | null>(null)
   const [outgoingSortDirection, setOutgoingSortDirection] = useState<SortDirection>(null)
   const [returnSortField, setReturnSortField] = useState<SortField | null>(null)
@@ -103,6 +106,18 @@ export default function FlightsPage() {
   useEffect(() => {
     checkAccessibility()
   }, [])
+
+  useEffect(() => {
+    if (outgoingTableRef.current && outgoingScrollPositionRef.current > 0) {
+      outgoingTableRef.current.scrollLeft = outgoingScrollPositionRef.current
+    }
+  }, [outgoingHasScrolledToEnd])
+
+  useEffect(() => {
+    if (returnTableRef.current && returnScrollPositionRef.current > 0) {
+      returnTableRef.current.scrollLeft = returnScrollPositionRef.current
+    }
+  }, [returnHasScrolledToEnd])
 
   useEffect(() => {
     if (flights.length > 0 && outgoingSortField === null) {
@@ -412,6 +427,8 @@ export default function FlightsPage() {
     const { scrollLeft, scrollWidth, clientWidth } = target
     const scrollableWidth = scrollWidth - clientWidth
 
+    outgoingScrollPositionRef.current = scrollLeft
+
     console.log("[v0] Outgoing scroll event fired:", {
       scrollLeft,
       scrollWidth,
@@ -423,9 +440,7 @@ export default function FlightsPage() {
     // Hide arrow once user scrolls more than 100px
     if (scrollLeft > 100 && !outgoingHasScrolledToEnd) {
       console.log("[v0] Setting outgoingHasScrolledToEnd to true")
-      requestAnimationFrame(() => {
-        setOutgoingHasScrolledToEnd(true)
-      })
+      setOutgoingHasScrolledToEnd(true)
     }
   }
 
@@ -433,6 +448,8 @@ export default function FlightsPage() {
     const target = e.currentTarget
     const { scrollLeft, scrollWidth, clientWidth } = target
     const scrollableWidth = scrollWidth - clientWidth
+
+    returnScrollPositionRef.current = scrollLeft
 
     console.log("[v0] Return scroll event fired:", {
       scrollLeft,
@@ -445,9 +462,7 @@ export default function FlightsPage() {
     // Hide arrow once user scrolls more than 100px
     if (scrollLeft > 100 && !returnHasScrolledToEnd) {
       console.log("[v0] Setting returnHasScrolledToEnd to true")
-      requestAnimationFrame(() => {
-        setReturnHasScrolledToEnd(true)
-      })
+      setReturnHasScrolledToEnd(true)
     }
   }
 
