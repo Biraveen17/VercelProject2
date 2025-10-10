@@ -65,8 +65,8 @@ export default function FlightsPage() {
 
   const outgoingTableRef = useRef<HTMLDivElement>(null)
   const returnTableRef = useRef<HTMLDivElement>(null)
-  const [showOutgoingScrollIndicator, setShowOutgoingScrollIndicator] = useState(true)
-  const [showReturnScrollIndicator, setShowReturnScrollIndicator] = useState(true)
+  const [outgoingHasScrolledToEnd, setOutgoingHasScrolledToEnd] = useState(false)
+  const [returnHasScrolledToEnd, setReturnHasScrolledToEnd] = useState(false)
 
   const [outgoingSortField, setOutgoingSortField] = useState<SortField | null>(null)
   const [outgoingSortDirection, setOutgoingSortDirection] = useState<SortDirection>(null)
@@ -387,13 +387,17 @@ export default function FlightsPage() {
     const handleScroll = () => {
       const { scrollLeft, scrollWidth, clientWidth } = outgoingContainer
       const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 10
-      setShowOutgoingScrollIndicator(!isAtEnd)
+
+      // Once user has scrolled to the end, keep it hidden permanently
+      if (isAtEnd && !outgoingHasScrolledToEnd) {
+        setOutgoingHasScrolledToEnd(true)
+      }
     }
 
     handleScroll()
     outgoingContainer.addEventListener("scroll", handleScroll)
     return () => outgoingContainer.removeEventListener("scroll", handleScroll)
-  }, [sortedOutgoingFlights])
+  }, [sortedOutgoingFlights, outgoingHasScrolledToEnd])
 
   useEffect(() => {
     const returnContainer = returnTableRef.current
@@ -402,13 +406,17 @@ export default function FlightsPage() {
     const handleScroll = () => {
       const { scrollLeft, scrollWidth, clientWidth } = returnContainer
       const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 10
-      setShowReturnScrollIndicator(!isAtEnd)
+
+      // Once user has scrolled to the end, keep it hidden permanently
+      if (isAtEnd && !returnHasScrolledToEnd) {
+        setReturnHasScrolledToEnd(true)
+      }
     }
 
     handleScroll()
     returnContainer.addEventListener("scroll", handleScroll)
     return () => returnContainer.removeEventListener("scroll", handleScroll)
-  }, [sortedReturnFlights])
+  }, [sortedReturnFlights, returnHasScrolledToEnd])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -466,7 +474,13 @@ export default function FlightsPage() {
         </Button>
 
         {isOpen && (
-          <div className="absolute left-0 top-full mt-1 w-64 bg-white rounded-md shadow-lg border border-gray-200 p-3 z-[100]">
+          <div
+            className="fixed bg-white rounded-md shadow-lg border border-gray-200 p-3 z-[100] w-64"
+            style={{
+              top: `${(filterDropdownRef.current?.getBoundingClientRect().bottom || 0) + 4}px`,
+              left: `${filterDropdownRef.current?.getBoundingClientRect().left || 0}px`,
+            }}
+          >
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">{label}</span>
               {selectedValues.length > 0 && (
@@ -926,7 +940,7 @@ export default function FlightsPage() {
         <FlightTable
           flights={sortedOutgoingFlights}
           tableRef={outgoingTableRef}
-          showScrollIndicator={showOutgoingScrollIndicator}
+          showScrollIndicator={!outgoingHasScrolledToEnd}
           title="Outgoing Flights"
           uniqueDates={outgoingUniqueDates}
           uniqueDays={outgoingUniqueDays}
@@ -965,7 +979,7 @@ export default function FlightsPage() {
         <FlightTable
           flights={sortedReturnFlights}
           tableRef={returnTableRef}
-          showScrollIndicator={showReturnScrollIndicator}
+          showScrollIndicator={!returnHasScrolledToEnd}
           title="Return Flights"
           uniqueDates={returnUniqueDates}
           uniqueDays={returnUniqueDays}
