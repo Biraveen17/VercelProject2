@@ -38,6 +38,22 @@ export interface WeddingSettings {
   allowVideoFullscreen: boolean
 }
 
+export interface Flight {
+  id: string
+  airline: string
+  flightNumber: string
+  departureAirport: string
+  departureAirportName: string
+  arrivalAirport: string
+  arrivalAirportName: string
+  departureDate: string
+  departureTime: string
+  arrivalDate: string
+  arrivalTime: string
+  notes?: string
+  lastUpdated: string
+}
+
 // Default settings
 const DEFAULT_SETTINGS: WeddingSettings = {
   brideName: "Varnie",
@@ -356,3 +372,5 @@ export function getGroupHeader(groupName: string): Guest | null {
   const guests = getGuests()
   return guests.find((g) => g.type === "group" && g.groupName === groupName && !g.guestName) || null
 }
+
+// Flight management

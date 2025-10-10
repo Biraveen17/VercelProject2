@@ -84,4 +84,9 @@ export async function getHotelsCollection(): Promise<Collection> {
   return db.collection("hotels")
 }
 
+export async function getFlightsCollection(): Promise<Collection> {
+  const db = await getDatabase()
+  return db.collection("flights")
+}
+
 export default clientPromise

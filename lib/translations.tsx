@@ -6,6 +6,7 @@ export interface Translation {
   gallery: string
   travel: string
   rsvp: string
+  flights: string // Added flights navigation
 
   // Common
   loading: string
@@ -266,6 +267,43 @@ export interface Translation {
   confirmDeleteGuest: string
   confirmDeleteMessage: string
   confirmDelete: string
+
+  // Flights page - Added flights translations
+  flightsTitle: string
+  flightsSubtitle: string
+  flightsDescription: string
+  airline: string
+  flightNumber: string
+  departureAirport: string
+  arrivalAirport: string
+  departureTime: string
+  arrivalTime: string
+  flightNotes: string
+  filterByDeparture: string
+  filterByArrival: string
+  allAirports: string
+  searchFlights: string
+  noFlightsFound: string
+
+  // Admin Flights - Added admin flights translations
+  adminFlightsTitle: string
+  addNewFlight: string
+  editFlight: string
+  deleteFlight: string
+  confirmDeleteFlight: string
+  confirmDeleteFlightMessage: string
+  flightAdded: string
+  flightUpdated: string
+  flightDeleted: string
+  airlineName: string
+  departureAirportCode: string
+  departureAirportName: string
+  arrivalAirportCode: string
+  arrivalAirportName: string
+  departureDate: string
+  arrivalDate: string
+  notes: string
+  optional: string
 }
 
 export const translations: Record<string, Translation> = {
@@ -277,6 +315,7 @@ export const translations: Record<string, Translation> = {
     gallery: "Gallery",
     travel: "Travel",
     rsvp: "RSVP",
+    flights: "Flights", // Added flights
 
     // Common
     loading: "Loading...",
@@ -406,7 +445,7 @@ export const translations: Record<string, Translation> = {
       "Direct flights from: London Heathrow (LHR), London Gatwick (LGW), Manchester (MAN), Birmingham (BHX), Bristol (BRS), Edinburgh (EDI), Glasgow (GLA), Newcastle (NCL)",
     sfoAirlines: "Airlines: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air",
     sfoTransitOptions:
-      "Single transit options from: London Stansted, Liverpool, Leeds Bradford, Belfast, Cardiff (via Athens, Vienna, or other European hubs)",
+      "Single transit options from: London Stansted, Liverpool, Leeds Bradford, Cardiff (via Athens, Vienna, or other European hubs)",
     oakTitle: "Larnaca International Airport (LCA)",
     oakDescription: "Cyprus's main international airport with more flight options from around the world.",
     oakDrive: "1 hour 30 minutes to Paphos",
@@ -561,6 +600,44 @@ export const translations: Record<string, Translation> = {
     confirmDeleteMessage:
       "Are you sure you want to delete this guest? This action will mark them as removed and they will no longer appear in the guest list.",
     confirmDelete: "Yes, Delete Guest",
+
+    // Flights page - Added flights translations
+    flightsTitle: "Flight Information",
+    flightsSubtitle: "Recommended flights to help you plan your journey to Cyprus",
+    flightsDescription:
+      "Below are some recommended flights to Paphos and Larnaca. Use the filters to find flights that work best for your travel plans.",
+    airline: "Airline",
+    flightNumber: "Flight Number",
+    departureAirport: "Departure",
+    arrivalAirport: "Arrival",
+    departureTime: "Departure Time",
+    arrivalTime: "Arrival Time",
+    flightNotes: "Notes",
+    filterByDeparture: "Filter by Departure",
+    filterByArrival: "Filter by Arrival",
+    allAirports: "All Airports",
+    searchFlights: "Search flights...",
+    noFlightsFound: "No flights found matching your criteria.",
+
+    // Admin Flights - Added admin flights translations
+    adminFlightsTitle: "Flight Management",
+    addNewFlight: "Add New Flight",
+    editFlight: "Edit Flight",
+    deleteFlight: "Delete Flight",
+    confirmDeleteFlight: "Confirm Delete Flight",
+    confirmDeleteFlightMessage: "Are you sure you want to delete this flight? This action cannot be undone.",
+    flightAdded: "Flight added successfully",
+    flightUpdated: "Flight updated successfully",
+    flightDeleted: "Flight deleted successfully",
+    airlineName: "Airline Name",
+    departureAirportCode: "Departure Airport Code",
+    departureAirportName: "Departure Airport Name",
+    arrivalAirportCode: "Arrival Airport Code",
+    arrivalAirportName: "Arrival Airport Name",
+    departureDate: "Departure Date",
+    arrivalDate: "Arrival Date",
+    notes: "Notes",
+    optional: "Optional",
   },
 
   da: {
@@ -571,6 +648,7 @@ export const translations: Record<string, Translation> = {
     gallery: "Galleri",
     travel: "Rejse",
     rsvp: "RSVP",
+    flights: "Fly", // Added flights
 
     // Common
     loading: "Indlæser...",
@@ -698,8 +776,9 @@ export const translations: Record<string, Translation> = {
     sfoTitle: "Paphos International Airport (PFO)",
     sfoDescription: "Den tætteste og mest bekvemme lufthavn, beliggende kun 15 minutter fra Paphos bycentrum.",
     sfoDrive: "15 minutter til Paphos",
-    sfoDirectFlights: "Der er ingen direkte fly fra Danmark til denne lufthavn",
-    sfoAirlines: " ",
+    sfoDirectFlights:
+      "Direkte fly fra: London Heathrow (LHR), London Gatwick (LGW), Manchester (MAN), Birmingham (BHX), Bristol (BRS), Edinburgh (EDI), Glasgow (GLA), Newcastle (NCL)",
+    sfoAirlines: "Flyselskaber: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air",
     sfoTransitOptions:
       "Enkelt transit muligheder fra: København (CPH) via London, Athen, Wien, Frankfurt, Amsterdam eller andre destinationer",
     oakTitle: "Larnaca International Airport (LCA)",
@@ -857,6 +936,44 @@ export const translations: Record<string, Translation> = {
     confirmDeleteMessage:
       "Er du sikker på, at du vil slette denne gæst? Denne handling vil markere dem som fjernet, og de vil ikke længere vises på gæstelisten.",
     confirmDelete: "Ja, Slet Gæst",
+
+    // Flights page - Added flights translations
+    flightsTitle: "Flyinformation",
+    flightsSubtitle: "Anbefalede fly for at hjælpe dig med at planlægge din rejse til Cypern",
+    flightsDescription:
+      "Nedenfor er nogle anbefalede fly til Paphos og Larnaca. Brug filtrene til at finde fly, der passer bedst til dine rejseplaner.",
+    airline: "Flyselskab",
+    flightNumber: "Flynummer",
+    departureAirport: "Afgang",
+    arrivalAirport: "Ankomst",
+    departureTime: "Afgangstid",
+    arrivalTime: "Ankomsttid",
+    flightNotes: "Noter",
+    filterByDeparture: "Filtrer efter afgang",
+    filterByArrival: "Filtrer efter ankomst",
+    allAirports: "Alle lufthavne",
+    searchFlights: "Søg fly...",
+    noFlightsFound: "Ingen fly fundet, der matcher dine kriterier.",
+
+    // Admin Flights - Added admin flights translations
+    adminFlightsTitle: "Flystyring",
+    addNewFlight: "Tilføj Nyt Fly",
+    editFlight: "Rediger Fly",
+    deleteFlight: "Slet Fly",
+    confirmDeleteFlight: "Bekræft Slet Fly",
+    confirmDeleteFlightMessage: "Er du sikker på, at du vil slette dette fly? Denne handling kan ikke fortrydes.",
+    flightAdded: "Fly tilføjet med succes",
+    flightUpdated: "Fly opdateret med succes",
+    flightDeleted: "Fly slettet med succes",
+    airlineName: "Flyselskabsnavn",
+    departureAirportCode: "Afgangslufthavnskode",
+    departureAirportName: "Afgangslufthavnsnavn",
+    arrivalAirportCode: "Ankomstlufthavnskode",
+    arrivalAirportName: "Ankomstlufthavnsnavn",
+    departureDate: "Afgangsdato",
+    arrivalDate: "Ankomstdato",
+    notes: "Noter",
+    optional: "Valgfri",
   },
 
   ta: {
@@ -867,6 +984,7 @@ export const translations: Record<string, Translation> = {
     gallery: "படத்தொகுப்பு",
     travel: "பயணம்",
     rsvp: "பதில்",
+    flights: "விமானங்கள்", // Added flights
 
     // Common
     loading: "ஏற்றுகிறது...",
@@ -997,7 +1115,7 @@ export const translations: Record<string, Translation> = {
       "நேரடி விமானங்கள்: லண்டன் ஹீத்ரோ (LHR), லண்டன் கேட்விக் (LGW), மான்செஸ்டர் (MAN), பர்மிங்காம் (BHX), பிரிஸ்டல் (BRS), எடின்பர்க் (EDI), கிளாஸ்கோ (GLA), நியூகேஸில் (NCL)",
     sfoAirlines: "விமான நிறுவனங்கள்: British Airways, easyJet, Ryanair, Jet2, TUI Airways, Wizz Air",
     sfoTransitOptions:
-      "ஒற்றை இடமாற்ற விருப்பங்கள்: லண்டன் ஸ்டான்ஸ்டெட், லிவர்பூல், லீட்ஸ் பிராட்ஃபோர்ட், பெல்ஃபாஸ்ட், கார்டிஃப் (ஏதென்ஸ், வியன்னா அல்லது பிற ஐரோப்பிய மையங்கள் வழியாக)",
+      "ஒற்றை இடமாற்ற விருப்பங்கள்: லண்டன் ஸ்டான்ஸ்டெட், லிவர்பூல், லீட்ஸ் பிராட்ஃபோர்ட், கார்டிஃப் (ஏதென்ஸ், வியன்னா அல்லது பிற ஐரோப்பிய மையங்கள் வழியாக)",
     oakTitle: "லார்னாகா சர்வதேச விமான நிலையம் (LCA)",
     oakDescription: "உலகம் முழுவதிலுமிருந்து அதிக விமான விருப்பங்களுடன் சைப்ரஸின் முக்கிய சர்வதேச விமான நிலையம்.",
     oakDrive: "பாஃபோஸுக்கு 1 மணி 30 நிமிடங்கள்",
@@ -1154,6 +1272,44 @@ export const translations: Record<string, Translation> = {
     confirmDeleteMessage:
       "இந்த விருந்தினரை நீக்க விரும்புகிறீர்களா? இந்த செயல் அவர்களை நீக்கப்பட்டதாகக் குறிக்கும் மற்றும் அவர்கள் இனி விருந்தினர் பட்டியலில் தோன்ற மாட்டார்கள்.",
     confirmDelete: "ஆம், விருந்தினரை நீக்கு",
+
+    // Flights page - Added flights translations
+    flightsTitle: "விமான தகவல்",
+    flightsSubtitle: "சைப்ரஸுக்கு உங்கள் பயணத்தை திட்டமிட உதவும் பரிந்துரைக்கப்பட்ட விமானங்கள்",
+    flightsDescription:
+      "பாஃபோஸ் மற்றும் லார்னாகாவுக்கு சில பரிந்துரைக்கப்பட்ட விமானங்கள் கீழே உள்ளன. உங்கள் பயணத் திட்டங்களுக்கு சிறந்த விமானங்களைக் கண்டறிய வடிப்பான்களைப் பயன்படுத்தவும்.",
+    airline: "விமான நிறுவனம்",
+    flightNumber: "விமான எண்",
+    departureAirport: "புறப்பாடு",
+    arrivalAirport: "வருகை",
+    departureTime: "புறப்பாடு நேரம்",
+    arrivalTime: "வருகை நேரம்",
+    flightNotes: "குறிப்புகள்",
+    filterByDeparture: "புறப்பாடு மூலம் வடிகட்டு",
+    filterByArrival: "வருகை மூலம் வடிகட்டு",
+    allAirports: "அனைத்து விமான நிலையங்கள்",
+    searchFlights: "விமானங்களைத் தேடு...",
+    noFlightsFound: "உங்கள் அளவுகோல்களுடன் பொருந்தும் விமானங்கள் எதுவும் இல்லை.",
+
+    // Admin Flights - Added admin flights translations
+    adminFlightsTitle: "விமான மேலாண்மை",
+    addNewFlight: "புதிய விமானத்தைச் சேர்க்கவும்",
+    editFlight: "விமானத்தைத் திருத்து",
+    deleteFlight: "விமானத்தை நீக்கு",
+    confirmDeleteFlight: "விமானத்தை நீக்குவதை உறுதிப்படுத்தவும்",
+    confirmDeleteFlightMessage: "இந்த விமானத்தை நீக்க விரும்புகிறீர்களா? இந்த செயலை மாற்ற முடியாது.",
+    flightAdded: "விமானம் வெற்றிகரமாக சேர்க்கப்பட்டது",
+    flightUpdated: "விமானம் வெற்றிகரமாக புதுப்பிக்கப்பட்டது",
+    flightDeleted: "விமானம் வெற்றிகரமாக நீக்கப்பட்டது",
+    airlineName: "விமான நிறுவனத்தின் பெயர்",
+    departureAirportCode: "புறப்பாடு விமான நிலைய குறியீடு",
+    departureAirportName: "புறப்பாடு விமான நிலையத்தின் பெயர்",
+    arrivalAirportCode: "வருகை விமான நிலைய குறியீடு",
+    arrivalAirportName: "வருகை விமான நிலையத்தின் பெயர்",
+    departureDate: "புறப்பாடு தேதி",
+    arrivalDate: "வருகை தேதி",
+    notes: "குறிப்புகள்",
+    optional: "விருப்பமானது",
   },
 
   fr: {
@@ -1164,6 +1320,7 @@ export const translations: Record<string, Translation> = {
     gallery: "Galerie",
     travel: "Voyage",
     rsvp: "RSVP",
+    flights: "Vols", // Added flights
 
     // Common
     loading: "Chargement...",
@@ -1462,6 +1619,44 @@ export const translations: Record<string, Translation> = {
     confirmDeleteMessage:
       "Êtes-vous sûr de vouloir supprimer cet invité ? Cette action le marquera comme supprimé et il n'apparaîtra plus dans la liste des invités.",
     confirmDelete: "Oui, Supprimer l'Invité",
+
+    // Flights page - Added flights translations
+    flightsTitle: "Informations sur les Vols",
+    flightsSubtitle: "Vols recommandés pour vous aider à planifier votre voyage à Chypre",
+    flightsDescription:
+      "Voici quelques vols recommandés vers Paphos et Larnaca. Utilisez les filtres pour trouver les vols qui conviennent le mieux à vos plans de voyage.",
+    airline: "Compagnie aérienne",
+    flightNumber: "Numéro de vol",
+    departureAirport: "Départ",
+    arrivalAirport: "Arrivée",
+    departureTime: "Heure de départ",
+    arrivalTime: "Heure d'arrivée",
+    flightNotes: "Notes",
+    filterByDeparture: "Filtrer par départ",
+    filterByArrival: "Filtrer par arrivée",
+    allAirports: "Tous les aéroports",
+    searchFlights: "Rechercher des vols...",
+    noFlightsFound: "Aucun vol trouvé correspondant à vos critères.",
+
+    // Admin Flights - Added admin flights translations
+    adminFlightsTitle: "Gestion des Vols",
+    addNewFlight: "Ajouter un Nouveau Vol",
+    editFlight: "Modifier le Vol",
+    deleteFlight: "Supprimer le Vol",
+    confirmDeleteFlight: "Confirmer la Suppression du Vol",
+    confirmDeleteFlightMessage: "Êtes-vous sûr de vouloir supprimer ce vol ? Cette action ne peut pas être annulée.",
+    flightAdded: "Vol ajouté avec succès",
+    flightUpdated: "Vol mis à jour avec succès",
+    flightDeleted: "Vol supprimé avec succès",
+    airlineName: "Nom de la compagnie aérienne",
+    departureAirportCode: "Code de l'aéroport de départ",
+    departureAirportName: "Nom de l'aéroport de départ",
+    arrivalAirportCode: "Code de l'aéroport d'arrivée",
+    arrivalAirportName: "Nom de l'aéroport d'arrivée",
+    departureDate: "Date de départ",
+    arrivalDate: "Date d'arrivée",
+    notes: "Notes",
+    optional: "Optionnel",
   },
 }
 
