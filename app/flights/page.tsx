@@ -6,7 +6,8 @@ import { useState, useEffect, useMemo, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, X, ChevronRight, Plane } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, X, ChevronRight, Plane, Calculator } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import { useRouter } from "next/navigation"
 
@@ -62,6 +63,11 @@ export default function FlightsPage() {
   const [accessible, setAccessible] = useState(true)
 
   const [airlineIconMappings, setAirlineIconMappings] = useState<AirlineIconMapping[]>([])
+
+  const [isCalculatorActive, setIsCalculatorActive] = useState(false)
+  const [numGuests, setNumGuests] = useState<number>(1)
+  const [numCabinBags, setNumCabinBags] = useState<number>(0)
+  const [numCheckedBags, setNumCheckedBags] = useState<number>(0)
 
   const outgoingTableRef = useRef<HTMLDivElement>(null)
   const returnTableRef = useRef<HTMLDivElement>(null)
@@ -581,6 +587,12 @@ export default function FlightsPage() {
       return <ArrowDown className="w-4 h-4 ml-1" />
     }
 
+    const calculateTotalCost = (flight: Flight) => {
+      return (
+        flight.costTicketAlone * numGuests + flight.costCabinBag * numCabinBags + flight.costCheckedBag * numCheckedBags
+      )
+    }
+
     return (
       <div className="mb-12">
         <Card className="shadow-lg p-0 rounded-lg overflow-x-hidden">
@@ -598,6 +610,7 @@ export default function FlightsPage() {
                 <table className="w-full border-collapse">
                   <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
                     <tr className="border-b-2 border-border">
+                      {/* ... existing date, day, time, airport, airline columns ... */}
                       <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
                         <div className="flex items-center">
                           <button onClick={() => handleSort("date")} className="flex items-center hover:text-primary">
@@ -704,66 +717,81 @@ export default function FlightsPage() {
                           />
                         </div>
                       </th>
-                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
-                        <button
-                          onClick={() => handleSort("costCabinBag")}
-                          className="flex items-center justify-end hover:text-primary ml-auto"
-                        >
-                          Cabin Bag
-                          <SortIcon field="costCabinBag" />
-                        </button>
-                      </th>
-                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
-                        <button
-                          onClick={() => handleSort("costCheckedBag")}
-                          className="flex items-center justify-end hover:text-primary ml-auto"
-                        >
-                          Checked Bag
-                          <SortIcon field="costCheckedBag" />
-                        </button>
-                      </th>
-                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
-                        <button
-                          onClick={() => handleSort("costTicketAlone")}
-                          className="flex items-center justify-end hover:text-primary ml-auto"
-                        >
-                          Ticket Alone
-                          <SortIcon field="costTicketAlone" />
-                        </button>
-                      </th>
-                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-blue-50">
-                        <button
-                          onClick={() => handleSort("costTicketCabin")}
-                          className="flex items-center justify-end hover:text-primary ml-auto"
-                        >
-                          Ticket + Cabin
-                          <SortIcon field="costTicketCabin" />
-                        </button>
-                      </th>
-                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-green-50">
-                        <button
-                          onClick={() => handleSort("costTicketChecked")}
-                          className="flex items-center justify-end hover:text-primary ml-auto"
-                        >
-                          Ticket + Checked
-                          <SortIcon field="costTicketChecked" />
-                        </button>
-                      </th>
-                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-amber-50">
-                        <button
-                          onClick={() => handleSort("costTicketBoth")}
-                          className="flex items-center justify-end hover:text-primary ml-auto"
-                        >
-                          Ticket + Both
-                          <SortIcon field="costTicketBoth" />
-                        </button>
-                      </th>
+                      {!isCalculatorActive ? (
+                        <>
+                          <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
+                            <button
+                              onClick={() => handleSort("costCabinBag")}
+                              className="flex items-center justify-end hover:text-primary ml-auto"
+                            >
+                              Cabin Bag
+                              <SortIcon field="costCabinBag" />
+                            </button>
+                          </th>
+                          <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
+                            <button
+                              onClick={() => handleSort("costCheckedBag")}
+                              className="flex items-center justify-end hover:text-primary ml-auto"
+                            >
+                              Checked Bag
+                              <SortIcon field="costCheckedBag" />
+                            </button>
+                          </th>
+                          <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
+                            <button
+                              onClick={() => handleSort("costTicketAlone")}
+                              className="flex items-center justify-end hover:text-primary ml-auto"
+                            >
+                              Ticket Alone
+                              <SortIcon field="costTicketAlone" />
+                            </button>
+                          </th>
+                          <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-blue-50">
+                            <button
+                              onClick={() => handleSort("costTicketCabin")}
+                              className="flex items-center justify-end hover:text-primary ml-auto"
+                            >
+                              Ticket + Cabin
+                              <SortIcon field="costTicketCabin" />
+                            </button>
+                          </th>
+                          <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-green-50">
+                            <button
+                              onClick={() => handleSort("costTicketChecked")}
+                              className="flex items-center justify-end hover:text-primary ml-auto"
+                            >
+                              Ticket + Checked
+                              <SortIcon field="costTicketChecked" />
+                            </button>
+                          </th>
+                          <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-amber-50">
+                            <button
+                              onClick={() => handleSort("costTicketBoth")}
+                              className="flex items-center justify-end hover:text-primary ml-auto"
+                            >
+                              Ticket + Both
+                              <SortIcon field="costTicketBoth" />
+                            </button>
+                          </th>
+                        </>
+                      ) : (
+                        <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-primary/10">
+                          <div className="flex items-center justify-end">
+                            <Calculator className="w-4 h-4 mr-2" />
+                            Total Cost
+                          </div>
+                          <div className="text-xs font-normal text-muted-foreground mt-1">
+                            {numGuests} guest{numGuests !== 1 ? "s" : ""}, {numCabinBags} cabin, {numCheckedBags}{" "}
+                            checked
+                          </div>
+                        </th>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
                     {flights.length === 0 ? (
                       <tr>
-                        <td colSpan={13} className="p-12 text-center text-muted-foreground">
+                        <td colSpan={isCalculatorActive ? 8 : 13} className="p-12 text-center text-muted-foreground">
                           No flights found matching your criteria
                         </td>
                       </tr>
@@ -811,20 +839,32 @@ export default function FlightsPage() {
                               <span className="font-medium text-sm">{flight.airline}</span>
                             )}
                           </td>
-                          <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCabinBag)}</td>
-                          <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCheckedBag)}</td>
-                          <td className="p-3 text-sm text-right font-mono font-semibold">
-                            {formatCurrency(flight.costTicketAlone)}
-                          </td>
-                          <td className="p-3 text-sm text-right font-mono font-semibold bg-blue-50">
-                            {formatCurrency(getTicketPlusCabin(flight))}
-                          </td>
-                          <td className="p-3 text-sm text-right font-mono font-semibold bg-green-50">
-                            {formatCurrency(getTicketPlusChecked(flight))}
-                          </td>
-                          <td className="p-3 text-sm text-right font-mono font-semibold bg-amber-50">
-                            {formatCurrency(getTicketPlusBoth(flight))}
-                          </td>
+                          {!isCalculatorActive ? (
+                            <>
+                              <td className="p-3 text-sm text-right font-mono">
+                                {formatCurrency(flight.costCabinBag)}
+                              </td>
+                              <td className="p-3 text-sm text-right font-mono">
+                                {formatCurrency(flight.costCheckedBag)}
+                              </td>
+                              <td className="p-3 text-sm text-right font-mono font-semibold">
+                                {formatCurrency(flight.costTicketAlone)}
+                              </td>
+                              <td className="p-3 text-sm text-right font-mono font-semibold bg-blue-50">
+                                {formatCurrency(getTicketPlusCabin(flight))}
+                              </td>
+                              <td className="p-3 text-sm text-right font-mono font-semibold bg-green-50">
+                                {formatCurrency(getTicketPlusChecked(flight))}
+                              </td>
+                              <td className="p-3 text-sm text-right font-mono font-semibold bg-amber-50">
+                                {formatCurrency(getTicketPlusBoth(flight))}
+                              </td>
+                            </>
+                          ) : (
+                            <td className="p-3 text-sm text-right font-mono font-bold text-lg bg-primary/10">
+                              {formatCurrency(calculateTotalCost(flight))}
+                            </td>
+                          )}
                         </tr>
                       ))
                     )}
@@ -860,55 +900,6 @@ export default function FlightsPage() {
             Browse available flights to help plan your journey to our wedding
           </p>
         </div>
-
-        {(outgoingDateFilters.length > 0 ||
-          outgoingDayFilters.length > 0 ||
-          outgoingFromAirportFilters.length > 0 ||
-          outgoingToAirportFilters.length > 0 ||
-          outgoingAirlineFilters.length > 0 ||
-          returnDateFilters.length > 0 ||
-          returnDayFilters.length > 0 ||
-          returnFromAirportFilters.length > 0 ||
-          returnToAirportFilters.length > 0 ||
-          returnAirlineFilters.length > 0) && (
-          <div className="mb-4 flex flex-wrap gap-2">
-            <span className="text-sm text-muted-foreground">Active filters:</span>
-            {[
-              ...outgoingDateFilters,
-              ...outgoingDayFilters,
-              ...outgoingFromAirportFilters,
-              ...outgoingToAirportFilters,
-              ...outgoingAirlineFilters,
-              ...returnDateFilters,
-              ...returnDayFilters,
-              ...returnFromAirportFilters,
-              ...returnToAirportFilters,
-              ...returnAirlineFilters,
-            ].map((filter) => (
-              <Button
-                key={filter}
-                variant="secondary"
-                size="sm"
-                className="h-7 px-2 text-xs"
-                onClick={() => {
-                  setOutgoingDateFilters(outgoingDateFilters.filter((f) => f !== filter))
-                  setOutgoingDayFilters(outgoingDayFilters.filter((f) => f !== filter))
-                  setOutgoingFromAirportFilters(outgoingFromAirportFilters.filter((f) => f !== filter))
-                  setOutgoingToAirportFilters(outgoingToAirportFilters.filter((f) => f !== filter))
-                  setOutgoingAirlineFilters(outgoingAirlineFilters.filter((f) => f !== filter))
-                  setReturnDateFilters(returnDateFilters.filter((f) => f !== filter))
-                  setReturnDayFilters(returnDayFilters.filter((f) => f !== filter))
-                  setReturnFromAirportFilters(returnFromAirportFilters.filter((f) => f !== filter))
-                  setReturnToAirportFilters(returnToAirportFilters.filter((f) => f !== filter))
-                  setReturnAirlineFilters(returnAirlineFilters.filter((f) => f !== filter))
-                }}
-              >
-                {filter}
-                <X className="w-3 h-3 ml-1" />
-              </Button>
-            ))}
-          </div>
-        )}
 
         <div className="mb-8 flex justify-center">
           <div className="inline-block px-6 py-3 bg-amber-50 border border-amber-200 rounded-lg shadow-sm max-w-3xl">
@@ -963,7 +954,7 @@ export default function FlightsPage() {
             <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/30 to-primary/30"></div>
             <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-full border border-primary/20">
               <Plane className="w-5 h-5 text-primary rotate-180" />
-              <span className="text-xl font-medium text-primary">Flights from Cyrpus</span>
+              <span className="text-xl font-medium text-primary">Flights from Cyprus</span>
               <Plane className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 h-px bg-gradient-to-l from-transparent via-primary/30 to-primary/30"></div>
@@ -996,6 +987,105 @@ export default function FlightsPage() {
           setSortDirection={setReturnSortDirection}
           tableId="return"
         />
+
+        <div className="mt-16 mb-8">
+          <Card className="shadow-xl border-2 border-primary/20 overflow-hidden">
+            <CardContent className="p-8">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <Calculator className="w-6 h-6 text-primary" />
+                <h2 className="text-2xl font-semibold text-primary">Flight Cost Calculator</h2>
+              </div>
+
+              {!isCalculatorActive ? (
+                <div className="text-center">
+                  <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+                    Calculate the total cost for your group by entering the number of guests and baggage requirements.
+                    The tables above will update to show personalized total costs.
+                  </p>
+                  <div className="flex flex-wrap gap-6 justify-center items-end mb-6">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium">Number of Guests</label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={numGuests}
+                        onChange={(e) => setNumGuests(Math.max(1, Number.parseInt(e.target.value) || 1))}
+                        className="w-32 text-center text-lg font-semibold"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium">Cabin Bags</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={numCabinBags}
+                        onChange={(e) => setNumCabinBags(Math.max(0, Number.parseInt(e.target.value) || 0))}
+                        className="w-32 text-center text-lg font-semibold"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium">Checked Bags</label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={numCheckedBags}
+                        onChange={(e) => setNumCheckedBags(Math.max(0, Number.parseInt(e.target.value) || 0))}
+                        className="w-32 text-center text-lg font-semibold"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    size="lg"
+                    onClick={() => setIsCalculatorActive(true)}
+                    className="bg-primary hover:bg-primary/90 text-lg px-8 py-6"
+                  >
+                    <Calculator className="w-5 h-5 mr-2" />
+                    Calculate Total Costs
+                  </Button>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <div className="bg-primary/5 rounded-lg p-6 mb-6 border border-primary/20">
+                    <p className="text-lg mb-2">
+                      Showing total costs for <span className="font-bold text-primary">{numGuests}</span> guest
+                      {numGuests !== 1 ? "s" : ""}
+                    </p>
+                    <p className="text-muted-foreground">
+                      with <span className="font-semibold">{numCabinBags}</span> cabin bag
+                      {numCabinBags !== 1 ? "s" : ""} and <span className="font-semibold">{numCheckedBags}</span>{" "}
+                      checked bag
+                      {numCheckedBags !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                  <div className="flex gap-4 justify-center">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() => setIsCalculatorActive(false)}
+                      className="text-lg px-8"
+                    >
+                      <X className="w-5 h-5 mr-2" />
+                      Show Individual Costs
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() => {
+                        setIsCalculatorActive(false)
+                        setNumGuests(1)
+                        setNumCabinBags(0)
+                        setNumCheckedBags(0)
+                      }}
+                      className="text-lg px-8"
+                    >
+                      Reset Calculator
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )
