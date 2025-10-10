@@ -346,11 +346,13 @@ export default function FlightsPage() {
         )}
 
         {/* Note about flight details */}
-        <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-          <p className="text-sm text-amber-900">
-            <strong>Note:</strong> The flight details below were checked in October 2025 and may vary depending on when
-            you book. Please verify current prices and availability with the airlines.
-          </p>
+        <div className="mb-4 flex justify-center">
+          <div className="inline-block p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-sm text-amber-900 text-center">
+              <strong>Note:</strong> The flight details below were checked in October 2025 and may vary depending on
+              when you book. Please verify current prices and availability with the airlines.
+            </p>
+          </div>
         </div>
 
         {/* Pagination Selector */}
@@ -383,213 +385,222 @@ export default function FlightsPage() {
         </div>
 
         {/* Excel-style Table */}
-        <Card>
+        <Card className="p-0">
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
-                  <tr className="border-b-2 border-border">
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
-                        <button onClick={() => handleSort("date")} className="flex items-center hover:text-primary">
-                          Date
-                          <SortIcon field="date" />
-                        </button>
-                        <FilterPopover
-                          values={uniqueDates}
-                          selectedValues={dateFilters}
-                          onSelectionChange={setDateFilters}
-                          label="Filter by Date"
-                        />
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
-                        <button onClick={() => handleSort("day")} className="flex items-center hover:text-primary">
-                          Day
-                          <SortIcon field="day" />
-                        </button>
-                        <FilterPopover
-                          values={uniqueDays}
-                          selectedValues={dayFilters}
-                          onSelectionChange={setDayFilters}
-                          label="Filter by Day"
-                        />
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
+            <div className="relative">
+              <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background/80 to-transparent pointer-events-none z-20 flex items-center justify-center">
+                <div className="text-muted-foreground animate-pulse">→</div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
+                    <tr className="border-b-2 border-border">
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button onClick={() => handleSort("date")} className="flex items-center hover:text-primary">
+                            Date
+                            <SortIcon field="date" />
+                          </button>
+                          <FilterPopover
+                            values={uniqueDates}
+                            selectedValues={dateFilters}
+                            onSelectionChange={setDateFilters}
+                            label="Filter by Date"
+                          />
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button onClick={() => handleSort("day")} className="flex items-center hover:text-primary">
+                            Day
+                            <SortIcon field="day" />
+                          </button>
+                          <FilterPopover
+                            values={uniqueDays}
+                            selectedValues={dayFilters}
+                            onSelectionChange={setDayFilters}
+                            label="Filter by Day"
+                          />
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button
+                            onClick={() => handleSort("takeOffTime")}
+                            className="flex items-center hover:text-primary"
+                          >
+                            Take Off Time
+                            <SortIcon field="takeOffTime" />
+                          </button>
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button
+                            onClick={() => handleSort("landingTime")}
+                            className="flex items-center hover:text-primary"
+                          >
+                            Landing Time
+                            <SortIcon field="landingTime" />
+                          </button>
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button
+                            onClick={() => handleSort("fromAirport")}
+                            className="flex items-center hover:text-primary"
+                          >
+                            From Airport
+                            <SortIcon field="fromAirport" />
+                          </button>
+                          <FilterPopover
+                            values={uniqueFromAirports}
+                            selectedValues={fromAirportFilters}
+                            onSelectionChange={setFromAirportFilters}
+                            label="Filter by Departure"
+                          />
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button
+                            onClick={() => handleSort("toAirport")}
+                            className="flex items-center hover:text-primary"
+                          >
+                            To Airport
+                            <SortIcon field="toAirport" />
+                          </button>
+                          <FilterPopover
+                            values={uniqueToAirports}
+                            selectedValues={toAirportFilters}
+                            onSelectionChange={setToAirportFilters}
+                            label="Filter by Arrival"
+                          />
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button
+                            onClick={() => handleSort("airline")}
+                            className="flex items-center hover:text-primary"
+                          >
+                            Airline
+                            <SortIcon field="airline" />
+                          </button>
+                          <FilterPopover
+                            values={uniqueAirlines}
+                            selectedValues={airlineFilters}
+                            onSelectionChange={setAirlineFilters}
+                            label="Filter by Airline"
+                          />
+                        </div>
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
                         <button
-                          onClick={() => handleSort("takeOffTime")}
-                          className="flex items-center hover:text-primary"
+                          onClick={() => handleSort("costCabinBag")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
                         >
-                          Take Off Time
-                          <SortIcon field="takeOffTime" />
+                          Cabin Bag
+                          <SortIcon field="costCabinBag" />
                         </button>
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
                         <button
-                          onClick={() => handleSort("landingTime")}
-                          className="flex items-center hover:text-primary"
+                          onClick={() => handleSort("costCheckedBag")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
                         >
-                          Landing Time
-                          <SortIcon field="landingTime" />
+                          Checked Bag
+                          <SortIcon field="costCheckedBag" />
                         </button>
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
                         <button
-                          onClick={() => handleSort("fromAirport")}
-                          className="flex items-center hover:text-primary"
+                          onClick={() => handleSort("costTicketAlone")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
                         >
-                          From Airport
-                          <SortIcon field="fromAirport" />
+                          Ticket Alone
+                          <SortIcon field="costTicketAlone" />
                         </button>
-                        <FilterPopover
-                          values={uniqueFromAirports}
-                          selectedValues={fromAirportFilters}
-                          onSelectionChange={setFromAirportFilters}
-                          label="Filter by Departure"
-                        />
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-blue-50">
                         <button
-                          onClick={() => handleSort("toAirport")}
-                          className="flex items-center hover:text-primary"
+                          onClick={() => handleSort("costTicketCabin")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
                         >
-                          To Airport
-                          <SortIcon field="toAirport" />
+                          Ticket + Cabin
+                          <SortIcon field="costTicketCabin" />
                         </button>
-                        <FilterPopover
-                          values={uniqueToAirports}
-                          selectedValues={toAirportFilters}
-                          onSelectionChange={setToAirportFilters}
-                          label="Filter by Arrival"
-                        />
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
-                        <button onClick={() => handleSort("airline")} className="flex items-center hover:text-primary">
-                          Airline
-                          <SortIcon field="airline" />
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-green-50">
+                        <button
+                          onClick={() => handleSort("costTicketChecked")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
+                        >
+                          Ticket + Checked
+                          <SortIcon field="costTicketChecked" />
                         </button>
-                        <FilterPopover
-                          values={uniqueAirlines}
-                          selectedValues={airlineFilters}
-                          onSelectionChange={setAirlineFilters}
-                          label="Filter by Airline"
-                        />
-                      </div>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
-                      <button
-                        onClick={() => handleSort("costCabinBag")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Cabin Bag
-                        <SortIcon field="costCabinBag" />
-                      </button>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
-                      <button
-                        onClick={() => handleSort("costCheckedBag")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Checked Bag
-                        <SortIcon field="costCheckedBag" />
-                      </button>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
-                      <button
-                        onClick={() => handleSort("costTicketAlone")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Ticket Alone
-                        <SortIcon field="costTicketAlone" />
-                      </button>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-blue-50">
-                      <button
-                        onClick={() => handleSort("costTicketCabin")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Ticket + Cabin
-                        <SortIcon field="costTicketCabin" />
-                      </button>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-green-50">
-                      <button
-                        onClick={() => handleSort("costTicketChecked")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Ticket + Checked
-                        <SortIcon field="costTicketChecked" />
-                      </button>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-amber-50">
-                      <button
-                        onClick={() => handleSort("costTicketBoth")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Ticket + Both
-                        <SortIcon field="costTicketBoth" />
-                      </button>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedFlights.length === 0 ? (
-                    <tr>
-                      <td colSpan={13} className="p-12 text-center text-muted-foreground">
-                        No flights found matching your criteria
-                      </td>
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-amber-50">
+                        <button
+                          onClick={() => handleSort("costTicketBoth")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
+                        >
+                          Ticket + Both
+                          <SortIcon field="costTicketBoth" />
+                        </button>
+                      </th>
                     </tr>
-                  ) : (
-                    paginatedFlights.map((flight, index) => (
-                      <tr
-                        key={flight._id || flight.id}
-                        className={`border-b hover:bg-muted/30 transition-colors ${
-                          index % 2 === 0 ? "bg-background" : "bg-muted/10"
-                        }`}
-                      >
-                        <td className="p-3 text-sm whitespace-nowrap">{formatDate(flight.departureDate)}</td>
-                        <td className="p-3 text-sm whitespace-nowrap">{getDayOfWeek(flight.departureDate)}</td>
-                        <td className="p-3 text-sm whitespace-nowrap font-mono">{flight.departureTime}</td>
-                        <td className="p-3 text-sm whitespace-nowrap font-mono">{flight.arrivalTime}</td>
-                        <td className="p-3 text-sm">
-                          <div className="font-semibold">{flight.departureAirport}</div>
-                          <div className="text-xs text-muted-foreground">{flight.departureAirportName}</div>
-                        </td>
-                        <td className="p-3 text-sm">
-                          <div className="font-semibold">{flight.arrivalAirport}</div>
-                          <div className="text-xs text-muted-foreground">{flight.arrivalAirportName}</div>
-                        </td>
-                        <td className="p-3 text-sm font-medium">{flight.airline}</td>
-                        <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCabinBag)}</td>
-                        <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCheckedBag)}</td>
-                        <td className="p-3 text-sm text-right font-mono font-semibold">
-                          {formatCurrency(flight.costTicketAlone)}
-                        </td>
-                        <td className="p-3 text-sm text-right font-mono font-semibold bg-blue-50">
-                          {formatCurrency(getTicketPlusCabin(flight))}
-                        </td>
-                        <td className="p-3 text-sm text-right font-mono font-semibold bg-green-50">
-                          {formatCurrency(getTicketPlusChecked(flight))}
-                        </td>
-                        <td className="p-3 text-sm text-right font-mono font-semibold bg-amber-50">
-                          {formatCurrency(getTicketPlusBoth(flight))}
+                  </thead>
+                  <tbody>
+                    {paginatedFlights.length === 0 ? (
+                      <tr>
+                        <td colSpan={13} className="p-12 text-center text-muted-foreground">
+                          No flights found matching your criteria
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      paginatedFlights.map((flight, index) => (
+                        <tr
+                          key={flight._id || flight.id}
+                          className={`border-b hover:bg-muted/30 transition-colors ${
+                            index % 2 === 0 ? "bg-background" : "bg-muted/10"
+                          }`}
+                        >
+                          <td className="p-3 text-sm whitespace-nowrap">{formatDate(flight.departureDate)}</td>
+                          <td className="p-3 text-sm whitespace-nowrap">{getDayOfWeek(flight.departureDate)}</td>
+                          <td className="p-3 text-sm whitespace-nowrap font-mono">{flight.departureTime}</td>
+                          <td className="p-3 text-sm whitespace-nowrap font-mono">{flight.arrivalTime}</td>
+                          <td className="p-3 text-sm">
+                            <div className="font-semibold">{flight.departureAirport}</div>
+                            <div className="text-xs text-muted-foreground">{flight.departureAirportName}</div>
+                          </td>
+                          <td className="p-3 text-sm">
+                            <div className="font-semibold">{flight.arrivalAirport}</div>
+                            <div className="text-xs text-muted-foreground">{flight.arrivalAirportName}</div>
+                          </td>
+                          <td className="p-3 text-sm font-medium">{flight.airline}</td>
+                          <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCabinBag)}</td>
+                          <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCheckedBag)}</td>
+                          <td className="p-3 text-sm text-right font-mono font-semibold">
+                            {formatCurrency(flight.costTicketAlone)}
+                          </td>
+                          <td className="p-3 text-sm text-right font-mono font-semibold bg-blue-50">
+                            {formatCurrency(getTicketPlusCabin(flight))}
+                          </td>
+                          <td className="p-3 text-sm text-right font-mono font-semibold bg-green-50">
+                            {formatCurrency(getTicketPlusChecked(flight))}
+                          </td>
+                          <td className="p-3 text-sm text-right font-mono font-semibold bg-amber-50">
+                            {formatCurrency(getTicketPlusBoth(flight))}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </CardContent>
         </Card>

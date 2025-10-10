@@ -94,14 +94,20 @@ export default function FlightsManagementPage() {
 
   const formatDateToDDMMYYYY = (dateStr: string) => {
     if (!dateStr) return ""
-    const [year, month, day] = dateStr.split("-")
-    return `${day}/${month}/${year}`
+    if (dateStr.includes("-")) {
+      const [year, month, day] = dateStr.split("-")
+      return `${day}/${month}/${year}`
+    }
+    return dateStr
   }
 
   const formatDateToYYYYMMDD = (dateStr: string) => {
     if (!dateStr) return ""
-    const [day, month, year] = dateStr.split("/")
-    return `${year}-${month}-${day}`
+    if (dateStr.includes("/")) {
+      const [day, month, year] = dateStr.split("/")
+      return `${year}-${month}-${day}`
+    }
+    return dateStr
   }
 
   const getAirportName = (code: string) => {
@@ -243,9 +249,9 @@ export default function FlightsManagementPage() {
 
   const handleAddAirportMapping = () => {
     if (newAirportCode.trim() && newAirportName.trim()) {
-      const code = newAirportCode.toUpperCase()
+      const code = newAirportCode.trim().toUpperCase()
       if (!airportMappings.find((m) => m.code === code)) {
-        setAirportMappings([...airportMappings, { code, name: newAirportName }])
+        setAirportMappings([...airportMappings, { code, name: newAirportName.trim() }])
         setNewAirportCode("")
         setNewAirportName("")
       }
@@ -258,8 +264,11 @@ export default function FlightsManagementPage() {
 
   const handleAddAirlineIconMapping = () => {
     if (newAirlineName.trim() && newAirlineIconUrl.trim()) {
-      if (!airlineIconMappings.find((m) => m.airline === newAirlineName)) {
-        setAirlineIconMappings([...airlineIconMappings, { airline: newAirlineName, iconUrl: newAirlineIconUrl }])
+      if (!airlineIconMappings.find((m) => m.airline === newAirlineName.trim())) {
+        setAirlineIconMappings([
+          ...airlineIconMappings,
+          { airline: newAirlineName.trim(), iconUrl: newAirlineIconUrl.trim() },
+        ])
         setNewAirlineName("")
         setNewAirlineIconUrl("")
       }
@@ -338,9 +347,9 @@ export default function FlightsManagementPage() {
             departureAirportName: values[2],
             arrivalAirport: values[3],
             arrivalAirportName: values[4],
-            departureDate: values[5],
+            departureDate: values[5], // Keep as-is from CSV
             departureTime: values[6],
-            arrivalDate: values[7],
+            arrivalDate: values[7], // Keep as-is from CSV
             arrivalTime: values[8],
             costCabinBag: Number.parseFloat(values[9]) || 0,
             costCheckedBag: Number.parseFloat(values[10]) || 0,
@@ -477,6 +486,7 @@ export default function FlightsManagementPage() {
                             <img
                               src={
                                 airlineIconMappings.find((m) => m.airline === flight.airline)?.iconUrl ||
+                                "/placeholder.svg" ||
                                 "/placeholder.svg" ||
                                 "/placeholder.svg"
                               }
