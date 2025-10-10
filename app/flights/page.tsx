@@ -394,59 +394,45 @@ export default function FlightsPage() {
     setReturnCurrentPage(1)
   }, [returnDateFilters, returnDayFilters, returnFromAirportFilters, returnToAirportFilters, returnAirlineFilters])
 
-  useEffect(() => {
-    const outgoingContainer = outgoingTableRef.current
-    if (!outgoingContainer) return
+  const handleOutgoingScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget
+    const { scrollLeft, scrollWidth, clientWidth } = target
+    const scrollableWidth = scrollWidth - clientWidth
 
-    const handleScroll = () => {
-      const { scrollLeft, scrollWidth, clientWidth } = outgoingContainer
-      const scrollableWidth = scrollWidth - clientWidth
+    console.log("[v0] Outgoing scroll event fired:", {
+      scrollLeft,
+      scrollWidth,
+      clientWidth,
+      scrollableWidth,
+      hasScrolledToEnd: outgoingHasScrolledToEnd,
+    })
 
-      console.log("[v0] Outgoing scroll:", {
-        scrollLeft,
-        scrollWidth,
-        clientWidth,
-        scrollableWidth,
-        hasScrolledToEnd: outgoingHasScrolledToEnd,
-      })
-
-      if (scrollLeft > 100) {
-        console.log("[v0] Setting outgoingHasScrolledToEnd to true")
-        setOutgoingHasScrolledToEnd(true)
-      }
+    // Hide arrow once user scrolls more than 100px
+    if (scrollLeft > 100 && !outgoingHasScrolledToEnd) {
+      console.log("[v0] Setting outgoingHasScrolledToEnd to true")
+      setOutgoingHasScrolledToEnd(true)
     }
+  }
 
-    handleScroll()
-    outgoingContainer.addEventListener("scroll", handleScroll)
-    return () => outgoingContainer.removeEventListener("scroll", handleScroll)
-  }, [sortedOutgoingFlights])
+  const handleReturnScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget
+    const { scrollLeft, scrollWidth, clientWidth } = target
+    const scrollableWidth = scrollWidth - clientWidth
 
-  useEffect(() => {
-    const returnContainer = returnTableRef.current
-    if (!returnContainer) return
+    console.log("[v0] Return scroll event fired:", {
+      scrollLeft,
+      scrollWidth,
+      clientWidth,
+      scrollableWidth,
+      hasScrolledToEnd: returnHasScrolledToEnd,
+    })
 
-    const handleScroll = () => {
-      const { scrollLeft, scrollWidth, clientWidth } = returnContainer
-      const scrollableWidth = scrollWidth - clientWidth
-
-      console.log("[v0] Return scroll:", {
-        scrollLeft,
-        scrollWidth,
-        clientWidth,
-        scrollableWidth,
-        hasScrolledToEnd: returnHasScrolledToEnd,
-      })
-
-      if (scrollLeft > 100) {
-        console.log("[v0] Setting returnHasScrolledToEnd to true")
-        setReturnHasScrolledToEnd(true)
-      }
+    // Hide arrow once user scrolls more than 100px
+    if (scrollLeft > 100 && !returnHasScrolledToEnd) {
+      console.log("[v0] Setting returnHasScrolledToEnd to true")
+      setReturnHasScrolledToEnd(true)
     }
-
-    handleScroll()
-    returnContainer.addEventListener("scroll", handleScroll)
-    return () => returnContainer.removeEventListener("scroll", handleScroll)
-  }, [sortedReturnFlights])
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -565,6 +551,7 @@ export default function FlightsPage() {
     sortDirection,
     setSortDirection,
     tableId,
+    onScroll,
   }: {
     flights: Flight[]
     tableRef: React.RefObject<HTMLDivElement>
@@ -590,6 +577,7 @@ export default function FlightsPage() {
     sortDirection: SortDirection
     setSortDirection: (direction: SortDirection) => void
     tableId: string
+    onScroll?: (e: React.UIEvent<HTMLDivElement>) => void
   }) => {
     const handleSort = (field: SortField) => {
       if (sortField === field) {
@@ -630,7 +618,7 @@ export default function FlightsPage() {
                 </div>
               )}
 
-              <div ref={tableRef} className="overflow-x-auto max-w-full">
+              <div ref={tableRef} className="overflow-x-auto max-w-full" onScroll={onScroll}>
                 <table className="w-full border-collapse">
                   <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
                     <tr className="border-b-2 border-border">
@@ -977,6 +965,7 @@ export default function FlightsPage() {
           sortDirection={outgoingSortDirection}
           setSortDirection={setOutgoingSortDirection}
           tableId="outgoing"
+          onScroll={handleOutgoingScroll}
         />
 
         <div className="my-16 flex items-center justify-center">
@@ -1016,6 +1005,7 @@ export default function FlightsPage() {
           sortDirection={returnSortDirection}
           setSortDirection={setReturnSortDirection}
           tableId="return"
+          onScroll={handleReturnScroll}
         />
 
         <div className="mt-16 mb-8">
