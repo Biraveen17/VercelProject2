@@ -74,16 +74,22 @@ export default function FlightsPage() {
   const [showOutgoingScrollIndicator, setShowOutgoingScrollIndicator] = useState(true)
   const [showReturnScrollIndicator, setShowReturnScrollIndicator] = useState(true)
 
-  // Sorting state
-  const [sortField, setSortField] = useState<SortField | null>(null)
-  const [sortDirection, setSortDirection] = useState<SortDirection>(null)
+  const [outgoingSortField, setOutgoingSortField] = useState<SortField | null>(null)
+  const [outgoingSortDirection, setOutgoingSortDirection] = useState<SortDirection>(null)
+  const [returnSortField, setReturnSortField] = useState<SortField | null>(null)
+  const [returnSortDirection, setReturnSortDirection] = useState<SortDirection>(null)
 
-  // Filter states
-  const [dateFilters, setDateFilters] = useState<string[]>([])
-  const [dayFilters, setDayFilters] = useState<string[]>([])
-  const [fromAirportFilters, setFromAirportFilters] = useState<string[]>([])
-  const [toAirportFilters, setToAirportFilters] = useState<string[]>([])
-  const [airlineFilters, setAirlineFilters] = useState<string[]>([])
+  const [outgoingDateFilters, setOutgoingDateFilters] = useState<string[]>([])
+  const [outgoingDayFilters, setOutgoingDayFilters] = useState<string[]>([])
+  const [outgoingFromAirportFilters, setOutgoingFromAirportFilters] = useState<string[]>([])
+  const [outgoingToAirportFilters, setOutgoingToAirportFilters] = useState<string[]>([])
+  const [outgoingAirlineFilters, setOutgoingAirlineFilters] = useState<string[]>([])
+
+  const [returnDateFilters, setReturnDateFilters] = useState<string[]>([])
+  const [returnDayFilters, setReturnDayFilters] = useState<string[]>([])
+  const [returnFromAirportFilters, setReturnFromAirportFilters] = useState<string[]>([])
+  const [returnToAirportFilters, setReturnToAirportFilters] = useState<string[]>([])
+  const [returnAirlineFilters, setReturnAirlineFilters] = useState<string[]>([])
 
   const [openFilterDropdown, setOpenFilterDropdown] = useState<string | null>(null)
   const filterDropdownRef = useRef<HTMLDivElement>(null)
@@ -93,11 +99,18 @@ export default function FlightsPage() {
   }, [])
 
   useEffect(() => {
-    if (flights.length > 0 && sortField === null) {
-      setSortField("date")
-      setSortDirection("asc")
+    if (flights.length > 0 && outgoingSortField === null) {
+      setOutgoingSortField("date")
+      setOutgoingSortDirection("asc")
     }
-  }, [flights])
+  }, [flights, outgoingSortField])
+
+  useEffect(() => {
+    if (flights.length > 0 && returnSortField === null) {
+      setReturnSortField("date")
+      setReturnSortDirection("asc")
+    }
+  }, [flights, returnSortField])
 
   const checkAccessibility = async () => {
     try {
@@ -181,56 +194,98 @@ export default function FlightsPage() {
     return mapping?.iconUrl
   }
 
-  // Get unique values for filters (from all flights)
-  const uniqueDates = useMemo(() => Array.from(new Set(flights.map((f) => formatDate(f.departureDate)))), [flights])
-  const uniqueDays = useMemo(() => Array.from(new Set(flights.map((f) => getDayOfWeek(f.departureDate)))), [flights])
-  const uniqueFromAirports = useMemo(
-    () => Array.from(new Set(flights.map((f) => `${f.departureAirport} - ${f.departureAirportName}`))),
-    [flights],
+  const outgoingUniqueDates = useMemo(
+    () => Array.from(new Set(outgoingFlights.map((f) => formatDate(f.departureDate)))),
+    [outgoingFlights],
   )
-  const uniqueToAirports = useMemo(
-    () => Array.from(new Set(flights.map((f) => `${f.arrivalAirport} - ${f.arrivalAirportName}`))),
-    [flights],
+  const outgoingUniqueDays = useMemo(
+    () => Array.from(new Set(outgoingFlights.map((f) => getDayOfWeek(f.departureDate)))),
+    [outgoingFlights],
   )
-  const uniqueAirlines = useMemo(() => Array.from(new Set(flights.map((f) => f.airline))), [flights])
+  const outgoingUniqueFromAirports = useMemo(
+    () => Array.from(new Set(outgoingFlights.map((f) => `${f.departureAirport} - ${f.departureAirportName}`))),
+    [outgoingFlights],
+  )
+  const outgoingUniqueToAirports = useMemo(
+    () => Array.from(new Set(outgoingFlights.map((f) => `${f.arrivalAirport} - ${f.arrivalAirportName}`))),
+    [outgoingFlights],
+  )
+  const outgoingUniqueAirlines = useMemo(
+    () => Array.from(new Set(outgoingFlights.map((f) => f.airline))),
+    [outgoingFlights],
+  )
+
+  const returnUniqueDates = useMemo(
+    () => Array.from(new Set(returnFlights.map((f) => formatDate(f.departureDate)))),
+    [returnFlights],
+  )
+  const returnUniqueDays = useMemo(
+    () => Array.from(new Set(returnFlights.map((f) => getDayOfWeek(f.departureDate)))),
+    [returnFlights],
+  )
+  const returnUniqueFromAirports = useMemo(
+    () => Array.from(new Set(returnFlights.map((f) => `${f.departureAirport} - ${f.departureAirportName}`))),
+    [returnFlights],
+  )
+  const returnUniqueToAirports = useMemo(
+    () => Array.from(new Set(returnFlights.map((f) => `${f.arrivalAirport} - ${f.arrivalAirportName}`))),
+    [returnFlights],
+  )
+  const returnUniqueAirlines = useMemo(() => Array.from(new Set(returnFlights.map((f) => f.airline))), [returnFlights])
 
   const filteredOutgoingFlights = useMemo(() => {
     return outgoingFlights.filter((flight) => {
-      if (dateFilters.length > 0 && !dateFilters.includes(formatDate(flight.departureDate))) return false
-      if (dayFilters.length > 0 && !dayFilters.includes(getDayOfWeek(flight.departureDate))) return false
+      if (outgoingDateFilters.length > 0 && !outgoingDateFilters.includes(formatDate(flight.departureDate)))
+        return false
+      if (outgoingDayFilters.length > 0 && !outgoingDayFilters.includes(getDayOfWeek(flight.departureDate)))
+        return false
       if (
-        fromAirportFilters.length > 0 &&
-        !fromAirportFilters.includes(`${flight.departureAirport} - ${flight.departureAirportName}`)
+        outgoingFromAirportFilters.length > 0 &&
+        !outgoingFromAirportFilters.includes(`${flight.departureAirport} - ${flight.departureAirportName}`)
       )
         return false
       if (
-        toAirportFilters.length > 0 &&
-        !toAirportFilters.includes(`${flight.arrivalAirport} - ${flight.arrivalAirportName}`)
+        outgoingToAirportFilters.length > 0 &&
+        !outgoingToAirportFilters.includes(`${flight.arrivalAirport} - ${flight.arrivalAirportName}`)
       )
         return false
-      if (airlineFilters.length > 0 && !airlineFilters.includes(flight.airline)) return false
+      if (outgoingAirlineFilters.length > 0 && !outgoingAirlineFilters.includes(flight.airline)) return false
       return true
     })
-  }, [outgoingFlights, dateFilters, dayFilters, fromAirportFilters, toAirportFilters, airlineFilters])
+  }, [
+    outgoingFlights,
+    outgoingDateFilters,
+    outgoingDayFilters,
+    outgoingFromAirportFilters,
+    outgoingToAirportFilters,
+    outgoingAirlineFilters,
+  ])
 
   const filteredReturnFlights = useMemo(() => {
     return returnFlights.filter((flight) => {
-      if (dateFilters.length > 0 && !dateFilters.includes(formatDate(flight.departureDate))) return false
-      if (dayFilters.length > 0 && !dayFilters.includes(getDayOfWeek(flight.departureDate))) return false
+      if (returnDateFilters.length > 0 && !returnDateFilters.includes(formatDate(flight.departureDate))) return false
+      if (returnDayFilters.length > 0 && !returnDayFilters.includes(getDayOfWeek(flight.departureDate))) return false
       if (
-        fromAirportFilters.length > 0 &&
-        !fromAirportFilters.includes(`${flight.departureAirport} - ${flight.departureAirportName}`)
+        returnFromAirportFilters.length > 0 &&
+        !returnFromAirportFilters.includes(`${flight.departureAirport} - ${flight.departureAirportName}`)
       )
         return false
       if (
-        toAirportFilters.length > 0 &&
-        !toAirportFilters.includes(`${flight.arrivalAirport} - ${flight.arrivalAirportName}`)
+        returnToAirportFilters.length > 0 &&
+        !returnToAirportFilters.includes(`${flight.arrivalAirport} - ${flight.arrivalAirportName}`)
       )
         return false
-      if (airlineFilters.length > 0 && !airlineFilters.includes(flight.airline)) return false
+      if (returnAirlineFilters.length > 0 && !returnAirlineFilters.includes(flight.airline)) return false
       return true
     })
-  }, [returnFlights, dateFilters, dayFilters, fromAirportFilters, toAirportFilters, airlineFilters])
+  }, [
+    returnFlights,
+    returnDateFilters,
+    returnDayFilters,
+    returnFromAirportFilters,
+    returnToAirportFilters,
+    returnAirlineFilters,
+  ])
 
   // Sorting logic
   const sortFlights = (flightsToSort: Flight[]) => {
@@ -286,17 +341,25 @@ export default function FlightsPage() {
     return Math.ceil(sortedReturnFlights.length / returnItemsPerPage)
   }, [sortedReturnFlights.length, returnItemsPerPage])
 
-  // Reset to page 1 when filters or items per page change
   useEffect(() => {
     setOutgoingCurrentPage(1)
+  }, [
+    outgoingDateFilters,
+    outgoingDayFilters,
+    outgoingFromAirportFilters,
+    outgoingToAirportFilters,
+    outgoingAirlineFilters,
+    outgoingItemsPerPage,
+  ])
+
+  useEffect(() => {
     setReturnCurrentPage(1)
   }, [
-    dateFilters,
-    dayFilters,
-    fromAirportFilters,
-    toAirportFilters,
-    airlineFilters,
-    outgoingItemsPerPage,
+    returnDateFilters,
+    returnDayFilters,
+    returnFromAirportFilters,
+    returnToAirportFilters,
+    returnAirlineFilters,
     returnItemsPerPage,
   ])
 
@@ -341,26 +404,6 @@ export default function FlightsPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      if (sortDirection === "asc") {
-        setSortDirection("desc")
-      } else if (sortDirection === "desc") {
-        setSortField(null)
-        setSortDirection(null)
-      }
-    } else {
-      setSortField(field)
-      setSortDirection("asc")
-    }
-  }
-
-  const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />
-    if (sortDirection === "asc") return <ArrowUp className="w-4 h-4 ml-1" />
-    return <ArrowDown className="w-4 h-4 ml-1" />
-  }
-
   const FilterDropdown = ({
     values,
     selectedValues,
@@ -377,11 +420,10 @@ export default function FlightsPage() {
     const isOpen = openFilterDropdown === filterId
 
     const toggleValue = (value: string) => {
-      if (selectedValues.includes(value)) {
-        onSelectionChange(selectedValues.filter((v) => v !== value))
-      } else {
-        onSelectionChange([...selectedValues, value])
-      }
+      const newValues = selectedValues.includes(value)
+        ? selectedValues.filter((v) => v !== value)
+        : [...selectedValues, value]
+      onSelectionChange(newValues)
     }
 
     const clearAll = () => onSelectionChange([])
@@ -417,18 +459,25 @@ export default function FlightsPage() {
               )}
             </div>
             <div className="max-h-64 overflow-y-auto space-y-2">
-              {values.map((value) => (
-                <div key={value} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`${filterId}-${value}`}
-                    checked={selectedValues.includes(value)}
-                    onCheckedChange={() => toggleValue(value)}
-                  />
-                  <label htmlFor={`${filterId}-${value}`} className="text-sm cursor-pointer flex-1">
-                    {value}
-                  </label>
-                </div>
-              ))}
+              {values.map((value) => {
+                const isChecked = selectedValues.includes(value)
+                return (
+                  <div key={value} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`${filterId}-${value}`}
+                      checked={isChecked}
+                      onCheckedChange={() => toggleValue(value)}
+                    />
+                    <label
+                      htmlFor={`${filterId}-${value}`}
+                      className="text-sm cursor-pointer flex-1"
+                      onClick={() => toggleValue(value)}
+                    >
+                      {value}
+                    </label>
+                  </div>
+                )
+              })}
             </div>
           </div>
         )}
@@ -441,264 +490,329 @@ export default function FlightsPage() {
     tableRef,
     showScrollIndicator,
     title,
+    uniqueDates,
+    uniqueDays,
+    uniqueFromAirports,
+    uniqueToAirports,
+    uniqueAirlines,
+    dateFilters,
+    setDateFilters,
+    dayFilters,
+    setDayFilters,
+    fromAirportFilters,
+    setFromAirportFilters,
+    toAirportFilters,
+    setToAirportFilters,
+    airlineFilters,
+    setAirlineFilters,
+    sortField,
+    setSortField,
+    sortDirection,
+    setSortDirection,
+    tableId,
   }: {
     flights: Flight[]
     tableRef: React.RefObject<HTMLDivElement>
     showScrollIndicator: boolean
     title: string
-  }) => (
-    <div className="mb-12">
-      <h2 className="text-3xl font-bold text-center mb-6 text-primary">{title}</h2>
-      <Card className="shadow-lg p-0">
-        <CardContent className="p-0">
-          <div className="relative">
-            {showScrollIndicator && (
-              <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white via-white/90 to-transparent pointer-events-none z-20 flex items-center justify-end pr-3">
-                <div className="bg-primary text-primary-foreground rounded-full p-2 shadow-xl border-2 border-white animate-bounce">
-                  <ChevronRight className="w-6 h-6" />
-                </div>
-              </div>
-            )}
+    uniqueDates: string[]
+    uniqueDays: string[]
+    uniqueFromAirports: string[]
+    uniqueToAirports: string[]
+    uniqueAirlines: string[]
+    dateFilters: string[]
+    setDateFilters: (values: string[]) => void
+    dayFilters: string[]
+    setDayFilters: (values: string[]) => void
+    fromAirportFilters: string[]
+    setFromAirportFilters: (values: string[]) => void
+    toAirportFilters: string[]
+    setToAirportFilters: (values: string[]) => void
+    airlineFilters: string[]
+    setAirlineFilters: (values: string[]) => void
+    sortField: SortField | null
+    setSortField: (field: SortField | null) => void
+    sortDirection: SortDirection
+    setSortDirection: (direction: SortDirection) => void
+    tableId: string
+  }) => {
+    const handleSort = (field: SortField) => {
+      if (sortField === field) {
+        if (sortDirection === "asc") {
+          setSortDirection("desc")
+        } else if (sortDirection === "desc") {
+          setSortField(null)
+          setSortDirection(null)
+        }
+      } else {
+        setSortField(field)
+        setSortDirection("asc")
+      }
+    }
 
-            <div ref={tableRef} className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
-                  <tr className="border-b-2 border-border">
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
-                        <button onClick={() => handleSort("date")} className="flex items-center hover:text-primary">
-                          Date
-                          <SortIcon field="date" />
-                        </button>
-                        <FilterDropdown
-                          values={uniqueDates}
-                          selectedValues={dateFilters}
-                          onSelectionChange={setDateFilters}
-                          label="Filter by Date"
-                          filterId="date-filter"
-                        />
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
-                        <button onClick={() => handleSort("day")} className="flex items-center hover:text-primary">
-                          Day
-                          <SortIcon field="day" />
-                        </button>
-                        <FilterDropdown
-                          values={uniqueDays}
-                          selectedValues={dayFilters}
-                          onSelectionChange={setDayFilters}
-                          label="Filter by Day"
-                          filterId="day-filter"
-                        />
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
+    const SortIcon = ({ field }: { field: SortField }) => {
+      if (sortField !== field) return <ArrowUpDown className="w-4 h-4 ml-1 opacity-50" />
+      if (sortDirection === "asc") return <ArrowUp className="w-4 h-4 ml-1" />
+      return <ArrowDown className="w-4 h-4 ml-1" />
+    }
+
+    return (
+      <div className="mb-12">
+        <h2 className="text-3xl font-bold text-center mb-6 text-primary">{title}</h2>
+        <Card className="shadow-lg p-0">
+          <CardContent className="p-0">
+            <div className="relative">
+              {showScrollIndicator && (
+                <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white via-white/90 to-transparent pointer-events-none z-20 flex items-center justify-end pr-3">
+                  <div className="bg-primary text-primary-foreground rounded-full p-2 shadow-xl border-2 border-white animate-bounce">
+                    <ChevronRight className="w-6 h-6" />
+                  </div>
+                </div>
+              )}
+
+              <div ref={tableRef} className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
+                    <tr className="border-b-2 border-border">
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button onClick={() => handleSort("date")} className="flex items-center hover:text-primary">
+                            Date
+                            <SortIcon field="date" />
+                          </button>
+                          <FilterDropdown
+                            values={uniqueDates}
+                            selectedValues={dateFilters}
+                            onSelectionChange={setDateFilters}
+                            label="Filter by Date"
+                            filterId={`${tableId}-date-filter`}
+                          />
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button onClick={() => handleSort("day")} className="flex items-center hover:text-primary">
+                            Day
+                            <SortIcon field="day" />
+                          </button>
+                          <FilterDropdown
+                            values={uniqueDays}
+                            selectedValues={dayFilters}
+                            onSelectionChange={setDayFilters}
+                            label="Filter by Day"
+                            filterId={`${tableId}-day-filter`}
+                          />
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button
+                            onClick={() => handleSort("takeOffTime")}
+                            className="flex items-center hover:text-primary"
+                          >
+                            Take Off Time
+                            <SortIcon field="takeOffTime" />
+                          </button>
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button
+                            onClick={() => handleSort("landingTime")}
+                            className="flex items-center hover:text-primary"
+                          >
+                            Landing Time
+                            <SortIcon field="landingTime" />
+                          </button>
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button
+                            onClick={() => handleSort("fromAirport")}
+                            className="flex items-center hover:text-primary"
+                          >
+                            From Airport
+                            <SortIcon field="fromAirport" />
+                          </button>
+                          <FilterDropdown
+                            values={uniqueFromAirports}
+                            selectedValues={fromAirportFilters}
+                            onSelectionChange={setFromAirportFilters}
+                            label="Filter by Departure"
+                            filterId={`${tableId}-from-airport-filter`}
+                          />
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button
+                            onClick={() => handleSort("toAirport")}
+                            className="flex items-center hover:text-primary"
+                          >
+                            To Airport
+                            <SortIcon field="toAirport" />
+                          </button>
+                          <FilterDropdown
+                            values={uniqueToAirports}
+                            selectedValues={toAirportFilters}
+                            onSelectionChange={setToAirportFilters}
+                            label="Filter by Arrival"
+                            filterId={`${tableId}-to-airport-filter`}
+                          />
+                        </div>
+                      </th>
+                      <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
+                        <div className="flex items-center">
+                          <button
+                            onClick={() => handleSort("airline")}
+                            className="flex items-center hover:text-primary"
+                          >
+                            Airline
+                            <SortIcon field="airline" />
+                          </button>
+                          <FilterDropdown
+                            values={uniqueAirlines}
+                            selectedValues={airlineFilters}
+                            onSelectionChange={setAirlineFilters}
+                            label="Filter by Airline"
+                            filterId={`${tableId}-airline-filter`}
+                          />
+                        </div>
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
                         <button
-                          onClick={() => handleSort("takeOffTime")}
-                          className="flex items-center hover:text-primary"
+                          onClick={() => handleSort("costCabinBag")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
                         >
-                          Take Off Time
-                          <SortIcon field="takeOffTime" />
+                          Cabin Bag
+                          <SortIcon field="costCabinBag" />
                         </button>
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
                         <button
-                          onClick={() => handleSort("landingTime")}
-                          className="flex items-center hover:text-primary"
+                          onClick={() => handleSort("costCheckedBag")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
                         >
-                          Landing Time
-                          <SortIcon field="landingTime" />
+                          Checked Bag
+                          <SortIcon field="costCheckedBag" />
                         </button>
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
                         <button
-                          onClick={() => handleSort("fromAirport")}
-                          className="flex items-center hover:text-primary"
+                          onClick={() => handleSort("costTicketAlone")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
                         >
-                          From Airport
-                          <SortIcon field="fromAirport" />
+                          Ticket Alone
+                          <SortIcon field="costTicketAlone" />
                         </button>
-                        <FilterDropdown
-                          values={uniqueFromAirports}
-                          selectedValues={fromAirportFilters}
-                          onSelectionChange={setFromAirportFilters}
-                          label="Filter by Departure"
-                          filterId="from-airport-filter"
-                        />
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-blue-50">
                         <button
-                          onClick={() => handleSort("toAirport")}
-                          className="flex items-center hover:text-primary"
+                          onClick={() => handleSort("costTicketCabin")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
                         >
-                          To Airport
-                          <SortIcon field="toAirport" />
+                          Ticket + Cabin
+                          <SortIcon field="costTicketCabin" />
                         </button>
-                        <FilterDropdown
-                          values={uniqueToAirports}
-                          selectedValues={toAirportFilters}
-                          onSelectionChange={setToAirportFilters}
-                          label="Filter by Arrival"
-                          filterId="to-airport-filter"
-                        />
-                      </div>
-                    </th>
-                    <th className="text-left p-3 font-semibold text-sm whitespace-nowrap">
-                      <div className="flex items-center">
-                        <button onClick={() => handleSort("airline")} className="flex items-center hover:text-primary">
-                          Airline
-                          <SortIcon field="airline" />
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-green-50">
+                        <button
+                          onClick={() => handleSort("costTicketChecked")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
+                        >
+                          Ticket + Checked
+                          <SortIcon field="costTicketChecked" />
                         </button>
-                        <FilterDropdown
-                          values={uniqueAirlines}
-                          selectedValues={airlineFilters}
-                          onSelectionChange={setAirlineFilters}
-                          label="Filter by Airline"
-                          filterId="airline-filter"
-                        />
-                      </div>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
-                      <button
-                        onClick={() => handleSort("costCabinBag")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Cabin Bag
-                        <SortIcon field="costCabinBag" />
-                      </button>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
-                      <button
-                        onClick={() => handleSort("costCheckedBag")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Checked Bag
-                        <SortIcon field="costCheckedBag" />
-                      </button>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap">
-                      <button
-                        onClick={() => handleSort("costTicketAlone")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Ticket Alone
-                        <SortIcon field="costTicketAlone" />
-                      </button>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-blue-50">
-                      <button
-                        onClick={() => handleSort("costTicketCabin")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Ticket + Cabin
-                        <SortIcon field="costTicketCabin" />
-                      </button>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-green-50">
-                      <button
-                        onClick={() => handleSort("costTicketChecked")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Ticket + Checked
-                        <SortIcon field="costTicketChecked" />
-                      </button>
-                    </th>
-                    <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-amber-50">
-                      <button
-                        onClick={() => handleSort("costTicketBoth")}
-                        className="flex items-center justify-end hover:text-primary ml-auto"
-                      >
-                        Ticket + Both
-                        <SortIcon field="costTicketBoth" />
-                      </button>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {flights.length === 0 ? (
-                    <tr>
-                      <td colSpan={13} className="p-12 text-center text-muted-foreground">
-                        No flights found matching your criteria
-                      </td>
+                      </th>
+                      <th className="text-right p-3 font-semibold text-sm whitespace-nowrap bg-amber-50">
+                        <button
+                          onClick={() => handleSort("costTicketBoth")}
+                          className="flex items-center justify-end hover:text-primary ml-auto"
+                        >
+                          Ticket + Both
+                          <SortIcon field="costTicketBoth" />
+                        </button>
+                      </th>
                     </tr>
-                  ) : (
-                    flights.map((flight, index) => (
-                      <tr
-                        key={flight._id || flight.id}
-                        className={`border-b hover:bg-muted/30 transition-colors ${
-                          index % 2 === 0 ? "bg-background" : "bg-muted/10"
-                        }`}
-                      >
-                        <td className="p-3 text-sm whitespace-nowrap">{formatDate(flight.departureDate)}</td>
-                        <td className="p-3 text-sm whitespace-nowrap">{getDayOfWeek(flight.departureDate)}</td>
-                        <td className="p-3 text-sm font-mono">{flight.departureTime}</td>
-                        <td className="p-3 text-sm font-mono">{flight.arrivalTime}</td>
-                        <td className="p-3 text-sm">
-                          <div className="font-semibold">{flight.departureAirport}</div>
-                          <div className="text-xs text-muted-foreground">{flight.departureAirportName}</div>
-                        </td>
-                        <td className="p-3 text-sm">
-                          <div className="font-semibold">{flight.arrivalAirport}</div>
-                          <div className="text-xs text-muted-foreground">{flight.arrivalAirportName}</div>
-                        </td>
-                        <td className="p-3 text-sm">
-                          {getAirlineIcon(flight.airline) ? (
-                            <div className="group relative inline-block">
-                              <img
-                                src={getAirlineIcon(flight.airline) || "/placeholder.svg"}
-                                alt={flight.airline}
-                                className="h-8 w-8 object-contain cursor-help"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = "none"
-                                  const parent = e.currentTarget.parentElement
-                                  if (parent) {
-                                    parent.innerHTML = `<span class="font-medium text-sm">${flight.airline}</span>`
-                                  }
-                                }}
-                              />
-                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30">
-                                {flight.airline}
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="font-medium text-sm">{flight.airline}</span>
-                          )}
-                        </td>
-                        <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCabinBag)}</td>
-                        <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCheckedBag)}</td>
-                        <td className="p-3 text-sm text-right font-mono font-semibold">
-                          {formatCurrency(flight.costTicketAlone)}
-                        </td>
-                        <td className="p-3 text-sm text-right font-mono font-semibold bg-blue-50">
-                          {formatCurrency(getTicketPlusCabin(flight))}
-                        </td>
-                        <td className="p-3 text-sm text-right font-mono font-semibold bg-green-50">
-                          {formatCurrency(getTicketPlusChecked(flight))}
-                        </td>
-                        <td className="p-3 text-sm text-right font-mono font-semibold bg-amber-50">
-                          {formatCurrency(getTicketPlusBoth(flight))}
+                  </thead>
+                  <tbody>
+                    {flights.length === 0 ? (
+                      <tr>
+                        <td colSpan={13} className="p-12 text-center text-muted-foreground">
+                          No flights found matching your criteria
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      flights.map((flight, index) => (
+                        <tr
+                          key={flight._id || flight.id}
+                          className={`border-b hover:bg-muted/30 transition-colors ${
+                            index % 2 === 0 ? "bg-background" : "bg-muted/10"
+                          }`}
+                        >
+                          <td className="p-3 text-sm whitespace-nowrap">{formatDate(flight.departureDate)}</td>
+                          <td className="p-3 text-sm whitespace-nowrap">{getDayOfWeek(flight.departureDate)}</td>
+                          <td className="p-3 text-sm font-mono">{flight.departureTime}</td>
+                          <td className="p-3 text-sm font-mono">{flight.arrivalTime}</td>
+                          <td className="p-3 text-sm">
+                            <div className="font-semibold">{flight.departureAirport}</div>
+                            <div className="text-xs text-muted-foreground">{flight.departureAirportName}</div>
+                          </td>
+                          <td className="p-3 text-sm">
+                            <div className="font-semibold">{flight.arrivalAirport}</div>
+                            <div className="text-xs text-muted-foreground">{flight.arrivalAirportName}</div>
+                          </td>
+                          <td className="p-3 text-sm">
+                            {getAirlineIcon(flight.airline) ? (
+                              <div className="group relative inline-block">
+                                <img
+                                  src={getAirlineIcon(flight.airline) || "/placeholder.svg"}
+                                  alt={flight.airline}
+                                  className="h-8 w-8 object-contain cursor-help"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = "none"
+                                    const parent = e.currentTarget.parentElement
+                                    if (parent) {
+                                      parent.innerHTML = `<span class="font-medium text-sm">${flight.airline}</span>`
+                                    }
+                                  }}
+                                />
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30">
+                                  {flight.airline}
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="font-medium text-sm">{flight.airline}</span>
+                            )}
+                          </td>
+                          <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCabinBag)}</td>
+                          <td className="p-3 text-sm text-right font-mono">{formatCurrency(flight.costCheckedBag)}</td>
+                          <td className="p-3 text-sm text-right font-mono font-semibold">
+                            {formatCurrency(flight.costTicketAlone)}
+                          </td>
+                          <td className="p-3 text-sm text-right font-mono font-semibold bg-blue-50">
+                            {formatCurrency(getTicketPlusCabin(flight))}
+                          </td>
+                          <td className="p-3 text-sm text-right font-mono font-semibold bg-green-50">
+                            {formatCurrency(getTicketPlusChecked(flight))}
+                          </td>
+                          <td className="p-3 text-sm text-right font-mono font-semibold bg-amber-50">
+                            {formatCurrency(getTicketPlusBoth(flight))}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   if (!accessible) {
     return null
@@ -723,33 +837,52 @@ export default function FlightsPage() {
           </p>
         </div>
 
-        {(dateFilters.length > 0 ||
-          dayFilters.length > 0 ||
-          fromAirportFilters.length > 0 ||
-          toAirportFilters.length > 0 ||
-          airlineFilters.length > 0) && (
+        {(outgoingDateFilters.length > 0 ||
+          outgoingDayFilters.length > 0 ||
+          outgoingFromAirportFilters.length > 0 ||
+          outgoingToAirportFilters.length > 0 ||
+          outgoingAirlineFilters.length > 0 ||
+          returnDateFilters.length > 0 ||
+          returnDayFilters.length > 0 ||
+          returnFromAirportFilters.length > 0 ||
+          returnToAirportFilters.length > 0 ||
+          returnAirlineFilters.length > 0) && (
           <div className="mb-4 flex flex-wrap gap-2">
             <span className="text-sm text-muted-foreground">Active filters:</span>
-            {[...dateFilters, ...dayFilters, ...fromAirportFilters, ...toAirportFilters, ...airlineFilters].map(
-              (filter) => (
-                <Button
-                  key={filter}
-                  variant="secondary"
-                  size="sm"
-                  className="h-7 px-2 text-xs"
-                  onClick={() => {
-                    setDateFilters(dateFilters.filter((f) => f !== filter))
-                    setDayFilters(dayFilters.filter((f) => f !== filter))
-                    setFromAirportFilters(fromAirportFilters.filter((f) => f !== filter))
-                    setToAirportFilters(toAirportFilters.filter((f) => f !== filter))
-                    setAirlineFilters(airlineFilters.filter((f) => f !== filter))
-                  }}
-                >
-                  {filter}
-                  <X className="w-3 h-3 ml-1" />
-                </Button>
-              ),
-            )}
+            {[
+              ...outgoingDateFilters,
+              ...outgoingDayFilters,
+              ...outgoingFromAirportFilters,
+              ...outgoingToAirportFilters,
+              ...outgoingAirlineFilters,
+              ...returnDateFilters,
+              ...returnDayFilters,
+              ...returnFromAirportFilters,
+              ...returnToAirportFilters,
+              ...returnAirlineFilters,
+            ].map((filter) => (
+              <Button
+                key={filter}
+                variant="secondary"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() => {
+                  setOutgoingDateFilters(outgoingDateFilters.filter((f) => f !== filter))
+                  setOutgoingDayFilters(outgoingDayFilters.filter((f) => f !== filter))
+                  setOutgoingFromAirportFilters(outgoingFromAirportFilters.filter((f) => f !== filter))
+                  setOutgoingToAirportFilters(outgoingToAirportFilters.filter((f) => f !== filter))
+                  setOutgoingAirlineFilters(outgoingAirlineFilters.filter((f) => f !== filter))
+                  setReturnDateFilters(returnDateFilters.filter((f) => f !== filter))
+                  setReturnDayFilters(returnDayFilters.filter((f) => f !== filter))
+                  setReturnFromAirportFilters(returnFromAirportFilters.filter((f) => f !== filter))
+                  setReturnToAirportFilters(returnToAirportFilters.filter((f) => f !== filter))
+                  setReturnAirlineFilters(returnAirlineFilters.filter((f) => f !== filter))
+                }}
+              >
+                {filter}
+                <X className="w-3 h-3 ml-1" />
+              </Button>
+            ))}
           </div>
         )}
 
@@ -796,6 +929,26 @@ export default function FlightsPage() {
           tableRef={outgoingTableRef}
           showScrollIndicator={showOutgoingScrollIndicator}
           title="Outgoing Flights"
+          uniqueDates={outgoingUniqueDates}
+          uniqueDays={outgoingUniqueDays}
+          uniqueFromAirports={outgoingUniqueFromAirports}
+          uniqueToAirports={outgoingUniqueToAirports}
+          uniqueAirlines={outgoingUniqueAirlines}
+          dateFilters={outgoingDateFilters}
+          setDateFilters={setOutgoingDateFilters}
+          dayFilters={outgoingDayFilters}
+          setDayFilters={setOutgoingDayFilters}
+          fromAirportFilters={outgoingFromAirportFilters}
+          setFromAirportFilters={setOutgoingFromAirportFilters}
+          toAirportFilters={outgoingToAirportFilters}
+          setToAirportFilters={setOutgoingToAirportFilters}
+          airlineFilters={outgoingAirlineFilters}
+          setAirlineFilters={setOutgoingAirlineFilters}
+          sortField={outgoingSortField}
+          setSortField={setOutgoingSortField}
+          sortDirection={outgoingSortDirection}
+          setSortDirection={setOutgoingSortDirection}
+          tableId="outgoing"
         />
 
         {outgoingItemsPerPage !== "all" && outgoingTotalPages > 1 && (
@@ -870,6 +1023,26 @@ export default function FlightsPage() {
           tableRef={returnTableRef}
           showScrollIndicator={showReturnScrollIndicator}
           title="Return Flights"
+          uniqueDates={returnUniqueDates}
+          uniqueDays={returnUniqueDays}
+          uniqueFromAirports={returnUniqueFromAirports}
+          uniqueToAirports={returnUniqueToAirports}
+          uniqueAirlines={returnUniqueAirlines}
+          dateFilters={returnDateFilters}
+          setDateFilters={setReturnDateFilters}
+          dayFilters={returnDayFilters}
+          setDayFilters={setReturnDayFilters}
+          fromAirportFilters={returnFromAirportFilters}
+          setFromAirportFilters={setReturnFromAirportFilters}
+          toAirportFilters={returnToAirportFilters}
+          setToAirportFilters={setReturnToAirportFilters}
+          airlineFilters={returnAirlineFilters}
+          setAirlineFilters={setReturnAirlineFilters}
+          sortField={returnSortField}
+          setSortField={setReturnSortField}
+          sortDirection={returnSortDirection}
+          setSortDirection={setReturnSortDirection}
+          tableId="return"
         />
 
         {returnItemsPerPage !== "all" && returnTotalPages > 1 && (
