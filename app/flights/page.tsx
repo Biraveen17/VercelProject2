@@ -437,8 +437,8 @@ export default function FlightsPage() {
       hasScrolledToEnd: outgoingHasScrolledToEnd,
     })
 
-    // Hide arrow once user scrolls more than 100px
-    if (scrollLeft > 100 && !outgoingHasScrolledToEnd) {
+    const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 1
+    if (isAtEnd && !outgoingHasScrolledToEnd) {
       console.log("[v0] Setting outgoingHasScrolledToEnd to true")
       setOutgoingHasScrolledToEnd(true)
     }
@@ -459,8 +459,8 @@ export default function FlightsPage() {
       hasScrolledToEnd: returnHasScrolledToEnd,
     })
 
-    // Hide arrow once user scrolls more than 100px
-    if (scrollLeft > 100 && !returnHasScrolledToEnd) {
+    const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 1
+    if (isAtEnd && !returnHasScrolledToEnd) {
       console.log("[v0] Setting returnHasScrolledToEnd to true")
       setReturnHasScrolledToEnd(true)
     }
@@ -641,7 +641,7 @@ export default function FlightsPage() {
       <div className="mb-12">
         <Card className="shadow-lg p-0 rounded-lg overflow-hidden">
           <CardContent className="p-0">
-            <div className="relative">
+            <div className="relative rounded-lg overflow-hidden">
               <div
                 className={`absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-primary/10 to-transparent pointer-events-none z-20 flex items-center justify-end pr-2 transition-opacity duration-300 ${
                   showScrollIndicator ? "opacity-100" : "opacity-0"
@@ -652,8 +652,8 @@ export default function FlightsPage() {
                 </div>
               </div>
 
-              <div ref={tableRef} className="overflow-x-auto max-w-full rounded-lg" onScroll={onScroll}>
-                <table className="w-full border-collapse rounded-t-lg overflow-hidden">
+              <div ref={tableRef} className="overflow-x-auto max-w-full" onScroll={onScroll}>
+                <table className="w-full border-collapse">
                   <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
                     <tr className="border-b-2 border-border">
                       {/* ... existing date, day, time, airport, airline columns ... */}
