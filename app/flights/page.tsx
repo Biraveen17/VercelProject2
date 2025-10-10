@@ -66,9 +66,9 @@ export default function FlightsPage() {
   const [airlineIconMappings, setAirlineIconMappings] = useState<AirlineIconMapping[]>([])
 
   const [isCalculatorActive, setIsCalculatorActive] = useState(false)
-  const [numGuests, setNumGuests] = useState<number>(1)
-  const [numCabinBags, setNumCabinBags] = useState<number>(0)
-  const [numCheckedBags, setNumCheckedBags] = useState<number>(0)
+  const [numGuests, setNumGuests] = useState<string>("")
+  const [numCabinBags, setNumCabinBags] = useState<string>("")
+  const [numCheckedBags, setNumCheckedBags] = useState<string>("")
 
   const [showCalculatorNotification, setShowCalculatorNotification] = useState(false)
 
@@ -136,10 +136,10 @@ export default function FlightsPage() {
   useEffect(() => {
     if (isCalculatorActive) {
       setShowCalculatorNotification(true)
-      // Hide notification after 5 seconds
+      // Hide notification after 2.5 seconds
       const timer = setTimeout(() => {
         setShowCalculatorNotification(false)
-      }, 5000)
+      }, 2500)
       return () => clearTimeout(timer)
     }
   }, [isCalculatorActive])
@@ -387,10 +387,12 @@ export default function FlightsPage() {
           compareResult = getTicketPlusBoth(a) - getTicketPlusBoth(b)
           break
         case "totalCost":
-          const totalA =
-            a.costTicketAlone * numGuests + a.costCabinBag * numCabinBags + a.costCheckedBag * numCheckedBags
-          const totalB =
-            b.costTicketAlone * numGuests + b.costCabinBag * numCabinBags + b.costCheckedBag * numCheckedBags
+          const guests = numGuests === "" ? 1 : Number.parseInt(numGuests) || 1
+          const cabinBags = numCabinBags === "" ? 0 : Number.parseInt(numCabinBags) || 0
+          const checkedBags = numCheckedBags === "" ? 0 : Number.parseInt(numCheckedBags) || 0
+
+          const totalA = a.costTicketAlone * guests + a.costCabinBag * cabinBags + a.costCheckedBag * checkedBags
+          const totalB = b.costTicketAlone * guests + b.costCabinBag * cabinBags + b.costCheckedBag * checkedBags
           compareResult = totalA - totalB
           break
       }
@@ -632,14 +634,16 @@ export default function FlightsPage() {
     }
 
     const calculateTotalCost = (flight: Flight) => {
-      return (
-        flight.costTicketAlone * numGuests + flight.costCabinBag * numCabinBags + flight.costCheckedBag * numCheckedBags
-      )
+      const guests = numGuests === "" ? 1 : Number.parseInt(numGuests) || 1
+      const cabinBags = numCabinBags === "" ? 0 : Number.parseInt(numCabinBags) || 0
+      const checkedBags = numCheckedBags === "" ? 0 : Number.parseInt(numCheckedBags) || 0
+
+      return flight.costTicketAlone * guests + flight.costCabinBag * cabinBags + flight.costCheckedBag * checkedBags
     }
 
     return (
       <div className="mb-12">
-        <Card className="shadow-lg p-0 rounded-lg overflow-hidden">
+        <Card className="shadow-lg p-0 rounded-lg overflow-hidden isolate">
           <CardContent className="p-0">
             <div className="relative">
               <div
@@ -832,8 +836,10 @@ export default function FlightsPage() {
                             </div>
                           </button>
                           <div className="text-xs font-normal text-muted-foreground mt-1">
-                            {numGuests} guest{numGuests !== 1 ? "s" : ""}, {numCabinBags} cabin, {numCheckedBags}{" "}
-                            checked
+                            {numGuests === "" ? 1 : Number.parseInt(numGuests) || 1} guest
+                            {(numGuests === "" ? 1 : Number.parseInt(numGuests) || 1) !== 1 ? "s" : ""},{" "}
+                            {numCabinBags === "" ? 0 : Number.parseInt(numCabinBags) || 0} cabin,{" "}
+                            {numCheckedBags === "" ? 0 : Number.parseInt(numCheckedBags) || 0} checked
                           </div>
                         </th>
                       )}
@@ -1080,8 +1086,9 @@ export default function FlightsPage() {
                         type="number"
                         min="1"
                         value={numGuests}
-                        onChange={(e) => setNumGuests(Math.max(1, Number.parseInt(e.target.value) || 1))}
-                        className="w-32 text-center text-lg font-semibold border-2 border-primary/30 bg-background"
+                        onChange={(e) => setNumGuests(e.target.value)}
+                        placeholder="1"
+                        className="w-32 text-center text-lg font-semibold border-2 border-input bg-background"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
@@ -1090,8 +1097,9 @@ export default function FlightsPage() {
                         type="number"
                         min="0"
                         value={numCabinBags}
-                        onChange={(e) => setNumCabinBags(Math.max(0, Number.parseInt(e.target.value) || 0))}
-                        className="w-32 text-center text-lg font-semibold border-2 border-primary/30 bg-background"
+                        onChange={(e) => setNumCabinBags(e.target.value)}
+                        placeholder="0"
+                        className="w-32 text-center text-lg font-semibold border-2 border-input bg-background"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
@@ -1100,8 +1108,9 @@ export default function FlightsPage() {
                         type="number"
                         min="0"
                         value={numCheckedBags}
-                        onChange={(e) => setNumCheckedBags(Math.max(0, Number.parseInt(e.target.value) || 0))}
-                        className="w-32 text-center text-lg font-semibold border-2 border-primary/30 bg-background"
+                        onChange={(e) => setNumCheckedBags(e.target.value)}
+                        placeholder="0"
+                        className="w-32 text-center text-lg font-semibold border-2 border-input bg-background"
                       />
                     </div>
                   </div>
@@ -1118,14 +1127,25 @@ export default function FlightsPage() {
                 <div className="text-center">
                   <div className="bg-primary/5 rounded-lg p-6 mb-6 border border-primary/20">
                     <p className="text-lg mb-2">
-                      Showing total costs for <span className="font-bold text-primary">{numGuests}</span> guest
-                      {numGuests !== 1 ? "s" : ""}
+                      Showing total costs for{" "}
+                      <span className="font-bold text-primary">
+                        {numGuests === "" ? 1 : Number.parseInt(numGuests) || 1}
+                      </span>{" "}
+                      guest
+                      {(numGuests === "" ? 1 : Number.parseInt(numGuests) || 1) !== 1 ? "s" : ""}
                     </p>
                     <p className="text-muted-foreground">
-                      with <span className="font-semibold">{numCabinBags}</span> cabin bag
-                      {numCabinBags !== 1 ? "s" : ""} and <span className="font-semibold">{numCheckedBags}</span>{" "}
+                      with{" "}
+                      <span className="font-semibold">
+                        {numCabinBags === "" ? 0 : Number.parseInt(numCabinBags) || 0}
+                      </span>{" "}
+                      cabin bag
+                      {(numCabinBags === "" ? 0 : Number.parseInt(numCabinBags) || 0) !== 1 ? "s" : ""} and{" "}
+                      <span className="font-semibold">
+                        {numCheckedBags === "" ? 0 : Number.parseInt(numCheckedBags) || 0}
+                      </span>{" "}
                       checked bag
-                      {numCheckedBags !== 1 ? "s" : ""}
+                      {(numCheckedBags === "" ? 0 : Number.parseInt(numCheckedBags) || 0) !== 1 ? "s" : ""}
                     </p>
                   </div>
                   <Button
