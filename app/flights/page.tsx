@@ -971,9 +971,8 @@ export default function FlightsPage() {
           <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top duration-500">
             <div className="bg-primary text-primary-foreground px-6 py-4 rounded-lg shadow-2xl border-2 border-primary-foreground/20 flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <ChevronRight className="w-5 h-5 animate-pulse" />
                 <span className="font-medium">Scroll right in the tables to see the Total Cost column</span>
-                <ChevronRight className="w-10 h-10 animate-pulse" />
+                <ChevronRight className="w-50 h-50 animate-pulse" />
               </div>
               <button
                 onClick={() => setShowCalculatorNotification(false)}
@@ -1087,7 +1086,7 @@ export default function FlightsPage() {
                         min="1"
                         value={numGuests}
                         onChange={(e) => setNumGuests(e.target.value)}
-                        placeholder="..."
+                        placeholder=""
                         className="w-32 text-center text-lg font-semibold border-2 border-gray-300 bg-background"
                       />
                     </div>
@@ -1098,7 +1097,7 @@ export default function FlightsPage() {
                         min="0"
                         value={numCabinBags}
                         onChange={(e) => setNumCabinBags(e.target.value)}
-                        placeholder="..."
+                        placeholder=""
                         className="w-32 text-center text-lg font-semibold border-2 border-gray-300 bg-background"
                       />
                     </div>
