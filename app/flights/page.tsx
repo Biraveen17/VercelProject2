@@ -393,9 +393,17 @@ export default function FlightsPage() {
     const handleScroll = () => {
       const { scrollLeft, scrollWidth, clientWidth } = outgoingContainer
       const scrollableWidth = scrollWidth - clientWidth
-      const hasScrolledHalfway = scrollLeft > scrollableWidth * 0.5
 
-      if (hasScrolledHalfway && !outgoingHasScrolledToEnd) {
+      console.log("[v0] Outgoing scroll:", {
+        scrollLeft,
+        scrollWidth,
+        clientWidth,
+        scrollableWidth,
+        hasScrolledToEnd: outgoingHasScrolledToEnd,
+      })
+
+      if (scrollLeft > 100 && !outgoingHasScrolledToEnd) {
+        console.log("[v0] Setting outgoingHasScrolledToEnd to true")
         setOutgoingHasScrolledToEnd(true)
       }
     }
@@ -412,9 +420,17 @@ export default function FlightsPage() {
     const handleScroll = () => {
       const { scrollLeft, scrollWidth, clientWidth } = returnContainer
       const scrollableWidth = scrollWidth - clientWidth
-      const hasScrolledHalfway = scrollLeft > scrollableWidth * 0.5
 
-      if (hasScrolledHalfway && !returnHasScrolledToEnd) {
+      console.log("[v0] Return scroll:", {
+        scrollLeft,
+        scrollWidth,
+        clientWidth,
+        scrollableWidth,
+        hasScrolledToEnd: returnHasScrolledToEnd,
+      })
+
+      if (scrollLeft > 100 && !returnHasScrolledToEnd) {
+        console.log("[v0] Setting returnHasScrolledToEnd to true")
         setReturnHasScrolledToEnd(true)
       }
     }
