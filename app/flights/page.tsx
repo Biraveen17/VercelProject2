@@ -972,8 +972,8 @@ export default function FlightsPage() {
             <div className="bg-primary text-primary-foreground px-6 py-4 rounded-lg shadow-2xl border-2 border-primary-foreground/20 flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <ChevronRight className="w-5 h-5 animate-pulse" />
-                <span className="font-medium">Scroll right in the tables below to see the Total Cost column</span>
-                <ChevronRight className="w-5 h-5 animate-pulse" />
+                <span className="font-medium">Scroll right in the tables to see the Total Cost column</span>
+                <ChevronRight className="w-10 h-10 animate-pulse" />
               </div>
               <button
                 onClick={() => setShowCalculatorNotification(false)}
