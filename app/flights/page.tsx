@@ -9,7 +9,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, X, ChevronLeft, ChevronRight, Plane } from "lucide-react"
 import { useLanguage } from "@/lib/language-context"
 import { useRouter } from "next/navigation"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Flight {
@@ -85,6 +84,9 @@ export default function FlightsPage() {
   const [fromAirportFilters, setFromAirportFilters] = useState<string[]>([])
   const [toAirportFilters, setToAirportFilters] = useState<string[]>([])
   const [airlineFilters, setAirlineFilters] = useState<string[]>([])
+
+  const [openFilterDropdown, setOpenFilterDropdown] = useState<string | null>(null)
+  const filterDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     checkAccessibility()
@@ -328,6 +330,17 @@ export default function FlightsPage() {
     return () => returnContainer.removeEventListener("scroll", handleScroll)
   }, [paginatedReturnFlights])
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
+        setOpenFilterDropdown(null)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       if (sortDirection === "asc") {
@@ -348,17 +361,21 @@ export default function FlightsPage() {
     return <ArrowDown className="w-4 h-4 ml-1" />
   }
 
-  const FilterPopover = ({
+  const FilterDropdown = ({
     values,
     selectedValues,
     onSelectionChange,
     label,
+    filterId,
   }: {
     values: string[]
     selectedValues: string[]
     onSelectionChange: (values: string[]) => void
     label: string
+    filterId: string
   }) => {
+    const isOpen = openFilterDropdown === filterId
+
     const toggleValue = (value: string) => {
       if (selectedValues.includes(value)) {
         onSelectionChange(selectedValues.filter((v) => v !== value))
@@ -370,42 +387,52 @@ export default function FlightsPage() {
     const clearAll = () => onSelectionChange([])
 
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button type="button" variant="ghost" size="sm" className="h-6 px-2">
-            <ChevronDown className="w-3 h-3" />
-            {selectedValues.length > 0 && (
-              <span className="ml-1 text-xs bg-primary text-primary-foreground rounded-full px-1.5">
-                {selectedValues.length}
-              </span>
-            )}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-64 p-3" align="start">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">{label}</span>
-            {selectedValues.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={clearAll} className="h-6 px-2 text-xs">
-                Clear
-              </Button>
-            )}
+      <div className="relative inline-block" ref={isOpen ? filterDropdownRef : null}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-6 px-2"
+          onClick={(e) => {
+            e.stopPropagation()
+            setOpenFilterDropdown(isOpen ? null : filterId)
+          }}
+        >
+          <ChevronDown className="w-3 h-3" />
+          {selectedValues.length > 0 && (
+            <span className="ml-1 text-xs bg-primary text-primary-foreground rounded-full px-1.5">
+              {selectedValues.length}
+            </span>
+          )}
+        </Button>
+
+        {isOpen && (
+          <div className="absolute left-0 top-full mt-1 w-64 bg-white rounded-md shadow-lg border border-gray-200 p-3 z-[100]">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium">{label}</span>
+              {selectedValues.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={clearAll} className="h-6 px-2 text-xs">
+                  Clear
+                </Button>
+              )}
+            </div>
+            <div className="max-h-64 overflow-y-auto space-y-2">
+              {values.map((value) => (
+                <div key={value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`${filterId}-${value}`}
+                    checked={selectedValues.includes(value)}
+                    onCheckedChange={() => toggleValue(value)}
+                  />
+                  <label htmlFor={`${filterId}-${value}`} className="text-sm cursor-pointer flex-1">
+                    {value}
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="max-h-64 overflow-y-auto space-y-2">
-            {values.map((value) => (
-              <div key={value} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`${label}-${value}`}
-                  checked={selectedValues.includes(value)}
-                  onCheckedChange={() => toggleValue(value)}
-                />
-                <label htmlFor={`${label}-${value}`} className="text-sm cursor-pointer flex-1">
-                  {value}
-                </label>
-              </div>
-            ))}
-          </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        )}
+      </div>
     )
   }
 
@@ -422,7 +449,7 @@ export default function FlightsPage() {
   }) => (
     <div className="mb-12">
       <h2 className="text-3xl font-bold text-center mb-6 text-primary">{title}</h2>
-      <Card className="overflow-hidden shadow-lg p-0">
+      <Card className="shadow-lg p-0">
         <CardContent className="p-0">
           <div className="relative">
             {showScrollIndicator && (
@@ -443,11 +470,12 @@ export default function FlightsPage() {
                           Date
                           <SortIcon field="date" />
                         </button>
-                        <FilterPopover
+                        <FilterDropdown
                           values={uniqueDates}
                           selectedValues={dateFilters}
                           onSelectionChange={setDateFilters}
                           label="Filter by Date"
+                          filterId="date-filter"
                         />
                       </div>
                     </th>
@@ -457,11 +485,12 @@ export default function FlightsPage() {
                           Day
                           <SortIcon field="day" />
                         </button>
-                        <FilterPopover
+                        <FilterDropdown
                           values={uniqueDays}
                           selectedValues={dayFilters}
                           onSelectionChange={setDayFilters}
                           label="Filter by Day"
+                          filterId="day-filter"
                         />
                       </div>
                     </th>
@@ -496,11 +525,12 @@ export default function FlightsPage() {
                           From Airport
                           <SortIcon field="fromAirport" />
                         </button>
-                        <FilterPopover
+                        <FilterDropdown
                           values={uniqueFromAirports}
                           selectedValues={fromAirportFilters}
                           onSelectionChange={setFromAirportFilters}
                           label="Filter by Departure"
+                          filterId="from-airport-filter"
                         />
                       </div>
                     </th>
@@ -513,11 +543,12 @@ export default function FlightsPage() {
                           To Airport
                           <SortIcon field="toAirport" />
                         </button>
-                        <FilterPopover
+                        <FilterDropdown
                           values={uniqueToAirports}
                           selectedValues={toAirportFilters}
                           onSelectionChange={setToAirportFilters}
                           label="Filter by Arrival"
+                          filterId="to-airport-filter"
                         />
                       </div>
                     </th>
@@ -527,11 +558,12 @@ export default function FlightsPage() {
                           Airline
                           <SortIcon field="airline" />
                         </button>
-                        <FilterPopover
+                        <FilterDropdown
                           values={uniqueAirlines}
                           selectedValues={airlineFilters}
                           onSelectionChange={setAirlineFilters}
                           label="Filter by Airline"
+                          filterId="airline-filter"
                         />
                       </div>
                     </th>
