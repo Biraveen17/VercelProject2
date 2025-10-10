@@ -233,8 +233,8 @@ export default function AdminPage() {
         )}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer min-w-[250px]">
             <Link href="/admin/guests">
               <CardContent className="p-6 text-center">
                 <Users className="w-12 h-12 text-primary mx-auto mb-4" />
@@ -244,7 +244,7 @@ export default function AdminPage() {
             </Link>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer min-w-[250px]">
             <Link href="/admin/budget">
               <CardContent className="p-6 text-center">
                 <DollarSign className="w-12 h-12 text-primary mx-auto mb-4" />
@@ -254,7 +254,7 @@ export default function AdminPage() {
             </Link>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer min-w-[250px]">
             <Link href="/admin/spreadsheet">
               <CardContent className="p-6 text-center">
                 <div className="w-12 h-12 text-primary mx-auto mb-4 flex items-center justify-center">
@@ -272,17 +272,7 @@ export default function AdminPage() {
             </Link>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <Link href="/admin/settings">
-              <CardContent className="p-6 text-center">
-                <Settings className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Settings</h3>
-                <p className="text-sm text-muted-foreground">Wedding details and configuration</p>
-              </CardContent>
-            </Link>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer min-w-[250px]">
             <Link href="/admin/statistics">
               <CardContent className="p-6 text-center">
                 <BarChart className="w-12 h-12 text-primary mx-auto mb-4" />
@@ -292,7 +282,7 @@ export default function AdminPage() {
             </Link>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer min-w-[250px]">
             <Link href="/admin/hotels">
               <CardContent className="p-6 text-center">
                 <div className="w-12 h-12 text-primary mx-auto mb-4 flex items-center justify-center">
@@ -307,12 +297,23 @@ export default function AdminPage() {
             </Link>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer min-w-[250px]">
             <Link href="/admin/flights">
               <CardContent className="p-6 text-center">
                 <Plane className="w-12 h-12 text-primary mx-auto mb-4" />
                 <h3 className="font-semibold mb-2">Flight Management</h3>
                 <p className="text-sm text-muted-foreground">Manage flight information and schedules</p>
+              </CardContent>
+            </Link>
+          </Card>
+
+          {/* Settings card moved to last position */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer min-w-[250px]">
+            <Link href="/admin/settings">
+              <CardContent className="p-6 text-center">
+                <Settings className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">Settings</h3>
+                <p className="text-sm text-muted-foreground">Wedding details and configuration</p>
               </CardContent>
             </Link>
           </Card>

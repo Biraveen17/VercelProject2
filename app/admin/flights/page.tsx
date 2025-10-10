@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Switch } from "@/components/ui/switch"
 import { logout } from "@/lib/auth"
 import { Plus, Edit, Trash2, LogOut, ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -17,7 +18,6 @@ interface Flight {
   _id?: string
   id?: string
   airline: string
-  flightNumber: string
   departureAirport: string
   departureAirportName: string
   arrivalAirport: string
@@ -26,9 +26,23 @@ interface Flight {
   departureTime: string
   arrivalDate: string
   arrivalTime: string
+  costCabinBag: number
+  costCheckedBag: number
+  costTicketAlone: number
   notes?: string
+  enabled: boolean
   createdAt: string
   lastUpdated: string
+}
+
+interface AirportMapping {
+  code: string
+  name: string
+}
+
+interface AirlineIconMapping {
+  airline: string
+  iconUrl: string
 }
 
 export default function FlightsManagementPage() {
@@ -48,21 +62,52 @@ export default function FlightsManagementPage() {
     flightInfo: "",
   })
 
+  const [airportMappings, setAirportMappings] = useState<AirportMapping[]>([
+    { code: "LHR", name: "London Heathrow" },
+    { code: "LGW", name: "London Gatwick" },
+    { code: "PFO", name: "Paphos International" },
+    { code: "LCA", name: "Larnaca International" },
+  ])
+  const [newAirportCode, setNewAirportCode] = useState("")
+  const [newAirportName, setNewAirportName] = useState("")
+
+  const [airlineIconMappings, setAirlineIconMappings] = useState<AirlineIconMapping[]>([])
+  const [newAirlineName, setNewAirlineName] = useState("")
+  const [newAirlineIconUrl, setNewAirlineIconUrl] = useState("")
+
   const [formData, setFormData] = useState({
     airline: "",
-    flightNumber: "",
     departureAirport: "",
-    departureAirportName: "",
     arrivalAirport: "",
-    arrivalAirportName: "",
     departureDate: "",
     departureTime: "",
     arrivalDate: "",
     arrivalTime: "",
+    costCabinBag: 0,
+    costCheckedBag: 0,
+    costTicketAlone: 0,
     notes: "",
+    enabled: true,
   })
 
   const [errorMessage, setErrorMessage] = useState("")
+
+  const formatDateToDDMMYYYY = (dateStr: string) => {
+    if (!dateStr) return ""
+    const [year, month, day] = dateStr.split("-")
+    return `${day}/${month}/${year}`
+  }
+
+  const formatDateToYYYYMMDD = (dateStr: string) => {
+    if (!dateStr) return ""
+    const [day, month, year] = dateStr.split("/")
+    return `${year}-${month}-${day}`
+  }
+
+  const getAirportName = (code: string) => {
+    const mapping = airportMappings.find((m) => m.code === code.toUpperCase())
+    return mapping ? mapping.name : ""
+  }
 
   const loadFlights = async () => {
     try {
@@ -99,8 +144,8 @@ export default function FlightsManagementPage() {
     e.preventDefault()
     setErrorMessage("")
 
-    if (!formData.airline.trim() || !formData.flightNumber.trim()) {
-      setErrorMessage("Airline and flight number are required.")
+    if (!formData.airline.trim()) {
+      setErrorMessage("Airline is required.")
       return
     }
 
@@ -108,10 +153,17 @@ export default function FlightsManagementPage() {
       const url = editingFlight ? `/api/flights/${editingFlight._id || editingFlight.id}` : "/api/flights"
       const method = editingFlight ? "PATCH" : "POST"
 
+      const departureAirportName = getAirportName(formData.departureAirport)
+      const arrivalAirportName = getAirportName(formData.arrivalAirport)
+
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          departureAirportName,
+          arrivalAirportName,
+        }),
       })
 
       if (response.ok) {
@@ -120,16 +172,17 @@ export default function FlightsManagementPage() {
         setEditingFlight(null)
         setFormData({
           airline: "",
-          flightNumber: "",
           departureAirport: "",
-          departureAirportName: "",
           arrivalAirport: "",
-          arrivalAirportName: "",
           departureDate: "",
           departureTime: "",
           arrivalDate: "",
           arrivalTime: "",
+          costCabinBag: 0,
+          costCheckedBag: 0,
+          costTicketAlone: 0,
           notes: "",
+          enabled: true,
         })
       } else {
         const error = await response.json()
@@ -145,16 +198,17 @@ export default function FlightsManagementPage() {
     setEditingFlight(flight)
     setFormData({
       airline: flight.airline,
-      flightNumber: flight.flightNumber,
       departureAirport: flight.departureAirport,
-      departureAirportName: flight.departureAirportName,
       arrivalAirport: flight.arrivalAirport,
-      arrivalAirportName: flight.arrivalAirportName,
-      departureDate: flight.departureDate,
+      departureDate: formatDateToYYYYMMDD(flight.departureDate),
       departureTime: flight.departureTime,
-      arrivalDate: flight.arrivalDate,
+      arrivalDate: formatDateToYYYYMMDD(flight.arrivalDate),
       arrivalTime: flight.arrivalTime,
+      costCabinBag: flight.costCabinBag || 0,
+      costCheckedBag: flight.costCheckedBag || 0,
+      costTicketAlone: flight.costTicketAlone || 0,
       notes: flight.notes || "",
+      enabled: flight.enabled !== undefined ? flight.enabled : true,
     })
     setShowAddDialog(true)
   }
@@ -165,7 +219,7 @@ export default function FlightsManagementPage() {
       setDeleteConfirmation({
         show: true,
         flightId: id,
-        flightInfo: `${flight.airline} ${flight.flightNumber}`,
+        flightInfo: `${flight.airline} from ${flight.departureAirport} to ${flight.arrivalAirport}`,
       })
     }
   }
@@ -185,6 +239,35 @@ export default function FlightsManagementPage() {
     } catch (error) {
       console.error("Error deleting flight:", error)
     }
+  }
+
+  const handleAddAirportMapping = () => {
+    if (newAirportCode.trim() && newAirportName.trim()) {
+      const code = newAirportCode.toUpperCase()
+      if (!airportMappings.find((m) => m.code === code)) {
+        setAirportMappings([...airportMappings, { code, name: newAirportName }])
+        setNewAirportCode("")
+        setNewAirportName("")
+      }
+    }
+  }
+
+  const handleRemoveAirportMapping = (code: string) => {
+    setAirportMappings(airportMappings.filter((m) => m.code !== code))
+  }
+
+  const handleAddAirlineIconMapping = () => {
+    if (newAirlineName.trim() && newAirlineIconUrl.trim()) {
+      if (!airlineIconMappings.find((m) => m.airline === newAirlineName)) {
+        setAirlineIconMappings([...airlineIconMappings, { airline: newAirlineName, iconUrl: newAirlineIconUrl }])
+        setNewAirlineName("")
+        setNewAirlineIconUrl("")
+      }
+    }
+  }
+
+  const handleRemoveAirlineIconMapping = (airline: string) => {
+    setAirlineIconMappings(airlineIconMappings.filter((m) => m.airline !== airline))
   }
 
   if (loading) {
@@ -226,14 +309,14 @@ export default function FlightsManagementPage() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold">{new Set(flights.map((f) => f.departureAirport)).size}</div>
-              <div className="text-sm text-muted-foreground">Departure Airports</div>
+              <div className="text-2xl font-bold">{flights.filter((f) => f.enabled).length}</div>
+              <div className="text-sm text-muted-foreground">Enabled Flights</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="text-2xl font-bold">{new Set(flights.map((f) => f.arrivalAirport)).size}</div>
-              <div className="text-sm text-muted-foreground">Arrival Airports</div>
+              <div className="text-2xl font-bold">{new Set(flights.map((f) => f.departureAirport)).size}</div>
+              <div className="text-sm text-muted-foreground">Departure Airports</div>
             </CardContent>
           </Card>
         </div>
@@ -245,26 +328,52 @@ export default function FlightsManagementPage() {
           </Button>
         </div>
 
-        <Card>
+        <Card className="mb-8">
           <CardContent className="p-6">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
+                    <th className="text-left p-3">Status</th>
                     <th className="text-left p-3">Airline</th>
-                    <th className="text-left p-3">Flight #</th>
                     <th className="text-left p-3">From</th>
                     <th className="text-left p-3">To</th>
                     <th className="text-left p-3">Departure</th>
                     <th className="text-left p-3">Arrival</th>
+                    <th className="text-left p-3">Costs</th>
                     <th className="text-left p-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {flights.map((flight) => (
                     <tr key={flight.id} className="border-b hover:bg-muted/50">
-                      <td className="p-3">{flight.airline}</td>
-                      <td className="p-3 font-mono">{flight.flightNumber}</td>
+                      <td className="p-3">
+                        <span
+                          className={`px-2 py-1 rounded text-xs ${
+                            flight.enabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {flight.enabled ? "Enabled" : "Disabled"}
+                        </span>
+                      </td>
+                      <td className="p-3">
+                        <div className="flex items-center">
+                          {airlineIconMappings.find((m) => m.airline === flight.airline) && (
+                            <img
+                              src={
+                                airlineIconMappings.find((m) => m.airline === flight.airline)?.iconUrl ||
+                                "/placeholder.svg"
+                              }
+                              alt={flight.airline}
+                              className="h-8 w-8 object-contain mr-2"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none"
+                              }}
+                            />
+                          )}
+                          {flight.airline}
+                        </div>
+                      </td>
                       <td className="p-3">
                         <div className="font-semibold">{flight.departureAirport}</div>
                         <div className="text-sm text-muted-foreground">{flight.departureAirportName}</div>
@@ -274,12 +383,19 @@ export default function FlightsManagementPage() {
                         <div className="text-sm text-muted-foreground">{flight.arrivalAirportName}</div>
                       </td>
                       <td className="p-3">
-                        <div>{flight.departureDate}</div>
+                        <div>{formatDateToDDMMYYYY(flight.departureDate)}</div>
                         <div className="text-sm text-muted-foreground">{flight.departureTime}</div>
                       </td>
                       <td className="p-3">
-                        <div>{flight.arrivalDate}</div>
+                        <div>{formatDateToDDMMYYYY(flight.arrivalDate)}</div>
                         <div className="text-sm text-muted-foreground">{flight.arrivalTime}</div>
+                      </td>
+                      <td className="p-3">
+                        <div className="text-sm">
+                          <div>Ticket: £{flight.costTicketAlone || 0}</div>
+                          <div>Cabin: £{flight.costCabinBag || 0}</div>
+                          <div>Checked: £{flight.costCheckedBag || 0}</div>
+                        </div>
                       </td>
                       <td className="p-3">
                         <div className="flex gap-2">
@@ -300,8 +416,154 @@ export default function FlightsManagementPage() {
                   ))}
                   {flights.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={8} className="p-8 text-center text-muted-foreground">
                         No flights added yet. Click "Add Flight" to get started.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold mb-4">Airport Code Mappings</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Manage airport code to name mappings. When adding flights, airport names will be auto-populated from these
+              mappings.
+            </p>
+
+            <div className="flex gap-2 mb-4">
+              <Input
+                placeholder="Airport Code (e.g., LHR)"
+                value={newAirportCode}
+                onChange={(e) => setNewAirportCode(e.target.value.toUpperCase())}
+                maxLength={3}
+                className="w-32"
+              />
+              <Input
+                placeholder="Airport Name (e.g., London Heathrow)"
+                value={newAirportName}
+                onChange={(e) => setNewAirportName(e.target.value)}
+                className="flex-1"
+              />
+              <Button onClick={handleAddAirportMapping}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add
+              </Button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-3">Airport Code</th>
+                    <th className="text-left p-3">Airport Name</th>
+                    <th className="text-left p-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {airportMappings.map((mapping) => (
+                    <tr key={mapping.code} className="border-b hover:bg-muted/50">
+                      <td className="p-3 font-mono font-semibold">{mapping.code}</td>
+                      <td className="p-3">{mapping.name}</td>
+                      <td className="p-3">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRemoveAirportMapping(mapping.code)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {airportMappings.length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="p-8 text-center text-muted-foreground">
+                        No airport mappings added yet. Add mappings to help with flight management.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold mb-4">Airline Icon Mappings</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Manage airline name to icon URL mappings. These icons will be displayed on the flights page. If no icon is
+              configured for an airline, no icon will be shown.
+            </p>
+
+            <div className="flex gap-2 mb-4">
+              <Input
+                placeholder="Airline Name (e.g., British Airways)"
+                value={newAirlineName}
+                onChange={(e) => setNewAirlineName(e.target.value)}
+                className="flex-1"
+              />
+              <Input
+                placeholder="Icon URL (e.g., https://example.com/icon.png)"
+                value={newAirlineIconUrl}
+                onChange={(e) => setNewAirlineIconUrl(e.target.value)}
+                className="flex-1"
+              />
+              <Button onClick={handleAddAirlineIconMapping}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add
+              </Button>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-3">Airline Name</th>
+                    <th className="text-left p-3">Icon Preview</th>
+                    <th className="text-left p-3">Icon URL</th>
+                    <th className="text-left p-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {airlineIconMappings.map((mapping) => (
+                    <tr key={mapping.airline} className="border-b hover:bg-muted/50">
+                      <td className="p-3 font-semibold">{mapping.airline}</td>
+                      <td className="p-3">
+                        <img
+                          src={mapping.iconUrl || "/placeholder.svg"}
+                          alt={mapping.airline}
+                          className="h-8 w-8 object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none"
+                          }}
+                        />
+                      </td>
+                      <td className="p-3">
+                        <span className="text-sm text-muted-foreground truncate block max-w-md">{mapping.iconUrl}</span>
+                      </td>
+                      <td className="p-3">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRemoveAirlineIconMapping(mapping.airline)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {airlineIconMappings.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="p-8 text-center text-muted-foreground">
+                        No airline icon mappings added yet. Add mappings to display airline icons on the flights page.
                       </td>
                     </tr>
                   )}
@@ -319,16 +581,17 @@ export default function FlightsManagementPage() {
               setEditingFlight(null)
               setFormData({
                 airline: "",
-                flightNumber: "",
                 departureAirport: "",
-                departureAirportName: "",
                 arrivalAirport: "",
-                arrivalAirportName: "",
                 departureDate: "",
                 departureTime: "",
                 arrivalDate: "",
                 arrivalTime: "",
+                costCabinBag: 0,
+                costCheckedBag: 0,
+                costTicketAlone: 0,
                 notes: "",
+                enabled: true,
               })
               setErrorMessage("")
             }
@@ -346,27 +609,24 @@ export default function FlightsManagementPage() {
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{errorMessage}</div>
               )}
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="airline">Airline *</Label>
-                  <Input
-                    id="airline"
-                    value={formData.airline}
-                    onChange={(e) => setFormData({ ...formData, airline: e.target.value })}
-                    placeholder="e.g., British Airways"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="flightNumber">Flight Number *</Label>
-                  <Input
-                    id="flightNumber"
-                    value={formData.flightNumber}
-                    onChange={(e) => setFormData({ ...formData, flightNumber: e.target.value })}
-                    placeholder="e.g., BA123"
-                    required
-                  />
-                </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="enabled"
+                  checked={formData.enabled}
+                  onCheckedChange={(checked) => setFormData({ ...formData, enabled: checked })}
+                />
+                <Label htmlFor="enabled">Enable this flight (visible on flights page)</Label>
+              </div>
+
+              <div>
+                <Label htmlFor="airline">Airline *</Label>
+                <Input
+                  id="airline"
+                  value={formData.airline}
+                  onChange={(e) => setFormData({ ...formData, airline: e.target.value })}
+                  placeholder="e.g., British Airways"
+                  required
+                />
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
@@ -380,20 +640,12 @@ export default function FlightsManagementPage() {
                     maxLength={3}
                     required
                   />
+                  {formData.departureAirport && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {getAirportName(formData.departureAirport) || "No mapping found"}
+                    </p>
+                  )}
                 </div>
-                <div>
-                  <Label htmlFor="departureAirportName">Departure Airport Name *</Label>
-                  <Input
-                    id="departureAirportName"
-                    value={formData.departureAirportName}
-                    onChange={(e) => setFormData({ ...formData, departureAirportName: e.target.value })}
-                    placeholder="e.g., London Heathrow"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="arrivalAirport">Arrival Airport Code *</Label>
                   <Input
@@ -404,16 +656,11 @@ export default function FlightsManagementPage() {
                     maxLength={3}
                     required
                   />
-                </div>
-                <div>
-                  <Label htmlFor="arrivalAirportName">Arrival Airport Name *</Label>
-                  <Input
-                    id="arrivalAirportName"
-                    value={formData.arrivalAirportName}
-                    onChange={(e) => setFormData({ ...formData, arrivalAirportName: e.target.value })}
-                    placeholder="e.g., Paphos International"
-                    required
-                  />
+                  {formData.arrivalAirport && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {getAirportName(formData.arrivalAirport) || "No mapping found"}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -459,6 +706,46 @@ export default function FlightsManagementPage() {
                     value={formData.arrivalTime}
                     onChange={(e) => setFormData({ ...formData, arrivalTime: e.target.value })}
                     required
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="costTicketAlone">Ticket Cost (£)</Label>
+                  <Input
+                    id="costTicketAlone"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.costTicketAlone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, costTicketAlone: Number.parseFloat(e.target.value) || 0 })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="costCabinBag">Cabin Bag Cost (£)</Label>
+                  <Input
+                    id="costCabinBag"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.costCabinBag}
+                    onChange={(e) => setFormData({ ...formData, costCabinBag: Number.parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="costCheckedBag">Checked Bag Cost (£)</Label>
+                  <Input
+                    id="costCheckedBag"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.costCheckedBag}
+                    onChange={(e) =>
+                      setFormData({ ...formData, costCheckedBag: Number.parseFloat(e.target.value) || 0 })
+                    }
                   />
                 </div>
               </div>

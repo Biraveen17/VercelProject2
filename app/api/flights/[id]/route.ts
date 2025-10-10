@@ -13,7 +13,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 
     if (body.airline !== undefined) updateData.airline = body.airline
-    if (body.flightNumber !== undefined) updateData.flightNumber = body.flightNumber
     if (body.departureAirport !== undefined) updateData.departureAirport = body.departureAirport
     if (body.departureAirportName !== undefined) updateData.departureAirportName = body.departureAirportName
     if (body.arrivalAirport !== undefined) updateData.arrivalAirport = body.arrivalAirport
@@ -22,7 +21,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (body.departureTime !== undefined) updateData.departureTime = body.departureTime
     if (body.arrivalDate !== undefined) updateData.arrivalDate = body.arrivalDate
     if (body.arrivalTime !== undefined) updateData.arrivalTime = body.arrivalTime
+    if (body.costCabinBag !== undefined) updateData.costCabinBag = body.costCabinBag
+    if (body.costCheckedBag !== undefined) updateData.costCheckedBag = body.costCheckedBag
+    if (body.costTicketAlone !== undefined) updateData.costTicketAlone = body.costTicketAlone
     if (body.notes !== undefined) updateData.notes = body.notes
+    if (body.enabled !== undefined) updateData.enabled = body.enabled
 
     await collection.updateOne({ _id: new ObjectId(id) }, { $set: updateData })
 

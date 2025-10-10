@@ -20,16 +20,19 @@ export async function POST(request: NextRequest) {
 
     const flight = {
       airline: body.airline,
-      flightNumber: body.flightNumber,
       departureAirport: body.departureAirport,
-      departureAirportName: body.departureAirportName,
+      departureAirportName: body.departureAirportName || "",
       arrivalAirport: body.arrivalAirport,
-      arrivalAirportName: body.arrivalAirportName,
+      arrivalAirportName: body.arrivalAirportName || "",
       departureDate: body.departureDate,
       departureTime: body.departureTime,
       arrivalDate: body.arrivalDate,
       arrivalTime: body.arrivalTime,
+      costCabinBag: body.costCabinBag || 0,
+      costCheckedBag: body.costCheckedBag || 0,
+      costTicketAlone: body.costTicketAlone || 0,
       notes: body.notes || "",
+      enabled: body.enabled !== undefined ? body.enabled : true,
       lastUpdated: new Date().toISOString(),
     }
 
