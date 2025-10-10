@@ -70,6 +70,8 @@ export default function FlightsPage() {
   const [numCabinBags, setNumCabinBags] = useState<number>(0)
   const [numCheckedBags, setNumCheckedBags] = useState<number>(0)
 
+  const [showCalculatorNotification, setShowCalculatorNotification] = useState(false)
+
   const outgoingTableRef = useRef<HTMLDivElement>(null)
   const returnTableRef = useRef<HTMLDivElement>(null)
   const [outgoingHasScrolledToEnd, setOutgoingHasScrolledToEnd] = useState(false)
@@ -115,6 +117,17 @@ export default function FlightsPage() {
       setReturnSortDirection("asc")
     }
   }, [flights, returnSortField])
+
+  useEffect(() => {
+    if (isCalculatorActive) {
+      setShowCalculatorNotification(true)
+      // Hide notification after 5 seconds
+      const timer = setTimeout(() => {
+        setShowCalculatorNotification(false)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [isCalculatorActive])
 
   const checkAccessibility = async () => {
     try {
@@ -410,7 +423,9 @@ export default function FlightsPage() {
     // Hide arrow once user scrolls more than 100px
     if (scrollLeft > 100 && !outgoingHasScrolledToEnd) {
       console.log("[v0] Setting outgoingHasScrolledToEnd to true")
-      setOutgoingHasScrolledToEnd(true)
+      requestAnimationFrame(() => {
+        setOutgoingHasScrolledToEnd(true)
+      })
     }
   }
 
@@ -430,7 +445,9 @@ export default function FlightsPage() {
     // Hide arrow once user scrolls more than 100px
     if (scrollLeft > 100 && !returnHasScrolledToEnd) {
       console.log("[v0] Setting returnHasScrolledToEnd to true")
-      setReturnHasScrolledToEnd(true)
+      requestAnimationFrame(() => {
+        setReturnHasScrolledToEnd(true)
+      })
     }
   }
 
@@ -607,7 +624,7 @@ export default function FlightsPage() {
 
     return (
       <div className="mb-12">
-        <Card className="shadow-lg p-0 rounded-lg overflow-x-hidden">
+        <Card className="shadow-lg p-0 rounded-lg overflow-hidden">
           <CardContent className="p-0">
             <div className="relative">
               {showScrollIndicator && (
@@ -618,7 +635,7 @@ export default function FlightsPage() {
                 </div>
               )}
 
-              <div ref={tableRef} className="overflow-x-auto max-w-full" onScroll={onScroll}>
+              <div ref={tableRef} className="overflow-x-auto max-w-full rounded-lg" onScroll={onScroll}>
                 <table className="w-full border-collapse">
                   <thead className="sticky top-0 bg-muted/50 backdrop-blur-sm z-10">
                     <tr className="border-b-2 border-border">
@@ -927,6 +944,24 @@ export default function FlightsPage() {
             </p>
           </div>
         </div>
+
+        {showCalculatorNotification && (
+          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top duration-500">
+            <div className="bg-primary text-primary-foreground px-6 py-4 rounded-lg shadow-2xl border-2 border-primary-foreground/20 flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <ChevronRight className="w-5 h-5 animate-pulse" />
+                <span className="font-medium">Scroll right in the tables below to see the Total Cost column</span>
+                <ChevronRight className="w-5 h-5 animate-pulse" />
+              </div>
+              <button
+                onClick={() => setShowCalculatorNotification(false)}
+                className="ml-2 hover:bg-primary-foreground/20 rounded-full p-1 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="my-16 flex items-center justify-center">
           <div className="flex items-center gap-4 w-full max-w-md">
