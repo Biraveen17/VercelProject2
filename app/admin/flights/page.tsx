@@ -87,6 +87,18 @@ export default function FlightsManagementPage() {
 
   const [errorMessage, setErrorMessage] = useState("")
 
+  const [csvImportConfirmation, setCsvImportConfirmation] = useState<{
+    show: boolean
+    flightsToDisable: Flight[]
+    flightsToAdd: any[]
+    csvData: any[]
+  }>({
+    show: false,
+    flightsToDisable: [],
+    flightsToAdd: [],
+    csvData: [],
+  })
+
   const formatDateToDDMMYYYY = (dateStr: string) => {
     if (!dateStr) return ""
     if (dateStr.includes("-")) {
@@ -422,6 +434,16 @@ export default function FlightsManagementPage() {
     document.body.removeChild(link)
   }
 
+  const flightsMatch = (flight1: any, flight2: any) => {
+    return (
+      flight1.airline === flight2.airline &&
+      flight1.departureAirport === flight2.departureAirport &&
+      flight1.arrivalAirport === flight2.arrivalAirport &&
+      flight1.departureDate === flight2.departureDate &&
+      flight1.departureTime === flight2.departureTime
+    )
+  }
+
   const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -434,7 +456,7 @@ export default function FlightsManagementPage() {
         const headers = lines[0].split(",").map((h) => h.replace(/"/g, "").trim())
 
         // Parse CSV rows
-        const newFlights = lines.slice(1).map((line) => {
+        const csvFlights = lines.slice(1).map((line) => {
           const values = line.split(",").map((v) => v.replace(/"/g, "").trim())
           return {
             airline: values[0],
@@ -442,9 +464,9 @@ export default function FlightsManagementPage() {
             departureAirportName: values[2],
             arrivalAirport: values[3],
             arrivalAirportName: values[4],
-            departureDate: values[5], // Keep as-is from CSV
+            departureDate: values[5],
             departureTime: values[6],
-            arrivalDate: values[7], // Keep as-is from CSV
+            arrivalDate: values[7],
             arrivalTime: values[8],
             costCabinBag: Number.parseFloat(values[9]) || 0,
             costCheckedBag: Number.parseFloat(values[10]) || 0,
@@ -454,23 +476,28 @@ export default function FlightsManagementPage() {
           }
         })
 
-        // Delete all existing flights
-        for (const flight of flights) {
-          await fetch(`/api/flights/${flight._id || flight.id}`, { method: "DELETE" })
-        }
+        // Find flights to disable (exist in system but not in CSV)
+        const flightsToDisable = flights.filter(
+          (existingFlight) => !csvFlights.some((csvFlight) => flightsMatch(existingFlight, csvFlight)),
+        )
 
-        // Create new flights from CSV
-        for (const flight of newFlights) {
-          await fetch("/api/flights", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(flight),
+        // Find flights to add (exist in CSV but not in system)
+        const flightsToAdd = csvFlights.filter(
+          (csvFlight) => !flights.some((existingFlight) => flightsMatch(existingFlight, csvFlight)),
+        )
+
+        // If there are flights to disable, show confirmation dialog
+        if (flightsToDisable.length > 0) {
+          setCsvImportConfirmation({
+            show: true,
+            flightsToDisable,
+            flightsToAdd,
+            csvData: csvFlights,
           })
+        } else {
+          // No flights to disable, proceed directly
+          await processCsvImport(csvFlights, flightsToDisable, flightsToAdd)
         }
-
-        // Reload flights
-        await loadFlights()
-        alert(`Successfully imported ${newFlights.length} flights`)
       } catch (error) {
         console.error("Error importing CSV:", error)
         alert("Error importing CSV file. Please check the format and try again.")
@@ -478,6 +505,51 @@ export default function FlightsManagementPage() {
     }
     reader.readAsText(file)
     event.target.value = "" // Reset input
+  }
+
+  const processCsvImport = async (csvFlights: any[], flightsToDisable: Flight[], flightsToAdd: any[]) => {
+    try {
+      // Disable flights that are not in CSV
+      for (const flight of flightsToDisable) {
+        await fetch(`/api/flights/${flight._id || flight.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ enabled: false }),
+        })
+      }
+
+      // Add new flights from CSV
+      for (const flight of flightsToAdd) {
+        await fetch("/api/flights", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...flight, enabled: true }),
+        })
+      }
+
+      // Reload flights
+      await loadFlights()
+      alert(
+        `Successfully imported CSV:\n- ${flightsToAdd.length} new flights added\n- ${flightsToDisable.length} flights disabled`,
+      )
+    } catch (error) {
+      console.error("Error processing CSV import:", error)
+      alert("Error processing CSV import. Please try again.")
+    }
+  }
+
+  const confirmCsvImport = async () => {
+    await processCsvImport(
+      csvImportConfirmation.csvData,
+      csvImportConfirmation.flightsToDisable,
+      csvImportConfirmation.flightsToAdd,
+    )
+    setCsvImportConfirmation({
+      show: false,
+      flightsToDisable: [],
+      flightsToAdd: [],
+      csvData: [],
+    })
   }
 
   if (loading) {
@@ -581,6 +653,7 @@ export default function FlightsManagementPage() {
                             <img
                               src={
                                 airlineIconMappings.find((m) => m.airline === flight.airline)?.iconUrl ||
+                                "/placeholder.svg" ||
                                 "/placeholder.svg" ||
                                 "/placeholder.svg"
                               }
@@ -915,7 +988,14 @@ export default function FlightsManagementPage() {
                     id="departureDate"
                     type="date"
                     value={formData.departureDate}
-                    onChange={(e) => setFormData({ ...formData, departureDate: e.target.value })}
+                    onChange={(e) => {
+                      const newDate = e.target.value
+                      setFormData({
+                        ...formData,
+                        departureDate: newDate,
+                        arrivalDate: formData.arrivalDate || newDate, // Only set if arrival date is empty
+                      })
+                    }}
                     required
                   />
                 </div>
@@ -925,30 +1005,14 @@ export default function FlightsManagementPage() {
                     id="departureTime"
                     type="time"
                     value={formData.departureTime}
-                    onChange={(e) => setFormData({ ...formData, departureTime: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="arrivalDate">Arrival Date *</Label>
-                  <Input
-                    id="arrivalDate"
-                    type="date"
-                    value={formData.arrivalDate}
-                    onChange={(e) => setFormData({ ...formData, arrivalDate: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="arrivalTime">Arrival Time *</Label>
-                  <Input
-                    id="arrivalTime"
-                    type="time"
-                    value={formData.arrivalTime}
-                    onChange={(e) => setFormData({ ...formData, arrivalTime: e.target.value })}
+                    onChange={(e) => {
+                      const newTime = e.target.value
+                      setFormData({
+                        ...formData,
+                        departureTime: newTime,
+                        arrivalTime: formData.arrivalTime || newTime, // Only set if arrival time is empty
+                      })
+                    }}
                     required
                   />
                 </div>
@@ -1045,6 +1109,75 @@ export default function FlightsManagementPage() {
               <Button variant="destructive" onClick={confirmDelete}>
                 Delete
               </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={csvImportConfirmation.show}
+          onOpenChange={(open) =>
+            !open &&
+            setCsvImportConfirmation({
+              show: false,
+              flightsToDisable: [],
+              flightsToAdd: [],
+              csvData: [],
+            })
+          }
+        >
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Confirm CSV Import</DialogTitle>
+              <DialogDescription>
+                The following flights will be disabled as they are not in the CSV file:
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <div className="mb-4">
+                <h3 className="font-semibold mb-2 text-destructive">
+                  Flights to be disabled ({csvImportConfirmation.flightsToDisable.length}):
+                </h3>
+                <div className="max-h-60 overflow-y-auto border rounded-md p-2">
+                  {csvImportConfirmation.flightsToDisable.map((flight, index) => (
+                    <div key={index} className="text-sm py-1 border-b last:border-b-0">
+                      <strong>{flight.airline}</strong> - {flight.departureAirport} to {flight.arrivalAirport} on{" "}
+                      {formatDateToDDMMYYYY(flight.departureDate)} at {flight.departureTime}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-4">
+                <h3 className="font-semibold mb-2 text-green-600">
+                  New flights to be added ({csvImportConfirmation.flightsToAdd.length}):
+                </h3>
+                <div className="max-h-40 overflow-y-auto border rounded-md p-2">
+                  {csvImportConfirmation.flightsToAdd.map((flight, index) => (
+                    <div key={index} className="text-sm py-1 border-b last:border-b-0">
+                      <strong>{flight.airline}</strong> - {flight.departureAirport} to {flight.arrivalAirport} on{" "}
+                      {formatDateToDDMMYYYY(flight.departureDate)} at {flight.departureTime}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Flights that exist in both the system and CSV will remain unchanged.
+              </p>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() =>
+                  setCsvImportConfirmation({
+                    show: false,
+                    flightsToDisable: [],
+                    flightsToAdd: [],
+                    csvData: [],
+                  })
+                }
+              >
+                Cancel
+              </Button>
+              <Button onClick={confirmCsvImport}>Confirm Import</Button>
             </div>
           </DialogContent>
         </Dialog>
