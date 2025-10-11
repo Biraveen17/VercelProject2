@@ -117,6 +117,16 @@ export default function FlightsManagementPage() {
     return dateStr
   }
 
+  const normalizeFlightForComparison = (flight: any) => {
+    return {
+      airline: flight.airline?.trim() || "",
+      departureAirport: flight.departureAirport?.trim().toUpperCase() || "",
+      arrivalAirport: flight.arrivalAirport?.trim().toUpperCase() || "",
+      departureDate: formatDateToDDMMYYYY(flight.departureDate?.trim() || ""),
+      departureTime: flight.departureTime?.trim() || "",
+    }
+  }
+
   const getAirportName = (code: string) => {
     const mapping = airportMappings.find((m) => m.code === code.toUpperCase())
     return mapping ? mapping.name : ""
@@ -435,12 +445,26 @@ export default function FlightsManagementPage() {
   }
 
   const flightsMatch = (flight1: any, flight2: any) => {
+    const normalized1 = normalizeFlightForComparison(flight1)
+    const normalized2 = normalizeFlightForComparison(flight2)
+
+    console.log("[v0] Comparing flights:", {
+      flight1: normalized1,
+      flight2: normalized2,
+      match:
+        normalized1.airline === normalized2.airline &&
+        normalized1.departureAirport === normalized2.departureAirport &&
+        normalized1.arrivalAirport === normalized2.arrivalAirport &&
+        normalized1.departureDate === normalized2.departureDate &&
+        normalized1.departureTime === normalized2.departureTime,
+    })
+
     return (
-      flight1.airline === flight2.airline &&
-      flight1.departureAirport === flight2.departureAirport &&
-      flight1.arrivalAirport === flight2.arrivalAirport &&
-      flight1.departureDate === flight2.departureDate &&
-      flight1.departureTime === flight2.departureTime
+      normalized1.airline === normalized2.airline &&
+      normalized1.departureAirport === normalized2.departureAirport &&
+      normalized1.arrivalAirport === normalized2.arrivalAirport &&
+      normalized1.departureDate === normalized2.departureDate &&
+      normalized1.departureTime === normalized2.departureTime
     )
   }
 
@@ -653,6 +677,7 @@ export default function FlightsManagementPage() {
                             <img
                               src={
                                 airlineIconMappings.find((m) => m.airline === flight.airline)?.iconUrl ||
+                                "/placeholder.svg" ||
                                 "/placeholder.svg" ||
                                 "/placeholder.svg" ||
                                 "/placeholder.svg" ||
