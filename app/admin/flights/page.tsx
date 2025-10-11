@@ -655,6 +655,7 @@ export default function FlightsManagementPage() {
                                 airlineIconMappings.find((m) => m.airline === flight.airline)?.iconUrl ||
                                 "/placeholder.svg" ||
                                 "/placeholder.svg" ||
+                                "/placeholder.svg" ||
                                 "/placeholder.svg"
                               }
                               alt={flight.airline}
@@ -1013,6 +1014,29 @@ export default function FlightsManagementPage() {
                         arrivalTime: formData.arrivalTime || newTime, // Only set if arrival time is empty
                       })
                     }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="arrivalDate">Arrival Date *</Label>
+                  <Input
+                    id="arrivalDate"
+                    type="date"
+                    value={formData.arrivalDate}
+                    onChange={(e) => setFormData({ ...formData, arrivalDate: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="arrivalTime">Arrival Time *</Label>
+                  <Input
+                    id="arrivalTime"
+                    type="time"
+                    value={formData.arrivalTime}
+                    onChange={(e) => setFormData({ ...formData, arrivalTime: e.target.value })}
                     required
                   />
                 </div>
