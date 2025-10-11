@@ -479,7 +479,6 @@ export default function FlightsManagementPage() {
         const lines = text.split("\n").filter((line) => line.trim())
         const headers = lines[0].split(",").map((h) => h.replace(/"/g, "").trim())
 
-        // Parse CSV rows
         const csvFlights = lines.slice(1).map((line) => {
           const values = line.split(",").map((v) => v.replace(/"/g, "").trim())
           return {
@@ -488,9 +487,9 @@ export default function FlightsManagementPage() {
             departureAirportName: values[2],
             arrivalAirport: values[3],
             arrivalAirportName: values[4],
-            departureDate: values[5],
+            departureDate: formatDateToYYYYMMDD(values[5]), // Convert to YYYY-MM-DD
             departureTime: values[6],
-            arrivalDate: values[7],
+            arrivalDate: formatDateToYYYYMMDD(values[7]), // Convert to YYYY-MM-DD
             arrivalTime: values[8],
             costCabinBag: Number.parseFloat(values[9]) || 0,
             costCheckedBag: Number.parseFloat(values[10]) || 0,
@@ -677,6 +676,7 @@ export default function FlightsManagementPage() {
                             <img
                               src={
                                 airlineIconMappings.find((m) => m.airline === flight.airline)?.iconUrl ||
+                                "/placeholder.svg" ||
                                 "/placeholder.svg" ||
                                 "/placeholder.svg" ||
                                 "/placeholder.svg" ||
