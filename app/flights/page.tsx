@@ -1076,7 +1076,7 @@ export default function FlightsPage() {
                 <div className="text-center">
                   <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
                     Calculate the total cost for your group by entering the number of guests and baggage requirements.
-                    The tables above will update to show personalized total costs.
+                    The tables above will update to show personalised total costs.
                   </p>
                   <div className="flex flex-wrap gap-6 justify-center items-end mb-6">
                     <div className="flex flex-col gap-2">
